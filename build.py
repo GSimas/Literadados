@@ -114,7 +114,7 @@ def exportar(con) -> dict:
                                         ORDER BY ano, categoria, obra_id, papel, pessoa_id"""),
         "obras": _linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
                                  WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id"""),
-        "pessoas": _linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, raca,
+        "pessoas": _linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
                                           nascimento_fonte FROM pessoa ORDER BY nome"""),

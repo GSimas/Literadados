@@ -21,6 +21,7 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 
 ## Regras inegociáveis
 - Raça só com autodeclaração pública (ou fonte curada por identidade) + URL + trecho literal. Nunca inferir. Indicador de negros é **piso** ("pelo menos").
+- Gênero sem fonte: atribuído pelo primeiro nome em `dados/coleta/pessoas_zgenero_N.csv` (`genero_evidencia = 'atribuicao'`), com asterisco e nota no painel (D16). Raça nunca é atribuída.
 - Estado = UF de nascimento.
 - Todo percentual mostra n. Séries temporais em proporção (vagas mudaram em 2018).
 - Chat: banco read-only, `enable_external_access=false`, `lock_configuration`, só SELECT/WITH.
@@ -72,3 +73,9 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-10-15 — Autoinclusão no plural que nomeia o grupo ("nossa riqueza como indígenas", Tiago Hakiy) ficou como REVISAR, não autodeclaração; decidir junto com o precedente de Munduruku ("Nós somos indígenas"). Casos REVISAR consolidados em `dados/coleta/revisao_raca.csv` (colunas `decisao`/`raca_decidida` para preencher).
 - 2026-10-15 — Interface narrativa (D15): `web/` virou módulos ES (`app.js` orquestra; `ui.js`, `explorar.js`, `historia.js`, `linha-do-tempo.js`, `mapa.js`, `pessoas.js`). Fotos: `coleta.py midia` (P18 do Wikidata + licença no Commons via `extmetadata`; "Attribution" do Commons é livre; recusa estátua/assinatura). Malha: `coleta.py malha` → `web/br-uf.json` (86 KB, fora do `dados.json`), desenhada com `d3.geoIdentity().reflectY(true)` para não depender do sentido dos anéis do IBGE. Atrás do proxy Zscaler, `urllib` falha no IBGE (certificado): `_json` usa `curl`.
 - 2026-10-15 — Conferência visual no painel do app: transições do d3 e o `IntersectionObserver` só andam quando o painel desenha quadros. Screenshot logo depois de rolar mostra estado intermediário; confira o estado final no DOM (`.passo.ativo`, atributos dos `circle`) ou tire um segundo screenshot. Rolagem programática antes do módulo terminar de carregar (`dados.json` + malha) não ativa passo nenhum: espere os `circle` existirem.
+- 2026-10-15 — `aplicar_pessoas`: o último arquivo vence, e arquivos antigos gravam `nao_identificado` explícito (não é célula vazia). Por isso a atribuição de gênero fica em `pessoas_zgenero_*.csv`, aplicado por último. Quem trouxer `genero_fonte` depois limpa `genero_evidencia`. Se a fonte vier num arquivo que é aplicado antes, o CHECK do build falha: tire a linha do `zgenero`.
+- 2026-10-15 — Barra de rolagem grossa: no Chrome 121+, `scrollbar-width`/`scrollbar-color` desligam `::-webkit-scrollbar`. Por isso `scrollbar-color` fica dentro de `@supports not selector(::-webkit-scrollbar)` (só Firefox).
+- 2026-10-15 — SVG: `transform-origin`/`transform-box` no CSS também mudam o `transform="rotate(...)"` do atributo e deslocam a peça (pernas do logotipo). Não misture transformação por CSS com o atributo no mesmo elemento.
+- 2026-10-15 — Painel do navegador oculto: animações e View Transitions ficam congeladas e a primeira captura sai com a entrada pela metade. Confira o estado por JS (`getAnimations()`, `currentTime`) e tire uma segunda captura. `fecharAnimado` tem tempo-limite, porque `animationend` pode não chegar.
+- 2026-10-15 — Dica do Observable Plot usa `--plot-background` (branco por padrão). Sem `.grafico svg { --plot-background: var(--superficie) }`, ela fica branca com texto claro no tema escuro.
+

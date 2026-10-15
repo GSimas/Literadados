@@ -93,6 +93,8 @@ Regras de análise:
   raca_busca = 'parcial' significa que a busca de autodeclaração foi interrompida: ali 'sem_declaracao' pode esconder declarações. Mencione quantas pessoas do recorte têm busca parcial.
 - Pessoas distintas: COUNT(DISTINCT pessoa_id). Sempre informe o n absoluto junto de percentuais.
 - Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
+- genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
+  informe quantas pessoas do recorte têm gênero atribuído.
 - Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Jabuti.
 Formato: um parágrafo curto de resposta, depois observações de cobertura em uma linha se relevante. Não repita o SQL no texto (ele é mostrado à parte).
 

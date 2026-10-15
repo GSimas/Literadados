@@ -64,6 +64,7 @@ export function expandir(D) {
       nome: p.nome,
       papel: l.papel,
       genero: p.genero,
+      genero_atribuido: p.genero_evidencia === "atribuicao",
       raca: p.raca,
       raca_busca: p.raca_busca,
       negra: p.negra,
@@ -103,11 +104,12 @@ export function kpis(linhas) {
   const negras = pessoas.filter((p) => p.negra).length;
   const comRaca = pessoas.filter((p) => p.raca !== "sem_declaracao").length;
   const buscaParcial = pessoas.filter((p) => p.raca_busca !== "completa").length;
+  const generoAtribuido = pessoas.filter((p) => p.genero_atribuido).length;
   return {
     indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
     pessoas: n,
     obras: distintos(linhas, (l) => l.obra_id),
-    mulheres, pctMulheres: pct(mulheres, n),
+    mulheres, pctMulheres: pct(mulheres, n), generoAtribuido,
     negras, pctNegrasPiso: pct(negras, n),
     comRaca, pctCoberturaRaca: pct(comRaca, n),
     buscaParcial, pctBuscaCompleta: pct(n - buscaParcial, n),
@@ -342,7 +344,7 @@ export function historia(linhas) {
     pessoas: n,
     indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
     edicoes: distintos(linhas, (l) => l.ano),
-    genero: { ...gt, pctMulheres: pct(gt.mulheres, n) },
+    genero: { ...gt, pctMulheres: pct(gt.mulheres, n), atribuido: porPessoa(linhas).filter((l) => l.genero_atribuido).length },
     premiadas: { pessoas: prem.length, mulheres: gp.mulheres, pctMulheres: pct(gp.mulheres, prem.length) },
     vencedoras: { pessoas: venc.length, ...gv, pctMulheres: pct(gv.mulheres, venc.length) },
     raca: {

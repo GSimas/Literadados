@@ -137,7 +137,7 @@ test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA
   };
   const [a, b] = M.expandir(D);
   assert.deepEqual(Object.keys(a), ["ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
-    "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "raca", "raca_busca", "negra", "uf_nascimento",
+    "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "genero_atribuido", "raca", "raca_busca", "negra", "uf_nascimento",
     "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
   assert.equal(a.categoria, "Contos");
   assert.equal(a.editora, "Ed");
@@ -157,6 +157,7 @@ test("historia calcula os números da narrativa a partir dos dados", () => {
   assert.equal(h.edicoes, 2);
   assert.equal(h.genero.mulheres, 2);
   assert.equal(h.genero.pctMulheres, 50);
+  assert.equal(h.genero.atribuido, 0);
   assert.equal(h.vencedoras.pessoas, 2); // a (2023) e b (2016)
   assert.equal(h.vencedoras.mulheres, 1);
   assert.equal(h.premiadas.pessoas, 3); // a, b, c
@@ -205,4 +206,11 @@ test("avatar neutro: cor depende só do id; iniciais ignoram partículas", () =>
   assert.equal(M.iniciais("Ignácio de Loyola Brandão"), "IB");
   assert.equal(M.iniciais("Ziraldo"), "Z");
   assert.equal(M.iniciais("Patrícia Melo (coautora de Mistério em Queluz)"), "PM");
+});
+
+test("gênero atribuído pelo nome é contado por pessoa (CA-11.4)", () => {
+  const ls = linhas.map((l) => ({ ...l, genero_atribuido: l.pessoa_id === "a" || l.pessoa_id === "c" }));
+  const L = M.filtrar(ls);
+  assert.equal(M.kpis(L).generoAtribuido, 2); // a aparece em duas edições e conta uma vez
+  assert.equal(M.historia(L).genero.atribuido, 2);
 });

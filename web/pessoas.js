@@ -1,6 +1,6 @@
 // Galeria de pessoas e perfil com rota por hash (RF-11): #/pessoa/<id>.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito } from "./ui.js";
+import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, astGenero, CONTATO } from "./ui.js";
 
 const PAGINA = 48;
 let mostrar = PAGINA;
@@ -48,7 +48,7 @@ export function renderPessoas(L, { D, midiaPorId }) {
   if (tabelaVis) {
     $("#t-pessoas").innerHTML = `<caption class="sr">Pessoas do recorte; Enter abre o perfil com fontes</caption>
       <thead><tr><th scope="col">Nome</th><th scope="col">Gênero</th><th scope="col">Raça declarada</th><th scope="col">UF nasc.</th><th class="num" scope="col">Participações</th><th class="num" scope="col">Prêmios</th></tr></thead>
-      <tbody>${lista.map((p) => `<tr data-id="${esc(p.id)}" tabindex="0"><td>${esc(p.nome)}</td><td>${ROT_GEN[p.genero]}</td><td>${ROT_RACA[p.raca]}</td><td>${esc(p.uf_nascimento ?? "–")}</td><td class="num">${p.participacoes}</td><td class="num">${p.premios}</td></tr>`).join("")
+      <tbody>${lista.map((p) => `<tr data-id="${esc(p.id)}" tabindex="0"><td>${esc(p.nome)}</td><td>${ROT_GEN[p.genero]}${astGenero(p.genero_evidencia === "atribuicao")}</td><td>${ROT_RACA[p.raca]}</td><td>${esc(p.uf_nascimento ?? "–")}</td><td class="num">${p.participacoes}</td><td class="num">${p.premios}</td></tr>`).join("")
       || `<tr><td colspan="6" class="vazio">Ninguém encontrado.</td></tr>`}</tbody>`;
     return;
   }
@@ -69,15 +69,15 @@ export function htmlPerfil(id, { D, midiaPorId }) {
     .sort((a, b) => a.ano - b.ano || a.categoria.localeCompare(b.categoria));
   const org = D.participacao.filter((l) => l.pessoa_id === id && l.papel === "organizador");
   const jur = D.jurados.filter((j) => j.pessoa_id === id);
-  const fonte = (u) => (u ? ` <a class="fonte-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">fonte ↗</a>` : ` <span class="muted pequeno">(sem fonte)</span>`);
+  const fonte = (u) => (u ? ` <a class="fonte-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">fonte</a>` : ` <span class="muted pequeno">(sem fonte)</span>`);
   const obras = new Set(ls.map((l) => l.obra_id));
   const coautores = [...new Map(D.participacao.filter((l) => obras.has(l.obra_id) && l.pessoa_id !== id && l.papel !== "organizador")
     .map((l) => [l.pessoa_id, l])).values()];
   const premios = ls.filter((l) => l.premiada).length, vit = ls.filter((l) => l.vencedora).length;
   const nasc = [p.municipio_nascimento, p.uf_nascimento, p.ano_nascimento].filter(Boolean).map(esc).join(" · ");
   const links = [
-    m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia ↗</a>`,
-    p.wikidata && `<a href="https://www.wikidata.org/wiki/${esc(p.wikidata)}" target="_blank" rel="noopener noreferrer">Wikidata ${esc(p.wikidata)} ↗</a>`,
+    m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia</a>`,
+    p.wikidata && `<a href="https://www.wikidata.org/wiki/${esc(p.wikidata)}" target="_blank" rel="noopener noreferrer">Wikidata ${esc(p.wikidata)}</a>`,
     `<a href="#/pessoa/${esc(id)}" data-copiar="${esc(id)}">Link deste perfil</a>`,
   ].filter(Boolean).join("");
   return `<article>
@@ -94,13 +94,15 @@ export function htmlPerfil(id, { D, midiaPorId }) {
       <section aria-label="Atributos e fontes">
         <h3>Atributos e fontes</h3>
         <dl class="atributos">
-          <dt>Gênero</dt><dd>${ROT_GEN[p.genero]}${p.genero !== "nao_identificado" ? fonte(p.genero_fonte) : `<br><span class="muted pequeno">As fontes consultadas ainda não dizem.</span>`}</dd>
+          <dt>Gênero</dt><dd>${ROT_GEN[p.genero]}${p.genero_evidencia === "atribuicao"
+            ? `${astGenero(true)}<br><span class="muted pequeno">Atribuído pelo primeiro nome; nenhuma fonte encontrada. Pode estar errado: para corrigir, escreva para <a href="mailto:${CONTATO}">${CONTATO}</a>.</span>`
+            : p.genero !== "nao_identificado" ? fonte(p.genero_fonte) : `<br><span class="muted pequeno">As fontes consultadas ainda não dizem.</span>`}</dd>
           <dt>Raça</dt><dd>${ROT_RACA[p.raca]}${p.raca !== "sem_declaracao"
             ? `${fonte(p.raca_fonte)}<br><span class="muted pequeno">${p.raca_evidencia === "fonte_curada" ? "fonte curada por identidade" : "autodeclaração"}</span>${p.raca_trecho ? `<blockquote>${esc(p.raca_trecho)}</blockquote>` : ""}`
             : `<br><span class="muted pequeno">${p.raca_busca === "completa" ? "Nenhuma autodeclaração pública encontrada." : "Busca de autodeclaração ainda incompleta."} Isso não indica nenhuma raça.</span>`}</dd>
           <dt>Nascimento</dt><dd>${nasc || "–"}${p.uf_nascimento || p.ano_nascimento ? fonte(p.nascimento_fonte) : ""}</dd>
         </dl>
-        ${coautores.length ? `<h3 style="margin-top:1.2rem">Dividiu obras com</h3><p>${coautores.map((c) => `<button type="button" class="link-pessoa" data-pessoa="${esc(c.pessoa_id)}">${esc(c.nome)}</button>${c.papel === "ilustrador" ? " <span class='muted pequeno'>(ilustração)</span>" : ""}`).join(", ")}</p>` : ""}
+        ${coautores.length ? `<h3 style="margin-top:1.2rem">Dividiu obras com</h3><p class="chips">${coautores.map((c) => `<button type="button" class="link-pessoa" data-pessoa="${esc(c.pessoa_id)}">${esc(c.nome)}${c.papel === "ilustrador" ? " <span class='muted pequeno'>(ilustração)</span>" : ""}</button>`).join("")}</p>` : ""}
       </section>
       <section aria-label="Participações no Jabuti">
         <h3>No Prêmio Jabuti</h3>

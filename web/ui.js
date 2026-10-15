@@ -15,6 +15,9 @@ export const estilo = () => ({ background: "transparent", color: css("--tinta"),
 
 export const ROT_RACA = { branca: "Branca", preta: "Preta", parda: "Parda", negra: "Negra (sem especificar)", amarela: "Amarela", indigena: "Indígena", sem_declaracao: "Sem declaração" };
 export const ROT_GEN = { mulher: "Mulher", homem: "Homem", nao_binario: "Não binária", nao_identificado: "Não identificado" };
+// Gênero atribuído pelo primeiro nome (CA-11.4, D16): asterisco que leva à nota de rodapé.
+export const CONTATO = "gustavosimassilva@gmail.com";
+export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" title="Inclui gênero atribuído pelo nome: ver nota">*</a>` : "");
 export const CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Livro do Ano"];
 
 // Cor fixa por grupo (a mesma em todos os gráficos); dado faltante sempre em cinza.
@@ -65,3 +68,103 @@ export function foto(p, midia, { w = 320, classe = "foto" } = {}) {
 export const credito = (m) => (m?.imagem
   ? `Foto: ${esc(m.imagem_autor)} · <a href="${esc(paginaArquivo(m.imagem))}" target="_blank" rel="noopener noreferrer">${esc(m.imagem_licenca)}, Wikimedia Commons</a>`
   : "");
+
+// ---------- sistema visual próprio (RF-19, D17) ----------
+
+// Roda a animação de saída (.saindo) e só então esconde; sem animação (movimento reduzido), esconde na hora.
+export function fecharAnimado(el, fechar = () => { el.hidden = true; }) {
+  if (el.classList.contains("saindo")) return;
+  el.classList.add("saindo");
+  let feito = false;
+  const fim = () => { if (feito) return; feito = true; el.removeEventListener("animationend", h); el.classList.remove("saindo"); fechar(); };
+  const h = (e) => { if (e.target === el) fim(); };
+  if (getComputedStyle(el).animationName === "none") return fim();
+  el.addEventListener("animationend", h);
+  setTimeout(fim, 600); // aba em segundo plano pode não entregar animationend
+}
+
+// Conta de 0 até o valor (abertura). O texto final é sempre o valor formatado exato.
+export function contar(el, alvo, formatar, ms = 1200) {
+  if (alvo == null || movimentoReduzido()) { el.textContent = formatar(alvo); return; }
+  const t0 = performance.now();
+  const passo = (t) => {
+    const k = Math.min(1, (t - t0) / ms), v = alvo * (1 - (1 - k) ** 3);
+    el.textContent = formatar(k < 1 ? v : alvo);
+    if (k < 1) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
+
+// Select próprio (CA-19.2): o <select> nativo fica escondido como fonte do valor e dos eventos "change";
+// por cima, um botão que abre uma listbox operável por teclado.
+let nSel = 0;
+export function melhorarSelect(sel) {
+  const id = sel.id || `sel-${++nSel}`;
+  const raiz = Object.assign(document.createElement("span"), { className: "sel" });
+  const botao = Object.assign(document.createElement("button"), { type: "button", className: "sel-botao", id: `${id}-botao` });
+  const lista = Object.assign(document.createElement("ul"), { className: "sel-lista", id: `${id}-lista`, hidden: true, tabIndex: -1 });
+  botao.setAttribute("aria-haspopup", "listbox");
+  botao.setAttribute("aria-controls", lista.id);
+  botao.setAttribute("aria-expanded", "false");
+  lista.setAttribute("role", "listbox");
+  const rotulo = sel.closest("label");
+  if (rotulo) { rotulo.htmlFor = botao.id; lista.setAttribute("aria-label", rotulo.firstChild?.textContent.trim() ?? ""); }
+  sel.hidden = true;
+  sel.tabIndex = -1;
+  sel.after(raiz);
+  raiz.append(botao, lista);
+
+  let ativo = 0;
+  const desenhar = () => {
+    const ops = [...sel.options];
+    lista.innerHTML = ops.map((o, i) => `<li role="option" id="${lista.id}-${i}" data-i="${i}" aria-selected="${o.selected}">${esc(o.textContent)}</li>`).join("");
+    botao.innerHTML = `<span>${esc(sel.selectedOptions[0]?.textContent ?? "")}</span><svg class="sel-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+  };
+  // Mudança programática (sel.value = x) não dispara evento: o setter da instância redesenha.
+  const proto = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value");
+  Object.defineProperty(sel, "value", { configurable: true, get() { return proto.get.call(this); }, set(v) { proto.set.call(this, v); desenhar(); } });
+  new MutationObserver(desenhar).observe(sel, { childList: true, subtree: true, attributes: true });
+  desenhar();
+
+  const marcar = () => {
+    [...lista.children].forEach((li, i) => li.classList.toggle("ativo", i === ativo));
+    lista.setAttribute("aria-activedescendant", `${lista.id}-${ativo}`);
+    lista.children[ativo]?.scrollIntoView({ block: "nearest" });
+  };
+  const abrir = () => {
+    if (!lista.hidden) return;
+    lista.hidden = false;
+    raiz.classList.add("aberto");
+    botao.setAttribute("aria-expanded", "true");
+    ativo = Math.max(0, sel.selectedIndex);
+    marcar();
+    lista.focus();
+  };
+  const fechar = (foco = true) => {
+    if (lista.hidden) return;
+    raiz.classList.remove("aberto");
+    botao.setAttribute("aria-expanded", "false");
+    fecharAnimado(lista);
+    if (foco) botao.focus();
+  };
+  const escolher = (i) => {
+    if (i !== sel.selectedIndex) {
+      sel.selectedIndex = i;
+      desenhar();
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    fechar();
+  };
+  botao.addEventListener("click", () => (lista.hidden ? abrir() : fechar()));
+  botao.addEventListener("keydown", (e) => { if (["ArrowDown", "ArrowUp"].includes(e.key)) { e.preventDefault(); abrir(); } });
+  lista.addEventListener("click", (e) => { const li = e.target.closest("li"); if (li) escolher(+li.dataset.i); });
+  lista.addEventListener("keydown", (e) => {
+    const n = lista.children.length;
+    const mover = { ArrowDown: ativo + 1, ArrowUp: ativo - 1, Home: 0, End: n - 1, PageDown: ativo + 5, PageUp: ativo - 5 }[e.key];
+    if (mover != null) { e.preventDefault(); ativo = Math.max(0, Math.min(n - 1, mover)); marcar(); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); escolher(ativo); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fechar(); }
+    else if (e.key === "Tab") fechar(false);
+  });
+  document.addEventListener("pointerdown", (e) => { if (!raiz.contains(e.target)) fechar(false); });
+}

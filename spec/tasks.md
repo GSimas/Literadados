@@ -64,3 +64,19 @@
 - [x] T6.10 Referências (RF-18) 👁
 - [x] T6.11 Conferência no navegador (claro, escuro, 1280 e 375 px, sem rolagem horizontal, console sem erros) e testes verdes (36 pytest + 17 node). `prefers-reduced-motion` só por CSS/JS (a ferramenta não emula)
 - [x] T6.12 Duplicata achada pela mídia: `carpinejar` e `fabricio-carpinejar` têm o mesmo QID (Q5428242); unificar pelo procedimento do CLAUDE.md. Mesma pessoa ("Carpinejar" é apelido no item; todas as obras pela Bertrand Brasil): lista 2025 passa a "Fabrício Carpinejar", id único `fabricio-carpinejar`. 915 → 914 pessoas, 714 → 713 pessoas-autoras (contagens por edição não mudam: nenhuma edição tinha os dois ids); 475 QIDs, nenhum repetido; 208 fotos livres, 426 verbetes
+
+## T7 Gênero atribuído pelo nome (CA-11.4, D16)
+- [x] T7.1 `pessoa.genero_evidencia` + CHECKs, `v_participacao.genero_atribuido`, export e `coleta.py` 🧪
+- [x] T7.2 `dados/coleta/pessoas_zgenero_1.csv`: gênero pelo primeiro nome para quem segue `nao_identificado`: 229 atribuídas (134 homens, 95 mulheres); 9 continuam `nao_identificado` (Aramyz, Cavito, Del Candeias, Duda Porto de Souza, Hada Maller, Leguy, Rai Soares, Seta Gimeno, W. J. Solha). Pessoas-autoras: 155 de 713 com gênero atribuído; % mulheres 31% → 39%
+- [x] T7.3 `metricas`: contagem `generoAtribuido` em `kpis` e `historia` 🧪
+- [x] T7.4 Asterisco nos números de gênero, nota de rodapé com n e contato, perfil e tabela marcados; contato na Metodologia (CA-13.2) 👁
+- [x] T7.5 Chat: o prompt explica `genero_atribuido`
+
+## T8 Sistema visual próprio (RF-19, D17)
+- [x] T8.1 Tokens de motion, revelação ao rolar, botões, diálogo e painéis animados (CA-19.1) 👁
+- [x] T8.2 Select próprio com teclado, checkbox, campos, detalhes, rolagem grossa, dicas (CA-19.2) 👁
+- [x] T8.3 Links como chips; texto corrido na cor da marca (CA-19.3) 👁
+- [x] T8.4 Abertura com carrossel de fotos, pontos e números animados (CA-19.4) 👁
+- [x] T8.5 Logotipo com iluminação no hover; `web/logo.svg`; favicon; README atualizado (CA-19.5) 👁
+- [x] T8.6 Menu de tema em botão de ícone de tamanho fixo (CA-19.6) 👁
+- [x] T8.7 Teste de contraste dos tokens nos dois temas (CA-19.7) 🧪

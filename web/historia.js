@@ -1,7 +1,7 @@
 // História guiada (RF-16): gráfico de unidades fixo (um ponto por pessoa-autora) que se reorganiza a cada passo.
 // Números da narrativa: metricas.historia (testada). Encaixe por passo: CSS scroll-snap (design D15).
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, esc, rotulo, css, corDe, dica, movimentoReduzido } from "./ui.js";
+import { $, fmt, fmtPct, esc, rotulo, css, corDe, dica, movimentoReduzido, astGenero } from "./ui.js";
 
 const ROT_ETAPA = { lista: "Só a lista", premiada: "Premiadas (2º/3º)", vencedora: "Venceram (1º lugar)" };
 // Rótulos curtos para os blocos (com 7 grupos lado a lado, o rótulo longo não cabe).
@@ -16,10 +16,11 @@ function passos(H, D) {
       numero: fmt(H.pessoas), texto: `Entre 2010 e 2025, <b>${fmt(H.indicacoes)} indicações</b> de ${fmt(H.edicoes)} edições do Jabuti levaram às listas obras de <b>${fmt(H.pessoas)} pessoas-autoras</b>, em romance, contos, crônica, poesia, infantil, juvenil e Livro do Ano.`,
       nota: "Ilustradores e organizadores ficam fora desta conta. Role para reorganizar os pontos." },
     { layout: "genero", cor: "genero", titulo: "Quantas são mulheres",
-      numero: fmtPct(H.genero.pctMulheres), texto: `${fmt(H.genero.mulheres)} das ${fmt(H.pessoas)} pessoas são mulheres; ${fmt(H.genero.homens)} são homens${H.genero.naoBinarias ? ` e ${fmt(H.genero.naoBinarias)} são não binárias` : ""}.`,
-      nota: H.genero.semGenero ? `Para ${fmt(H.genero.semGenero)} pessoas, as fontes públicas consultadas ainda não dizem o gênero (cinza).` : "" },
+      numero: fmtPct(H.genero.pctMulheres) + astGenero(H.genero.atribuido), texto: `${fmt(H.genero.mulheres)} das ${fmt(H.pessoas)} pessoas são mulheres; ${fmt(H.genero.homens)} são homens${H.genero.naoBinarias ? ` e ${fmt(H.genero.naoBinarias)} são não binárias` : ""}.`,
+      nota: [H.genero.atribuido ? `Para ${fmt(H.genero.atribuido)} pessoas sem fonte, o gênero foi atribuído pelo primeiro nome e pode estar errado (*).` : "",
+        H.genero.semGenero ? `Para ${fmt(H.genero.semGenero)}, nem o nome permite dizer (cinza).` : ""].filter(Boolean).join(" ") },
     { layout: "etapa", cor: "genero", titulo: "Da lista ao 1º lugar",
-      numero: fmtPct(v.pctMulheres), texto: `Das <b>${fmt(v.pessoas)} pessoas que venceram</b> pelo menos uma vez, ${fmt(v.mulheres)} são mulheres: ${fmtPct(v.pctMulheres)}, ${Math.abs(dif) < 1 ? "praticamente o mesmo peso" : dif < 0 ? `${fmt(Math.abs(dif), 1)} pontos a menos` : `${fmt(dif, 1)} pontos a mais`} que na lista inteira (${fmtPct(H.genero.pctMulheres)}).`,
+      numero: fmtPct(v.pctMulheres) + astGenero(H.genero.atribuido), texto: `Das <b>${fmt(v.pessoas)} pessoas que venceram</b> pelo menos uma vez, ${fmt(v.mulheres)} são mulheres: ${fmtPct(v.pctMulheres)}, ${Math.abs(dif) < 1 ? "praticamente o mesmo peso" : dif < 0 ? `${fmt(Math.abs(dif), 1)} pontos a menos` : `${fmt(dif, 1)} pontos a mais`} que na lista inteira (${fmtPct(H.genero.pctMulheres)}).`,
       nota: "Cada pessoa aparece no seu melhor resultado. Até 2017 havia 2º e 3º lugares; desde 2018, só o 1º." },
     { layout: "raca", cor: "raca", titulo: "Pelo menos estas pessoas são negras",
       numero: `≥ ${fmtPct(H.raca.pctNegras)}`, texto: `<b>${fmt(H.raca.negras)} pessoas</b> se declararam publicamente negras (pretas, pardas ou negras) e ${fmt(H.raca.indigenas)} indígenas. Entre quem venceu, ${fmt(H.raca.negrasVencedoras)}.`,

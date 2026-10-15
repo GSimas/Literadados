@@ -132,6 +132,26 @@ def test_cobertura_mostra_busca_completa(mini):  # CA-13.3
     assert _build(mini)["cobertura"][0]["pct_busca_raca"] == 50.0
 
 
+@pytest.mark.parametrize("genero,fonte,ok", [
+    ("homem", "", True),                    # atribuído pelo nome, sem fonte
+    ("nao_identificado", "", False),        # atribuição sem gênero
+    ("homem", "http://x", False),           # atribuição com fonte: a fonte substitui a atribuição (D16)
+])
+def test_genero_atribuido(mini, genero, fonte, ok):  # CA-11.4
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[1].update(genero=genero, genero_fonte=fonte, genero_evidencia="atribuicao")
+    linhas[0].update(genero_fonte="http://x", genero_evidencia="")
+    _csv(mini / "pessoa.csv", linhas)
+    if not ok:
+        with pytest.raises(build.BuildError, match="pessoa.csv"):
+            _build(mini)
+        return
+    j = _build(mini)
+    assert [p["genero_evidencia"] for p in sorted(j["pessoas"], key=lambda p: p["id"])] == [None, "atribuicao"]
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT pessoa_id FROM v_participacao WHERE genero_atribuido").fetchall() == [("b",)]
+
+
 def test_build_falha_categoria_fora(mini):  # CA-01.2
     linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     linhas[0]["categoria"] = "Romance de Entretenimento"

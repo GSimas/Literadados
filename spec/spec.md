@@ -15,7 +15,8 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
-| Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência por foto, sobrenome ou IA |
+| Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência de raça por foto, sobrenome ou IA |
+| Gênero com fonte; sem fonte, **atribuído pelo primeiro nome e marcado** (D16) | Atribuição de gênero por apelido ambíguo ou iniciais |
 
 **Fase atual:** as 16 edições estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
 
@@ -76,6 +77,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-11 Explorador de pessoas e perfis
 - **CA-11.1 👁** Galeria de todas as pessoas do recorte (cartões com foto ou avatar, nome, UF, participações e prêmios), com busca por nome, ordenação (prêmios, participações, nome) e alternância para tabela.
 - **CA-11.2 👁** O perfil de cada pessoa tem endereço próprio (`#/pessoa/<id>`, link compartilhável), lista as participações em linha do tempo e a **fonte de cada atributo**. Raça mostra o trecho literal e o link. Há links para Wikidata e Wikipédia quando existem.
+- **CA-11.4 🧪👁** Gênero sem fonte pode ser **atribuído pelo primeiro nome** (`genero_evidencia = 'atribuicao'`, sem `genero_fonte`). O build falha se a atribuição vier com fonte ou sem gênero definido. Todo número de gênero (abertura, panorama, história) leva um asterisco quando o recorte inclui pessoas com gênero atribuído. A nota de rodapé diz quantas são, que o dado pode estar errado e como pedir correção (gustavosimassilva@gmail.com). O perfil e a tabela de pessoas marcam o gênero atribuído com o mesmo asterisco.
 - **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
 
 ### RF-15 Página, navegação e tema
@@ -95,6 +97,15 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-18 Referências
 - **CA-18.1 🧪👁** Seção de referências com as fontes usadas, agrupadas por domínio (CBL/site oficial, Wayback, imprensa, Wikidata/Wikipédia, Literafro, TSE…), com o número de registros que cada uma sustenta e links.
 
+### RF-19 Sistema visual próprio
+- **CA-19.1 👁** Motion: transições sutis e consistentes (tokens de duração e curva). Botões reagem a hover e clique; seções entram com fade ao rolar; perfil, painel de filtros, menus e tabelas recolhíveis abrem e fecham animados. Com `prefers-reduced-motion`, nada anima.
+- **CA-19.2 👁** Nenhum controle com aparência nativa do sistema: listas de opções (selects) viram menus próprios, operáveis por teclado (setas, Enter, Esc, Home/End) e com `role="listbox"`. Caixas de seleção, campos, diálogos, dicas dos gráficos e tabelas recolhíveis seguem o estilo do Literadados. As barras de rolagem são próprias e **grossas** (14 px).
+- **CA-19.3 👁** Nenhum link azul sublinhado: nomes de pessoas, fontes, links externos e referências aparecem como chips clicáveis. Links dentro de texto corrido usam a cor da marca, com sublinhado animado no hover.
+- **CA-19.4 👁** Abertura: o fundo é um carrossel contínuo de fotos livres em faixas que correm em sentidos opostos, com pontos e brilho animados de leve. Os números da abertura contam até o valor.
+- **CA-19.5 👁** Logotipo próprio (casco de jabuti feito de células de dados) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
+- **CA-19.6 👁** O tema é escolhido num botão de ícone de **tamanho fixo**, que abre um menu pequeno (Claro, Escuro, Automático), e o ícone mostra o tema ativo.
+- **CA-19.7 🧪👁** Contraste AA (≥ 4,5:1) nos dois temas, para texto sobre página, superfície, chips e botões, conferido por teste sobre os tokens de `style.css`. Dicas dos gráficos usam fundo e texto do tema.
+
 ### RF-12 Pergunte aos dados (IA)
 - **CA-12.1 👁** Pergunta em português → resposta em português com o número, a tabela de resultado e o SQL usado (recolhível).
 - **CA-12.2 🧪** A IA só executa consultas de leitura. Escrita, múltiplos comandos, leitura de arquivos e acesso externo são recusados.
@@ -104,7 +115,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 
 ### RF-13 Metodologia e transparência
 - **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial, organizadores fora das contagens) e o protocolo de raça.
-- **CA-13.2 👁** Instrução de como pedir correção, com fonte.
+- **CA-13.2 👁** Instrução de como pedir correção, com fonte, e o contato (gustavosimassilva@gmail.com).
 - **CA-13.3 🧪👁** Cada pessoa registra se a busca de autodeclaração racial foi `completa` (protocolo cumprido) ou `parcial` (interrompida). A cobertura por edição mostra a % de buscas completas, e o panorama avisa quando há buscas parciais: "sem declaração" com busca parcial não significa ausência de declaração.
 
 ### RF-14 Exportação
@@ -115,7 +126,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **RNF-01 Simplicidade:** sem etapa de build no frontend. Bibliotecas com versão fixa via CDN. O backend usa apenas `duckdb` e `anthropic`.
 - **RNF-02 Honestidade estatística:** todo percentual mostra o n. Quando n < 5, o valor aparece com aviso de "n pequeno". Séries temporais usam proporções (o número de vagas mudou em 2018).
 - **RNF-03 Segurança do chat:** banco aberto só para leitura, acesso externo desligado e configuração travada, só `SELECT`/`WITH`, limite de linhas e de tempo, chave só no servidor.
-- **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência. Toda pessoa tem fonte por atributo.
+- **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência de raça. Gênero é a única exceção: sem fonte, pode ser atribuído pelo primeiro nome, sempre marcado como atribuído (CA-11.4, D16). Todo atributo com fonte tem a fonte exibida.
 - **RNF-05 Acessibilidade:** contraste AA nos dois temas, navegação por teclado nos filtros, na história, na galeria e no chat, títulos e descrições nos gráficos, tabela equivalente para cada gráfico, layout utilizável a partir de 360 px, `prefers-reduced-motion` respeitado.
 - **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s.
   - **CA-RNF-06.1 🧪** O build gera `dados.json` com menos de 1 MB a partir dos dados reais.

@@ -1,13 +1,13 @@
 // Explorador: panorama e análises (RF-03 a RF-10). Cada função recebe as linhas filtradas e o contexto do painel.
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, astGenero } from "./ui.js";
 
 export function renderPanorama(L) {
   const k = M.kpis(L);
   const cartao = (rot, val, det = "") => `<div class="kpi"><div class="rot">${rot}</div><div class="val">${val}</div><div class="det">${det}</div></div>`;
   $("#kpis").innerHTML = [
     cartao("Pessoas", fmt(k.pessoas), `${fmt(k.indicacoes)} indicações · ${fmt(k.obras)} obras`),
-    cartao("Mulheres", fmtPct(k.pctMulheres), `${fmt(k.mulheres)} de ${fmt(k.pessoas)} pessoas`),
+    cartao("Mulheres", fmtPct(k.pctMulheres) + astGenero(k.generoAtribuido), `${fmt(k.mulheres)} de ${fmt(k.pessoas)} pessoas`),
     cartao("Pessoas negras", k.pessoas ? `≥ ${fmtPct(k.pctNegrasPiso)}` : "–", `pelo menos ${fmt(k.negras)}; piso por autodeclaração`),
     cartao("Cobertura de raça", fmtPct(k.pctCoberturaRaca), `${fmt(k.comRaca)} com declaração pública` +
       (k.buscaParcial ? `; busca incompleta para ${fmt(k.buscaParcial)} (o piso pode subir)` : "")),

@@ -20,6 +20,8 @@ CREATE TABLE pessoa (
   genero                TEXT NOT NULL DEFAULT 'nao_identificado'
                         CHECK (genero IN ('mulher','homem','nao_binario','nao_identificado')),
   genero_fonte          TEXT,
+  -- 'atribuicao' = gênero atribuído pelo primeiro nome, sem fonte que o afirme (design D16); NULL = com fonte.
+  genero_evidencia      TEXT CHECK (genero_evidencia IN ('atribuicao')),
   -- Raça só entra com autodeclaração pública; nunca inferida por foto, sobrenome ou IA.
   -- 'negra' = declarou-se negra sem especificar preta ou parda.
   raca                  TEXT NOT NULL DEFAULT 'sem_declaracao'
@@ -34,7 +36,8 @@ CREATE TABLE pessoa (
   nascimento_fonte      TEXT,
   revisado_em           TEXT,                 -- data ISO da última checagem humana
   CHECK (raca = 'sem_declaracao' OR (raca_evidencia IS NOT NULL AND raca_fonte IS NOT NULL)),
-  CHECK (raca = 'sem_declaracao' OR raca_busca IS DISTINCT FROM 'parcial')
+  CHECK (raca = 'sem_declaracao' OR raca_busca IS DISTINCT FROM 'parcial'),
+  CHECK (genero_evidencia IS NULL OR (genero <> 'nao_identificado' AND genero_fonte IS NULL))
 );
 
 -- Foto e verbete (interface, design D15). Só foto do Commons com licença livre e crédito; gerado por coleta.py midia.
@@ -119,7 +122,8 @@ SELECT
   o.id AS obra_id, o.titulo, o.ano_publicacao,
   e.nome AS editora, e.grupo AS grupo_editorial, e.uf_sede AS uf_editora,
   p.id AS pessoa_id, p.nome, a.papel,
-  p.genero, p.raca, p.raca_busca,
+  p.genero, COALESCE(p.genero_evidencia = 'atribuicao', FALSE) AS genero_atribuido,
+  p.raca, p.raca_busca,
   p.raca IN ('preta','parda','negra')                   AS negra,
   p.uf_nascimento, u.regiao                            AS regiao_nascimento,
   i.ano - p.ano_nascimento                              AS idade_no_premio,
