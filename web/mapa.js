@@ -1,10 +1,12 @@
 // Mapa coroplético por UF de nascimento (RF-07): malha do IBGE em web/br-uf.json, carregada uma vez.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, css, largura, textoSobre, tabela, dica, foto } from "./ui.js";
+import { $, $$, fmt, esc, css, largura, textoSobre, tabela, dica, foto, botaoExportarGrafico } from "./ui.js";
 
 let malha = null;
 let medida = "pessoas";
 let ufSel = null;
+
+export const obterMalha = () => malha;
 
 export async function carregarMalha() {
   malha = await fetch("br-uf.json").then((r) => r.json());
@@ -60,7 +62,7 @@ export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
   legenda.innerHTML = `<span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${css("--grade")};vertical-align:-1px"></i> zero</span>
     <span class="escala">${rampa.map((c) => `<i style="background:${c}"></i>`).join("")}</span>
     <span>${fmt(cortes[0], casas)} → ${fmt(cortes.at(-1), casas)} ${medida === "pessoas" ? "pessoas" : "por milhão"} (quintis)</span>`;
-  el.replaceChildren(svg.node(), legenda);
+  el.replaceChildren(svg.node(), legenda, botaoExportarGrafico());
 
   tabela($("#t-mapa"), [...u].sort((a, b) => b.pessoas - a.pessoas || a.uf.localeCompare(b.uf)), [
     { rot: "UF", k: "uf" }, { rot: "Região", k: "regiao" }, { rot: "Pessoas", k: "pessoas", num: true },
@@ -85,8 +87,9 @@ export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
     const d = porUF.get(ufSel);
     const pessoas = M.resumoPessoas(L.filter((l) => l.uf_nascimento === ufSel), D.pessoas)
       .sort((a, b) => b.premios - a.premios || a.nome.localeCompare(b.nome, "pt-BR"));
-    alvo.innerHTML = `<p class="sobretitulo">${esc(d.regiao)}</p><h3>${esc(d.nome)}</h3>
+    alvo.innerHTML = `<p class="sobretitulo"><a href="#/regiao/${encodeURIComponent(d.regiao)}">${esc(d.regiao)}</a></p><h3>${esc(d.nome)}</h3>
       <p>${fmt(d.pessoas)} pessoas · ${fmt(d.participacoes)} participações · ${fmt(d.porMilhao, 2)} por milhão de habitantes</p>
+      <p><a class="botao" href="#/uf/${esc(d.uf)}">Perfil de ${esc(d.nome)} <span aria-hidden="true">→</span></a></p>
       <ul class="lista-pessoas">${pessoas.map((p) => `<li>${foto(p, midiaPorId.get(p.id), { w: 80, classe: "foto mini-foto" })}
         <button type="button" class="link-pessoa" data-pessoa="${esc(p.id)}">${esc(p.nome)}</button>
         <span class="muted pequeno">${p.premios ? `${p.premios} prêmio${p.premios > 1 ? "s" : ""}` : `${p.participacoes} indicaç${p.participacoes > 1 ? "ões" : "ão"}`}</span></li>`).join("") || "<li class='muted'>Ninguém no recorte.</li>"}</ul>`;

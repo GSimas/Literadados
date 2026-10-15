@@ -25,7 +25,7 @@ BRUTO = DADOS / "coleta"
 UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
 
 CAMPOS = {
-    "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",
+    "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "genero_evidencia", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",
                "ano_nascimento", "municipio_nascimento", "uf_nascimento", "nascimento_fonte", "revisado_em"],
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
@@ -244,6 +244,8 @@ def aplicar_pessoas():
             for k in CAMPOS["pessoa"][2:-1]:
                 if r.get(k, "").strip():
                     p[k] = r[k].strip()
+            if r.get("genero_fonte", "").strip() and p.get("genero_evidencia"):  # fonte substitui gênero atribuído pelo nome (D16)
+                p["genero_evidencia"] = ""
     n = 0
     for i, p in pessoas.items():
         if p != antes[i]:  # revisado_em só muda quando o resultado final muda

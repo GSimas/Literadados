@@ -15,6 +15,9 @@ export const estilo = () => ({ background: "transparent", color: css("--tinta"),
 
 export const ROT_RACA = { branca: "Branca", preta: "Preta", parda: "Parda", negra: "Negra (sem especificar)", amarela: "Amarela", indigena: "Indígena", sem_declaracao: "Sem declaração" };
 export const ROT_GEN = { mulher: "Mulher", homem: "Homem", nao_binario: "Não binária", nao_identificado: "Não identificado" };
+// Gênero atribuído pelo primeiro nome (CA-11.4, D16): asterisco que leva à nota de rodapé.
+export const CONTATO = "gustavosimassilva@gmail.com";
+export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" title="Inclui gênero atribuído pelo nome: ver nota">*</a>` : "");
 export const CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Livro do Ano"];
 
 // Cor fixa por grupo (a mesma em todos os gráficos); dado faltante sempre em cinza.
@@ -32,25 +35,46 @@ export function textoSobre(fracao) {
   return (fracao > 0.55) === escuroNoFim ? "#fff" : "#111";
 }
 
+// Botão de exportar tabela (CA-14.3): vai junto de toda tabela, dentro de .tabela-exportavel.
+export const BOTAO_TABELA = `<button type="button" class="exportar-botao exportar-tabela" data-exportar="tabela" title="Exportar tabela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg><span>Exportar</span></button>`;
 export function tabela(el, linhas, colunas) {
   if (!linhas.length) { el.innerHTML = `<p class="vazio">Sem dados no recorte.</p>`; return; }
-  el.innerHTML = `<div class="rolagem"><table class="tabela"><thead><tr>${colunas.map((c) => `<th class="${c.num ? "num" : ""}" scope="col">${esc(c.rot)}</th>`).join("")}</tr></thead>
-  <tbody>${linhas.map((l) => `<tr>${colunas.map((c) => `<td class="${c.num ? "num" : ""}">${esc(c.f ? c.f(l) : l[c.k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  el.innerHTML = `<div class="tabela-exportavel">${BOTAO_TABELA}<div class="rolagem"><table class="tabela"><thead><tr>${colunas.map((c) => `<th class="${c.num ? "num" : ""}" scope="col">${esc(c.rot)}</th>`).join("")}</tr></thead>
+  <tbody>${linhas.map((l) => `<tr>${colunas.map((c) => `<td class="${c.num ? "num" : ""}">${esc(c.f ? c.f(l) : l[c.k])}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
 }
-export const desenhar = (el, no) => el.replaceChildren(no);
+// Todo gráfico do Plot passa por aqui: destaque no hover (CA-19.9) e fade das dicas (CA-19.8).
+// Botão de exportar imagem (CA-14.2): fica dentro do contêiner do gráfico, e exportar.js usa o pai dele como alvo.
+export const botaoExportarGrafico = () => {
+  const b = document.createElement("button");
+  Object.assign(b, { type: "button", className: "exportar-botao", title: "Exportar imagem" });
+  b.dataset.exportar = "grafico";
+  b.setAttribute("aria-label", "Exportar gráfico como imagem");
+  b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg>';
+  return b;
+};
+export const desenhar = (el, no) => { el.replaceChildren(no, botaoExportarGrafico()); realcarNoHover(no); suavizarDicas(no); };
 export const vazio = (el, msg = "Sem dados no recorte selecionado.") => { el.innerHTML = `<p class="vazio">${msg}</p>`; };
 
 // Dica flutuante única para os gráficos desenhados à mão (mapa, Sankey, história).
 export const dica = {
   mostrar(ev, html) {
     const t = $("#tip");
+    clearTimeout(t._saida);
+    t.classList.remove("saindo");
     t.innerHTML = html;
     t.hidden = false;
     const r = t.getBoundingClientRect();
     t.style.left = `${Math.min(ev.clientX + 14, innerWidth - r.width - 8)}px`;
     t.style.top = `${Math.min(ev.clientY + 14, innerHeight - r.height - 8)}px`;
   },
-  esconder() { $("#tip").hidden = true; },
+  // Fade de saída (CA-19.8): some depois da transição; um novo mostrar() cancela.
+  esconder() {
+    const t = $("#tip");
+    if (t.hidden) return;
+    t.classList.add("saindo");
+    clearTimeout(t._saida);
+    t._saida = setTimeout(() => { t.hidden = true; t.classList.remove("saindo"); }, movimentoReduzido() ? 0 : 180);
+  },
 };
 
 // Foto do Commons (licença livre, CA-11.3) ou avatar de iniciais com matiz neutro derivado do id.
@@ -65,3 +89,225 @@ export function foto(p, midia, { w = 320, classe = "foto" } = {}) {
 export const credito = (m) => (m?.imagem
   ? `Foto: ${esc(m.imagem_autor)} · <a href="${esc(paginaArquivo(m.imagem))}" target="_blank" rel="noopener noreferrer">${esc(m.imagem_licenca)}, Wikimedia Commons</a>`
   : "");
+
+// ---------- sistema visual próprio (RF-19, D17) ----------
+
+// Roda a animação de saída (.saindo) e só então esconde; sem animação (movimento reduzido), esconde na hora.
+export function fecharAnimado(el, fechar = () => { el.hidden = true; }) {
+  if (el.classList.contains("saindo")) return;
+  el.classList.add("saindo");
+  let feito = false;
+  const fim = () => { if (feito) return; feito = true; el.removeEventListener("animationend", h); el.classList.remove("saindo"); fechar(); };
+  const h = (e) => { if (e.target === el) fim(); };
+  if (getComputedStyle(el).animationName === "none") return fim();
+  el.addEventListener("animationend", h);
+  setTimeout(fim, 600); // aba em segundo plano pode não entregar animationend
+}
+
+// Conta de 0 até o valor (abertura). O texto final é sempre o valor formatado exato.
+export function contar(el, alvo, formatar, ms = 1200) {
+  if (alvo == null || movimentoReduzido()) { el.textContent = formatar(alvo); return; }
+  const t0 = performance.now();
+  const passo = (t) => {
+    const k = Math.min(1, (t - t0) / ms), v = alvo * (1 - (1 - k) ** 3);
+    el.textContent = formatar(k < 1 ? v : alvo);
+    if (k < 1) requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
+
+// Select próprio (CA-19.2): o <select> nativo fica escondido como fonte do valor e dos eventos "change";
+// por cima, um botão que abre uma listbox operável por teclado.
+let nSel = 0;
+export function melhorarSelect(sel) {
+  if (sel.dataset.melhorado) return; // a barra de filtro já melhora os seus
+  sel.dataset.melhorado = "1";
+  const id = sel.id || `sel-${++nSel}`;
+  const raiz = Object.assign(document.createElement("span"), { className: "sel" });
+  const botao = Object.assign(document.createElement("button"), { type: "button", className: "sel-botao", id: `${id}-botao` });
+  const lista = Object.assign(document.createElement("ul"), { className: "sel-lista", id: `${id}-lista`, hidden: true, tabIndex: -1 });
+  botao.setAttribute("aria-haspopup", "listbox");
+  botao.setAttribute("aria-controls", lista.id);
+  botao.setAttribute("aria-expanded", "false");
+  lista.setAttribute("role", "listbox");
+  const rotulo = sel.closest("label");
+  if (rotulo) { rotulo.htmlFor = botao.id; lista.setAttribute("aria-label", rotulo.firstChild?.textContent.trim() ?? ""); }
+  sel.hidden = true;
+  sel.tabIndex = -1;
+  sel.after(raiz);
+  raiz.append(botao, lista);
+
+  let ativo = 0;
+  const desenhar = () => {
+    const ops = [...sel.options];
+    lista.innerHTML = ops.map((o, i) => `<li role="option" id="${lista.id}-${i}" data-i="${i}" aria-selected="${o.selected}">${esc(o.textContent)}</li>`).join("");
+    botao.innerHTML = `<span>${esc(sel.selectedOptions[0]?.textContent ?? "")}</span><svg class="sel-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+  };
+  // Mudança programática (sel.value = x) não dispara evento: o setter da instância redesenha.
+  const proto = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value");
+  Object.defineProperty(sel, "value", { configurable: true, get() { return proto.get.call(this); }, set(v) { proto.set.call(this, v); desenhar(); } });
+  new MutationObserver(desenhar).observe(sel, { childList: true, subtree: true, attributes: true });
+  desenhar();
+
+  const marcar = () => {
+    [...lista.children].forEach((li, i) => li.classList.toggle("ativo", i === ativo));
+    lista.setAttribute("aria-activedescendant", `${lista.id}-${ativo}`);
+    lista.children[ativo]?.scrollIntoView({ block: "nearest" });
+  };
+  const abrir = () => {
+    if (!lista.hidden) return;
+    lista.hidden = false;
+    raiz.classList.add("aberto");
+    botao.setAttribute("aria-expanded", "true");
+    ativo = Math.max(0, sel.selectedIndex);
+    marcar();
+    lista.focus();
+  };
+  const fechar = (foco = true) => {
+    if (lista.hidden) return;
+    raiz.classList.remove("aberto");
+    botao.setAttribute("aria-expanded", "false");
+    fecharAnimado(lista);
+    if (foco) botao.focus();
+  };
+  const escolher = (i) => {
+    if (i !== sel.selectedIndex) {
+      sel.selectedIndex = i;
+      desenhar();
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    fechar();
+  };
+  botao.addEventListener("click", () => (lista.hidden ? abrir() : fechar()));
+  botao.addEventListener("keydown", (e) => { if (["ArrowDown", "ArrowUp"].includes(e.key)) { e.preventDefault(); abrir(); } });
+  lista.addEventListener("click", (e) => { const li = e.target.closest("li"); if (li) escolher(+li.dataset.i); });
+  lista.addEventListener("keydown", (e) => {
+    const n = lista.children.length;
+    const mover = { ArrowDown: ativo + 1, ArrowUp: ativo - 1, Home: 0, End: n - 1, PageDown: ativo + 5, PageUp: ativo - 5 }[e.key];
+    if (mover != null) { e.preventDefault(); ativo = Math.max(0, Math.min(n - 1, mover)); marcar(); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); escolher(ativo); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fechar(); }
+    else if (e.key === "Tab") fechar(false);
+  });
+  document.addEventListener("pointerdown", (e) => { if (!raiz.contains(e.target)) fechar(false); });
+}
+
+// ---------- destaque no hover e fade das dicas do Plot (CA-19.8, CA-19.9, D19) ----------
+const FORMAS = ':is(g[aria-label="bar"], g[aria-label="cell"], g[aria-label="dot"], g[aria-label="rect"]) > :is(rect, circle, path)';
+const svgsDeMarcas = (raiz) => [raiz, ...raiz.querySelectorAll("svg")].filter((s) => s instanceof SVGSVGElement && s.querySelector("g[aria-label]"));
+
+// Marca .em-foco na forma sob o ponteiro (ou a mais próxima, até 28 px, como faz a dica do Plot); o CSS esmaece as demais.
+export function realcarNoHover(raiz) {
+  for (const svg of svgsDeMarcas(raiz)) {
+    const formas = [...svg.querySelectorAll(FORMAS)];
+    if (formas.length < 2) continue;
+    let atual = null;
+    const marcar = (f) => {
+      if (f === atual) return;
+      atual?.classList.remove("em-foco");
+      atual = f;
+      f?.classList.add("em-foco");
+      svg.classList.toggle("com-foco", !!f);
+    };
+    svg.addEventListener("pointermove", (e) => {
+      if (formas.includes(e.target)) return marcar(e.target);
+      let melhor = null, dMin = 28;
+      for (const f of formas) {
+        const r = f.getBoundingClientRect();
+        const d = Math.hypot(Math.max(r.left - e.clientX, 0, e.clientX - r.right), Math.max(r.top - e.clientY, 0, e.clientY - r.bottom));
+        if (d < dMin) { dMin = d; melhor = f; }
+      }
+      marcar(melhor);
+    });
+    svg.addEventListener("pointerleave", () => marcar(null));
+  }
+}
+
+// O Plot troca o grupo "tip" inteiro a cada movimento e o esvazia ao sair. Entrada: fade por CSS (só quando a dica
+// aparece, não ao pular de um ponto para outro). Saída: reinsere uma cópia da última dica com animação e a remove.
+export function suavizarDicas(raiz) {
+  for (const svg of svgsDeMarcas(raiz)) {
+    new MutationObserver((ms) => {
+      for (const m of ms) {
+        const novo = [...m.addedNodes].find((n) => n.getAttribute?.("aria-label") === "tip");
+        const velho = [...m.removedNodes].find((n) => n.getAttribute?.("aria-label") === "tip");
+        if (!novo || !velho) continue;
+        svg.querySelectorAll(".dica-saindo").forEach((n) => n.remove());
+        if (novo.childElementCount && velho.childElementCount) novo.classList.add("sem-fade");
+        if (!novo.childElementCount && velho.childElementCount && !movimentoReduzido()) {
+          velho.classList.add("dica-saindo");
+          novo.after(velho);
+          setTimeout(() => velho.remove(), 200);
+        }
+      }
+    }).observe(svg, { childList: true });
+  }
+}
+
+// Brilho de fundo que segue o ponteiro nos blocos (CA-19.10): só define --mx/--my; o CSS faz a luz e a transição.
+export const BLOCOS = ".kpi, .cartao, .tempo-trilho > li, .cartao-grafico, .passo-cartao";
+export function luzNosBlocos() {
+  document.addEventListener("pointermove", (e) => {
+    const b = e.target.closest?.(BLOCOS);
+    if (!b) return;
+    const r = b.getBoundingClientRect();
+    b.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    b.style.setProperty("--my", `${e.clientY - r.top}px`);
+  }, { passive: true });
+}
+
+// ---------- filtro de uma parte (RF-02, D22) ----------
+// Desenha a barra em `el` e altera `estado` (anoIni, anoFim, categorias, papel); chama aoMudar() a cada mudança.
+// Devolve resumo(html), para a parte mostrar o tamanho do próprio recorte.
+let nFiltro = 0;
+export function montarFiltro(el, estado, { anos, padrao, aoMudar, baixar }) {
+  const id = `filtro-${++nFiltro}`;
+  const opAnos = (v) => anos.map((a) => `<option ${a === v ? "selected" : ""}>${a}</option>`).join("");
+  el.classList.add("filtro");
+  el.innerHTML = `<span class="filtro-rot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtro</span>
+    <label>De <select id="${id}-ini">${opAnos(estado.anoIni)}</select></label>
+    <label>até <select id="${id}-fim">${opAnos(estado.anoFim)}</select></label>
+    <span class="filtro-cats">
+      <button type="button" class="sel-botao" id="${id}-cats" aria-haspopup="true" aria-expanded="false" aria-controls="${id}-menu"></button>
+      <span class="menu filtro-menu" id="${id}-menu" role="group" aria-label="Categorias" hidden>
+        ${CATEGORIAS.map((c) => `<label class="chip"><input type="checkbox" value="${esc(c)}">${esc(c)}</label>`).join("")}
+        <span class="filtro-menu-acoes"><button type="button" class="chip-link" data-todas>todas</button></span>
+      </span>
+    </span>
+    <label>Pessoas <select id="${id}-papel"><option value="autor">só autores</option><option value="todos">autores e ilustradores</option></select></label>
+    <span class="filtro-resumo" aria-live="polite"></span>
+    <button type="button" class="chip-link" data-limpar>limpar</button>
+    <button type="button" class="chip-link" data-csv>CSV</button>`;
+  const ini = $(`#${id}-ini`, el), fim = $(`#${id}-fim`, el), papel = $(`#${id}-papel`, el);
+  const botaoCats = $(`#${id}-cats`, el), menu = $(`#${id}-menu`, el), caixas = $$("input", menu);
+  const rotCats = () => (estado.categorias.length === CATEGORIAS.length ? "Todas as categorias"
+    : estado.categorias.length === 1 ? estado.categorias[0] : `${estado.categorias.length} categorias`);
+  const sincronizar = () => {
+    ini.value = estado.anoIni; fim.value = estado.anoFim; papel.value = estado.papel;
+    caixas.forEach((c) => { c.checked = estado.categorias.includes(c.value); });
+    botaoCats.innerHTML = `<span>${esc(rotCats())}</span><svg class="sel-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+    const p = padrao();
+    $("[data-limpar]", el).hidden = estado.anoIni === p.anoIni && estado.anoFim === p.anoFim && estado.papel === p.papel && estado.categorias.length === CATEGORIAS.length;
+  };
+  const mudou = () => { sincronizar(); aoMudar(); };
+  [ini, fim, papel].forEach(melhorarSelect);
+  sincronizar();
+  ini.addEventListener("change", () => { estado.anoIni = +ini.value; estado.anoFim = Math.max(estado.anoFim, estado.anoIni); mudou(); });
+  fim.addEventListener("change", () => { estado.anoFim = Math.max(+fim.value, estado.anoIni); mudou(); });
+  papel.addEventListener("change", () => { estado.papel = papel.value; mudou(); });
+  menu.addEventListener("change", () => { estado.categorias = CATEGORIAS.filter((c) => caixas.find((x) => x.value === c).checked); mudou(); });
+  $("[data-todas]", menu).addEventListener("click", () => { estado.categorias = [...CATEGORIAS]; mudou(); });
+  const fecharMenu = (foco = false) => { if (menu.hidden) return; botaoCats.setAttribute("aria-expanded", "false"); el.classList.remove("cats-aberto"); fecharAnimado(menu); if (foco) botaoCats.focus(); };
+  botaoCats.addEventListener("click", () => {
+    if (!menu.hidden) return fecharMenu();
+    menu.hidden = false;
+    botaoCats.setAttribute("aria-expanded", "true");
+    el.classList.add("cats-aberto");
+    caixas[0].focus();
+  });
+  menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fecharMenu(true); } });
+  document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".filtro-cats") || !el.contains(e.target)) fecharMenu(); });
+  $("[data-limpar]", el).addEventListener("click", () => { Object.assign(estado, padrao()); mudou(); });
+  $("[data-csv]", el).addEventListener("click", baixar);
+  return { resumo: (html) => { $(".filtro-resumo", el).innerHTML = html; } };
+}

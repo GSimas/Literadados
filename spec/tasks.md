@@ -43,7 +43,7 @@
 ## Próximas
 - [x] P1 Segunda passada de raça e nascimento para as pessoas com `raca_busca = parcial`, em 5 lotes (`dados/coleta/pessoas_raca_1..5.csv`). Nenhuma ficou `parcial`. Achados: Chico César (preta), Wilson Alves-Bezerra (negra) e Cida Pedrosa (branca, pelo TSE); nascimento novo para 4 pessoas, completado para 1 e com fonte melhor para 3. Dúvidas de identidade e gênero ficaram em `observacao`
 - [x] P2 Coletar as listas das outras 14 edições, em lotes por regime (2010–2017, 2018, 2019–2025) (RF-01): 16 edições no painel, 929 indicações, 914 obras, 126 jurados, build e testes verdes 🧪👁. Oito vagas de `categorias_edicao` corrigidas por empates/desclassificação (2010, 2011, 2013); jurados de 2018 não encontrados
-- [~] P3 Conferir o chat com credencial real e as três perguntas originais. Teste pronto: `test_chat_real_perguntas_originais` (marcado `integracao`) roda as três perguntas pelo chat real e exige os números do SQL de referência na resposta; **pulado enquanto não houver `ANTHROPIC_API_KEY`** no ambiente (nenhuma em out/2026). Sem chave, `/api/chat` responde 503 com instrução (conferido)
+- [~] P3 (substituída pela Diadorim, D20; o teste com a Anthropic saiu) Conferir o chat com credencial real e as três perguntas originais. Teste pronto: `test_chat_real_perguntas_originais` (marcado `integracao`) roda as três perguntas pelo chat real e exige os números do SQL de referência na resposta; **pulado enquanto não houver `ANTHROPIC_API_KEY`** no ambiente (nenhuma em out/2026). Sem chave, `/api/chat` responde 503 com instrução (conferido)
 - [x] P4 Pessoas das 14 edições novas (690, em `pessoas_edicoes_1.csv`): Wikidata/Wikipédia por lote SPARQL (338 QIDs), Literafro (22 fonte curada) e protocolo de raça para 120 autores recentes. Gênero em 357, UF em 292, raça declarada em 29. **Faltam: busca de raça em 549 (`parcial`) e gênero/nascimento das demais, em lotes de ~120 por turno** (fila em ordem de prioridade: autores, edição mais recente). **Lote 1** (`pessoas_edicoes_2.csv`, 80 primeiros da fila, autores 2025–2024, protocolo em `dados/coleta/PROTOCOLO_PESSOAS.md`): só busca web (ambiente na nuvem sem Wikipédia/Wikidata), 147 buscas; +16 gênero, +16 UF, 1 busca de raça concluída, 0 autodeclarações. Autores: gênero 63%, UF 52%. **Lote 2** (`pessoas_edicoes_3.csv`, ordem 81–160, autores 2023–2021, 138 buscas): +16 gênero, +9 UF, 62 buscas de raça concluídas, 1 autodeclaração (Lindamir Salete Casagrande, branca; conferir com `coleta.py verificar`). Autores: gênero 65%, UF 53%, busca de raça completa 44%. **Lote 3** (`pessoas_edicoes_4.csv`, ordem 161–240, autores 2021–2020, 145 buscas): +14 gênero, +4 UF, 78 buscas de raça concluídas, 0 autodeclarações. Autores: gênero 67%, UF 54%, busca de raça completa 54%. **Lote 4** (`pessoas_edicoes_5.csv`, ordem 241–320, autores 2020–2019, 145 buscas): +21 gênero, +14 UF, 78 buscas de raça concluídas, 0 autodeclarações. Autores: gênero 70%, UF 56%, busca de raça completa 65%. **Lote 5** (`pessoas_edicoes_6.csv`, ordem 321–400, autores 2019–2016, 150 buscas): +16 gênero, +6 UF, 73 buscas de raça concluídas, 0 autodeclarações. Autores: gênero 72%, UF 56%, busca de raça completa 75%. **Lote 6** (`pessoas_edicoes_7.csv`, ordem 401–480, autores 2016–2013, 142 buscas): +11 gênero, +7 UF, 75 buscas de raça concluídas, 0 autodeclarações. Autores: gênero 73%, UF 57%, busca de raça completa 84%. Duplicata achada: `deborah-kietzmann-goldemberg` = `deborah-goldemberg` (unificar). **Lote 7** (`pessoas_edicoes_8.csv`, ordem 481–580, autores 2013–2010, 165 buscas): +16 gênero, +12 UF, 99 buscas de raça concluídas, 0 autodeclarações. **Fila esgotada.** Autores: gênero 75%, UF 59%, busca de raça completa 98% (18 `parcial`, em geral por recusa da ferramenta de busca). Pendências: gênero/UF dos que a busca web não achou (rodar com API da Wikipédia), casos "REVISAR" de raça. **Passada de créditos (out/2026):** 11 ilustradores/fotógrafa movidos de `autores` para `ilustradores` nas listas, com fonte em `observacao`; Deborah Kietzmann Goldemberg unificada em `deborah-goldemberg`. Ficam para decisão: organizadores listados como autores (Poesia reunida 2025, Caixa Rubem Braga 2017, Poesia Reunida – Euclides da Cunha 2010, De bala em prosa 2021); créditos sem confirmação (Rosinha 2021, Adilson Farias, Marlene Peret, Angela Lago em Bichos, Shirley Souza, Manoel Constantino). **Passada final (out/2026, Windows):** lote Wikidata/pt.wikipedia por API para 301 autores sem gênero/UF (`pessoas_wiki_1.csv`): 17 aceitos por ocupação + identificadores de autoridade (GND/VIAF), +11 gênero, +13 UF; o resto são homônimos ou pessoas sem verbete. Busca de raça das 18 autoras/es `parcial` (`pessoas_raca_6.csv`): 17 completas, 1 autodeclaração (Roni Wasiry, indígena; trecho confere); Tiago Hakiy ("nossa riqueza como indígenas") ficou `sem_declaracao` com REVISAR. Márcia Tiburi: branca pelo registro do TSE 2018 (`pessoas_tse_1.csv`). Lindamir Casagrande conferida à mão no PDF. Casos REVISAR consolidados em `dados/coleta/revisao_raca.csv` (92; 25 já resolvidos, 67 para decisão humana). Créditos pendentes resolvidos na P6. Autores: gênero 77%, UF 62%, busca de raça completa 99,9% (1 `parcial`)
 - [ ] P5 Jurados de 2018 (nenhuma fonte achada: nem página oficial arquivada, nem imprensa). Tentado em out/2026 sem sucesso: CDX do Wayback para premiojabuti.com.br e cbl.org.br 2018–2019 (existe `jurados-2019` em diante, nunca `jurados-2018`), regulamento 07/2018 e `/curadoria/` (só "três jurados por categoria, validados pelo Conselho Curador"), notícias da CBL (renúncia do curador, finalistas, Bagolin) e PublishNews de 04/10 a 14/11/2018. Resta pedir à CBL
 - [~] P6 Ilustradores de Infantil/Juvenil 2010–2025: das 191 linhas marcadas "ilustrador não verificado/levantado", 142 têm ilustrador com URL e trecho (24 de autor que também ilustra), 13 têm fonte de que não há ilustrador (só texto, fotografias, só capa) e 36 seguem não achadas (`observacao` diz o que foi tentado). 20 ilustradores que a CBL creditou como autores (2017–2025, crédito estruturado "Autor: X; Ilustrador: Y") passaram para `ilustradores`, como na passada de créditos; Ara Poty (tradutora de *Cadê Cadê*) saiu de autores e da base. Grupos/estúdios (Giramundo, Casa Rex) ficam só em `observacao`. Ilustradores: 22 → 123 pessoas; obras IJ com ilustrador distinto do autor: 22 → 136; +23 gênero e +14 UF por Wikidata (`pessoas_wiki_2.csv`). Ficam para decisão ("REVISAR crédito" nas listas): *A Raiva* (Lollo coautor ou só ilustrador?), *O Monge e o Passarinho* (texto de Manoel Bernardes adaptado por Angela Lago), *O Elefante Escravo do Coelho* (Giramundo; papel de Sonia Junqueira), *Filosofia Brincante* (Fernando Chuí), *Dentro de Mim Ninguém Entra*, editora de *O Segredo do Meu Irmão* (BesouroBox × 8Inverso). **Protocolo de pessoas nos ilustradores (out/2026):** 76 sem busca de raça completa (73 vazias + 3 `parcial`), em 3 lotes (`pessoas_ilus_1..3.csv`, 91 buscas web, resto por API da Martins Fontes/pt.wikipedia/Wikidata e sites de editoras): 76 buscas de raça concluídas, 0 autodeclarações; +30 gênero, +13 UF, +19 ano de nascimento (estrangeiros com país em `observacao`). Rubem Filho entrou em `revisao_raca.csv` (listado entre "ilustradores negros" da exposição Karingana, descrição de terceiros). Ilustradores (123): gênero 49% → 73%, UF 31% → 41%, busca de raça completa 100%. A conferir: `luciana-grether` e `luciana-grether-carvalho` são provavelmente a mesma pessoa (BrCris: "Luciana Grether de Mello Carvalho", PUC-Rio), sem fonte que ligue o crédito de *Heróis e Suas Jornadas*
@@ -64,3 +64,74 @@
 - [x] T6.10 Referências (RF-18) 👁
 - [x] T6.11 Conferência no navegador (claro, escuro, 1280 e 375 px, sem rolagem horizontal, console sem erros) e testes verdes (36 pytest + 17 node). `prefers-reduced-motion` só por CSS/JS (a ferramenta não emula)
 - [x] T6.12 Duplicata achada pela mídia: `carpinejar` e `fabricio-carpinejar` têm o mesmo QID (Q5428242); unificar pelo procedimento do CLAUDE.md. Mesma pessoa ("Carpinejar" é apelido no item; todas as obras pela Bertrand Brasil): lista 2025 passa a "Fabrício Carpinejar", id único `fabricio-carpinejar`. 915 → 914 pessoas, 714 → 713 pessoas-autoras (contagens por edição não mudam: nenhuma edição tinha os dois ids); 475 QIDs, nenhum repetido; 208 fotos livres, 426 verbetes
+
+## T7 Gênero atribuído pelo nome (CA-11.4, D16)
+- [x] T7.1 `pessoa.genero_evidencia` + CHECKs, `v_participacao.genero_atribuido`, export e `coleta.py` 🧪
+- [x] T7.2 `dados/coleta/pessoas_zgenero_1.csv`: gênero pelo primeiro nome para quem segue `nao_identificado`: 229 atribuídas (134 homens, 95 mulheres); 9 continuam `nao_identificado` (Aramyz, Cavito, Del Candeias, Duda Porto de Souza, Hada Maller, Leguy, Rai Soares, Seta Gimeno, W. J. Solha). Pessoas-autoras: 155 de 713 com gênero atribuído; % mulheres 31% → 39%
+- [x] T7.3 `metricas`: contagem `generoAtribuido` em `kpis` e `historia` 🧪
+- [x] T7.4 Asterisco nos números de gênero, nota de rodapé com n e contato, perfil e tabela marcados; contato na Metodologia (CA-13.2) 👁
+- [x] T7.5 Chat: o prompt explica `genero_atribuido`
+
+## T8 Sistema visual próprio (RF-19, D17)
+- [x] T8.1 Tokens de motion, revelação ao rolar, botões, diálogo e painéis animados (CA-19.1) 👁
+- [x] T8.2 Select próprio com teclado, checkbox, campos, detalhes, rolagem grossa, dicas (CA-19.2) 👁
+- [x] T8.3 Links como chips; texto corrido na cor da marca (CA-19.3) 👁
+- [x] T8.4 Abertura com carrossel de fotos, pontos e números animados (CA-19.4) 👁
+- [x] T8.5 Logotipo com iluminação no hover; `web/logo.svg`; favicon; README atualizado (CA-19.5) 👁
+- [x] T8.6 Menu de tema em botão de ícone de tamanho fixo (CA-19.6) 👁
+- [x] T8.7 Teste de contraste dos tokens nos dois temas (CA-19.7) 🧪
+
+## T9 Página de método e galeria paginada (RF-13, RF-18, CA-11.5, D18)
+- [x] T9.1 `metricas.paginas` com teste 🧪
+- [x] T9.2 Paginação na galeria e na tabela de pessoas, sem "mostrar mais" 👁
+- [x] T9.3 `tema.js` compartilhado; `metodo.html` + `metodo.js` com método, cobertura e referências; navegação aponta para a página 👁
+
+## T10 Gráficos em janelas, dicas e hover (RF-20, CA-19.8, CA-19.9, D19)
+- [x] T10.1 Seções da Linha do tempo ao Júri viram `<dialog class="janela">`; grade de cartões "Gráficos"; navegação 👁
+- [x] T10.2 Rota `#/grafico/<id>`, perfil por cima da janela, render só das janelas abertas 👁
+- [x] T10.3 Fade de entrada e saída nas dicas (Plot e próprias) 👁
+- [x] T10.4 Destaque do elemento sob o mouse e esmaecimento dos demais em todos os gráficos 👁
+
+## T11 Diadorim (RF-12, D20)
+- [x] T11.1 `server.py`: `POST /api/sql` e `GET /api/contexto`; sai `/api/chat` e a dependência `anthropic` 🧪
+- [x] T11.2 `web/diadorim.js`: PKCE do OpenRouter, laço de ferramentas, Markdown seguro com links internos 👁
+- [x] T11.3 Botão flutuante com retrato animado, painel com declaração de IA, sugestões e sair 👁
+- [x] T11.4 Seção "Pergunte" sai da página; navegação e README atualizados 👁
+
+## T12 Anel de retratos (CA-11.5, CA-11.6, D21)
+- [x] T12.1 `metricas.anel` com teste (cabe na largura, sem sobreposição, n posições) 🧪
+- [x] T12.2 Anel com centro informativo, brilho no hover/foco, clique abre o perfil 👁
+- [x] T12.3 Paginação de 50 com setas laterais e teclas ←/→ 👁
+- [x] T12.4 Brilho de fundo que segue o ponteiro em todos os blocos (CA-19.10) 👁
+- [x] T12.5 Retrato da Diadorim redesenhado com volume e luz (pedido: menos boneco) 👁
+
+## T13 Filtros por parte (RF-02, D22)
+- [x] T13.1 `metricas.filtroParaTexto`/`filtroDeTexto` com teste de ida e volta 🧪
+- [x] T13.2 `ui.montarFiltro` (período, menu de categorias, papel, resumo, limpar, CSV) 👁
+- [x] T13.3 Panorama, cada janela e Autores com filtro próprio e estado na URL; sem filtro global nem barra de recorte 👁
+- [x] T12.6 100 retratos por página, miolo de 24% e centro circular fixo com texto em cqi (pedido de ajuste) 👁
+
+## T14 Busca e perfis de lugar (RF-21, RF-22, D23)
+- [x] T14.1 `metricas.indiceBusca`, `buscar` e `perfilLugar` com testes 🧪
+- [x] T14.2 `web/busca.js`: combobox no cabeçalho das duas páginas (atalhos `/` e Ctrl/⌘+K) 👁
+- [x] T14.3 `web/lugares.js`: perfis de UF e região com mapa, números, gráficos e pessoas; rotas `#/uf/` e `#/regiao/` 👁
+- [x] T14.4 Ligações: UF no perfil da pessoa, região no perfil da UF, UFs no perfil da região, botão no painel do mapa 👁
+
+## T15 Diadorim: horário, passos, nova conversa, modelo (CA-12.8–12.11, D24)
+- [x] T15.1 `responder` com `{modelo, aoPasso}` e teste dos passos 🧪
+- [x] T15.2 Horário em toda mensagem e modelo nas respostas 👁
+- [x] T15.3 Passos intermediários ao vivo, recolhidos no fim 👁
+- [x] T15.4 Botão "Nova conversa" 👁
+- [x] T15.5 Configuração com todos os modelos do OpenRouter (busca, filtros, preço, contexto) 👁
+
+## T16 Exportar gráficos e tabelas (CA-14.2, CA-14.3, D25)
+- [x] T16.1 `exportar.xlsx` (ZIP STORE + CRC-32) e CSV, com teste (o Python abre o arquivo) 🧪
+- [x] T16.2 Gráfico → JPG com fundo / PNG sem fundo, com título, legenda e rodapé 👁
+- [x] T16.3 Botão em todo gráfico e toda tabela; janela de opções nas duas páginas 👁
+
+## T17 Correções e ajustes (out/2026)
+- [x] T17.1 História: o gráfico voltou a ficar fixo. Uma regra `position: relative` da exportação sobrescrevia o `sticky`, e o gráfico rolava junto com o primeiro passo 👁
+- [x] T17.2 Markdown completo no chat (tabelas, títulos, citações, código, linha, lista depois de parágrafo), tabelas do chat exportáveis (CA-12.5) 🧪
+- [x] T17.3 Cabeçalho da Diadorim animado e iluminado no hover (CA-12.1) 👁
+- [x] T17.4 "2 vezes 1º lugar" no lugar de "2 1º lugares"; linha do tempo do perfil com entrada escalonada e brilho no hover 👁
+- [x] T17.5 Cobertura por edição (metodo.html): sem rolagem dupla; o contêiner externo também tinha `.rolagem` 👁

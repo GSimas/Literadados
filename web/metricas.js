@@ -64,6 +64,7 @@ export function expandir(D) {
       nome: p.nome,
       papel: l.papel,
       genero: p.genero,
+      genero_atribuido: p.genero_evidencia === "atribuicao",
       raca: p.raca,
       raca_busca: p.raca_busca,
       negra: p.negra,
@@ -103,11 +104,12 @@ export function kpis(linhas) {
   const negras = pessoas.filter((p) => p.negra).length;
   const comRaca = pessoas.filter((p) => p.raca !== "sem_declaracao").length;
   const buscaParcial = pessoas.filter((p) => p.raca_busca !== "completa").length;
+  const generoAtribuido = pessoas.filter((p) => p.genero_atribuido).length;
   return {
     indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
     pessoas: n,
     obras: distintos(linhas, (l) => l.obra_id),
-    mulheres, pctMulheres: pct(mulheres, n),
+    mulheres, pctMulheres: pct(mulheres, n), generoAtribuido,
     negras, pctNegrasPiso: pct(negras, n),
     comRaca, pctCoberturaRaca: pct(comRaca, n),
     buscaParcial, pctBuscaCompleta: pct(n - buscaParcial, n),
@@ -342,7 +344,7 @@ export function historia(linhas) {
     pessoas: n,
     indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
     edicoes: distintos(linhas, (l) => l.ano),
-    genero: { ...gt, pctMulheres: pct(gt.mulheres, n) },
+    genero: { ...gt, pctMulheres: pct(gt.mulheres, n), atribuido: porPessoa(linhas).filter((l) => l.genero_atribuido).length },
     premiadas: { pessoas: prem.length, mulheres: gp.mulheres, pctMulheres: pct(gp.mulheres, prem.length) },
     vencedoras: { pessoas: venc.length, ...gv, pctMulheres: pct(gv.mulheres, venc.length) },
     raca: {
@@ -397,4 +399,136 @@ export function iniciais(nome) {
   const partes = String(nome).replace(/\(.*?\)/g, "").split(/\s+/).filter((p) => p && !/^(d[aeo]s?|e|van|von|del?)$/i.test(p));
   if (!partes.length) return "?";
   return (partes[0][0] + (partes.length > 1 ? partes.at(-1)[0] : "")).toLocaleUpperCase("pt-BR");
+}
+
+// Anel de retratos (CA-11.5, D21): n círculos em anéis concêntricos ao redor de um miolo vazio, do anel de dentro para fora.
+// Devolve o diâmetro d, o raio do miolo, o raio externo e as posições (x, y) relativas ao centro.
+export function anel(n, largura) {
+  const W = Math.max(260, largura);
+  const montar = (d) => {
+    const folga = Math.max(3, d * 0.14), passo = d + folga, miolo = Math.max(84, W * 0.24); // miolo largo: o resumo cabe com folga
+    const pos = [];
+    let r = miolo + d / 2, aneis = 0;
+    while (pos.length < n) {
+      const k = Math.min(Math.floor((2 * Math.PI * r) / passo), n - pos.length);
+      for (let i = 0; i < k; i++) {
+        const a = -Math.PI / 2 + (2 * Math.PI * i) / k + (aneis % 2 ? Math.PI / k : 0); // anéis alternados defasados
+        pos.push({ x: r * Math.cos(a), y: r * Math.sin(a), anel: aneis });
+      }
+      r += passo;
+      aneis++;
+    }
+    return { d, miolo, raio: (n ? r - passo : miolo) + d / 2, pos };
+  };
+  for (let d = Math.min(68, W / 8); d > 18; d -= 1) {
+    const a = montar(d);
+    if (a.raio * 2 <= W) return a;
+  }
+  return montar(18);
+}
+
+// Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
+// Texto vazio = padrão; valores fora do recorte voltam ao padrão.
+export function filtroDeTexto(texto, [a0, a1], cats) {
+  const [anos = "", ...resto] = String(texto ?? "").split("~");
+  const [i, f] = anos.split("-").map(Number);
+  const anoIni = i >= a0 && i <= a1 ? i : a0;
+  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : a1);
+  const lista = resto.find((r) => r && r !== "todos")?.split(",").filter((c) => cats.includes(c));
+  return { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
+}
+export function filtroParaTexto(f, [a0, a1], cats) {
+  const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
+  if (padraoAnos && todasCats && f.papel !== "todos") return "";
+  return [`${f.anoIni}-${f.anoFim}`, todasCats ? null : f.categorias.join(","), f.papel === "todos" ? "todos" : null].filter(Boolean).join("~");
+}
+
+// ---------- busca determinística (RF-21, D23) ----------
+const TIPOS_BUSCA = ["Pessoa", "Livro", "Estado", "Região", "Editora", "Categoria", "Edição", "Gráfico", "Seção"];
+export const normalizar = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+const DESTINOS = [
+  ["Gráfico", "Linha do tempo", "composição de cada edição e vencedoras", "#/grafico/linha-do-tempo"],
+  ["Gráfico", "Mapa", "UF de nascimento e fluxo região → editora → resultado", "#/grafico/geografia", "geografia estados sankey"],
+  ["Gráfico", "Evolução", "composição por edição", "#/grafico/evolucao"],
+  ["Gráfico", "Funil", "lista → finalistas → premiadas → vencedoras", "#/grafico/funil", "teto de vidro"],
+  ["Gráfico", "Categorias", "índice de Duncan", "#/grafico/segregacao", "segregação"],
+  ["Gráfico", "Idade", "idade no ano do prêmio", "#/grafico/idade"],
+  ["Gráfico", "Editoras", "mais indicadas; grupos e independentes", "#/grafico/editoras"],
+  ["Gráfico", "Júri", "quem julga e quem vence", "#/grafico/juri", "jurados"],
+  ["Seção", "História guiada", "a narrativa em passos", "#historia"],
+  ["Seção", "Panorama", "o recorte em números", "#panorama"],
+  ["Seção", "Autores", "anel de retratos", "#autores", "pessoas galeria"],
+  ["Seção", "Método", "como os dados foram feitos", "metodo.html", "metodologia cobertura"],
+  ["Seção", "Referências", "fontes por domínio", "metodo.html#referencias", "fontes"],
+];
+
+export function indiceBusca(D) {
+  const ls = D.participacao.filter((l) => l.papel !== "organizador");
+  const porPessoaId = groupBy(ls, (l) => l.pessoa_id), porObra = groupBy(ls, (l) => l.obra_id);
+  const jurados = new Set(D.jurados.map((j) => j.pessoa_id));
+  const e = [];
+  const add = (tipo, rotulo, sub, href, extra = "") => e.push({ tipo, rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) });
+  for (const p of D.pessoas) {
+    const pl = porPessoaId.get(p.id);
+    if (!pl && !jurados.has(p.id)) continue;
+    const n = new Set((pl ?? []).map((l) => `${l.ano}|${l.nome_original}|${l.obra_id}`)).size;
+    add("Pessoa", p.nome, [p.uf_nascimento, p.ano_nascimento, n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : "jurado(a)"].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
+  }
+  for (const o of D.obras) {
+    const ol = porObra.get(o.id);
+    if (!ol) continue;
+    const autores = [...new Set(ol.filter((l) => l.papel === "autor").map((l) => l.nome))];
+    const edicoes = [...new Set(ol.map((l) => `${l.categoria} ${l.ano}`))];
+    add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/pessoa/${(ol.find((l) => l.papel === "autor") ?? ol[0]).pessoa_id}`, autores.join(" "));
+  }
+  const ufs = D.ufs.filter((u) => u.uf !== "EX");
+  for (const u of ufs) add("Estado", u.nome, `${u.uf} · ${u.regiao}`, `#/uf/${u.uf}`, u.uf);
+  for (const r of [...new Set(ufs.map((u) => u.regiao))]) add("Região", r, `${ufs.filter((u) => u.regiao === r).length} UFs`, `#/regiao/${encodeURIComponent(r)}`);
+  const obrasPorEditora = groupBy(D.obras.filter((o) => porObra.has(o.id)), (o) => o.editora_id);
+  for (const ed of D.editoras) {
+    const n = obrasPorEditora.get(ed.id)?.length;
+    if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
+  }
+  for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
+  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
+  for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
+  return e;
+}
+
+// Pontuação: 0 nome exato · 1 começo do nome · 2 começo de palavra · 3 toda palavra digitada começa uma palavra do nome ·
+// 4 trecho do nome · 5 só nos termos extras (ex.: livro achado pelo nome do autor). Desempate: tipo, tamanho, ordem alfabética.
+export function buscar(indice, termo, n = 12) {
+  const t = normalizar(termo);
+  if (!t) return [];
+  const toks = t.split(" ");
+  const res = [];
+  for (const e of indice) {
+    if (!toks.every((k) => e.chave.includes(k))) continue;
+    const palavras = e.nome.split(/[^a-z0-9]+/).filter(Boolean);
+    const s = e.nome === t ? 0 : e.nome.startsWith(t) ? 1 : ` ${e.nome}`.includes(` ${t}`) ? 2
+      : toks.every((k) => palavras.some((w) => w.startsWith(k))) ? 3 : toks.every((k) => e.nome.includes(k)) ? 4 : 5;
+    res.push([s, e]);
+  }
+  return res.sort(([sa, a], [sb, b]) => sa - sb || TIPOS_BUSCA.indexOf(a.tipo) - TIPOS_BUSCA.indexOf(b.tipo)
+    || a.rotulo.length - b.rotulo.length || a.rotulo.localeCompare(b.rotulo, "pt-BR")).slice(0, n).map(([, e]) => e);
+}
+
+// ---------- perfil de UF ou região (RF-22, D23) ----------
+// Sobre as linhas do recorte completo de autores; base da parcela = participações com UF conhecida no Brasil.
+export function perfilLugar(linhas, pred) {
+  const brasil = linhas.filter((l) => l.uf_nascimento && l.uf_nascimento !== "EX");
+  const dentro = brasil.filter(pred);
+  const k = kpis(dentro);
+  const pessoasBR = distintos(brasil, (l) => l.pessoa_id);
+  const fatia = (chave) => [...groupBy(brasil, chave)].map(([g, ls]) => {
+    const n = ls.filter(pred).length;
+    return { grupo: g, n, total: ls.length, pct: pct(n, ls.length) };
+  });
+  return {
+    ...k, pessoasBR, parcela: pct(k.pessoas, pessoasBR),
+    premiadas: distintos(dentro.filter((l) => l.premiada), (l) => l.pessoa_id),
+    vencedoras: distintos(dentro.filter((l) => l.vencedora), (l) => l.pessoa_id),
+    porAno: fatia((l) => l.ano).map(({ grupo, ...r }) => ({ ano: grupo, ...r })).sort((a, b) => a.ano - b.ano),
+    porCategoria: fatia((l) => l.categoria).map(({ grupo, ...r }) => ({ categoria: grupo, ...r })).sort((a, b) => b.pct - a.pct || a.categoria.localeCompare(b.categoria)),
+  };
 }

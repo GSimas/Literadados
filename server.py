@@ -1,4 +1,4 @@
-"""Servidor do Literadados: arquivos de web/ + POST /api/chat (IA texto→SQL). Spec RF-12, design §3."""
+"""Servidor do Literadados: arquivos de web/ + GET /api/contexto e POST /api/sql para a Diadorim (spec RF-12, design §3 e D20)."""
 import json
 import os
 import re
@@ -7,13 +7,10 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import anthropic
 import duckdb
-from anthropic import beta_tool
 
 RAIZ = Path(__file__).parent
 DB = Path(os.environ.get("JABUTI_DB", RAIZ / "jabuti.duckdb"))
-MODELO = "claude-opus-5-5"
 LIMITE_LINHAS = 200
 TEMPO_LIMITE_S = 5
 
@@ -69,7 +66,7 @@ def executar_sql(sql: str, db: Path = DB) -> dict:
     return {"sql": s, "colunas": colunas, "linhas": linhas, "truncado": truncado}
 
 
-# ---------- IA ----------
+# ---------- contexto da IA (Diadorim, D20) ----------
 
 def _prompt_sistema(db: Path = DB) -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
@@ -77,7 +74,7 @@ def _prompt_sistema(db: Path = DB) -> str:
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
     con.close()
-    return f"""Você é o assistente de dados do Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
+    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
 Responda sempre em português do Brasil, de forma direta, começando pelo número pedido.
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
@@ -93,8 +90,10 @@ Regras de análise:
   raca_busca = 'parcial' significa que a busca de autodeclaração foi interrompida: ali 'sem_declaracao' pode esconder declarações. Mencione quantas pessoas do recorte têm busca parcial.
 - Pessoas distintas: COUNT(DISTINCT pessoa_id). Sempre informe o n absoluto junto de percentuais.
 - Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
+- genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
+  informe quantas pessoas do recorte têm gênero atribuído.
 - Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Jabuti.
-Formato: um parágrafo curto de resposta, depois observações de cobertura em uma linha se relevante. Não repita o SQL no texto (ele é mostrado à parte).
+Não repita o SQL no texto (ele é mostrado à parte).
 
 Esquema (DuckDB):
 {ddl}"""
@@ -103,51 +102,10 @@ Esquema (DuckDB):
 _SISTEMA = None
 
 
-def responder(pergunta: str, historico: list, client=None, db: Path = DB) -> dict:
+def contexto(db: Path = DB) -> str:
     global _SISTEMA
-    client = client or anthropic.Anthropic()
-    if not any(getattr(client, k, None) for k in ("api_key", "auth_token", "credentials")):
-        raise PermissionError("sem credencial")
     _SISTEMA = _SISTEMA or _prompt_sistema(db)
-    consultas = []
-
-    @beta_tool
-    def consultar_sql(sql: str) -> str:
-        """Executa uma consulta SQL somente leitura no banco DuckDB do Prêmio Jabuti e devolve colunas e linhas em JSON.
-
-        Args:
-            sql: Um único comando SELECT ou WITH. Prefira a view v_participacao.
-        """
-        try:
-            r = executar_sql(sql, db)
-        except (SQLRecusado, duckdb.Error) as e:
-            return f"ERRO: {e}"
-        consultas.append(r)
-        return json.dumps({k: r[k] for k in ("colunas", "linhas", "truncado")}, ensure_ascii=False, default=str)
-
-    mensagens = []
-    for h in historico[-6:]:
-        mensagens += [{"role": "user", "content": str(h["pergunta"])[:1000]},
-                      {"role": "assistant", "content": str(h["resposta"])[:4000]}]
-    mensagens.append({"role": "user", "content": pergunta})
-
-    runner = client.beta.messages.tool_runner(
-        model=MODELO,
-        max_tokens=16000,
-        system=[{"type": "text", "text": _SISTEMA, "cache_control": {"type": "ephemeral"}}],
-        thinking={"type": "adaptive"},
-        output_config={"effort": "medium"},
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
-        tools=[consultar_sql],
-        messages=mensagens,
-        max_iterations=8,
-    )
-    final = runner.until_done()
-    if final.stop_reason == "refusal":
-        raise RuntimeError("o modelo recusou a pergunta")
-    texto = "".join(b.text for b in final.content if b.type == "text").strip()
-    return {"resposta": texto or "Não consegui formular uma resposta.", "consultas": consultas}
+    return _SISTEMA
 
 
 # ---------- HTTP ----------
@@ -161,31 +119,30 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(dados)
 
+    def do_GET(self):
+        if self.path == "/api/contexto":
+            return self._json(200, {"sistema": contexto(DB)})
+        return super().do_GET()
+
     def do_POST(self):
-        if self.path != "/api/chat":
+        if self.path != "/api/sql":
             return self._json(404, {"erro": "não encontrado"})
         try:
             tamanho = int(self.headers.get("Content-Length", 0))
-            corpo = json.loads(self.rfile.read(min(tamanho, 100_000)) or b"{}")
-            pergunta = str(corpo.get("pergunta", "")).strip()
-            historico = [h for h in corpo.get("historico", []) if isinstance(h, dict) and "pergunta" in h and "resposta" in h]
+            sql = str(json.loads(self.rfile.read(min(tamanho, 20_000)) or b"{}").get("sql", ""))
         except (ValueError, AttributeError):
             return self._json(400, {"erro": "JSON inválido"})
-        if not pergunta or len(pergunta) > 1000:
-            return self._json(400, {"erro": "Escreva uma pergunta de até 1000 caracteres."})
+        if len(sql) > 10_000:
+            return self._json(400, {"erro": "consulta longa demais"})
         try:
-            return self._json(200, responder(pergunta, historico))
-        except PermissionError:
-            return self._json(503, {"erro": "O chat precisa de uma credencial da API da Anthropic. Defina ANTHROPIC_API_KEY "
-                                             "(ou rode `ant auth login`) e reinicie o servidor. O painel funciona sem ela."})
-        except RuntimeError as e:
-            return self._json(422, {"erro": f"Não foi possível responder: {e}."})
-        except anthropic.APIConnectionError:
-            return self._json(502, {"erro": "Sem conexão com a API da Anthropic. Tente de novo."})
-        except anthropic.RateLimitError:
-            return self._json(502, {"erro": "Limite de uso da API atingido. Tente em instantes."})
-        except anthropic.APIStatusError as e:
-            return self._json(502, {"erro": f"A API da Anthropic respondeu com erro {e.status_code}."})
+            return self._json(200, executar_sql(sql, DB))
+        except (SQLRecusado, duckdb.Error) as e:
+            return self._json(400, {"erro": str(e)})
+
+    def end_headers(self):
+        # Revalida a cada carga (304 se nada mudou): sem isso, módulos ES antigos ficam presos no cache.
+        self.send_header("Cache-Control", "no-cache")
+        super().end_headers()
 
     def log_message(self, fmt, *args):
         if "/api/" in (args[0] if args else ""):

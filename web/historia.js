@@ -1,7 +1,7 @@
 // História guiada (RF-16): gráfico de unidades fixo (um ponto por pessoa-autora) que se reorganiza a cada passo.
 // Números da narrativa: metricas.historia (testada). Encaixe por passo: CSS scroll-snap (design D15).
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, esc, rotulo, css, corDe, dica, movimentoReduzido } from "./ui.js";
+import { $, fmt, fmtPct, esc, rotulo, css, corDe, dica, movimentoReduzido, astGenero } from "./ui.js";
 
 const ROT_ETAPA = { lista: "Só a lista", premiada: "Premiadas (2º/3º)", vencedora: "Venceram (1º lugar)" };
 // Rótulos curtos para os blocos (com 7 grupos lado a lado, o rótulo longo não cabe).
@@ -16,10 +16,11 @@ function passos(H, D) {
       numero: fmt(H.pessoas), texto: `Entre 2010 e 2025, <b>${fmt(H.indicacoes)} indicações</b> de ${fmt(H.edicoes)} edições do Jabuti levaram às listas obras de <b>${fmt(H.pessoas)} pessoas-autoras</b>, em romance, contos, crônica, poesia, infantil, juvenil e Livro do Ano.`,
       nota: "Ilustradores e organizadores ficam fora desta conta. Role para reorganizar os pontos." },
     { layout: "genero", cor: "genero", titulo: "Quantas são mulheres",
-      numero: fmtPct(H.genero.pctMulheres), texto: `${fmt(H.genero.mulheres)} das ${fmt(H.pessoas)} pessoas são mulheres; ${fmt(H.genero.homens)} são homens${H.genero.naoBinarias ? ` e ${fmt(H.genero.naoBinarias)} são não binárias` : ""}.`,
-      nota: H.genero.semGenero ? `Para ${fmt(H.genero.semGenero)} pessoas, as fontes públicas consultadas ainda não dizem o gênero (cinza).` : "" },
+      numero: fmtPct(H.genero.pctMulheres) + astGenero(H.genero.atribuido), texto: `${fmt(H.genero.mulheres)} das ${fmt(H.pessoas)} pessoas são mulheres; ${fmt(H.genero.homens)} são homens${H.genero.naoBinarias ? ` e ${fmt(H.genero.naoBinarias)} são não binárias` : ""}.`,
+      nota: [H.genero.atribuido ? `Para ${fmt(H.genero.atribuido)} pessoas sem fonte, o gênero foi atribuído pelo primeiro nome e pode estar errado (*).` : "",
+        H.genero.semGenero ? `Para ${fmt(H.genero.semGenero)}, nem o nome permite dizer (cinza).` : ""].filter(Boolean).join(" ") },
     { layout: "etapa", cor: "genero", titulo: "Da lista ao 1º lugar",
-      numero: fmtPct(v.pctMulheres), texto: `Das <b>${fmt(v.pessoas)} pessoas que venceram</b> pelo menos uma vez, ${fmt(v.mulheres)} são mulheres: ${fmtPct(v.pctMulheres)}, ${Math.abs(dif) < 1 ? "praticamente o mesmo peso" : dif < 0 ? `${fmt(Math.abs(dif), 1)} pontos a menos` : `${fmt(dif, 1)} pontos a mais`} que na lista inteira (${fmtPct(H.genero.pctMulheres)}).`,
+      numero: fmtPct(v.pctMulheres) + astGenero(H.genero.atribuido), texto: `Das <b>${fmt(v.pessoas)} pessoas que venceram</b> pelo menos uma vez, ${fmt(v.mulheres)} são mulheres: ${fmtPct(v.pctMulheres)}, ${Math.abs(dif) < 1 ? "praticamente o mesmo peso" : dif < 0 ? `${fmt(Math.abs(dif), 1)} pontos a menos` : `${fmt(dif, 1)} pontos a mais`} que na lista inteira (${fmtPct(H.genero.pctMulheres)}).`,
       nota: "Cada pessoa aparece no seu melhor resultado. Até 2017 havia 2º e 3º lugares; desde 2018, só o 1º." },
     { layout: "raca", cor: "raca", titulo: "Pelo menos estas pessoas são negras",
       numero: `≥ ${fmtPct(H.raca.pctNegras)}`, texto: `<b>${fmt(H.raca.negras)} pessoas</b> se declararam publicamente negras (pretas, pardas ou negras) e ${fmt(H.raca.indigenas)} indígenas. Entre quem venceu, ${fmt(H.raca.negrasVencedoras)}.`,
@@ -28,8 +29,8 @@ function passos(H, D) {
       numero: fmtPct(H.regiao.pctSudeste), texto: `Entre as ${fmt(H.regiao.comUF)} pessoas com UF de nascimento conhecida no Brasil, <b>${fmt(H.regiao.sudeste)} nasceram no Sudeste</b>, região que tem ${fmtPct(popSudeste)} da população (Censo 2022). ${H.topUF.uf ? `Só ${esc(H.topUF.uf)} reúne ${fmt(H.topUF.pessoas)}.` : ""}`,
       nota: `${fmt(H.regiao.exterior)} pessoas estão registradas como nascidas fora do Brasil e ${fmt(H.regiao.semDado)} ainda não têm UF de nascimento na base (entre elas, outras nascidas no exterior).` },
     { layout: "todos", cor: "genero", titulo: "Agora é com você",
-      numero: "", texto: `Filtre por período e categoria, veja a <a href="#linha-do-tempo">linha do tempo</a>, o <a href="#geografia">mapa</a>, as <a href="#funil">análises</a> e o <a href="#autores">perfil de cada pessoa</a>, sempre com as fontes.`,
-      nota: "Ou pergunte em português na seção Pergunte." },
+      numero: "", texto: `Cada parte tem o próprio filtro de período e categoria. Veja a <a href="#/grafico/linha-do-tempo">linha do tempo</a>, o <a href="#/grafico/geografia">mapa</a>, as <a href="#/grafico/funil">análises</a> e o <a href="#autores">perfil de cada pessoa</a>, sempre com as fontes.`,
+      nota: "Ou pergunte em português à Diadorim, a IA no canto da tela." },
   ];
 }
 
