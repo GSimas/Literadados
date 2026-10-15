@@ -63,4 +63,4 @@
 - [x] T6.9 Galeria, perfis com rota por hash, foto com crédito ou avatar (RF-11) 👁
 - [x] T6.10 Referências (RF-18) 👁
 - [x] T6.11 Conferência no navegador (claro, escuro, 1280 e 375 px, sem rolagem horizontal, console sem erros) e testes verdes (36 pytest + 17 node). `prefers-reduced-motion` só por CSS/JS (a ferramenta não emula)
-- [ ] T6.12 Duplicata achada pela mídia: `carpinejar` e `fabricio-carpinejar` têm o mesmo QID (Q5428242); unificar pelo procedimento do CLAUDE.md
+- [x] T6.12 Duplicata achada pela mídia: `carpinejar` e `fabricio-carpinejar` têm o mesmo QID (Q5428242); unificar pelo procedimento do CLAUDE.md. Mesma pessoa ("Carpinejar" é apelido no item; todas as obras pela Bertrand Brasil): lista 2025 passa a "Fabrício Carpinejar", id único `fabricio-carpinejar`. 915 → 914 pessoas, 714 → 713 pessoas-autoras (contagens por edição não mudam: nenhuma edição tinha os dois ids); 475 QIDs, nenhum repetido; 208 fotos livres, 426 verbetes
