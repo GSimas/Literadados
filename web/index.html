@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JabutiDados</title>
+<meta name="description" content="Quem chega ao Prêmio Jabuti? Gênero, raça autodeclarada e estado de nascimento de autores finalistas e premiados, 2010–2025.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%232a78d6'/><path d='M9 19c2-5 12-5 14 0' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topo">
+  <div class="topo-linha">
+    <div>
+      <h1>JabutiDados</h1>
+      <p class="sub">Quem chega ao Prêmio Jabuti? Gênero, raça autodeclarada e estado de nascimento de autores, 2010–2025.</p>
+    </div>
+    <button id="tema" class="botao-fantasma" type="button" aria-label="Alternar tema">Tema: automático</button>
+  </div>
+  <p id="aviso-cobertura" class="aviso" role="status"></p>
+  <nav aria-label="Seções">
+    <a href="#panorama">Panorama</a><a href="#evolucao">Evolução</a><a href="#funil">Funil</a><a href="#segregacao">Categorias</a>
+    <a href="#geografia">Geografia</a><a href="#idade">Idade</a><a href="#editoras">Editoras</a><a href="#juri">Júri</a>
+    <a href="#pessoas">Pessoas</a><a href="#pergunte">Pergunte</a><a href="#metodologia">Metodologia</a>
+  </nav>
+</header>
+
+<form id="filtros" class="filtros" aria-label="Filtros (valem para todo o painel)">
+  <label>De <select id="f-ini"></select></label>
+  <label>até <select id="f-fim"></select></label>
+  <fieldset id="f-cats"><legend>Categorias</legend></fieldset>
+  <label>Pessoas <select id="f-papel"><option value="autor">só autores</option><option value="todos">autores e ilustradores</option></select></label>
+  <button id="baixar" type="button" class="botao-fantasma">Baixar CSV</button>
+</form>
+
+<main id="conteudo">
+  <section id="panorama" aria-labelledby="h-panorama">
+    <h2 id="h-panorama">Panorama</h2>
+    <div id="kpis" class="kpis"></div>
+    <div class="cartao">
+      <h3>Edições com listas coletadas</h3>
+      <div id="faixa-cobertura" class="faixa" role="list"></div>
+    </div>
+  </section>
+
+  <section id="evolucao" aria-labelledby="h-evolucao">
+    <h2 id="h-evolucao">Evolução por edição</h2>
+    <p class="lead">Composição de cada edição em proporção. Desde 2018 há menos vagas premiadas, por isso comparamos fatias, não contagens.</p>
+    <div class="controles" role="group" aria-label="Opções da evolução">
+      <label>Dimensão <select id="evo-dim"><option value="genero">Gênero</option><option value="raca">Raça declarada</option><option value="regiao">Região de nascimento</option></select></label>
+      <label>Etapa <select id="evo-etapa"><option value="lista">Toda a lista</option><option value="premiada">Só premiadas</option></select></label>
+    </div>
+    <figure class="cartao"><div id="g-evolucao" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-evolucao"></div></details></figure>
+  </section>
+
+  <section id="funil" aria-labelledby="h-funil">
+    <h2 id="h-funil">Funil: quem sobe ao pódio</h2>
+    <p class="lead">Participação de cada grupo em cada etapa. Uma linha que desce mostra um grupo que chega à lista, mas some na hora da premiação.</p>
+    <div class="controles"><label>Dimensão <select id="funil-dim"><option value="genero">Gênero</option><option value="raca">Raça declarada</option><option value="regiao">Região de nascimento</option></select></label></div>
+    <p id="funil-resumo" class="destaque"></p>
+    <figure class="cartao"><div id="g-funil" class="grafico"></div><figcaption>"Finalistas" existem só nas edições com 2ª lista (2019 em diante).</figcaption><details><summary>Ver dados em tabela</summary><div id="t-funil"></div></details></figure>
+  </section>
+
+  <section id="segregacao" aria-labelledby="h-segregacao">
+    <h2 id="h-segregacao">Categorias: quem concorre onde</h2>
+    <p class="lead">Mulheres e autores negros estão concentrados em algumas categorias? O índice de Duncan mede quanto a distribuição de mulheres difere da de homens entre as categorias.</p>
+    <div class="duas">
+      <figure class="cartao"><div id="g-segregacao" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-segregacao"></div></details></figure>
+      <div id="duncan" class="cartao kpi-destaque"></div>
+    </div>
+  </section>
+
+  <section id="geografia" aria-labelledby="h-geografia">
+    <h2 id="h-geografia">Geografia: onde nasceram</h2>
+    <div class="controles"><label>Medida <select id="geo-medida"><option value="pessoas">Pessoas</option><option value="porMilhao">Pessoas por milhão de habitantes (Censo 2022)</option></select></label></div>
+    <div class="duas">
+      <figure class="cartao"><div id="g-mapa" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-mapa"></div></details></figure>
+      <figure class="cartao"><h3>Da região de nascimento à editora e ao resultado</h3><div id="g-sankey" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-sankey"></div></details></figure>
+    </div>
+  </section>
+
+  <section id="idade" aria-labelledby="h-idade">
+    <h2 id="h-idade">Idade no ano do prêmio</h2>
+    <p class="lead">Cada ponto é uma participação. A linha vertical marca a mediana de cada grupo.</p>
+    <figure class="cartao"><div id="g-idade" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-idade"></div></details></figure>
+  </section>
+
+  <section id="editoras" aria-labelledby="h-editoras">
+    <h2 id="h-editoras">Editoras</h2>
+    <div class="duas">
+      <figure class="cartao"><h3>Editoras com mais indicações</h3><div id="g-editoras" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-editoras"></div></details></figure>
+      <figure class="cartao"><h3>Grupos editoriais e independentes</h3><div id="g-grupos" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-grupos"></div></details></figure>
+    </div>
+  </section>
+
+  <section id="juri" aria-labelledby="h-juri">
+    <h2 id="h-juri">Júri e premiados</h2>
+    <p class="lead">O perfil de quem julga se parece com o de quem vence? Nomes de jurados são divulgados desde 2018.</p>
+    <figure class="cartao"><div id="g-juri" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-juri"></div></details></figure>
+  </section>
+
+  <section id="pessoas" aria-labelledby="h-pessoas">
+    <h2 id="h-pessoas">Pessoas</h2>
+    <label class="busca">Buscar por nome <input id="busca" type="search" autocomplete="off" placeholder="ex.: Conceição"></label>
+    <div class="cartao rolagem"><table id="t-pessoas" class="tabela"></table></div>
+  </section>
+
+  <section id="pergunte" aria-labelledby="h-pergunte">
+    <h2 id="h-pergunte">Pergunte aos dados</h2>
+    <p class="lead">A IA transforma sua pergunta em uma consulta ao banco e mostra o SQL usado. Ela só lê dados, e os números vêm do banco, não da memória do modelo.</p>
+    <div id="sugestoes" class="sugestoes"></div>
+    <div id="conversa" class="conversa" aria-live="polite"></div>
+    <form id="chat" class="chat">
+      <label for="pergunta" class="sr">Sua pergunta</label>
+      <textarea id="pergunta" rows="2" maxlength="1000" placeholder="Ex.: quantas mulheres do Nordeste foram premiadas?" required></textarea>
+      <button type="submit">Perguntar</button>
+    </form>
+  </section>
+
+  <section id="metodologia" aria-labelledby="h-metodologia">
+    <h2 id="h-metodologia">Metodologia</h2>
+    <div class="texto">
+      <h3>De onde vêm os dados</h3>
+      <p>Listas oficiais do Prêmio Jabuti (Câmara Brasileira do Livro), conferidas em duas fontes jornalísticas ou oficiais. Dados das pessoas vêm do Wikidata, conferidos por humano, e de biografias públicas. Cada atributo guarda sua fonte (veja a ficha de cada pessoa).</p>
+      <h3>Definições</h3>
+      <ul>
+        <li><b>Lista:</b> obras da 1ª lista pública da categoria (≈10). Até 2018 eram chamadas de finalistas; de 2019 em diante, de semifinalistas.</li>
+        <li><b>Finalistas:</b> 2ª lista (≈5), só existe de 2019 em diante.</li>
+        <li><b>Premiadas:</b> 1º, 2º e 3º lugares até 2017; só o 1º a partir de 2018. <b>Vencedoras:</b> 1º lugar.</li>
+        <li><b>Estado:</b> UF de nascimento. <b>Unidade de contagem:</b> participação, ou seja, uma pessoa em uma indicação. O panorama conta pessoas distintas.</li>
+        <li><b>Categorias:</b> Romance (Romance Literário a partir de 2020; Romance de Entretenimento fica fora), Contos (Contos e Crônicas até 2017; Conto a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, Infantil e Juvenil (só em 2018, quando foram fundidas) e Livro do Ano.</li>
+      </ul>
+      <h3>Raça: só autodeclaração</h3>
+      <p>Raça entra apenas quando a própria pessoa se declarou publicamente (entrevista, perfil, depoimento), com link e trecho literal, ou quando consta de fonte curada por identidade (por exemplo, o portal Literafro, da UFMG). Nunca é inferida por foto, sobrenome ou IA. Como pessoas brancas raramente se declaram, o percentual de pessoas negras é um <b>piso</b> ("pelo menos") e o de pessoas brancas não é calculável. "Negras" agrupa pretas, pardas e quem se declarou negro sem especificar.</p>
+      <p>Cada pessoa registra se a busca de autodeclaração foi <b>completa</b> (protocolo cumprido) ou <b>parcial</b> (interrompida). Na coleta piloto, o limite de buscas na web interrompeu parte das pesquisas; para essas pessoas, "sem declaração" ainda pode esconder uma declaração pública, então o piso tende a subir quando a busca for concluída.</p>
+      <h3>Cobertura por edição</h3>
+      <div id="t-cobertura" class="rolagem"></div>
+      <h3>Encontrou um erro?</h3>
+      <p>Correções são bem-vindas, sobretudo da própria pessoa. Envie o nome, o dado correto e a fonte pública aos mantenedores do projeto. Mudanças entram pelos arquivos em <code>dados/</code> e ficam registradas.</p>
+      <p id="gerado-em" class="muted"></p>
+    </div>
+  </section>
+</main>
+
+<dialog id="ficha" aria-labelledby="ficha-nome">
+  <form method="dialog"><button class="fechar" aria-label="Fechar">×</button></form>
+  <div id="ficha-corpo"></div>
+</dialog>
+<div id="tip-sankey" class="tip-flutuante" hidden></div>
+</body>
+</html>

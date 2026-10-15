@@ -1,0 +1,113 @@
+// Testes das agregações do painel (spec CA-03.1, 05.1, 06.2, 09.2). Rodar: node --test tests/
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import * as M from "../web/metricas.js";
+
+// Dados fictícios controlados: 2 edições, 2 categorias.
+const L = (o) => ({
+  papel: "autor", raca: "sem_declaracao", negra: false, regiao_nascimento: "Sudeste", uf_nascimento: "SP",
+  lista_curta: null, premiada: false, vencedora: false, editora: "Ed A", grupo_editorial: null, uf_editora: "SP", ...o,
+});
+const linhas = [
+  L({ ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "o1", pessoa_id: "a", genero: "mulher", raca: "preta", negra: true, regiao_nascimento: "Nordeste", uf_nascimento: "BA" }),
+  L({ ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "o2", pessoa_id: "b", genero: "homem", premiada: true, vencedora: true, editora: "Ed B", grupo_editorial: "G1" }),
+  L({ ano: 2016, categoria: "Poesia", nome_original: "Poesia", obra_id: "o3", pessoa_id: "c", genero: "mulher", premiada: true }),
+  L({ ano: 2023, categoria: "Poesia", nome_original: "Poesia", obra_id: "o4", pessoa_id: "a", genero: "mulher", raca: "preta", negra: true, regiao_nascimento: "Nordeste", uf_nascimento: "BA", lista_curta: 1, premiada: true, vencedora: true }),
+  L({ ano: 2023, categoria: "Poesia", nome_original: "Poesia", obra_id: "o5", pessoa_id: "d", genero: "homem", lista_curta: 0, uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
+  L({ ano: 2023, categoria: "Poesia", nome_original: "Poesia", obra_id: "o4", pessoa_id: "i", genero: "homem", papel: "ilustrador" }),
+];
+
+test("filtrar por papel, ano e categoria", () => {
+  assert.equal(M.filtrar(linhas).length, 5);
+  assert.equal(M.filtrar(linhas, { papel: "todos" }).length, 6);
+  assert.equal(M.filtrar(linhas, { anoIni: 2023 }).length, 2);
+  assert.equal(M.filtrar(linhas, { categorias: ["Romance"] }).length, 2);
+});
+
+test("kpis contam pessoas distintas e tratam negros como piso", () => {
+  const k = M.kpis(M.filtrar(linhas));
+  assert.equal(k.pessoas, 4);
+  assert.equal(k.indicacoes, 5);
+  assert.equal(k.obras, 5);
+  assert.equal(k.mulheres, 2);
+  assert.equal(k.pctMulheres, 50);
+  assert.equal(k.negras, 1);
+  assert.equal(k.pctNegrasPiso, 25);
+  assert.equal(k.pctCoberturaRaca, 25);
+  assert.equal(k.buscaParcial, 4); // nenhuma linha de teste marca busca completa
+  assert.equal(k.ufs, 2); // BA, SP (EX não conta)
+  assert.equal(k.editoras, 2);
+});
+
+test("composição por edição soma 100%", () => {
+  const c = M.composicao(M.filtrar(linhas), "genero");
+  for (const ano of [2016, 2023]) {
+    const soma = c.filter((x) => x.ano === ano).reduce((s, x) => s + x.pct, 0);
+    assert.ok(Math.abs(soma - 100) < 1e-9);
+  }
+});
+
+test("funil por etapa e maior queda", () => {
+  const f = M.funil(M.filtrar(linhas), "genero");
+  const v = (etapa, g) => f.find((x) => x.etapa === etapa && x.grupo === g);
+  assert.equal(v("lista", "mulher").pct, 60); // 3 de 5 participações
+  assert.equal(v("finalista", "mulher").n, 1); // só 2023 tem 2ª lista
+  assert.equal(v("finalista", "mulher").total, 1);
+  assert.equal(v("vencedora", "mulher").pct, 50); // a (2023) e b (2016)
+  const q = M.maiorQueda(f);
+  assert.equal(q.grupo, "mulher");
+  assert.equal(q.queda, 10);
+  const comFaltante = [...f, { etapa: "lista", grupo: "nao_identificado", n: 1, pct: 90 }, { etapa: "vencedora", grupo: "nao_identificado", n: 0, pct: 0 }];
+  assert.equal(M.maiorQueda(comFaltante).grupo, "mulher"); // dado faltante não vira manchete
+});
+
+test("Duncan: 0 quando distribuições iguais, 1 quando segregação total", () => {
+  const igual = [L({ categoria: "A", genero: "mulher" }), L({ categoria: "A", genero: "homem" }), L({ categoria: "B", genero: "mulher" }), L({ categoria: "B", genero: "homem" })];
+  assert.equal(M.duncan(igual).D, 0);
+  const total = [L({ categoria: "A", genero: "mulher" }), L({ categoria: "B", genero: "homem" })];
+  assert.equal(M.duncan(total).D, 1);
+  assert.equal(M.duncan([L({ categoria: "A", genero: "mulher" })]).D, null);
+  assert.equal(M.duncan([...total, L({ categoria: "Livro do Ano", genero: "mulher" })]).D, 1); // Livro do Ano fora
+});
+
+test("grupos editoriais vs independentes por etapa", () => {
+  const g = M.gruposEditoriais(M.filtrar(linhas));
+  const v = (etapa, tipo) => g.find((x) => x.etapa === etapa && x.tipo === tipo);
+  assert.equal(v("Lista", "Grupos editoriais").n, 1);
+  assert.equal(v("Lista", "Independentes").n, 4);
+  assert.equal(v("Premiadas", "Grupos editoriais").pct, 100 / 3);
+});
+
+test("editoras contam obras, não pessoas (ilustrador não duplica)", () => {
+  const e = M.editoras(linhas);
+  assert.deepEqual(e.map((x) => [x.editora, x.total, x.premiadas]), [["Ed A", 4, 2], ["Ed B", 1, 1]]);
+});
+
+test("porUF calcula por milhão", () => {
+  const ufs = [{ uf: "BA", nome: "Bahia", regiao: "Nordeste", populacao_2022: 2_000_000 }, { uf: "SP", nome: "São Paulo", regiao: "Sudeste", populacao_2022: null }, { uf: "EX", nome: "Exterior", regiao: "Exterior" }];
+  const u = M.porUF(M.filtrar(linhas), ufs);
+  assert.equal(u.length, 2);
+  assert.equal(u.find((x) => x.uf === "BA").porMilhao, 0.5);
+  assert.equal(u.find((x) => x.uf === "SP").porMilhao, null);
+});
+
+test("júri compara perfis por edição", () => {
+  const pessoas = [{ id: "a", genero: "mulher", raca: "preta", uf_nascimento: "BA" }, { id: "d", genero: "homem", raca: "sem_declaracao", uf_nascimento: "EX" },
+    { id: "j1", genero: "mulher", raca: "sem_declaracao", uf_nascimento: "SP" }, { id: "j2", genero: "mulher", raca: "parda", uf_nascimento: "PE" }];
+  const ufs = [{ uf: "BA", regiao: "Nordeste" }, { uf: "SP", regiao: "Sudeste" }, { uf: "PE", regiao: "Nordeste" }, { uf: "EX", regiao: "Exterior" }];
+  const j = M.juri(M.filtrar(linhas), [{ ano: 2023, pessoa_id: "j1" }, { ano: 2023, pessoa_id: "j2" }], pessoas, ufs);
+  const v = (quem, ind) => j.find((x) => x.quem === quem && x.indicador === ind);
+  assert.equal(v("Júri", "% mulheres").pct, 100);
+  assert.equal(v("Júri", "% negras (piso)").pct, 50);
+  assert.equal(v("Lista", "% mulheres").pct, 50);
+  assert.equal(v("Vencedoras", "% negras (piso)").pct, 100);
+});
+
+test("mediana e sankey", () => {
+  assert.equal(M.mediana([3, 1, 2]), 2);
+  assert.equal(M.mediana([4, 1, 2, 3]), 2.5);
+  assert.equal(M.mediana([]), null);
+  const s = M.sankey(M.filtrar(linhas), [{ uf: "SP", regiao: "Sudeste" }]);
+  const soma = (alvo) => s.links.filter((l) => l.target === alvo).reduce((a, l) => a + l.value, 0);
+  assert.equal(soma("Premiada") + soma("Não premiada"), 5);
+});
