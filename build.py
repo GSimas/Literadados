@@ -22,7 +22,7 @@ def _linhas(con, sql, params=None):
 
 
 def carregar(con, dados: Path):
-    con.execute((RAIZ / "schema.sql").read_text())
+    con.execute((RAIZ / "schema.sql").read_text(encoding="utf-8"))
     pop = dados / "uf_populacao.csv"
     if pop.exists():
         con.execute(f"UPDATE uf SET populacao_2022 = p.populacao_2022 FROM read_csv('{pop}') p WHERE uf.uf = p.uf")
@@ -104,7 +104,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida
     con.close()
     os.replace(tmp, db)  # troca atômica: o servidor nunca vê banco pela metade
     saida.parent.mkdir(exist_ok=True)
-    saida.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str))
+    saida.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
     return payload
 
 

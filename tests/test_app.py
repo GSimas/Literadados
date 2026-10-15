@@ -20,7 +20,7 @@ RAIZ = Path(__file__).parent.parent
 
 
 def _csv(p: Path, linhas: list[dict]):
-    with p.open("w", newline="") as f:
+    with p.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(linhas[0]))
         w.writeheader()
         w.writerows(linhas)
@@ -59,7 +59,7 @@ def _build(d: Path):
 def test_build_gera_banco_e_json(mini):  # CA-01.1, CA-01.4
     p = _build(mini)
     assert (mini.parent / "t.duckdb").exists()
-    j = json.loads((mini.parent / "t.json").read_text())
+    j = json.loads((mini.parent / "t.json").read_text(encoding="utf-8"))
     assert set(j) >= {"participacao", "pessoas", "jurados", "categorias", "ufs", "cobertura", "anos_coletados"}
     assert j["anos_coletados"] == [2016]  # 2017 sem indicações = não coletada, não falha
     assert p["cobertura"][0]["pct_raca"] == 50.0
@@ -81,7 +81,7 @@ def _expandir_no_node(json_path: Path) -> list[dict]:
     js = (f"import * as M from {json.dumps((RAIZ / 'web' / 'metricas.js').as_uri())};"
           f"import {{ readFileSync }} from 'node:fs';"
           f"process.stdout.write(JSON.stringify(M.expandir(JSON.parse(readFileSync({json.dumps(str(json_path))}, 'utf8')))));")
-    r = subprocess.run([node, "--input-type=module", "-e", js], capture_output=True, text=True, check=True)
+    r = subprocess.run([node, "--input-type=module", "-e", js], capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(r.stdout)
 
 
@@ -90,7 +90,7 @@ def test_json_compacto_reconstroi_v_participacao(base, mini, tmp_path):  # CA-RN
     dados = mini if base == "mini" else RAIZ / "dados"
     db, saida = tmp_path / "c.duckdb", tmp_path / "c.json"
     build.build(dados, db, saida)
-    j = json.loads(saida.read_text())
+    j = json.loads(saida.read_text(encoding="utf-8"))
     assert all(set(l) == COMPACTA for l in j["participacao"]), "participação deve ser compacta"
     con = duckdb.connect(str(db), read_only=True)
     esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY ano, categoria, obra_id, papel, pessoa_id"), default=str))
@@ -108,7 +108,7 @@ def test_json_real_menor_que_1mb(tmp_path):  # CA-RNF-06.1
 
 
 def test_build_falha_raca_sem_fonte(mini):  # CA-01.2
-    linhas = list(csv.DictReader((mini / "pessoa.csv").open()))
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
     linhas[1]["raca"] = "parda"
     _csv(mini / "pessoa.csv", linhas)
     with pytest.raises(build.BuildError, match="pessoa.csv"):
@@ -116,7 +116,7 @@ def test_build_falha_raca_sem_fonte(mini):  # CA-01.2
 
 
 def test_build_falha_raca_declarada_com_busca_parcial(mini):  # CA-13.3: quem tem raça declarada teve busca completa
-    linhas = list(csv.DictReader((mini / "pessoa.csv").open()))
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
     for l in linhas:
         l["raca_busca"] = "parcial"
     _csv(mini / "pessoa.csv", linhas)
@@ -125,14 +125,14 @@ def test_build_falha_raca_declarada_com_busca_parcial(mini):  # CA-13.3: quem te
 
 
 def test_cobertura_mostra_busca_completa(mini):  # CA-13.3
-    linhas = list(csv.DictReader((mini / "pessoa.csv").open()))
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
     linhas[0]["raca_busca"], linhas[1]["raca_busca"] = "completa", "parcial"
     _csv(mini / "pessoa.csv", linhas)
     assert _build(mini)["cobertura"][0]["pct_busca_raca"] == 50.0
 
 
 def test_build_falha_categoria_fora(mini):  # CA-01.2
-    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open()))
+    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     linhas[0]["categoria"] = "Romance de Entretenimento"
     _csv(mini / "categoria_edicao.csv", linhas)
     with pytest.raises(build.BuildError, match="categoria_edicao.csv"):
@@ -140,7 +140,7 @@ def test_build_falha_categoria_fora(mini):  # CA-01.2
 
 
 def test_build_falha_fk_inexistente(mini):  # CA-01.2
-    linhas = list(csv.DictReader((mini / "autoria.csv").open()))
+    linhas = list(csv.DictReader((mini / "autoria.csv").open(encoding="utf-8")))
     linhas[0]["pessoa_id"] = "fantasma"
     _csv(mini / "autoria.csv", linhas)
     with pytest.raises(build.BuildError, match="autoria.csv"):
@@ -148,7 +148,7 @@ def test_build_falha_fk_inexistente(mini):  # CA-01.2
 
 
 def test_build_falha_lista_incompleta(mini):  # CA-01.3
-    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open()))
+    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     linhas[0]["vagas_lista"] = "10"
     _csv(mini / "categoria_edicao.csv", linhas)
     with pytest.raises(build.BuildError, match="lista tem 2 obras, esperado 10"):
@@ -156,7 +156,7 @@ def test_build_falha_lista_incompleta(mini):  # CA-01.3
 
 
 def test_build_falha_premiadas_a_mais(mini):  # CA-01.3
-    linhas = list(csv.DictReader((mini / "indicacao.csv").open()))
+    linhas = list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
     linhas[1]["colocacao"] = "2"
     _csv(mini / "indicacao.csv", linhas)
     with pytest.raises(build.BuildError, match="2 premiadas, esperado 1"):
@@ -235,7 +235,7 @@ def test_chat_sem_chave_503(db_mini, monkeypatch, tmp_path):  # CA-12.4
     monkeypatch.setattr(server, "DB", db_mini)
     web = tmp_path / "web"
     web.mkdir()
-    (web / "index.html").write_text("ok")
+    (web / "index.html").write_text("ok", encoding="utf-8")
     srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(server.Handler, directory=str(web)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{srv.server_address[1]}"
