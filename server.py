@@ -72,7 +72,7 @@ def executar_sql(sql: str, db: Path = DB) -> dict:
 # ---------- IA ----------
 
 def _prompt_sistema(db: Path = DB) -> str:
-    ddl = (RAIZ / "schema.sql").read_text().split("INSERT INTO uf")[0]
+    ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
     con = conectar(db)
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()

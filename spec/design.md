@@ -130,6 +130,7 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 | 12.2 | `test_sql_seguro_*` |
 | 12.4 | `test_chat_sem_chave_503` |
 | — | `test_perguntas_originais` (as três perguntas do projeto rodam e devolvem número) |
+| 12.1 (P3) | `test_chat_real_perguntas_originais`, marcado `integracao`: com `ANTHROPIC_API_KEY`, o chat real responde às três perguntas originais citando os mesmos números do SQL de referência e consultando o banco; sem a chave é pulado (`pytest -q -rs` mostra o motivo) |
 | RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
 
 ## 6. Decisões registradas

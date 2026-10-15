@@ -1,85 +1,276 @@
 id,nome,grupo,municipio_sede,uf_sede,canonico,fonte,observacao
 11-editora,11 Editora,,Jaú,SP,,https://www.econodata.com.br/consulta-empresa/20762386000186-11-EDITORA-E-LIVROS-LTDA,CNPJ 20.762.386/0001-86 (agregador); certeza média-alta
 7letras,7Letras,,Rio de Janeiro,RJ,,https://www.7letras.com.br/,Independente.
+8inverso,8Inverso,,,,,,Sede não encontrada: site bloqueado pelo proxy e sem CNPJ em agregador.
 abacatte-editorial,Abacatte Editorial,,Belo Horizonte,MG,,https://monitorcnpj.com.br/cnpj/10588186000103/,"Obra de 2016. CNPJ 10.588.186/0001-03, matriz em BH. Segundo guia de editoras mineiras (CEFET-MG, 2020), funciona como selo da Editora Lê (BH); não é grupo editorial."
+aboio,Aboio,,Cotia,SP,,https://aboio.com.br/quem-somos,"CNPJ 41.629.306/0001-99 (rodapé do site; Receita: Cotia/SP). Grupo Aboio (selos Aboio, Cachalote, Abeto) é independente."
+age-editora,Editora AGE,,Porto Alegre,RS,,https://editoraage.com.br/,"Rodapé: Rua Valparaíso, 285, Jardim Botânico, RS (bairro de Porto Alegre, cidade não escrita); CNPJ do rodapé (13.099.540/0001-16) consta baixado em Viamão. Certeza média."
 agir-editora,Agir Editora,Grupo Ediouro,Rio de Janeiro,RJ,,https://www.publishnews.com.br/newsletters/3577,"Selo do Grupo Ediouro (junto com Nova Fronteira, Coquetel, Pixel, Petra). Obra de 2023."
+alameda-casa-editorial,Alameda Casa Editorial,,São Paulo,SP,,https://www.alamedaeditorial.com.br/contato,CNPJ 06.142.245/0001-30.
+aldeia-de-palavras,Aldeia de Palavras,,,,,,Sede não encontrada (sem site nem CNPJ em agregador).
 aletria,Aletria,,Belo Horizonte,MG,,https://www.aletria.com.br,CNPJ 07.458.677/0001-17
 alfaguara,Alfaguara,Penguin Random House,Rio de Janeiro,RJ,,https://www.publishnews.com.br/telas/noticias/detalhes.aspx?id=76347,"Obra de 2016. Alfaguara Brasil era selo da Editora Objetiva, 100% comprada pela Penguin Random House Brasil em 2014 (concluída out/2014) e operada em conjunto com a Companhia das Letras (CEO Luiz Schwarcz). Sede da Objetiva no Rio de Janeiro; localização exata em 2016 não verificada."
+alua,Aluá Editora,,Quixadá,CE,,https://www.econodata.com.br/empresas/todo-brasil/alua-editora,"CNPJ 41.263.280/0001-08 (MEI, edição de livros, Quixadá/CE; agregador). Certeza média: não confirmado que é a editora da obra."
+ama-livros,AMA Livros,,Porto Alegre,RS,,https://amalivros.com.br/contato/,"Rua Leopoldo Fróes, 99, Floresta."
+amarcord,Amarcord,Grupo Editorial Record,Rio de Janeiro,RJ,,https://www.record.com.br/collections/amarcord,Selo do Grupo Editorial Record (página do selo no site da Record); sede = Record. O domínio amarcord.com.br é de outra empresa (velas).
+andrea-jakobsson-estudio,Andrea Jakobsson Estúdio,,Rio de Janeiro,RJ,,https://open.cnpja.com/office/04295246000199,CNPJ 04.295.246/0001-99 (Andrea Jakobsson Estúdio Editorial Ltda; agregador). Certeza média-alta.
+ararinha-editorial,Ararinha Editorial,,Santo André,SP,,https://ararinhaeditorial.com.br/,"Rodapé: Rua Vereador José Nanci, 151, Santo André - SP."
+ardotempo,Ardotempo,,,,,,Sede não encontrada (site fora do ar; sem CNPJ em agregador). Editor: Alfredo Aquino.
+arquipelago-editorial,Arquipélago Editorial,,Porto Alegre,RS,,https://minhareceita.org/08001334000191,CNPJ 08.001.334/0001-91 (rodapé de arquipelago.com.br; Receita: Porto Alegre/RS).
 arte-editora,Arte Editora,,,,,https://conectasc.com.br/2023/11/10/voando-alto-celso-vicenzi-e-andrea-honaiser-alcam-voo-no-premio-jabuti-com-voar-na-imaginacao/,sede não encontrada; SC seria só inferência — deixado vazio
+artes-e-oficios,Artes e Ofícios,,Porto Alegre,RS,,https://arteseoficios.com.br/loja/,"Rua Almirante Barroso, 215, Floresta, Porto Alegre."
 atelie-editorial,Ateliê Editorial,,Cotia,SP,,https://www.atelie.com.br/,"Obra de 2016. Independente (Granja Viana, Cotia)."
+atica,Editora Ática,Somos Educação,São Paulo,SP,,https://pt.wikipedia.org/wiki/%C3%81tica_(editora),"Na Abril Educação desde 2004 (renomeada Somos Educação em 2015); sede no Edifício Abril e depois na Marginal Pinheiros, São Paulo."
 atual-editora,Atual Editora,Somos Educação,São Paulo,SP,,https://www.publishnews.com.br/materias/2016/02/02/com-150-demisses-somos-educao-e-saraiva-educao-unem-suas-operaes,Obra de 2016. Selo da Saraiva vendido à Somos Educação (ex-Abril Educação); compra concluída no fim de 2015. Somos foi comprada pela Kroton (Cogna) em 2018. Sede SP presumida pela sede da Somos/Saraiva Educação.
 autentica,Autêntica,Grupo Autêntica,Belo Horizonte,MG,,https://www.publishnews.com.br/materias/2022/09/23/autentica-editora-comemora-25-anos-de-historia,Obra de 2016. Grupo editorial com vários selos desde 2011; possui também escritório em São Paulo.
 autentica-contemporanea,Autêntica Contemporânea,Grupo Autêntica,Belo Horizonte,MG,,https://www.publishnews.com.br/materias/2023/06/27/tres-perguntas-do-pn-para-rafaela-lamas-coeditora-do-selo-autentica-contemporanea,Obra de 2023. Selo do Grupo Autêntica (não é duplicata de 'autentica': selo distinto).
+autopublicacao,Autopublicação,,,,independente,,não é editora (autopublicação); duplicata de independente (linha canônica).
+bem-te-vi,Editora Bem-Te-Vi,,,,,,Sede não encontrada: site sem endereço e sem CNPJ em agregador.
 benvira,Benvirá,Somos Educação,São Paulo,SP,,https://www.publishnews.com.br/materias/2016/02/02/com-150-demisses-somos-educao-e-saraiva-educao-unem-suas-operaes,Obra de 2016. Selo da Saraiva incluído na venda dos ativos editoriais da Saraiva à Somos Educação (concluída fim de 2015). Sede SP presumida pela sede da Saraiva Educação/Somos.
+berlendis,Berlendis & Vertecchia,,São Paulo,SP,,https://open.cnpja.com/office/51165736000150,"CNPJ 51.165.736/0001-50 (Berlendis Editores Ltda, fundada em 1979 como a editora; agregador). Certeza média-alta."
+berlendis-vertecchia,Berlendis & Vertecchia,,São Paulo,SP,berlendis,https://open.cnpja.com/office/51165736000150,Mesma editora de 'berlendis' (fundada em 1979 por Donatella Berlendis).
+bertrand-brasil,Bertrand Brasil,Grupo Editorial Record,Rio de Janeiro,RJ,,https://www.record.com.br/,"Incorporada ao Grupo Record em 1996 (Wikipédia); sede da Record: Rua Argentina, 171, Rio de Janeiro."
+biruta,Editora Biruta,,São Paulo,SP,,https://www.editorabiruta.com.br/pages/contato-e-perguntas-frequentes,"Rua Conselheiro Brotero, 200-A, Barra Funda. Gaivota é selo da Biruta."
 blucher,Blucher,,São Paulo,SP,,https://www.blucher.com.br/,Editora Edgard Blücher; casa familiar independente.
+boitempo,Boitempo,,São Paulo,SP,,https://www.boitempoeditorial.com.br/,"Rua Pereira Leite, 373, Sumarezinho."
+brinque-book,Brinque-Book,,São Paulo,SP,,https://web.archive.org/web/20191225151712/https://www.brinquebook.com.br/,"Rua Mourato Coelho, 1215 (site arquivado, 2019). Comprada pelo Grupo Companhia das Letras (PRH) em out/2020, depois das obras (2011–2017)."
+cachalote,Cachalote,,Cotia,SP,,https://aboio.com.br/quem-somos,"Selo do Grupo Aboio (independente); sede = Aboio (CNPJ 41.629.306/0001-99, Cotia/SP)."
+caixote,Caixote,,São Paulo,SP,,https://minhareceita.org/18835479000141,CNPJ 18.835.479/0001-41 (site editoracaixote.com.br).
+callis,Callis Editora,,Barueri,SP,,https://www.callis.com.br/,"Rodapé: CNPJ 00.845.926/0001-88, Av. Copacabana, 325, Barueri/SP (razão social atual Girassol Brasil Edições). Sede atual; à época pode ter sido São Paulo."
+callis-editora,Callis Editora,,Barueri,SP,callis,https://www.callis.com.br/,Duplicata de 'callis'.
+carlini-caniato-editorial,Carlini & Caniato Editorial,,,,,https://carliniecaniato.com.br/quem-somos/,"Site sem endereço; telefone (65) sugere Cuiabá/MT, sem confirmação."
+casa-29,Editora Casa 29,,,,,,"Sede não encontrada (editor Cláudio B. Carlos; RS provável, sem fonte)."
 casa-dos-mundos,Casa dos Mundos,,São Paulo,SP,,https://www.linkedin.com/company/editora-leya-brasil,empresa associada à LeYa Brasil; vínculo societário com a LeYa portuguesa em 2023 não confirmado — grupo vazio
 cepe,Cepe,,Recife,PE,,https://www.cepe.com.br/,"Companhia Editora de Pernambuco, empresa pública do governo de Pernambuco; não pertence a grupo editorial."
+ciclo-continuo-editorial,Ciclo Contínuo Editorial,,São Paulo,SP,,https://open.cnpja.com/office/31590694000198,CNPJ 31.590.694/0001-98 (agregador). Certeza média-alta.
 ciranda-na-escola,Ciranda na Escola,,Jandira,SP,,https://www.cirandacultural.com.br/,"Linha/selo escolar da Ciranda Cultural (CNPJ 68.216.860/0001-09, Jandira/SP). Ciranda Cultural é editora independente de marca própria; grupo deixado vazio."
 circulo-de-poemas,Círculo de Poemas,,São Paulo,SP,,https://buchmesse.de/en/press/press-releases/2024-09-10-poetry-subscription-platform-wins-international-aficionado-award,"Coleção/clube de assinatura de poesia publicado pela Fósforo (SP), em parceria com a Luna Parque Edições (parceria não confirmada nesta busca). Não pertence a grupo."
 civilizacao-brasileira,Civilização Brasileira,Grupo Editorial Record,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Civiliza%C3%A7%C3%A3o_Brasileira,Obra de 2016. Integra o Grupo Editorial Record desde 2000.
 clb-producoes,CLB Produções,,,,,https://www.cleobusatto.com.br/clb-editora,produtora/editora da autora Cléo Busatto; Curitiba provável mas não confirmada — deixado vazio
+cobogo,Cobogó,,Rio de Janeiro,RJ,,https://www.publishnews.com.br/etiquetas/cobogo,Vagas da editora no PublishNews são no Rio de Janeiro; site sem endereço. Certeza média.
+com-arte,Com-Arte,,,,,,"Editora-laboratório da ECA-USP (provável São Paulo), sem fonte confirmada."
+comboio-de-corda,Comboio de Corda,,São Paulo,SP,,https://open.cnpja.com/office/08731195000151,CNPJ 08.731.195/0001-51 (Comboio de Corda Editora Ltda; agregador).
 companhia-das-letras,Companhia das Letras,Penguin Random House,São Paulo,SP,,https://www.publishnews.com.br/materias/2018/10/30/penguin-assume-controle-da-companhia-das-letras,Ano da obra 2016 e 2023. Em 2016 a Penguin Random House detinha 45% da Companhia das Letras (sócia minoritária); passou a controladora (70%) em out/2018. Usado o grupo de 2023.
 companhia-das-letrinhas,Companhia das Letrinhas,Penguin Random House,São Paulo,SP,,https://www.publishnews.com.br/materias/2018/10/30/penguin-assume-controle-da-companhia-das-letras,Selo infantil da Companhia das Letras. Ano da obra 2016 e 2023. Em 2016 a Penguin Random House detinha 45% da Companhia das Letras (sócia minoritária); passou a controladora (70%) em out/2018. Usado o grupo de 2023.
+conexoes-criativas,Conexões Criativas,,Salvador,BA,,https://www.conexoescriativas.com.br/,"Site: 'Gestão, Formação, Editora, Arte e Corpo • Salvador-BA'."
 confraria-do-vento,Confraria do Vento,,Rio de Janeiro,RJ,,https://www.ces.uc.pt/formacao/cvs/Marcio_Andre.pdf,cidade pelas fichas dos livros; certeza média-alta
+contracorrente,Editora Contracorrente,,Avaré,SP,,https://www.editoracontracorrente.com.br/,"Rodapé: CNPJ 22.120.667/0001-60, Rua Vergílio de Araújo Valim, 167, Avaré/SP."
 cora-editora,Cora Editora,,Belo Horizonte,MG,,https://www.coraeditora.com/,certeza média-alta
 coragem,Coragem,,Porto Alegre,RS,,https://www.editoracoragem.com.br,CNPJ 37.165.408/0001-23
+coralina,Editora Coralina,,Porto Alegre,RS,,https://www.editoracoralina.com.br/contato/,"Rodapé: Rua dos Andradas, 1444, Porto Alegre; o CNPJ 02.891.137/0001-09 está registrado em Cachoeirinha/RS."
+corsario-sata,Corsário-Satã,,São Paulo,SP,,https://open.cnpja.com/office/27596715000105,"CNPJ 27.596.715/0001-05 (MEI, edição de livros, São Paulo; agregador). Certeza média."
 cosac-naify,Cosac Naify,,São Paulo,SP,,https://pt.wikipedia.org/wiki/Cosac_Naify,Obra de 2016. Editora independente; anunciou o encerramento das atividades no fim de 2015.
+cousa,Editora Cousa,,Piúma,ES,,https://minhareceita.org/11561519000165,CNPJ 11.561.519/0001-65 do site (nome fantasia Editora Cousa; Receita: Piúma/ES).
+criadeira-livros,Criadeira Livros,,Cotia,SP,,https://web.archive.org/web/20230328085507/https://criadeira.com.br/,Site arquivado (2023): 'Cotia – SP'.
+crisalida,Crisálida,,Belo Horizonte,MG,,https://crisalida.com.br/,"Av. Augusto de Lima, 233, Ed. Maletta; CNPJ 03.310.289/0001-33 (Livraria Crisálida)."
+cruz-e-sousa,Editora Cruz e Sousa,,Florianópolis,SC,,https://editoracruzesousa.com.br/,"CNPJ 31.806.126/0001-81, Rio Vermelho, Florianópolis."
+cultura-e-barbarie,Cultura e Barbárie,,Florianópolis,SC,,https://culturaebarbarie.com.br/,"Site indica Florianópolis, SC; CNPJ 20.960.721/0001-50 (edição de livros, Florianópolis)."
+dba,DBA Editora,,São Paulo,SP,,https://dbaeditora.com.br/,"CNPJ 38.815.841/0001-20 (Dórea Books and Art), Alameda Franca, 1050."
+dcl,Editora DCL,,São Paulo,SP,,https://web.archive.org/web/20121225021932/http://editoradcl.com.br/,"Site arquivado (2012): Rua Manoel Pinto de Carvalho, 80, Limão, São Paulo/SP."
+demonio-negro,Demônio Negro,,São Paulo,SP,,https://www.vanderbooks.com.br/,"demonionegro.com.br redireciona para a loja de V. de Moura Mendonça Livros (CNPJ 15.579.362/0001-56, São Paulo): selo de Vanderley Mendonça. Selo de V. de Moura Mendonça Livros (mesmo editor): mantido como editora própria, sem canonico."
+desconcertos,Desconcertos Editora,,São Paulo,SP,,https://open.cnpja.com/office/29589464000167,"CNPJ 29.589.464/0001-67 (MEI, edição de livros, São Paulo, inapta; agregador). Certeza média."
 dimensao,Dimensão,,Belo Horizonte,MG,,https://www.editoradimensao.com.br,CNPJ 21.044.458/0001-12
+dobra-editorial,Dobra Editorial,,São Paulo,SP,,https://web.archive.org/web/20141223014129/http://www.portaleditora.com.br/,"Site arquivado (2014): Rua Araújo, 154, Centro, São Paulo."
+dublinense,Dublinense,,Porto Alegre,RS,,https://www.dublinense.com.br/contato/,"Estrada das Três Meninas, 2.000, Vila Nova."
+duna-dueto,Duna Dueto,,São Paulo,SP,,https://dunadueto.com.br/,"Rua Zacarias de Góis, 782, Parque Colonial."
+e-realizacoes,É Realizações,,São Paulo,SP,,https://monitorcnpj.com.br/cnpj/00415789000141/,"CNPJ 00.415.789/0001-41, Vila Mariana (agregador; empresa em liquidação)."
+edelbra,Edelbra,,Porto Alegre,RS,,https://edelbra.com.br/,"Rodapé: Av. Dr. Nilo Peçanha, 1221, Porto Alegre; CNPJ 08.652.668/0001-25 (Edelbra Editora). Origem em Erechim/RS (gráfica)."
+edicoes-ardotempo,Ardotempo,,,,ardotempo,,Duplicata de 'ardotempo'; sede não encontrada.
+edicoes-besourobox,Edições BesouroBox,,Porto Alegre,RS,,https://www.besourobox.com.br/contato,CNPJ 07.235.888/0001-90.
 edicoes-de-janeiro,Edições de Janeiro,,Rio de Janeiro,RJ,,https://www.publishnews.com.br/materias/2016/02/17/dnis-rubra-assume-editorial-da-edies-de-janeiro,editora carioca criada em 2014
 edicoes-democrito-rocha,Edições Demócrito Rocha,,Fortaleza,CE,,https://repositorio.ufc.br/ri/bitstream/riufc/49243/3/2019_dis_acmsales.pdf,"Obra de 2016. Editora vinculada à Fundação Demócrito Rocha / Grupo de Comunicação O Povo (grupo de mídia, não grupo editorial); grupo deixado vazio."
+edicoes-garupa,Edições Garupa,,Rio de Janeiro,RJ,,https://seer.ufrgs.br/index.php/philia/article/view/112899,"Só a referência bibliográfica 'Rio de Janeiro: Editora Garupa, 2017'; sem site nem CNPJ. Certeza baixa-média."
 edicoes-jabuticaba,Edições Jabuticaba,,São Paulo,SP,,https://asymptotejournal.com/blog/2019/03/25/an-interview-with-marcelo-lotufo,pequena editora de Marcelo Lotufo; certeza média-alta
 edicoes-sm,Edições SM,Grupo SM,São Paulo,SP,,https://monitorcnpj.com.br/cnpj/05699378000149/,"Obra de 2023. Subsidiária brasileira do Grupo SM (Espanha); CNPJ matriz na Av. Paulista, São Paulo."
+edith,Edith,,,,,,Sede não encontrada (sem site nem CNPJ em agregador).
 editora-34,Editora 34,,São Paulo,SP,,https://www.editora34.com.br/,Independente.
+editora-8inverso,8Inverso,,,,8inverso,,Duplicata de '8inverso'. Não confundir com InVerso (Curitiba).
+editora-biruta,Editora Biruta,,São Paulo,SP,biruta,https://www.editorabiruta.com.br/pages/contato-e-perguntas-frequentes,Duplicata de 'biruta'.
+editora-cidade-nova,Editora Cidade Nova,,Vargem Grande Paulista,SP,,https://cidadenova.org.br/,"Rua José Ernesto Tozzi, 198, Vargem Grande Paulista."
+editora-contexto,Editora Contexto,,São Paulo,SP,,https://www.editoracontexto.com.br/,CNPJ 57.105.736/0001-41 (Editora Pinsky).
+editora-da-cidade,Editora da Cidade,,São Paulo,SP,,https://minhareceita.org/06142245000130,O CNPJ da Alameda Casa Editorial tem 'Editora da Cidade' entre os nomes fantasia (selo da Alameda). Certeza média: não confirmado que é a editora da obra.
+editora-da-ucg,Editora da UCG,,Goiânia,GO,,https://pt.wikipedia.org/wiki/Pontif%C3%ADcia_Universidade_Cat%C3%B3lica_de_Goi%C3%A1s,"Editora universitária da Universidade Católica de Goiás (hoje PUC Goiás), Goiânia."
+editora-da-universidade-federal-do-para,Editora da UFPA,,Belém,PA,,https://pt.wikipedia.org/wiki/Universidade_Federal_do_Par%C3%A1,Editora universitária; UFPA sediada em Belém.
 editora-do-brasil,Editora do Brasil,,São Paulo,SP,,https://editoradobrasil.com.br/,Obra de 2016. Editora familiar independente.
+editora-dsop,Editora DSOP,,São Paulo,SP,,https://open.cnpja.com/office/10233817000163,"CNPJ 10.233.817/0001-63 (DSOP Educação Financeira, CNAE edição de livros; agregador). Certeza média."
+editora-elefante,Editora Elefante,,São Paulo,SP,elefante,https://minhareceita.org/12097348000128,CNPJ 12.097.348/0001-28 (rodapé de editoraelefante.com.br). Duplicata de 'elefante'.
+editora-gaivota,Gaivota,,São Paulo,SP,gaivota,https://www.editorabiruta.com.br/pages/sobre-nossa-editora,Selo da Editora Biruta (criado em 2011). Duplicata de 'gaivota'.
+editora-hedra,Editora Hedra,,São Paulo,SP,hedra,https://minhareceita.org/03004307000159,CNPJ 03.004.307/0001-59 (agregador). Duplicata de 'hedra'.
+editora-inverso,Editora InVerso,,Curitiba,PR,inverso,https://editorainverso.com.br/,"CNPJ 06.987.053/0001-24 (Inverso Comunicação, nome fantasia Editora Inverso), Juvevê, Curitiba. Duplicata provável de 'inverso' (certeza média)."
+editora-jaguatirica,Editora Jaguatirica,,Rio de Janeiro,RJ,,https://minhareceita.org/17082461000153,CNPJ 17.082.461/0001-53 (site editorajaguatirica.com.br).
+editora-kelps,Editora Kelps,,Goiânia,GO,,https://kelps.com.br/termos-de-uso/,"CNPJ 03.813.862/0001-21, Rua 19, 22, Setor Marechal Rondon, Goiânia."
 editora-le,Editora Lê,,Belo Horizonte,MG,,https://cbl.org.br/en/nossos-associados/page/28,hoje 'Grupo Editorial Lê' (selos próprios); não confirmado em 2016; não é conglomerado externo
+editora-melhoramentos,Editora Melhoramentos,,São Paulo,SP,melhoramentos,https://www.editoramelhoramentos.com.br/,"Rua Tito, 479, Vila Romana. Pertence à Cia. Melhoramentos (não é grupo editorial). Duplicata de 'melhoramentos'."
 editora-moderna,Editora Moderna,Santillana,São Paulo,SP,,https://pt.wikipedia.org/wiki/Editora_Moderna,Obra de 2016. Pertence à Santillana (Grupo Prisa) desde 2001.
 editora-nos,Editora Nós,,São Paulo,SP,,https://www.publishnews.com.br/materias/2020/08/27/a-editora-que-e-primeira-pessoa-do-plural,"Independente (casa paulistana de Simone Paulino, fundada em 2015)."
 editora-patua,Editora Patuá,,São Paulo,SP,,https://outraspalavras.net/outrasmidias/na-periferia-mais-um-guerrilheiro-da-literatura/,independente; zona leste de SP
+editora-perspectiva,Editora Perspectiva,,São Paulo,SP,,https://www.editoraperspectiva.com.br/,"CNPJ 61.545.984/0001-80; Praça Dom José Gaspar, 134."
 editora-positivo,Editora Positivo,,Curitiba,PR,,https://en.wikipedia.org/wiki/Grupo_Positivo,"Obra de 2016. Editora do Grupo Positivo (holding de educação/tecnologia, não grupo editorial); vendida à Arco Educação em 2019. Grupo deixado vazio pelo critério; avaliar se deve ser 'Grupo Positivo'."
 editora-pulo-do-gato,Editora Pulo do Gato,,São Paulo,SP,,https://www.editorapulodogato.com.br/,Obra de 2016. Independente.
 editora-record,Editora Record,Grupo Editorial Record,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Grupo_Editorial_Record,Obra de 2016. Linha canônica para Record.
+editora-rhj,Editora RHJ,,Belo Horizonte,MG,rhj,https://rhjlivros.com.br/,"Rua Helium, 119, Nova Floresta, Belo Horizonte. Duplicata de 'rhj'."
 editora-rovelle,Editora Rovelle,,Rio de Janeiro,RJ,,https://guiafacil.com/site/editora-rovelle/rio-de-janeiro/rj/2122536601/,dados de diretório; certeza média-alta
+editora-salamandra,Salamandra,Santillana,São Paulo,SP,salamandra,https://pt.wikipedia.org/wiki/Editora_Salamandra,Integra a Moderna (Grupo Santillana) desde 1988 e mudou a sede para São Paulo. Duplicata de 'salamandra'.
+editora-saraiva,Editora Saraiva,,São Paulo,SP,saraiva,https://pt.wikipedia.org/wiki/Livraria_Saraiva,Fundada em São Paulo; em 2014 ainda da Saraiva S.A. (didáticos vendidos à Somos no fim de 2015). Duplicata de 'saraiva'.
+editora-unesp,Editora Unesp,,São Paulo,SP,,https://editoraunesp.com.br/,"Fundação Editora da Unesp, Praça da Sé, 108. Editora universitária."
 editora-zahar,Editora Zahar,,Rio de Janeiro,RJ,,https://www.publishnews.com.br/materias/2019/10/04/zahar-agora-e-penguin-random-house,Obra de 2016: Zahar era independente. Só foi comprada pelo Grupo Companhia das Letras/PRH em out/2019 (não 2018).
+editora-zouk,Editora Zouk,,Porto Alegre,RS,zouk,https://minhareceita.org/02772081000173,CNPJ 02.772.081/0001-73 (site editorazouk.com.br). Duplicata de 'zouk'.
+edufba,Edufba,,Salvador,BA,,https://edufba.ufba.br/,"Editora da UFBA, Campus de Ondina, Salvador."
+elefante,Editora Elefante,,São Paulo,SP,,https://minhareceita.org/12097348000128,CNPJ 12.097.348/0001-28 (rodapé de editoraelefante.com.br).
 elo-editora,Elo Editora,,São Paulo,SP,,https://cnpj.biz/14125493000109,'Grupo ELO Editorial' é grupo brasileiro pequeno/médio de didáticos; não tratado como conglomerado — grupo vazio
+entrelinhas-editora,Entrelinhas Editora,,Cuiabá,MT,,https://entrelinhaseditora.com.br/,"Av. Senador Metello, 3773, Cuiabá; a obra (Como pássaros no céu de Aruanda) está no catálogo."
+escarlate,Escarlate,Penguin Random House,São Paulo,SP,,https://www.bemparana.com.br/cultura/companhia-das-letras-compra-a-brinque-book-983/,"Selo do Grupo Brinque-Book, comprado pela Companhia das Letras (PRH) em out/2020: a obra de 2022 já é do grupo, a de 2018 não."
+escrita-fina,Escrita Fina,,Rio de Janeiro,RJ,,https://www.publishnews.com.br/materias/2010/03/12/56655-escrita-fina-faz-seu-primeiro-lancamento,"'A carioca Escrita Fina' (PublishNews, 2010); pertence ao Grupo Gráfico Stamppa (gráfica, não grupo editorial)."
+escrituras,Escrituras Editora,,São Paulo,SP,,https://open.cnpja.com/office/74569724000197,"CNPJ 74.569.724/0001-97 (agregador), fundada em 1994."
+escrituras-editora,Escrituras Editora,,São Paulo,SP,escrituras,https://open.cnpja.com/office/74569724000197,Duplicata de 'escrituras'.
+estacao-brasil,Estação Brasil,,,,,,"Provável selo da Sextante (GMT Editores, Rio de Janeiro), não confirmado."
+estrela-cultural,Estrela Cultural,,Barueri,SP,,https://www.estrelacultural.com.br/,"Rodapé: Av. Copacabana, 325, Alphaville (mesmo endereço da Callis em Barueri/SP); o CNPJ do rodapé não confere na Receita. Certeza média."
+faria-e-silva-editora,Faria e Silva Editora,,São Paulo,SP,,https://minhareceita.org/34544594000113,"CNPJ 34.544.594/0001-13 (agregador). Comprada pelo Grupo Alta Books em dez/2022: obras de 2021 independentes, a de 2024 já no grupo."
+farol-literario,Farol Literário,,São Paulo,SP,,https://minhareceita.org/10689424000169,"CNPJ 10.689.424/0001-69 (Farol Literário Ltda, edição de livros; agregador). Certeza média."
 fina,FiNA,,Vitória,ES,,https://periodicos.ufes.br/fernao/article/download/51317/35742/187037,"FiNA produtora, coedição com Editora Cousa"
+florear-livros,Florear Livros,,Londrina,PR,,https://minhareceita.org/01600127000104,"CNPJ 01.600.127/0001-04 (Ágape Produções, nome fantasia Editora Florear Livros; agregador)."
+flyve,Flyve,,Campinas,SP,,https://flyve.com.br/,"Rodapé: Rua Dona Elidia Ana de Campos, 89, Campinas - SP."
+folhas-de-relva-edicoes,Folhas de Relva Edições,,,,,,Sede não encontrada (sem site nem CNPJ em agregador).
 fosforo,Fósforo,,São Paulo,SP,,https://fosforoeditora.com.br/,Independente.
+ftd,FTD Educação,,São Paulo,SP,,https://ftd.com.br/,"CNPJ 61.186.490/0001-57, Rua Rui Barbosa, 156. Mantida pelos Irmãos Maristas (não é grupo editorial)."
+ftd-educacao,FTD Educação,,São Paulo,SP,ftd,https://ftd.com.br/,Duplicata de 'ftd'.
+fundacao-waldemar-alcantara,Fundação Waldemar Alcântara,,Fortaleza,CE,,https://fwa.org.br/,"Rua Júlia Vasconcelos, 100, Pio XII, Fortaleza."
+funpec-editora,Funpec Editora,,Ribeirão Preto,SP,,https://funpecrp.com.br/,"Rua Carlos Chagas, 817, Ribeirão Preto/SP."
+gaivota,Gaivota,,São Paulo,SP,,https://www.editorabiruta.com.br/pages/sobre-nossa-editora,"Selo da Editora Biruta (criado em 2011); sede = Biruta, São Paulo."
 galera-record,Galera Record,Grupo Editorial Record,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Grupo_Editorial_Record,Obra de 2016. Selo juvenil da Record (não duplicata de 'editora-record': selo distinto).
 geracao,Geração,,São Paulo,SP,,https://geracaoeditorial.com.br/,"Obra de 2016. Geração Editorial, independente."
+giostri-editora,Giostri Editora,,Ubatuba,SP,,https://open.cnpja.com/office/08412977000128,CNPJ 08.412.977/0001-28 (Giostri Editora Ltda; agregador). Certeza média-alta.
 global,Global,,São Paulo,SP,,https://globaleditora.com.br/,"Obra de 2016. Global Editora, independente."
+globinho,Globinho,Grupo Globo,São Paulo,SP,,https://pt.wikipedia.org/wiki/Editora_Globo,"Selo infantil da Globo Livros (Editora Globo, Grupo Globo). Sede da Editora Globo em São Paulo; certeza média para o selo. Sede da época das obras (2011–2017): São Paulo; hoje o CNPJ está no Rio de Janeiro."
+globo,Globo Livros,Grupo Globo,Rio de Janeiro,RJ,globo-livros,https://brasilapi.com.br/api/cnpj/v1/04067191000160,"Duplicata de globo-livros (Editora Globo, CNPJ 04.067.191/0001-60); sede em São Paulo na época das obras."
+globo-livros,Globo Livros,Grupo Globo,São Paulo,SP,,https://brasilapi.com.br/api/cnpj/v1/04067191000160,"Editora Globo S/A, CNPJ 04.067.191/0001-60, hoje registrada no Rio de Janeiro; na época das obras (2011–2015) a editora ficava em São Paulo (Wikipédia). Sede da época das obras (2011–2017): São Paulo; hoje o CNPJ está no Rio de Janeiro."
+grua-livros,Grua Livros,,São Paulo,SP,,https://www.grualivros.com.br/contato,"Endereço com CEP 05422-030 (São Paulo, conferido no ViaCEP)."
 gutenberg,Gutenberg,Grupo Autêntica,Belo Horizonte,MG,,https://www.publishnews.com.br/materias/2022/09/23/autentica-editora-comemora-25-anos-de-historia,Obra de 2023. Selo juvenil do Grupo Autêntica.
 harpercollins-brasil,HarperCollins Brasil,HarperCollins,Rio de Janeiro,RJ,,https://publishingperspectives.com/2017/01/harpercollins-harpercollins-brasil/,Obra de 2023. Criada em 2015 como joint venture com a Ediouro; HarperCollins comprou 100% em jan/2017.
+harperkids,HarperKids,HarperCollins,Rio de Janeiro,RJ,,https://harpercollins.com.br/policies/privacy-policy,"Selo da HarperCollins Brasil (Rua da Quitanda 86, Rio de Janeiro); CNPJ 22.520.538/0001-60 está registrado em Duque de Caxias/RJ."
+hedra,Hedra,,São Paulo,SP,,https://hedra.com.br/policies/privacy-policy,"Política de privacidade: Rua Milton Ribeiro, 79, São Paulo SP."
 historia-real,História Real,,Rio de Janeiro,RJ,,https://www.jornaldocomercio.com/colunas/livros/2026/04/1244949-roberto-feith-estreia-na-ficcao.html,"Obra de 2023. Selo de não ficção da Intrínseca dirigido por Roberto Feith; Intrínseca é independente (grupo vazio). Sede = sede da Intrínseca (RJ), inferida."
+hucitec,Hucitec Editora,,São Paulo,SP,,https://www.lojahucitec.com.br,"CNPJ 12.453.535/0001-05, Vila Mariana, São Paulo/SP."
 iluminuras,Iluminuras,,São Paulo,SP,,https://www.iluminuras.com.br/,Obra de 2016. Independente.
 ima-editorial,Imã Editorial,,Rio de Janeiro,RJ,,https://monitorcnpj.com.br/cnpj/10922875000102/,CNPJ 10.922.875/0001-02 (agregador); certeza média-alta
-independente,Autopublicação,,,,,,Autopublicação (obra sem editora). Linha canônica para autopublicação.
+imago,Imago Editora,,Rio de Janeiro,RJ,,https://brasilapi.com.br/api/cnpj/v1/33766734000135,"CNPJ 33.766.734/0001-35 (Imago Editora Importação e Exportação Ltda., Rio de Janeiro/RJ); agregador, certeza média."
+imeph,Editora Imeph,,Fortaleza,CE,,https://imeph.com.br,"Site: ""Localização da Editora em Fortaleza"", telefone (85); sem CNPJ."
+imperial-novo-milenio,Imperial Novo Milênio,,Rio de Janeiro,RJ,,https://openlibrary.org/works/OL16344041W,Local de publicação dos títulos da Imperial Novo Milênio: Rio de Janeiro-RJ; sem site nem CNPJ; certeza média.
+impressoes-de-minas,Impressões de Minas,,Belo Horizonte,MG,,https://www.impressoesdeminas.com.br/contato,"Contato: Rua Bueno Brandão, 80, Floresta, Belo Horizonte-MG."
+independente,Independente,,,,,,Autopublicação (obra sem editora). Linha canônica para autopublicação.
+instante,Editora Instante,,São Paulo,SP,,https://www.editorainstante.com.br,"CNPJ 14.510.908/0001-50 (Editora Instante Ltda., São Paulo/SP)."
 intrinseca,Intrínseca,,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Editora_Intr%C3%ADnseca,Independente.
+inverso,Editora InVerso,,Curitiba,PR,,https://editorainverso.com.br,"CNPJ 06.987.053/0001-24 (Inverso Comunicação e Marketing Ltda., Curitiba/PR); distinta da 8Inverso (Porto Alegre)."
+jandaira,Editora Jandaíra,,São Paulo,SP,,https://www.editorajandaira.com.br/contato,CNPJ 04.868.098/0001-54.
 jose-olympio,José Olympio,Grupo Editorial Record,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Jos%C3%A9_Olympio_Editora,Obra de 2023. Integra o Grupo Editorial Record desde 2001.
+jujuba-editora,Jujuba Editora,,São Paulo,SP,,https://jujubaeditora.com.br/policies/terms-of-service,"CNPJ 06.346.566/0001-56, escritório em Perdizes, São Paulo/SP."
+kan-editora,Kan Editora,,Londrina,PR,,https://openlibrary.org/works/OL23314902W,Local de publicação dos títulos da Kan Editora: Londrina-PR; sem site nem CNPJ; certeza média.
+kapulana,Editora Kapulana,,São Paulo,SP,,https://openlibrary.org/works/OL32299346W,Local de publicação dos títulos da Kapulana: São Paulo; site sem endereço; certeza média.
+kotter-editorial,Kotter Editorial,,Curitiba,PR,,https://www.kotter.com.br,CNPJ 20.916.027/0001-36.
+l-pm-editores,L&PM Editores,,Porto Alegre,RS,,https://www.lpm.com.br,CNPJ 87.932.463/0001-70 (Publibook Livros e Papéis Ltda.).
 labrador,Labrador,,São Paulo,SP,,https://editoralabrador.com.br,"independente, voltada à autopublicação"
+lacre,Lacre,,Rio de Janeiro,RJ,,https://openlibrary.org/works/OL32772523W,Local de publicação dos títulos da Lacre: Rio de Janeiro; sem site nem CNPJ; certeza média.
+laranja-original,Laranja Original,,São Paulo,SP,,https://www.laranjaoriginal.com.br,"Endereço na Vila Madalena, São Paulo-SP, no rodapé."
+le-chien,Le Chien,,,,,,"Sede não encontrada: sem site, CNPJ nem ficha no OpenLibrary; uma busca web sobre a obra de 2018 (Tiago Germano) não achou a editora."
 leitura-fina,Leitura Fina,,Vitória,ES,,https://leiturafina.lojavirtualnuvem.com.br/contato/,
+letramento,Editora Letramento,,Belo Horizonte,MG,,https://www.editoraletramento.com.br,"Site: ""Grupo Editorial Letramento surgiu em Belo Horizonte, em 2013""; contato Belo Horizonte, MG; sem CNPJ."
+leya,LeYa,Grupo Leya,São Paulo,SP,,https://openlibrary.org/works/OL22337562W,"LeYa Brasil (braço do grupo português LeYa); local de publicação São Paulo (Herança de Maria, 2011), mas Pós-F (2018) aparece com Rio de Janeiro; certeza média."
+lingua-geral,Língua Geral,,Rio de Janeiro,RJ,,https://openlibrary.org/works/OL20363737W,Local de publicação de Os Malaquias e de dezenas de títulos da editora: Rio de Janeiro-RJ; sem site ativo nem CNPJ; certeza média.
+link-editora,Link Editora,,,,,,"Sede não encontrada: sem site, CNPJ nem ficha no OpenLibrary; uma busca web sobre Tristorosa (2017) sem resultado."
+livre,Livre,,,,,,"Sede não confirmada: existe a Livre Conteúdo e Cultura (São Paulo), mas não confirmei que é a editora de Aquenda (Luna Vitrolira, Recife)."
+lumme-editor,Lumme Editor,,São Paulo,SP,,https://openlibrary.org/works/OL44501837W,"Ficha de Dobres sobre a Luz (obra do Jabuti): Lumme Editor, São Paulo; site bloqueia acesso automático; certeza média."
+luna-parque,Luna Parque Edições,,São Paulo,SP,,https://openlibrary.org/works/OL43438383W,Local de publicação dos títulos da Luna Parque: São Paulo; domínio próprio hoje redireciona para outro site; certeza média.
+male,Malê Editora,,Rio de Janeiro,RJ,,https://www.editoramale.com.br,CNPJ 22.992.875/0001-50.
+male-editora,Malê Editora,,Rio de Janeiro,RJ,male,https://www.editoramale.com.br,"Duplicata de male (mesma Malê Editora, CNPJ 22.992.875/0001-50)."
+manati,Manati Produções Editoriais,,Rio de Janeiro,RJ,,https://openlibrary.org/works/OL22602364W,"Ficha de Controle Remoto (obra do Jabuti): Manati Produções Editoriais, Rio de Janeiro-RJ; sem site ativo nem CNPJ; certeza média."
+maralto,Maralto Edições,,Curitiba,PR,,https://www.bemparana.com.br/noticia/brasil-ganha-nova-editora-com-sede-em-curitiba,"Fonte: ""com sede em Curitiba-PR"" (Bem Paraná, 2021); o site lista também endereços em São Paulo e Fortaleza."
+marte-cultura-e-educacao,Editora Marte,,,,,https://www.omelete.com.br/quadrinhos/o-brasil-dos-dinossauros-apresenta-mapeamento-de-especies-que-viveram-no-pais,"A Omelete confirma que a obra é da Editora Marte, mas nenhuma fonte deu a sede."
+martelo,Martelo Casa Editorial,,Goiânia,GO,,https://openlibrary.org/works/OL43814244W,Local de publicação dos títulos da Martelo: Goiânia; site fora do ar; certeza média.
+melhoramentos,Editora Melhoramentos,,São Paulo,SP,,https://www.editoramelhoramentos.com.br,"Endereço R. Tito, 479, Vila Romana, São Paulo/SP no rodapé."
+metamorfose,Editora Metamorfose,,Porto Alegre,RS,,https://openlibrary.org/works/OL32289182W,Local de publicação dos títulos da Metamorfose: Porto Alegre; site bloqueia acesso; certeza média.
+miguilim,Editora Miguilim,,Belo Horizonte,MG,,https://www.editoramiguilim.com.br,CNPJ 21.543.798/0001-98.
 moinhos,Moinhos,,Belo Horizonte,MG,,https://editoramoinhos.com.br/sobre/,editora independente fundada em 2016
+mondrongo,Mondrongo,,Itabuna,BA,,https://openlibrary.org/works/OL32067105W,"Ficha de A terra em pandemia (2020, obra do Jabuti) dá Itabuna-BA como local; Correio 24 Horas a descreve como editora baiana ligada ao Teatro Popular de Ilhéus; certeza média."
+morula-editorial,Mórula Editorial,,Rio de Janeiro,RJ,,https://www.morula.com.br/contato/,"Contato: Rua Teotônio Regadas 26, Lapa, Rio de Janeiro-RJ."
+multifoco,Editora Multifoco,,Rio de Janeiro,RJ,,https://ppgdc.uff.br/wp-content/uploads/sites/681/2023/02/9.pdf,"Ficha de livro de 2017: Simmer & Amorim Edição e Comunicação Ltda., Av. Mem de Sá, 126, Lapa, Rio de Janeiro-RJ; certeza média."
 nao-editora,Não Editora,,Porto Alegre,RS,,https://en.wikipedia.org/wiki/Samir_Machado_de_Machado,independente
+nave-editora,Editora Nave,,Florianópolis,SC,,https://editoranave.com.br/contato,"CNPJ 22.628.825/0001-98, Florianópolis/SC; não confirmei no catálogo que a obra de 2019 é desta Editora Nave (certeza média)."
+nemo,Nemo,Grupo Autêntica,Belo Horizonte,MG,,https://grupoautentica.com.br/nemo,Selo de quadrinhos do Grupo Autêntica; sede do grupo em Belo Horizonte.
 nexo-design-e-editora-insight,Nexo Design e Editora Insight,,Curitiba,PR,,https://cnpj.biz/00317346000118,CNPJ 00.317.346/0001-18
+nosotros-editorial,"nosotros, editorial",,,,,,"Sede não confirmada: um artigo acadêmico cita ""Nosotros Editorial-SP"" (provavelmente São Paulo); sem site nem CNPJ."
+nova-alexandria,Editora Nova Alexandria,,São Paulo,SP,,https://openlibrary.org/works/OL23315178W,Ficha de Cheiro de Chocolate e Outras Histórias (obra do Jabuti): São Paulo; sem CNPJ; certeza média.
 nova-fronteira,Nova Fronteira,Grupo Ediouro,Rio de Janeiro,RJ,,https://www.publishnews.com.br/newsletters/3577,Obra de 2016. Pertence à Ediouro desde 2006.
+novo-seculo,Novo Século Editora,,,SP,,https://en.wikipedia.org/wiki/Grupo_Novo_S%C3%A9culo,"UF certa, município incerto: a Wikipédia (en) diz São Paulo, vagas no PublishNews apontam Barueri e fichas antigas trazem Osasco."
+nversos,Nversos Editora,,São Paulo,SP,,https://www.nversos.com.br,CNPJ 10.797.141/0002-11 (estabelecimento em São Paulo/SP; matriz não conferida).
 objetiva,Objetiva,Penguin Random House,Rio de Janeiro,RJ,,https://www.publishnews.com.br/telas/noticias/detalhes.aspx?id=76347,"Obra de 2016. 100% da Penguin Random House Brasil desde 2014 (comprada da Santillana), operada em conjunto com a Companhia das Letras; hoje selo do Grupo Companhia das Letras. Sede carioca (Laranjeiras em 2014)."
 obra-independente,Obra Independente,,,,independente,,Duplicata de 'independente' (autopublicação).
 oficios-terrestres-edicoes,Ofícios Terrestres Edições,,Campinas,SP,,https://parcerias.benfeitoria.com/canal/oficiosterrestres,certeza média-alta
+olhares,Editora Olhares,,São Paulo,SP,,https://www.editoraolhares.com.br,"Rodapé: ""Sede: R. General Jardim, 618, Vila Buarque, São Paulo-SP""."
+organismo,Organismo Editora,,Salvador,BA,,https://openlibrary.org/works/OL32069787W,Local de publicação de títulos da Organismo Editora: Salvador (poucos registros); certeza média.
+oze-editora,ÔZé Editora,,São Paulo,SP,,https://www.ozeeditora.com,CNPJ 13.360.966/0001-81.
+padaria-de-livros,Padaria de Livros,,São Paulo,SP,,https://www.padariadelivros.com.br,"CNPJ 03.053.792/0001-50 (Padaria de Textos Ltda., São Paulo/SP)."
+paes,Paés,,Recife,PE,,https://openlibrary.org/works/OL39031788W,Ficha de Tempo de vidro (Paés): Recife; sem site nem CNPJ; certeza média.
+palavras-projetos-editoriais,Palavras Projetos Editoriais,,,,,,Sede não encontrada: domínios testados via curl não existem e não há ficha no OpenLibrary; não fiz busca web.
+pallas,Pallas Editora,,Rio de Janeiro,RJ,,https://www.pallaseditora.com.br,CNPJ 42.422.006/0001-05.
+pallas-editora,Pallas Editora,,Rio de Janeiro,RJ,pallas,https://www.pallaseditora.com.br,Duplicata de pallas (CNPJ 42.422.006/0001-05).
+panda-books,Panda Books,,São Paulo,SP,,https://www.pandabooks.com.br,"Endereço Rua Henrique Schaumann, Pinheiros, São Paulo-SP no rodapé."
 paulinas,Paulinas,,São Paulo,SP,,https://www.paulinas.com.br/,"Obra de 2016. Editora da congregação religiosa Pia Sociedade Filhas de São Paulo (presente em vários países); não é grupo editorial comercial, grupo vazio."
+peiropolis,Editora Peirópolis,,São Paulo,SP,,https://www.wikidata.org/wiki/Q130480360,Wikidata P159 = São Paulo; site oficial sem endereço legível; certeza média.
 penalux,Penalux,,Guaratinguetá,SP,,http://www.editoralitteralux.com.br/,renomeada Litteralux em 2024
+pequena-zahar,Pequena Zahar,,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Zahar_(editora),"Selo infantil da Zahar (Rio de Janeiro); a Companhia das Letras (PRH) só assumiu a Zahar em 2/out/2019, depois da publicação da obra (2018), por isso grupo vazio."
+perabook,PeraBook,,São Paulo,SP,,https://www.perabook.com.br,"O domínio perabook.com.br exibe o site da Elo Editora (""Grupo ELO Editorial""), editora independente de São Paulo; título de 2025 com local São Paulo (OpenLibrary); certeza média."
 physalis-editora,Physalis Editora,,Passo Fundo,RS,,https://www.physaliseditora.com/,CNPJ 21.541.118/0001-05
+piu,Editora Piu,,Porto Alegre,RS,,https://www.editorapiu.com.br,"CNPJ 24.363.832/0001-30 (Editora Piu Ltda., Porto Alegre/RS no cadastro)."
 planeta-do-brasil,Planeta do Brasil,Grupo Planeta,São Paulo,SP,,https://www.planetadelivros.com.br/,Obra de 2023. Subsidiária do Grupo Planeta (Espanha).
+poesia-viral,Poesia Viral,,,,,,Sede não encontrada: sem site nem ficha no OpenLibrary; uma busca web sobre a obra de 2024 sem resultado.
+premius-editora,Premius Editora,,Fortaleza,CE,,https://openlibrary.org/works/OL13846898W,Local de publicação de dezenas de títulos da Premius Editora: Fortaleza-CE; site fora do ar; certeza média.
+projeto,Editora Projeto,,Porto Alegre,RS,,https://openlibrary.org/works/OL19929349W,Ficha de título da Editora Projeto: Porto Alegre; o site só traz WhatsApp (51); certeza média.
+prosa-nova,Prosa Nova Editora,,Curitiba,PR,,https://www.prosanova.com.br,"Grupo Prosa Nova Editora e Educação, Rua Anne Frank, 1120, Curitiba-PR; o site cita Opa como finalista do Jabuti."
+publifolha,Publifolha,Grupo Folha,São Paulo,SP,,https://pt.wikipedia.org/wiki/Publifolha,Editora do Grupo Folha (Wikipédia); local de publicação dos títulos: São Paulo.
 quatro-cantos,Quatro Cantos,,São Paulo,SP,,https://monitorcnpj.com.br/cnpj/14014777000110/,CNPJ 14.014.777/0001-10
+quelonio,Editora Quelônio,,São Paulo,SP,,https://openlibrary.org/works/OL32296507W,"Ficha de Maboque (obra do Jabuti): Quelônio, São Paulo; certeza média."
+quilombhoje,Quilombhoje,,São Paulo,SP,,https://pt.wikipedia.org/wiki/Quilombhoje,Coletivo cultural e editora de São Paulo (Cadernos Negros).
+quintal-edicoes,Quintal Edições,,,,,,"Sede não confirmada: o OpenLibrary tem uma ""Quintal"" em Belo Horizonte (2021), mas não confirmei que é a mesma editora; uma busca web sem resultado."
+quixote-do-editoras-associadas,Quixote+Do Editoras Associadas,,Belo Horizonte,MG,,https://openlibrary.org/works/OL32275607W,Local de publicação dos títulos da Quixote+Do: Belo Horizonte-MG; sem site nem CNPJ; certeza média.
 record,Record,Grupo Editorial Record,Rio de Janeiro,RJ,editora-record,https://pt.wikipedia.org/wiki/Grupo_Editorial_Record,Obra de 2023. Duplicata de 'editora-record'.
 reformatorio,Reformatório,,São Paulo,SP,,https://www.reformatorio.com.br,Editora Nocelli Ltda.
+relicario,Relicário Edições,,Belo Horizonte,MG,,https://relicarioedicoes.com/contato,"CNPJ 17.615.842/0001-50 (Relicário Edições Ltda., Belo Horizonte/MG); o site da editora lista Batendo pasto."
+relicario-edicoes,Relicário Edições,,Belo Horizonte,MG,relicario,https://relicarioedicoes.com/contato,"Duplicata de relicario: mesma Relicário Edições (CNPJ 17.615.842/0001-50); Deriva (2019) aparece como ""Relicário"", Belo Horizonte."
+rhj,RHJ Livros,,Belo Horizonte,MG,,https://openlibrary.org/works/OL23325525W,"Ficha de Marginal à Esquerda (obra do Jabuti): RHJ Livros, Belo Horizonte-MG; certeza média."
 rocco,Rocco,,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Editora_Rocco,Independente.
+rocquinho,Rocquinho,,Rio de Janeiro,RJ,,https://rocco.com.br/especial/rocquinho/,"Selo infantil criado pela Rocco (independente), sediada no Rio de Janeiro (Wikipédia)."
+salamandra,Salamandra,Santillana,São Paulo,SP,,https://pt.wikipedia.org/wiki/Editora_Salamandra,Integra a Editora Moderna (Grupo Santillana) desde 1988 e mudou a sede do Rio para São Paulo.
 santillana-educacao,Santillana Educação,Santillana,São Paulo,SP,,https://www.moderna.com.br/,"Obra de 2023. Santillana Brasil (dona da Moderna), do Grupo Prisa. Não marcado como duplicata de 'editora-moderna' (razões sociais/selos distintos); avaliar."
+saraiva,Editora Saraiva,,São Paulo,SP,,https://brasilapi.com.br/api/cnpj/v1/60500139000126,"Saraiva S.A. Livreiros Editores, CNPJ 60.500.139/0001-26, São Paulo/SP (hoje falida); editora vendida à Somos Educação em 2015, após a obra de 2010."
 scipione,Scipione,Somos Educação,São Paulo,SP,,https://www.publishnews.com.br/materias/2016/02/02/com-150-demisses-somos-educao-e-saraiva-educao-unem-suas-operaes,"Obra de 2016. Selo da Somos Educação (ex-Abril Educação), ao lado de Ática; Somos comprada pela Kroton/Cogna em 2018."
+scortecci,Scortecci,,São Paulo,SP,,https://www.scortecci.com.br,"Rua Dep. Lacerda Franco, 98, Pinheiros, São Paulo/SP; Grupo Editorial Scortecci é a própria editora (independente)."
+seguinte,Seguinte,Penguin Random House,São Paulo,SP,,https://www.companhiadasletras.com.br/selos/seguinte,Selo jovem da Companhia das Letras (PRH desde out/2018); sede da Companhia em São Paulo (Wikipédia); ficha de Valentes (2020) dá São Paulo-SP.
 sesi-sp-editora,Sesi-SP Editora,,São Paulo,SP,,https://www.sesispeditora.com.br/,Obra de 2016. Editora do SESI-SP (entidade do Sistema S); não é grupo editorial.
+sete,Sete,,,,,,Sede não encontrada: sem site nem ficha identificável (nome genérico); não fiz busca web.
+sisko,Sisko Editora,,São Paulo,SP,,https://www.sisko.com.br,"CNPJ 44.324.563/0001-00 (MEI em nome de Walter Tierno, São Paulo/SP); certeza média."
+solisluna,Solisluna Editora,,Lauro de Freitas,BA,,https://solisluna.com.br/policies/privacy-policy,"CNPJ 96.745.534/0001-16 (Solisluna Design e Editora Ltda.), endereço em Lauro de Freitas/BA."
+star-print,Star Print,,,,,,Sede não encontrada: sem site nem ficha brasileira no OpenLibrary; não fiz busca web.
+taverna,Editora Taverna,,Porto Alegre,RS,,https://openlibrary.org/works/OL32020374W,"Ficha de Vozes de retratos íntimos (obra do Jabuti): Taverna, Porto Alegre-RS; site sem endereço; certeza média."
+telucazu-edicoes,Telucazu Edições,,,,,https://tribunadejundiai.com.br/entretenimento/acontece/lancamento-livro-o-silencio-de-kazuki/,"Sede não confirmada: a obra (André Kondo) foi lançada em Jundiaí-SP, mas nenhuma fonte dá a sede da editora."
 terceiro-selo,Terceiro Selo,,Porto Alegre,RS,,https://literaturars.com.br/2019/08/21/editora-dublinense-coleciona-sucessos-em-dez-anos/,selo da Dublinense (independente)
+tessitura,Tessitura,,Belo Horizonte,MG,,https://openlibrary.org/works/OL23315199W,"Ficha de Hotéis à Beira da Noite (obra do Jabuti): Tessitura, Belo Horizonte; certeza média."
+thesaurus-editora,Thesaurus Editora,,Brasília,DF,,https://www.thesaurus.com.br/empresa,"Site ""Thesaurus Editora de Brasília"", endereço SIG Quadra 8 (Brasília); sem CNPJ."
 tibi-livros,Tibi Livros,,,,,https://www.meutibi.com.br,"fontes divergem: Receita aponta São Paulo/SP, LinkedIn aponta Salvador/BA — deixado vazio"
+tinta-da-china-brasil,Tinta-da-china Brasil,,Rio de Janeiro,RJ,,https://www.publishnews.com.br/materias/2012/01/20/66787-os-planos-da-tintadachina,"Braço brasileiro da Tinta-da-china (Lisboa), com sede no Rio desde 2012 (PublishNews); desde 2022 é selo da Associação Quatro Cinco Um (São Paulo); certeza média."
 todavia,Todavia,,São Paulo,SP,,https://todavialivros.com.br/,Independente.
+toma-ai-um-poema,Toma Aí Um Poema,,,,,https://forbes.com.br/under-30/2025/musica-literatura-u30-2025/jessica-iancoski/,"Editora em modelo de associação sem fins lucrativos, presidida por Jéssica Iancoski (natural de Curitiba); sede da associação não confirmada."
 tordesilhas,Tordesilhas,,São Paulo,SP,,https://www.publishnews.com.br/materias/2011/04/26/63095-alaude-amplia-linha-editorial,selo de ficção da Editora Alaúde (independente); cidade inferida de 'editora paulista'
+trioleca-casa-editorial,Trioleca Casa Editorial,,São Paulo,SP,,https://www.trioleca.com.br,"Rua Pereira Leite, 442, Vila Madalena, São Paulo-SP."
+tusquets,Tusquets Editores,Grupo Planeta,São Paulo,SP,,https://www.planetadelivros.com.br/politica-de-privacidade-clientes,"Selo do Grupo Planeta no Brasil desde 2016 (PublishNews); Editora Planeta do Brasil, CNPJ 05.764.236/0001-18, Av. Paulista, São Paulo."
 uk-a-editorial,UK'A Editorial,,Lorena,SP,,https://www.ukaeditorial.com/daniel-munduruku,CNPJ 04.354.934/0001-82
 urutau,Urutau,,Cotia,SP,,https://editoraurutau.com/contato,base brasileira em Cotia; também opera em Portugal
 v-de-moura-mendonca-livros,V. de Moura Mendonça Livros,,São Paulo,SP,,https://monitorcnpj.com.br/cnpj/15579362000156/,Scriptorium / selo Demônio Negro
-vasta,Vasta,,,,,https://anadigital.pro.br/wp-content/uploads/2024/09/Mulheres-que-editam-_acesso-aberto-1.pdf,editora itinerante sem endereço fixo (fundadora no Rio); certeza baixa — deixado vazio
+vasta,Vasta,,Rio de Janeiro,RJ,,https://www.editoravasta.com.br/policies/privacy-policy,"Endereço Rua Osório de Almeida 38, Rio de Janeiro RJ; site lista Vastidão (finalista Jabuti 2023)."
+verus,Verus Editora,Grupo Editorial Record,Campinas,SP,,https://openlibrary.org/works/OL23315248W,Selo do Grupo Editorial Record desde 2010 (fusoesaquisicoes.com); a ficha de A Pedagogia dos Caracóis (obra de 2011) dá Campinas-SP como local; certeza média.
+viseu,Editora Viseu,,Maringá,PR,,https://www.editoraviseu.com.br,CNPJ 13.805.697/0001-10.
 wei-editora,Wei Editora,,Boa Vista,RR,,https://revistas.ufrj.br/index.php/diadorim/article/view/50705,primeira editora independente de Roraima
+wmf-martins-fontes,WMF Martins Fontes,,São Paulo,SP,,https://www.wmfmartinsfontes.com.br,"Editora WMF Martins Fontes Ltda., CNPJ 08.463.170/0004-67 (estabelecimento em São Paulo; matriz não conferida)."
+yellowfante,Yellowfante,,Belo Horizonte,MG,,https://openlibrary.org/works/OL32020350W,Local de publicação dos títulos da Yellowfante: Belo Horizonte-MG; não confirmei vínculo com grupo; certeza média.
+zarte,Editora Zarte,,Feira de Santana,BA,,https://openlibrary.org/works/OL32312620W,Local de publicação dos títulos da Zarte: Feira de Santana-BA; sem site nem CNPJ; certeza média.
+zit-editora,Zit Editora,,Rio de Janeiro,RJ,,https://openlibrary.org/works/OL13785063W,Local de publicação de títulos da Zit Editora: Rio de Janeiro-RJ (poucos registros); certeza média.
+zouk,Editora Zouk,,Porto Alegre,RS,,https://www.editorazouk.com.br,"CNPJ 02.772.081/0001-73 (Zouk Editora e Distribuidora Ltda., Porto Alegre/RS)."
