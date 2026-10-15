@@ -1,16 +1,16 @@
 ano,nome_original,categoria,vagas_lista,vagas_curta,vagas_premio,fonte
 2010,Romance,Romance,10,,3,http://web.archive.org/web/20101111042958/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=20&f=1
-2010,Contos e Crônicas,Contos,10,,4,http://web.archive.org/web/20101111042914/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=17&f=1
+2010,Contos e Crônicas,Contos,10,,3,http://web.archive.org/web/20101111042914/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=17&f=1
 2010,Poesia,Poesia,10,,3,http://web.archive.org/web/20101111042803/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=14&f=1
-2010,Infantil,Infantil,10,,3,http://web.archive.org/web/20101111042929/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=18&f=1
-2010,Juvenil,Juvenil,10,,3,http://web.archive.org/web/20101111042944/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=19&f=1
+2010,Infantil,Infantil,11,,3,http://web.archive.org/web/20101111042929/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=18&f=1
+2010,Juvenil,Juvenil,13,,3,http://web.archive.org/web/20101111042944/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=19&f=1
 2010,Livro do Ano Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2010,Livro do Ano Não Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
-2011,Romance,Romance,10,,3,http://web.archive.org/web/20111019044559/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=57&f=1
-2011,Contos e Crônicas,Contos,10,,3,http://web.archive.org/web/20111019044532/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=45&f=1
+2011,Romance,Romance,11,,3,http://web.archive.org/web/20111019044559/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=57&f=1
+2011,Contos e Crônicas,Contos,11,,3,http://web.archive.org/web/20111019044532/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=45&f=1
 2011,Poesia,Poesia,10,,3,http://web.archive.org/web/20111017030958/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=54&f=1
-2011,Infantil,Infantil,10,,3,http://web.archive.org/web/20111019040917/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=52&f=1
-2011,Juvenil,Juvenil,10,,3,http://web.archive.org/web/20111019042130/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=53&f=1
+2011,Infantil,Infantil,12,,3,http://web.archive.org/web/20111019040917/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=52&f=1
+2011,Juvenil,Juvenil,12,,3,http://web.archive.org/web/20111019042130/http://www.cbl.org.br/jabuti/telas/resultado/resultado.aspx?c=53&f=1
 2011,Livro do Ano Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2011,Livro do Ano Não Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2012,Romance,Romance,10,,3,http://web.archive.org/web/20130317195455/http://www.premiojabuti.com.br/resultado-fase1-2012
@@ -21,7 +21,7 @@ ano,nome_original,categoria,vagas_lista,vagas_curta,vagas_premio,fonte
 2012,Livro do Ano Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2012,Livro do Ano Não Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2013,Romance,Romance,11,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
-2013,Contos e Crônicas,Contos,13,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
+2013,Contos e Crônicas,Contos,12,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
 2013,Poesia,Poesia,11,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
 2013,Infantil,Infantil,16,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
 2013,Juvenil,Juvenil,11,,3,http://web.archive.org/web/20131024170208/http://www.premiojabuti.com.br/resultado-fase1-2013
@@ -49,7 +49,7 @@ ano,nome_original,categoria,vagas_lista,vagas_curta,vagas_premio,fonte
 2016,Livro do Ano Ficção,Livro do Ano,,,1,https://www.premiojabuti.com.br/jabuti/livro-do-ano/
 2016,Livro do Ano Não Ficção,Livro do Ano,,,2,https://www.publishnews.com.br/materias/2016/11/25/julian-fuks-e-o-autor-do-livro-do-ano-ficcao-do-jabuti
 2017,Romance,Romance,10,,3,https://www.bahianoticias.com.br/estadao/noticia/202883-rita-lee-esta-entre-indicados-ao-premio-jabuti-confira-lista-completa
-2017,Contos e Crônicas,Contos,10,,3,https://www.publishnews.com.br/materias/2017/10/04/jabuti-divulga-os-10-finalistas-em-cada-uma-das-suas-29-categorias
+2017,Contos e Crônicas,Contos,10,,3,https://www.otempo.com.br/entretenimento/escritores-mineiros-sao-indicados-ao-premio-jabuti-2017-1.1527519
 2017,Poesia,Poesia,10,,3,https://www.bahianoticias.com.br/estadao/noticia/202883-rita-lee-esta-entre-indicados-ao-premio-jabuti-confira-lista-completa
 2017,Infantil,Infantil,10,,3,https://www.bahianoticias.com.br/estadao/noticia/202883-rita-lee-esta-entre-indicados-ao-premio-jabuti-confira-lista-completa
 2017,Juvenil,Juvenil,10,,3,https://www.bahianoticias.com.br/estadao/noticia/202883-rita-lee-esta-entre-indicados-ao-premio-jabuti-confira-lista-completa
