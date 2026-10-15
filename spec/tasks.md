@@ -50,3 +50,17 @@
 - [x] P8 `dados.json` abaixo de 1 MB (RNF-06, D13): participação compacta e `metricas.expandir` no navegador 🧪👁
 - [x] P9 Organizadores fora das contagens (CA-01.5, D14): coluna `organizadores` nas listas, 13 organizadores movidos e Euclides da Cunha incluído como autor de *Poesia Reunida* (2010) 🧪👁. Saíram das contagens 14 pessoas que só organizaram (pessoas-autoras 741 → 728; indicações com autor 929 → 923, porque 6 antologias não listam autores). O piso de negros caiu de 26 para 24 (Esmeralda Ribeiro e Márcio Barbosa, organizadores de *Cadernos Negros*), e Kaká Werá (indígena) saiu. Ficaram como autores: os 3 curadores de *De bala em prosa* (CBL credita os 31 nomes como autores) e *Pretos em contos 2* (sem fonte de que sejam só organizadores)
 - [x] P7 Editoras novas (out/2026): 196 levantadas em 2 lotes (`editoras_enriquecidas.csv`, fonte por linha; agregadores de CNPJ marcados "certeza média"). 21 duplicatas unificadas por `canonico` (273 → 252 editoras; `independente` segue canônica da autopublicação). Com sede: 77 → 226 (90%); com grupo: 21 → 35; indicações com editora de sede conhecida: 584 → 881 de 926 (95%). Sem sede (26): editoras pequenas sem fonte e `independente`. Grupo pela data da obra (ex.: Escarlate com PRH só a partir de out/2020; Pequena Zahar 2018 sem grupo)
+
+## T6 Interface narrativa (RF-15 a RF-18, D15)
+- [x] T6.1 `coleta.py midia` + `dados/pessoa_midia.csv` + tabela `pessoa_midia` (CHECK de licença) + export `midia` (CA-11.3) 🧪: 476 pessoas com QID, 209 fotos livres (só 1 recusada por falta de autoria e 1 por ser estátua), 427 verbetes da pt.wikipedia
+- [x] T6.2 `coleta.py malha` + `web/br-uf.json` (27 UFs) (CA-07.3) 🧪
+- [x] T6.3 Export `fontes` por domínio (CA-18.1) 🧪
+- [x] T6.4 `metricas.historia`, `metricas.porEdicao`, `metricas.corAvatar` (CA-16.2, 17.2, 11.3) 🧪
+- [x] T6.5 Abertura, navegação fixa com seção atual, tema, filtros recolhíveis (RF-15) 👁
+- [x] T6.6 História guiada com gráfico de pontos e encaixe por passo (RF-16) 👁
+- [x] T6.7 Linha do tempo com vencedoras e pequenos múltiplos (RF-17) 👁
+- [x] T6.8 Coroplético por UF com clique que lista pessoas (CA-07.1) 👁
+- [x] T6.9 Galeria, perfis com rota por hash, foto com crédito ou avatar (RF-11) 👁
+- [x] T6.10 Referências (RF-18) 👁
+- [x] T6.11 Conferência no navegador (claro, escuro, 1280 e 375 px, sem rolagem horizontal, console sem erros) e testes verdes (36 pytest + 17 node). `prefers-reduced-motion` só por CSS/JS (a ferramenta não emula)
+- [x] T6.12 Duplicata achada pela mídia: `carpinejar` e `fabricio-carpinejar` têm o mesmo QID (Q5428242); unificar pelo procedimento do CLAUDE.md. Mesma pessoa ("Carpinejar" é apelido no item; todas as obras pela Bertrand Brasil): lista 2025 passa a "Fabrício Carpinejar", id único `fabricio-carpinejar`. 915 → 914 pessoas, 714 → 713 pessoas-autoras (contagens por edição não mudam: nenhuma edição tinha os dois ids); 475 QIDs, nenhum repetido; 208 fotos livres, 426 verbetes

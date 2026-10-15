@@ -1,14 +1,16 @@
 """CSVs de dados/ → jabuti.duckdb + web/dados.json, com checagens (spec RF-01)."""
 import json
 import os
+import re
 import sys
+from urllib.parse import urlsplit
 from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
 
 RAIZ = Path(__file__).parent
-TABELAS = ["editora", "pessoa", "obra", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -62,6 +64,42 @@ def checar(con):
         raise BuildError("checagens falharam:\n  " + "\n  ".join(erros))
 
 
+GRUPOS_FONTE = [  # (regex do domínio, grupo) — a primeira que casar vale (RF-18)
+    (r"premiojabuti\.com\.br$|cbl\.org\.br$", "Prêmio Jabuti e CBL"),
+    (r"web\.archive\.org$", "Arquivo da web (Wayback Machine)"),
+    (r"wikidata\.org$|wikipedia\.org$|wikimedia\.org$", "Wikidata e Wikipédia"),
+    (r"letras\.ufmg\.br$", "Literafro (UFMG)"),
+    (r"tse\.jus\.br$", "Registro de candidaturas (TSE)"),
+    (r"itaucultural\.org\.br$", "Enciclopédia Itaú Cultural"),
+    (r"publishnews|globo\.com$|folha|estadao|uol\.com\.br$|terra\.com\.br$|brasildefato|cartacapital|cnn|gazeta|opovo|otempo"
+     r"|diario|nsctotal|almapreta|diplomatique|outraspalavras|correio|veja|piaui|metropoles|bbc|elpais|nexojornal|ebc\.com\.br$"
+     r"|gauchazh|bemparana|uai\.com\.br$|jornal|revista|noticias|news|radio|tv", "Imprensa"),
+    (r"\.edu\.br$|unirio|ufmg|usp\.br$|unicamp|ufsc|ufrgs|uel\.br$|unb\.br$|scielo|periodicos|dialnet|\.ac\.|academia\.edu$", "Universidades e periódicos"),
+    (r"editora|livraria|livros|martinsfontes|companhiadasletras|record\.com\.br$|skoob|estantevirtual|travessa|amazon|books"
+     r"|panda|sesi|quindim|touche|pulodogato|rocco|intrinseca|moderna|ftd|smeducacao|cepe|peiropolis|prosanova|piu", "Editoras e livrarias"),
+]
+
+
+def fontes(con) -> list[dict]:
+    """URLs de todas as fontes da base, contadas por domínio e agrupadas (RF-18)."""
+    urls = []
+    for sql in ["SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
+                "SELECT genero_fonte FROM pessoa", "SELECT raca_fonte FROM pessoa", "SELECT nascimento_fonte FROM pessoa"]:
+        for (v,) in con.execute(sql).fetchall():
+            urls += [u.strip() for u in (v or "").split(" ; ") if u.strip().startswith("http")]
+    por = {}
+    for u in urls:
+        dom = urlsplit(u).hostname or ""
+        dom = dom.removeprefix("www.")
+        if not dom:
+            continue
+        r = por.setdefault(dom, {"dominio": dom, "registros": 0, "exemplo": u})
+        r["registros"] += 1
+    for r in por.values():
+        r["grupo"] = next((g for rx, g in GRUPOS_FONTE if re.search(rx, r["dominio"])), "Outros")
+    return sorted(por.values(), key=lambda r: (-r["registros"], r["dominio"]))
+
+
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
     return {
@@ -86,6 +124,10 @@ def exportar(con) -> dict:
         "editoras": _linhas(con, "SELECT * FROM editora ORDER BY nome"),
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
         "cobertura": _linhas(con, "SELECT * FROM v_cobertura ORDER BY ano"),
+        # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
+        "midia": [{k: v for k, v in m.items() if v is not None} for m in _linhas(con, """
+                  SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
+        "fontes": fontes(con),
     }
 
 

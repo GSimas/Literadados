@@ -148,3 +148,61 @@ test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA
   assert.equal(b.regiao_nascimento, null); // sem UF
   assert.equal(b.idade_no_premio, null); // sem ano de nascimento
 });
+
+// ---------- interface narrativa (CA-11.3, 16.2, 17.1, 17.2) ----------
+
+test("historia calcula os números da narrativa a partir dos dados", () => {
+  const h = M.historia(M.filtrar(linhas));
+  assert.equal(h.pessoas, 4);
+  assert.equal(h.edicoes, 2);
+  assert.equal(h.genero.mulheres, 2);
+  assert.equal(h.genero.pctMulheres, 50);
+  assert.equal(h.vencedoras.pessoas, 2); // a (2023) e b (2016)
+  assert.equal(h.vencedoras.mulheres, 1);
+  assert.equal(h.premiadas.pessoas, 3); // a, b, c
+  assert.equal(h.raca.negras, 1);
+  assert.equal(h.raca.pctNegras, 25);
+  assert.equal(h.raca.negrasVencedoras, 1);
+  assert.equal(h.regiao.comUF, 3); // d nasceu no exterior
+  assert.equal(h.regiao.sudeste, 2);
+  assert.equal(h.regiao.exterior, 1);
+  assert.deepEqual(h.topUF, { uf: "SP", pessoas: 2 });
+});
+
+test("pontosHistoria: um ponto por pessoa com o melhor resultado", () => {
+  const p = new Map(M.pontosHistoria(M.filtrar(linhas)).map((x) => [x.id, x]));
+  assert.equal(p.size, 4);
+  assert.equal(p.get("a").etapa, "vencedora");
+  assert.equal(p.get("a").participacoes, 2);
+  assert.equal(p.get("c").etapa, "premiada");
+  assert.equal(p.get("d").etapa, "lista");
+  assert.equal(p.get("a").raca, "negra");
+});
+
+test("porEdicao: composição da lista com n e total", () => {
+  const e = M.porEdicao(M.filtrar(linhas));
+  assert.deepEqual(e.map((x) => x.ano), [2016, 2023]);
+  assert.equal(e[0].total, 3);
+  assert.equal(e[0].mulheres, 2);
+  assert.equal(e[1].pctNegras, 50);
+  assert.equal(e[1].comUF, 1); // exterior fica fora da base de % Sudeste
+  assert.equal(e[1].pctSudeste, 0);
+});
+
+test("vencedorasPorAno lista obras de 1º lugar com autoria", () => {
+  const v = M.vencedorasPorAno(M.filtrar(linhas), ["Romance", "Poesia"]);
+  assert.deepEqual(v.map((o) => `${o.ano} ${o.categoria} ${o.obra_id}`), ["2016 Romance o2", "2023 Poesia o4"]);
+  assert.deepEqual(v[1].pessoas.map((p) => p.id), ["a"]);
+});
+
+test("avatar neutro: cor depende só do id; iniciais ignoram partículas", () => {
+  assert.equal(M.corAvatar("conceicao-evaristo"), M.corAvatar("conceicao-evaristo"));
+  assert.ok(M.corAvatar("x") >= 0 && M.corAvatar("x") < 360);
+  assert.equal(M.corAvatar.length, 1); // não recebe atributos da pessoa
+  assert.notEqual(M.corAvatar("a"), M.corAvatar("b"));
+  assert.equal(M.iniciais("Conceição Evaristo"), "CE");
+  assert.equal(M.iniciais("Rosa Amanda Strausz"), "RS");
+  assert.equal(M.iniciais("Ignácio de Loyola Brandão"), "IB");
+  assert.equal(M.iniciais("Ziraldo"), "Z");
+  assert.equal(M.iniciais("Patrícia Melo (coautora de Mistério em Queluz)"), "PM");
+});

@@ -37,6 +37,20 @@ CREATE TABLE pessoa (
   CHECK (raca = 'sem_declaracao' OR raca_busca IS DISTINCT FROM 'parcial')
 );
 
+-- Foto e verbete (interface, design D15). Só foto do Commons com licença livre e crédito; gerado por coleta.py midia.
+CREATE TABLE pessoa_midia (
+  pessoa_id           TEXT PRIMARY KEY REFERENCES pessoa(id),
+  imagem              TEXT,                   -- nome do arquivo no Wikimedia Commons
+  imagem_autor        TEXT,
+  imagem_licenca      TEXT,
+  imagem_licenca_url  TEXT,
+  wikipedia_pt        TEXT,                   -- título do verbete na pt.wikipedia
+  CHECK (imagem IS NULL OR (imagem_autor IS NOT NULL AND imagem_licenca IS NOT NULL)),
+  CHECK (imagem_licenca IS NULL OR lower(imagem_licenca) LIKE 'cc by%' OR lower(imagem_licenca) LIKE 'cc-by%'
+         OR lower(imagem_licenca) LIKE 'cc0%' OR lower(imagem_licenca) LIKE 'public domain%'
+         OR lower(imagem_licenca) LIKE 'pd%' OR lower(imagem_licenca) = 'attribution')
+);
+
 CREATE TABLE editora (
   id              TEXT PRIMARY KEY,
   nome            TEXT NOT NULL,

@@ -321,3 +321,52 @@ def test_chat_real_perguntas_originais(tmp_path):
             assert esperado in r["resposta"], f"{pergunta!r}: esperado {esperado!r} em {r['resposta']!r}"
     finally:
         server._SISTEMA = None
+
+
+# ---------- interface narrativa (RF-07, RF-11, RF-18; design D15) ----------
+
+def test_build_exporta_midia(mini):  # CA-11.3
+    _csv(mini / "pessoa_midia.csv", [
+        {"pessoa_id": "a", "imagem": "A.jpg", "imagem_autor": "Fulano", "imagem_licenca": "CC BY-SA 4.0", "imagem_licenca_url": "", "wikipedia_pt": "A"},
+        {"pessoa_id": "b", "imagem": "", "imagem_autor": "", "imagem_licenca": "", "imagem_licenca_url": "", "wikipedia_pt": "B (escritor)"},
+    ])
+    p = _build(mini)
+    assert p["midia"] == [
+        {"pessoa_id": "a", "imagem": "A.jpg", "imagem_autor": "Fulano", "imagem_licenca": "CC BY-SA 4.0", "wikipedia_pt": "A"},
+        {"pessoa_id": "b", "wikipedia_pt": "B (escritor)"},  # campos vazios ficam de fora do JSON
+    ]
+
+
+@pytest.mark.parametrize("linha", [
+    {"imagem": "A.jpg", "imagem_autor": "Fulano", "imagem_licenca": "Todos os direitos reservados"},  # licença não livre
+    {"imagem": "A.jpg", "imagem_autor": "", "imagem_licenca": "CC BY 4.0"},  # sem autoria
+])
+def test_midia_exige_licenca_livre(mini, linha):  # CA-11.3
+    _csv(mini / "pessoa_midia.csv", [{"pessoa_id": "a", "imagem_licenca_url": "", "wikipedia_pt": "", **linha}])
+    with pytest.raises(build.BuildError, match="pessoa_midia"):
+        _build(mini)
+
+
+def test_build_exporta_fontes_por_dominio(mini):  # CA-18.1
+    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
+    for l in linhas:
+        l["fonte"] = "https://www.premiojabuti.com.br/premiados/"
+    _csv(mini / "categoria_edicao.csv", linhas)
+    linhas = list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
+    linhas[0]["fonte"] = "https://web.archive.org/web/2016/https://premiojabuti.com.br/ ; https://www.publishnews.com.br/materias/x"
+    _csv(mini / "indicacao.csv", linhas)
+    f = {r["dominio"]: r for r in _build(mini)["fontes"]}
+    assert f["premiojabuti.com.br"]["registros"] == 2 and f["premiojabuti.com.br"]["grupo"] == "Prêmio Jabuti e CBL"
+    assert f["web.archive.org"]["grupo"] == "Arquivo da web (Wayback Machine)"  # as duas URLs da célula contam
+    assert f["publishnews.com.br"]["grupo"] == "Imprensa"
+    assert "www.premiojabuti.com.br" not in f
+
+
+def test_malha_uf_tem_27_ufs():  # CA-07.3
+    g = json.loads((RAIZ / "web" / "br-uf.json").read_text(encoding="utf-8"))
+    ufs = {f["properties"]["uf"] for f in g["features"]}
+    con = duckdb.connect()
+    con.execute((RAIZ / "schema.sql").read_text(encoding="utf-8"))
+    esperadas = {r[0] for r in con.execute("SELECT uf FROM uf WHERE uf <> 'EX'").fetchall()}
+    assert len(g["features"]) == 27 and ufs == esperadas
+    assert all(f["geometry"]["type"] in ("Polygon", "MultiPolygon") for f in g["features"])
