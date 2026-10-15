@@ -37,17 +37,25 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 {
   "gerado_em": "ISO-8601",
   "anos": [2010, 2025],
-  "anos_coletados": [2016, 2023],
-  "participacao": [ /* linhas de v_participacao */ ],
-  "pessoas": [ { "id", "nome", "genero", "raca", "raca_evidencia", "raca_fonte", "raca_trecho",
-                 "ano_nascimento", "municipio_nascimento", "uf_nascimento", "genero_fonte",
+  "anos_coletados": [2010, 2011, ...],
+  "regimes": [ { "ano", "regime" } ],
+  "participacao": [ { "ano", "nome_original", "obra_id", "pessoa_id", "papel",
+                      "lista_curta", "colocacao", "premiada", "vencedora" } ],
+  "obras": [ { "id", "titulo", "ano_publicacao", "editora_id" } ],
+  "pessoas": [ { "id", "nome", "genero", "raca", "negra", "raca_evidencia", "raca_fonte", "raca_trecho",
+                 "raca_busca", "ano_nascimento", "municipio_nascimento", "uf_nascimento", "genero_fonte",
                  "nascimento_fonte", "wikidata" } ],
   "jurados": [ { "ano", "categoria", "pessoa_id" } ],
   "categorias": [ /* linhas de categoria_edicao */ ],
+  "editoras": [ { "id", "nome", "grupo", "municipio_sede", "uf_sede" } ],
   "ufs": [ { "uf", "nome", "regiao", "populacao_2022" } ],
   "cobertura": [ /* linhas de v_cobertura */ ]
 }
 ```
+
+- **Participação compacta (D13):** cada linha guarda só as chaves e o que é da indicação. Gênero, raça, UF, título e editora ficam uma vez em `pessoas`, `obras` e `editoras`. Ao carregar, `metricas.expandir(D)` faz as junções e devolve linhas com as mesmas colunas, na mesma ordem, de `v_participacao`. O resto do painel não muda.
+- **Regras ficam no SQL:** `regime`, `negra`, `premiada` e `vencedora` vêm prontos do banco (`regimes`, `pessoas.negra` e as colunas da participação). O JavaScript só faz junções e `idade_no_premio = ano - ano_nascimento`.
+- O teste `test_json_compacto_reconstroi_v_participacao` roda `expandir` no Node sobre o JSON do build e compara linha a linha com `v_participacao` no DuckDB.
 
 ## 3. Backend (`server.py`)
 
@@ -121,6 +129,7 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 | 12.2 | `test_sql_seguro_*` |
 | 12.4 | `test_chat_sem_chave_503` |
 | — | `test_perguntas_originais` (as três perguntas do projeto rodam e devolvem número) |
+| RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
 
 ## 6. Decisões registradas
 
@@ -135,4 +144,5 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 - **D9** "Infantil e Juvenil" (2018) é uma categoria canônica própria. Fundi-la com Infantil ou Juvenil distorceria as duas séries.
 - **D11** `pessoa.raca_busca` ∈ {completa, parcial}: separa "procurei e não achei" de "não deu para procurar" (a cota de buscas web esgotou na coleta piloto). Pessoa com raça declarada tem busca `completa` por definição. `v_cobertura.pct_busca_raca` expõe isso.
 - **D12** Gentílico ("mineira", "capixaba", "paulistana") não basta para UF de nascimento. Valem "nasceu em", "natural de" e a notação bibliográfica "(UF, ano)".
+- **D13** `dados.json` normalizado: a participação não repete atributos de pessoa e de obra, e o navegador remonta a tabela larga (`metricas.expandir`). Com as 16 edições, a forma larga chegava a 970 KB, perto do limite de 1 MB (RNF-06); a compacta fica em ~710 KB. Formato colunar ficou de fora: ganharia mais ~100 KB, mas tornaria o JSON ilegível para quem o inspeciona.
 - **D10** As vagas variam por edição (empates criaram listas de 11 a 16 e pódios de 4; houve empate no Livro do Ano de 2016). Nenhum código assume 10/5/3; tudo vem de `categoria_edicao`.

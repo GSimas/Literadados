@@ -111,3 +111,33 @@ test("mediana e sankey", () => {
   const soma = (alvo) => s.links.filter((l) => l.target === alvo).reduce((a, l) => a + l.value, 0);
   assert.equal(soma("Premiada") + soma("Não premiada"), 5);
 });
+
+test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA-RNF-06.2)", () => {
+  const D = {
+    regimes: [{ ano: 2016, regime: "2010–2017 pódio" }],
+    categorias: [{ ano: 2016, nome_original: "Contos e Crônicas", categoria: "Contos" }],
+    obras: [{ id: "o1", titulo: "O1", ano_publicacao: 2015, editora_id: "ed" }, { id: "o2", titulo: "O2", ano_publicacao: null, editora_id: null }],
+    editoras: [{ id: "ed", nome: "Ed", grupo: "G", uf_sede: "SP" }],
+    pessoas: [
+      { id: "a", nome: "A", genero: "mulher", raca: "preta", negra: true, raca_busca: "completa", uf_nascimento: "BA", ano_nascimento: 1960 },
+      { id: "b", nome: "B", genero: "homem", raca: "sem_declaracao", negra: false, raca_busca: "parcial", uf_nascimento: null, ano_nascimento: null },
+    ],
+    ufs: [{ uf: "BA", regiao: "Nordeste" }],
+    participacao: [
+      { ano: 2016, nome_original: "Contos e Crônicas", obra_id: "o1", pessoa_id: "a", papel: "autor", lista_curta: null, colocacao: 1, premiada: true, vencedora: true },
+      { ano: 2016, nome_original: "Contos e Crônicas", obra_id: "o2", pessoa_id: "b", papel: "autor", lista_curta: null, colocacao: null, premiada: false, vencedora: false },
+    ],
+  };
+  const [a, b] = M.expandir(D);
+  assert.deepEqual(Object.keys(a), ["ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
+    "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "raca", "raca_busca", "negra", "uf_nascimento",
+    "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
+  assert.equal(a.categoria, "Contos");
+  assert.equal(a.editora, "Ed");
+  assert.equal(a.regiao_nascimento, "Nordeste");
+  assert.equal(a.idade_no_premio, 56);
+  assert.equal(a.negra, true);
+  assert.equal(b.editora, null); // obra sem editora
+  assert.equal(b.regiao_nascimento, null); // sem UF
+  assert.equal(b.idade_no_premio, null); // sem ano de nascimento
+});

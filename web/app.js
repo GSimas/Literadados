@@ -2,6 +2,7 @@
 import * as M from "./metricas.js";
 
 const D = await fetch("dados.json").then((r) => r.json());
+D.participacao = M.expandir(D); // JSON compacto → linhas de v_participacao (design D13)
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 const CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Livro do Ano"];
 const $ = (s) => document.querySelector(s);

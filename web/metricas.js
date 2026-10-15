@@ -35,6 +35,49 @@ const contar = (arr, chave) => {
 };
 const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 
+// Remonta as linhas de v_participacao a partir do dados.json compacto (design D13).
+// Só junções: as regras (regime, negra, premiada, vencedora) já vêm do SQL. A ordem das chaves é a da view.
+export function expandir(D) {
+  const por = (arr, chave) => new Map(arr.map((x) => [chave(x), x]));
+  const regime = por(D.regimes, (r) => r.ano);
+  const categoria = por(D.categorias, (c) => `${c.ano}|${c.nome_original}`);
+  const obra = por(D.obras, (o) => o.id);
+  const editora = por(D.editoras, (e) => e.id);
+  const pessoa = por(D.pessoas, (p) => p.id);
+  const uf = por(D.ufs, (u) => u.uf);
+  return D.participacao.map((l) => {
+    const o = obra.get(l.obra_id);
+    const e = editora.get(o.editora_id);
+    const p = pessoa.get(l.pessoa_id);
+    return {
+      ano: l.ano,
+      regime: regime.get(l.ano).regime,
+      categoria: categoria.get(`${l.ano}|${l.nome_original}`).categoria,
+      nome_original: l.nome_original,
+      obra_id: l.obra_id,
+      titulo: o.titulo,
+      ano_publicacao: o.ano_publicacao,
+      editora: e?.nome ?? null,
+      grupo_editorial: e?.grupo ?? null,
+      uf_editora: e?.uf_sede ?? null,
+      pessoa_id: l.pessoa_id,
+      nome: p.nome,
+      papel: l.papel,
+      genero: p.genero,
+      raca: p.raca,
+      raca_busca: p.raca_busca,
+      negra: p.negra,
+      uf_nascimento: p.uf_nascimento,
+      regiao_nascimento: uf.get(p.uf_nascimento)?.regiao ?? null,
+      idade_no_premio: p.ano_nascimento == null ? null : l.ano - p.ano_nascimento,
+      lista_curta: l.lista_curta,
+      colocacao: l.colocacao,
+      premiada: l.premiada,
+      vencedora: l.vencedora,
+    };
+  });
+}
+
 export function grupo(l, dim) {
   if (dim === "genero") return l.genero;
   if (dim === "raca") return l.negra ? "negra" : l.raca;

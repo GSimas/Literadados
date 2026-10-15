@@ -2,6 +2,7 @@
 import csv
 import json
 import shutil
+import subprocess
 import threading
 import urllib.error
 import urllib.request
@@ -9,6 +10,7 @@ from functools import partial
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
+import duckdb
 import pytest
 
 import build
@@ -62,7 +64,47 @@ def test_build_gera_banco_e_json(mini):  # CA-01.1, CA-01.4
     assert j["anos_coletados"] == [2016]  # 2017 sem indicações = não coletada, não falha
     assert p["cobertura"][0]["pct_raca"] == 50.0
     linha_a = next(x for x in j["participacao"] if x["pessoa_id"] == "a")
-    assert linha_a["negra"] is True and linha_a["vencedora"] is True and linha_a["idade_no_premio"] == 56
+    assert linha_a["vencedora"] is True
+    assert next(x for x in j["pessoas"] if x["id"] == "a")["negra"] is True
+
+
+# ---------- RNF-06 ----------
+
+COMPACTA = {"ano", "nome_original", "obra_id", "pessoa_id", "papel", "lista_curta", "colocacao", "premiada", "vencedora"}
+
+
+def _expandir_no_node(json_path: Path) -> list[dict]:
+    """Roda metricas.expandir (o mesmo código do navegador) sobre o JSON gerado pelo build."""
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node não instalado")
+    js = (f"import * as M from {json.dumps((RAIZ / 'web' / 'metricas.js').as_uri())};"
+          f"import {{ readFileSync }} from 'node:fs';"
+          f"process.stdout.write(JSON.stringify(M.expandir(JSON.parse(readFileSync({json.dumps(str(json_path))}, 'utf8')))));")
+    r = subprocess.run([node, "--input-type=module", "-e", js], capture_output=True, text=True, check=True)
+    return json.loads(r.stdout)
+
+
+@pytest.mark.parametrize("base", ["mini", "reais"])
+def test_json_compacto_reconstroi_v_participacao(base, mini, tmp_path):  # CA-RNF-06.2
+    dados = mini if base == "mini" else RAIZ / "dados"
+    db, saida = tmp_path / "c.duckdb", tmp_path / "c.json"
+    build.build(dados, db, saida)
+    j = json.loads(saida.read_text())
+    assert all(set(l) == COMPACTA for l in j["participacao"]), "participação deve ser compacta"
+    con = duckdb.connect(str(db), read_only=True)
+    esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY ano, categoria, obra_id, papel, pessoa_id"), default=str))
+    con.close()
+    obtido = _expandir_no_node(saida)
+    assert len(obtido) == len(esperado)
+    for o, e in zip(obtido, esperado):
+        assert list(o) == list(e)  # mesmas colunas, mesma ordem da view
+        assert o == e
+
+
+def test_json_real_menor_que_1mb(tmp_path):  # CA-RNF-06.1
+    build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
+    assert (tmp_path / "r.json").stat().st_size < 1_000_000
 
 
 def test_build_falha_raca_sem_fonte(mini):  # CA-01.2

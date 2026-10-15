@@ -98,6 +98,8 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência. Toda pessoa tem fonte por atributo.
 - **RNF-05 Acessibilidade:** contraste AA, navegação por teclado nos filtros e no chat, títulos e descrições nos gráficos, layout utilizável a partir de 360 px.
 - **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s.
+  - **CA-RNF-06.1 🧪** O build gera `dados.json` com menos de 1 MB a partir dos dados reais.
+  - **CA-RNF-06.2 🧪** O arquivo não repete atributos de pessoa e de obra em cada participação. O painel remonta as linhas no navegador, com as mesmas colunas e valores de `v_participacao`.
 
 ## 6. Fora de escopo nesta versão (com motivo)
 

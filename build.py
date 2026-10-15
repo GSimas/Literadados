@@ -67,8 +67,16 @@ def exportar(con) -> dict:
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [2010, 2025],
         "anos_coletados": anos_coletados,
-        "participacao": _linhas(con, "SELECT * FROM v_participacao ORDER BY ano, categoria, obra_id, papel, pessoa_id"),
-        "pessoas": _linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, raca, raca_evidencia, raca_fonte,
+        # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
+        # e o navegador remonta as linhas de v_participacao com metricas.expandir.
+        "regimes": _linhas(con, "SELECT DISTINCT ano, regime FROM v_participacao ORDER BY ano"),
+        "participacao": _linhas(con, """SELECT ano, nome_original, obra_id, pessoa_id, papel, lista_curta, colocacao,
+                                               premiada, vencedora FROM v_participacao
+                                        ORDER BY ano, categoria, obra_id, papel, pessoa_id"""),
+        "obras": _linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
+                                 WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id"""),
+        "pessoas": _linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, raca,
+                                          raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
                                           nascimento_fonte FROM pessoa ORDER BY nome"""),
         "jurados": _linhas(con, """SELECT j.ano, c.categoria, j.pessoa_id FROM jurado j
