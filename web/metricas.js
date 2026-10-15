@@ -89,7 +89,7 @@ export function filtrar(linhas, { anoIni = 2010, anoFim = 2025, categorias = nul
     (l) =>
       l.ano >= anoIni && l.ano <= anoFim &&
       (!categorias || categorias.includes(l.categoria)) &&
-      (papel === "todos" || l.papel === papel)
+      (papel === "todos" ? l.papel === "autor" || l.papel === "ilustrador" : l.papel === papel) // organizadores nunca (D14)
   );
 }
 

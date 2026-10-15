@@ -163,6 +163,21 @@ def test_build_falha_premiadas_a_mais(mini):  # CA-01.3
         _build(mini)
 
 
+def test_obra_so_com_organizador_e_valida(mini):  # CA-01.5: antologia creditada só ao organizador
+    _csv(mini / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "organizador"}])
+    p = _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT papel FROM v_participacao WHERE pessoa_id = 'b'").fetchall() == [("organizador",)]
+    con.close()
+    assert p["cobertura"][0]["pessoas"] == 1  # organizador fora da cobertura das pessoas-autoras
+
+
+def test_build_falha_obra_sem_autor_nem_organizador(mini):  # CA-01.5
+    _csv(mini / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "ilustrador"}])
+    with pytest.raises(build.BuildError, match="obra sem autor nem organizador: o2"):
+        _build(mini)
+
+
 def test_dados_reais_passam_no_build(tmp_path):
     p = build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
     assert p["anos_coletados"], "nenhuma edição coletada"

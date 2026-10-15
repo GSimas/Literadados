@@ -24,6 +24,13 @@ test("filtrar por papel, ano e categoria", () => {
   assert.equal(M.filtrar(linhas, { categorias: ["Romance"] }).length, 2);
 });
 
+test("filtrar nunca inclui organizadores (CA-01.5)", () => {
+  const comOrg = [...linhas, L({ ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "o1", pessoa_id: "org", genero: "mulher", papel: "organizador" })];
+  assert.ok(!M.filtrar(comOrg).some((l) => l.papel === "organizador"));
+  assert.ok(!M.filtrar(comOrg, { papel: "todos" }).some((l) => l.papel === "organizador"));
+  assert.equal(M.filtrar(comOrg, { papel: "todos" }).length, 6); // autores e ilustradores
+});
+
 test("kpis contam pessoas distintas e tratam negros como piso", () => {
   const k = M.kpis(M.filtrar(linhas));
   assert.equal(k.pessoas, 4);

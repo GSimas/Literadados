@@ -85,6 +85,9 @@ def normalizar():
             for n in nomes(r["ilustradores"]):
                 if n not in autores:
                     autoria.add((oid, pessoa(n), "ilustrador"))
+            for n in nomes(r.get("organizadores")):  # fora das contagens (design D14)
+                if n not in autores:
+                    autoria.add((oid, pessoa(n), "organizador"))
             fonte = " ; ".join(f for f in (r["fonte_1"], r["fonte_2"]) if f)
             indicacoes[(r["ano"], r["nome_original"], oid)] = {
                 "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,

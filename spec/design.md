@@ -18,7 +18,7 @@ coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar 
 
 - **Schema:** [`schema.sql`](../schema.sql). Tabelas `uf`, `pessoa`, `editora`, `obra`, `autoria`, `categoria_edicao`, `indicacao`, `jurado`. Views `v_participacao` (uma linha por pessoa por indicação) e `v_cobertura`.
 - **CSVs:** um por tabela, em `dados/<tabela>.csv`, com cabeçalho igual às colunas. A carga é `INSERT INTO t BY NAME SELECT * FROM read_csv(...)`, na ordem das dependências.
-- **Coleta bruta:** `dados/coleta/` guarda as saídas dos levantamentos (listas planas). `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug.
+- **Coleta bruta:** `dados/coleta/` guarda as saídas dos levantamentos (listas planas). `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug. As listas têm as colunas `autores`, `ilustradores` e `organizadores` (nomes separados por `|`), que viram `autoria.papel` = `autor`, `ilustrador` e `organizador`.
 
 ### Etapas e regimes (vocabulário canônico)
 
@@ -124,6 +124,7 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 |---|---|
 | 01.1, 01.4 | `test_build_gera_banco_e_json` |
 | 01.2 | `test_build_falha_raca_sem_fonte`, `test_build_falha_categoria_fora` |
+| 01.5 | `test_obra_so_com_organizador_e_valida`, `test_build_falha_obra_sem_autor_nem_organizador`; `metricas.test.mjs` (`filtrar` exclui organizadores) |
 | 01.3 | `test_build_falha_lista_incompleta` |
 | 03.1, 05.1, 06.2, 09.2 | `metricas.test.mjs` (KPIs, funil, Duncan, grupos editoriais sobre dados pequenos controlados) |
 | 12.2 | `test_sql_seguro_*` |
@@ -137,6 +138,7 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 - **D2** Romance de Entretenimento fora.
 - **D3** Livro do Ano de Ficção e de Não Ficção (até 2017) dentro.
 - **D4** Ilustradores coletados, mas fora das contagens por padrão.
+- **D14** Organizadores (antologia, obra reunida, edição póstuma) têm `papel = 'organizador'` e nunca contam: o perfil medido é o de quem escreveu. O filtro "autores e ilustradores" (`papel = 'todos'` em `metricas.filtrar`) inclui só esses dois papéis. Antologia creditada só ao organizador fica sem autor na base e sai das contagens de pessoas; a checagem do build passa a exigir autor **ou** organizador em cada obra.
 - **D5** Raça só autodeclarada; o indicador é um piso.
 - **D6** Slugs como IDs.
 - **D7** O frontend agrega no navegador.

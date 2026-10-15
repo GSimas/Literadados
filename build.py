@@ -53,8 +53,9 @@ def checar(con):
             erros.append(f"{rotulo}: {r['n_curta'] or 0} finalistas, esperado {r['vagas_curta']}")
         if r["n_premio"] != r["vagas_premio"]:
             erros.append(f"{rotulo}: {r['n_premio']} premiadas, esperado {r['vagas_premio']}")
-    for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel = 'autor')"):
-        erros.append(f"obra sem autor: {r['id']}")
+    # Antologia creditada só ao organizador é válida (design D14); obra sem nenhum dos dois, não.
+    for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador'))"):
+        erros.append(f"obra sem autor nem organizador: {r['id']}")
     # Colocação repetida é legítima (empates: Livro do Ano Não Ficção 2016, 3º lugar de Contos 2014);
     # o total de premiadas já é conferido contra vagas_premio acima.
     if erros:

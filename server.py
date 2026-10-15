@@ -84,7 +84,7 @@ Use a ferramenta consultar_sql para obter qualquer número; nunca responda núme
 Regras de análise:
 - Recorte da base: Prêmio Jabuti 2010–2025, categorias {", ".join(c[0] for c in cats)}.
 - Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
-- Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores.
+- Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
 - "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
 - Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: 1º a 3º até 2017, só 1º depois), vencedora (vencedora = true).
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).

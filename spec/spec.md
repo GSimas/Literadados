@@ -13,7 +13,7 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 |---|---|
 | Prêmio Jabuti, edições 2010–2025 | Outros prêmios (Oceanos, São Paulo de Literatura…) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
-| Autores e ilustradores das obras; jurados | Tradutores, editores, prêmios de inovação |
+| Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
 | Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência por foto, sobrenome ou IA |
 
@@ -35,9 +35,10 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-01.2 🧪** O build **falha** (código ≠ 0, mensagem clara) se uma restrição do schema for violada: raça sem fonte, categoria fora do recorte, chave estrangeira inexistente.
 - **CA-01.3 🧪** O build **falha** se uma edição coletada tiver lista com tamanho diferente de `vagas_lista`, ou número de premiadas diferente de `vagas_premio`. Edições sem nenhuma indicação contam como "não coletadas" e não falham.
 - **CA-01.4 🧪** O build imprime a cobertura por edição (gênero, UF, raça, idade).
+- **CA-01.5 🧪** Organizadores (de antologia, obra reunida ou póstuma) ficam com `papel = 'organizador'` e não entram em nenhuma contagem do painel, nem com o filtro "autores e ilustradores". Obra creditada só a organizadores (antologia sem autores listados) é válida no build e fica fora das contagens de pessoas.
 
 ### RF-02 Filtros globais
-- **CA-02.1 👁** Filtros de período (ano inicial e final), categorias e papel (só autores ou autores e ilustradores) valem para todas as seções, menos o chat.
+- **CA-02.1 👁** Filtros de período (ano inicial e final), categorias e papel (só autores ou autores e ilustradores; organizadores nunca entram) valem para todas as seções, menos o chat.
 - **CA-02.2 👁** O estado dos filtros fica na URL (link compartilhável).
 
 ### RF-03 Panorama
@@ -83,7 +84,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-12.5 👁** Sugestões de perguntas prontas, incluindo as três perguntas originais do projeto.
 
 ### RF-13 Metodologia e transparência
-- **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial) e o protocolo de raça.
+- **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial, organizadores fora das contagens) e o protocolo de raça.
 - **CA-13.2 👁** Instrução de como pedir correção, com fonte.
 - **CA-13.3 🧪👁** Cada pessoa registra se a busca de autodeclaração racial foi `completa` (protocolo cumprido) ou `parcial` (interrompida). A cobertura por edição mostra a % de buscas completas, e o panorama avisa quando há buscas parciais: "sem declaração" com busca parcial não significa ausência de declaração.
 
