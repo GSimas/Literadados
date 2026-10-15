@@ -17,7 +17,7 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 | Estado = **UF de nascimento** | Estado de residência |
 | Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência por foto, sobrenome ou IA |
 
-**Fase atual:** piloto. A estrutura cobre as 16 edições; o conteúdo cobre 2016 e 2023. O app precisa funcionar e ser honesto com qualquer cobertura.
+**Fase atual:** as 16 edições estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
 
 ## 3. Públicos
 
@@ -59,7 +59,8 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-06.2 🧪** Índice de dissimilaridade de Duncan por gênero entre categorias, com interpretação em texto ("X% das mulheres teriam de mudar de categoria para a distribuição ficar igual à dos homens").
 
 ### RF-07 Geografia
-- **CA-07.1 👁** Mapa do Brasil em grade (um quadrado por UF), colorido por participações ou por participações por milhão de habitantes (Censo 2022), com alternância entre as duas medidas.
+- **CA-07.1 👁** Mapa coroplético do Brasil com os limites reais das UFs (malha do IBGE), colorido por pessoas ou por pessoas por milhão de habitantes (Censo 2022), com alternância entre as duas medidas, legenda, dica por UF (nome, pessoas, participações, por milhão) e tabela equivalente. Clicar numa UF lista as pessoas nascidas nela.
+- **CA-07.3 🧪** A malha das UFs é um arquivo estático separado de `dados.json` (não entra no limite de 1 MB) e cobre as 27 UFs.
 - **CA-07.2 👁** Diagrama Sankey: região de nascimento → região da sede da editora → resultado (premiada ou não).
 
 ### RF-08 Idade
@@ -72,9 +73,27 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-10 Júri e premiados
 - **CA-10.1 👁** Para as edições com júri coletado: júri × lista × vencedoras em % mulheres, % negros declarados e % nascidos fora do Sudeste.
 
-### RF-11 Explorador de pessoas
-- **CA-11.1 👁** Tabela com busca por nome: gênero, raça, UF, participações, prêmios.
-- **CA-11.2 👁** A ficha de cada pessoa lista as participações e a **fonte de cada atributo**. Raça mostra o trecho literal e o link.
+### RF-11 Explorador de pessoas e perfis
+- **CA-11.1 👁** Galeria de todas as pessoas do recorte (cartões com foto ou avatar, nome, UF, participações e prêmios), com busca por nome, ordenação (prêmios, participações, nome) e alternância para tabela.
+- **CA-11.2 👁** O perfil de cada pessoa tem endereço próprio (`#/pessoa/<id>`, link compartilhável), lista as participações em linha do tempo e a **fonte de cada atributo**. Raça mostra o trecho literal e o link. Há links para Wikidata e Wikipédia quando existem.
+- **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
+
+### RF-15 Página, navegação e tema
+- **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo (pessoas, % mulheres, piso de % negras), calculados dos dados.
+- **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
+- **CA-15.3 👁** Os filtros globais ficam num painel recolhível, com resumo do recorte ativo sempre visível.
+
+### RF-16 História guiada (scrollytelling)
+- **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento.
+- **CA-16.2 🧪** Todos os números da narrativa vêm de uma função pura sobre os dados (nunca texto fixo) e mostram o n.
+- **CA-16.3 👁** A rolagem encaixa em cada passo (scroll-snap). Com `prefers-reduced-motion`, não há encaixe nem animação. Há um link para pular a história, e os passos funcionam com teclado.
+
+### RF-17 Linha do tempo
+- **CA-17.1 👁** Linha do tempo 2010–2025 com os marcos do prêmio e, por edição, as obras vencedoras de cada categoria (autoria, editora), com acesso ao perfil de quem venceu.
+- **CA-17.2 🧪👁** Por edição, a composição da lista (% mulheres, piso de % negras, % Sudeste, com n) em pequenos gráficos alinhados à linha do tempo.
+
+### RF-18 Referências
+- **CA-18.1 🧪👁** Seção de referências com as fontes usadas, agrupadas por domínio (CBL/site oficial, Wayback, imprensa, Wikidata/Wikipédia, Literafro, TSE…), com o número de registros que cada uma sustenta e links.
 
 ### RF-12 Pergunte aos dados (IA)
 - **CA-12.1 👁** Pergunta em português → resposta em português com o número, a tabela de resultado e o SQL usado (recolhível).
@@ -97,7 +116,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **RNF-02 Honestidade estatística:** todo percentual mostra o n. Quando n < 5, o valor aparece com aviso de "n pequeno". Séries temporais usam proporções (o número de vagas mudou em 2018).
 - **RNF-03 Segurança do chat:** banco aberto só para leitura, acesso externo desligado e configuração travada, só `SELECT`/`WITH`, limite de linhas e de tempo, chave só no servidor.
 - **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência. Toda pessoa tem fonte por atributo.
-- **RNF-05 Acessibilidade:** contraste AA, navegação por teclado nos filtros e no chat, títulos e descrições nos gráficos, layout utilizável a partir de 360 px.
+- **RNF-05 Acessibilidade:** contraste AA nos dois temas, navegação por teclado nos filtros, na história, na galeria e no chat, títulos e descrições nos gráficos, tabela equivalente para cada gráfico, layout utilizável a partir de 360 px, `prefers-reduced-motion` respeitado.
 - **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s.
   - **CA-RNF-06.1 🧪** O build gera `dados.json` com menos de 1 MB a partir dos dados reais.
   - **CA-RNF-06.2 🧪** O arquivo não repete atributos de pessoa e de obra em cada participação. O painel remonta as linhas no navegador, com as mesmas colunas e valores de `v_participacao`.
