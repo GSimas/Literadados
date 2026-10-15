@@ -11,7 +11,8 @@ Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nasci
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py            # CSVs → jabuti.duckdb + web/dados.json (falha se dado inconsistente)
-.venv/bin/python server.py           # http://localhost:8000 ; a Diadorim (IA) usa login OpenRouter no navegador
+.venv/bin/python server.py           # http://localhost:8000 (só estático; a Diadorim usa OpenRouter + DuckDB-WASM no navegador)
+netlify deploy --prod --dir web      # publica em literadados.gustavosimas.com (rode build.py e commite antes)
 .venv/bin/python -m pytest -q        # testes Python
 node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24 não aceita pasta)
 .venv/bin/python coleta.py normalizar          # dados/coleta/* (listas brutas) → dados/*.csv, preservando enriquecimentos
@@ -24,7 +25,7 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - Gênero sem fonte: atribuído pelo primeiro nome em `dados/coleta/pessoas_zgenero_N.csv` (`genero_evidencia = 'atribuicao'`), com asterisco e nota no painel (D16). Raça nunca é atribuída.
 - Estado = UF de nascimento.
 - Todo percentual mostra n. Séries temporais em proporção (vagas mudaram em 2018).
-- Diadorim (IA): só lê o banco via `/api/sql` (read-only, `enable_external_access=false`, `lock_configuration`, só SELECT/WITH). Chave OpenRouter fica no navegador de quem entrou; servidor não guarda chave. Persona inspirada no livro, sem citar trechos; sempre se declara IA.
+- Diadorim (IA): SQL num DuckDB-WASM montado dos Parquet do build (`web/banco/`), com `enable_external_access=false` e `lock_configuration` depois da carga e `validarSQL` (só um SELECT/WITH). Site 100% estático (Netlify). Chave OpenRouter fica no navegador de quem entrou; servidor não guarda chave. Persona inspirada no livro, sem citar trechos; sempre se declara IA.
 
 ## Aprendizados e armadilhas
 <!-- Acrescente aqui erros encontrados e o que foi aprendido. Data no formato AAAA-MM-DD. -->
@@ -90,4 +91,5 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-10-15 — Exportar SVG para imagem: classes e variáveis CSS não vão junto no `XMLSerializer`. Copie os estilos calculados para `style` (fill, stroke, fonte…). A legenda do Plot é HTML fora do SVG e precisa ser redesenhada. Para testar download no navegador do app sem baixar, intercepte `HTMLAnchorElement.prototype.click` e `URL.createObjectURL`.
 - 2026-10-15 — XLSX sem biblioteca: ZIP STORE com CRC-32 e cinco XML (`exportar.xlsx`). O `openpyxl` abre (conferido fora do projeto, com `pip install --target` no scratchpad). O SheetJS do npm (0.18.5) está parado e tem CVE.
 - 2026-10-15 — Regra genérica acrescentada no fim do CSS (`position: relative` para posicionar o botão de exportar) sobrescreveu o `position: sticky` do gráfico da história, e a história "travou" no primeiro passo. Elemento `sticky` já serve de referência para filhos absolutos: não acrescente `relative` a ele. Painel oculto não dispara `focusin` com `focus()`; para testar, despache o evento.
+- 2026-10-15 — Netlify não roda Python (nem nas funções). A Diadorim saiu do `/api/sql` para o DuckDB-WASM 1.32.0 no navegador (D26). O build exporta Parquet + `views.sql` + `contexto.json`; o teste `test_banco_do_navegador_igual_ao_build` recria o banco pelos Parquet e compara as views. `SUM` volta como HUGEINT (objeto Arrow): `Number(v)` resolve. DNS de gustavosimas.com está no Netlify DNS (nsone).
 

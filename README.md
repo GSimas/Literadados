@@ -55,16 +55,18 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py      # CSVs → jabuti.duckdb + web/dados.json (falha se o dado for inconsistente)
-.venv/bin/python server.py     # http://localhost:8000
+.venv/bin/python server.py     # http://localhost:8000 (servidor estático só para desenvolvimento)
 ```
 
-O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador, e o servidor não guarda nada.
+O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador.
+
+**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/contexto.json` e `web/banco/*.parquet`, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e `netlify deploy --prod --dir web`.
 
 ## Testes
 
 ```bash
-.venv/bin/python -m pytest -q        # build, checagens, segurança do SQL, /api/sql e /api/contexto, mídia, fontes
-node --test tests/*.test.mjs         # métricas, paginação, contraste AA, Markdown e laço de ferramentas da Diadorim
+.venv/bin/python -m pytest -q        # build, checagens, banco do navegador igual ao build, mídia, fontes
+node --test tests/*.test.mjs         # métricas, anel, busca, contraste AA, Markdown, validação de SQL, laço da Diadorim, XLSX
 ```
 
 ## Como o projeto é feito (SDD)
@@ -81,7 +83,8 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `dados/coleta/` | Levantamentos brutos (listas por edição, pesquisas de pessoas, protocolo em `PROTOCOLO_PESSOAS.md`) |
 | `build.py` | CSVs → `jabuti.duckdb` + `web/dados.json`, com checagens de consistência |
 | `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `malha` (UFs) |
-| `server.py` | Servidor estático + `GET /api/contexto` e `POST /api/sql` (SQL somente leitura) para a Diadorim |
+| `server.py` | Servidor estático para desenvolvimento local (o site publicado não precisa dele) |
+| `netlify.toml` | Publicação de `web/` no Netlify |
 | `web/` | Frontend sem etapa de build: Observable Plot e d3 via CDN, módulos ES |
 | `tests/` | `pytest` (backend) e `node --test` (métricas e contraste) |
 | `PLANO_COLETA.md` | Protocolo de coleta das edições |
@@ -98,4 +101,4 @@ Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `
 
 ## Segurança da Diadorim
 
-O banco abre só para leitura, com `enable_external_access=false` e `lock_configuration`. Só entram `SELECT`/`WITH`, com limite de linhas e de tempo. A IA roda no navegador com a chave do OpenRouter de quem entrou, e o servidor não guarda chave nenhuma. As respostas são escapadas, e só viram link as rotas do painel, `metodo.html` e endereços `https`.
+A IA e o banco rodam no navegador de quem pergunta. O DuckDB-WASM é montado a partir dos Parquet do build e, depois da carga, fica com `enable_external_access=false` e `lock_configuration`. Só passam um `SELECT` ou `WITH`, sem funções de leitura de arquivo, e o resultado é cortado em 200 linhas. A chave do OpenRouter é de quem entrou e não passa por servidor nosso. As respostas são escapadas, e só viram link as rotas do painel, `metodo.html` e endereços `https`.

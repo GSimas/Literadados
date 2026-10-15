@@ -131,6 +131,48 @@ def exportar(con) -> dict:
     }
 
 
+# ---------- banco no navegador (Diadorim, design D26) ----------
+# Regras de análise + DDL que a IA recebe como prompt de sistema (antes montado no server.py).
+def prompt_sistema(con) -> str:
+    ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
+    anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
+    cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
+    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
+Responda sempre em português do Brasil, de forma direta, começando pelo número pedido.
+
+Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
+Regras de análise:
+- Recorte da base: Prêmio Jabuti 2010–2025, categorias {", ".join(c[0] for c in cats)}.
+- Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
+- Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
+- "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
+- Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: 1º a 3º até 2017, só 1º depois), vencedora (vencedora = true).
+- Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
+  Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
+  Perguntas sobre "pretos" devem mostrar também o agrupamento negros, porque muitos autores dizem só "negro".
+  raca_busca = 'parcial' significa que a busca de autodeclaração foi interrompida: ali 'sem_declaracao' pode esconder declarações. Mencione quantas pessoas do recorte têm busca parcial.
+- Pessoas distintas: COUNT(DISTINCT pessoa_id). Sempre informe o n absoluto junto de percentuais.
+- Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
+- genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
+  informe quantas pessoas do recorte têm gênero atribuído.
+- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Jabuti.
+Não repita o SQL no texto (ele é mostrado à parte).
+
+Esquema (DuckDB):
+{ddl}"""
+
+
+def exportar_banco(con, web: Path):
+    """Tabelas em Parquet, views de schema.sql e o prompt da IA: o DuckDB-WASM recria o banco no navegador (D26)."""
+    pasta = web / "banco"
+    pasta.mkdir(parents=True, exist_ok=True)
+    for t in ["uf", *TABELAS]:
+        con.execute(f"COPY {t} TO '{pasta / f'{t}.parquet'}' (FORMAT parquet)")
+    views = re.findall(r"CREATE VIEW .*?;", (RAIZ / "schema.sql").read_text(encoding="utf-8"), flags=re.S)
+    (pasta / "views.sql").write_text("\n\n".join(views) + "\n", encoding="utf-8")
+    (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
+
+
 def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
     tmp = db.with_suffix(".tmp")
     tmp.unlink(missing_ok=True)
@@ -139,6 +181,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida
         carregar(con, dados)
         checar(con)
         payload = exportar(con)
+        exportar_banco(con, saida.parent)
     except BaseException:
         con.close()
         tmp.unlink(missing_ok=True)

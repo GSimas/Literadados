@@ -30,8 +30,7 @@ test("laço de ferramentas: consulta o banco pelo /api/sql e devolve texto e con
   globalThis.fetch = async (url, opt = {}) => {
     chamadas.push(url);
     const json = (corpo, status = 200) => ({ ok: status < 300, status, json: async () => corpo });
-    if (url === "api/contexto") return json({ sistema: "REGRAS + DDL" });
-    if (url === "api/sql") return json({ sql: JSON.parse(opt.body).sql, colunas: ["n"], linhas: [[42]], truncado: false });
+    if (url === "contexto.json") return json({ sistema: "REGRAS + DDL" });
     const corpo = JSON.parse(opt.body);
     assert.equal(corpo.model, "openrouter/free");
     assert.match(opt.headers.Authorization, /^Bearer chave-teste$/);
@@ -42,15 +41,16 @@ test("laço de ferramentas: consulta o banco pelo /api/sql e devolve texto e con
     assert.deepEqual(JSON.parse(corpo.messages.at(-1).content), { colunas: ["n"], linhas: [[42]], truncado: false });
     return json({ model: "x/y:free", choices: [{ message: { role: "assistant", content: "São 42.\n\nFontes: [Panorama](#panorama)" } }] });
   };
-  const r = await responder("quantos?", [], "chave-teste");
+  const consultar = async (sql, consultas) => { chamadas.push(`sql:${sql}`); consultas.push({ sql, colunas: ["n"], linhas: [[42]], truncado: false }); return { colunas: ["n"], linhas: [[42]], truncado: false }; };
+  const r = await responder("quantos?", [], "chave-teste", { consultar });
   assert.equal(r.texto, "São 42.\n\nFontes: [Panorama](#panorama)");
   assert.equal(r.consultas.length, 1);
   assert.equal(r.modelo, "x/y:free");
-  assert.deepEqual(chamadas.filter((u) => u.startsWith("api/")), ["api/contexto", "api/sql"]);
+  assert.deepEqual(chamadas.filter((u) => !u.startsWith("https://")), ["contexto.json", "sql:SELECT 42 AS n"]);
 });
 
 test("chave recusada (401) pede novo login", async () => {
-  globalThis.fetch = async (url) => (url === "api/contexto"
+  globalThis.fetch = async (url) => (url === "contexto.json"
     ? { ok: true, status: 200, json: async () => ({ sistema: "x" }) }
     : { ok: false, status: 401, json: async () => ({}) });
   await assert.rejects(responder("oi", [], "velha"), (e) => e.sair === true);
@@ -75,15 +75,15 @@ test("passos intermediários e modelo escolhido (CA-12.9, CA-12.11)", async () =
   let rodada = 0, modeloPedido = null;
   globalThis.fetch = async (url, opt = {}) => {
     const json = (corpo, status = 200) => ({ ok: status < 300, status, json: async () => corpo });
-    if (url === "api/contexto") return json({ sistema: "x" });
-    if (url === "api/sql") return json({ sql: "s", colunas: ["n"], linhas: [[1], [2]], truncado: false });
+    if (url === "contexto.json") return json({ sistema: "x" });
     modeloPedido = JSON.parse(opt.body).model;
     return rodada++ === 0
       ? json({ model: "a/b", choices: [{ message: { role: "assistant", tool_calls: [{ id: "t", type: "function", function: { name: "consultar_sql", arguments: '{"sql":"SELECT 1"}' } }] } }] })
       : json({ model: "a/b", choices: [{ message: { role: "assistant", content: "ok" } }] });
   };
   const passos = [];
-  await responder("p", [], "k", { modelo: "meta/llama:free", aoPasso: (p) => passos.push(p.tipo) });
+  const consultar = async () => ({ colunas: ["n"], linhas: [[1], [2]], truncado: false });
+  await responder("p", [], "k", { modelo: "meta/llama:free", aoPasso: (p) => passos.push(p.tipo), consultar });
   assert.equal(modeloPedido, "meta/llama:free");
   assert.deepEqual(passos, ["contexto", "rodada", "sql", "resultado", "rodada", "escrita"]);
 });
@@ -97,4 +97,14 @@ test("md: tabela, título, citação, código, linha e lista depois de parágraf
   assert.ok(h.includes("<td>&lt;b&gt;x&lt;/b&gt;</td>")); // HTML do modelo continua escapado dentro da tabela
   assert.ok(h.includes('data-exportar="tabela"')); // tabela do chat também exporta (CA-14.3)
   assert.ok(h.includes("<blockquote>nota</blockquote>") && h.includes("<hr>") && h.includes("<pre><code>SELECT 1</code></pre>"));
+});
+
+test("validarSQL: só um SELECT/WITH, sem escrita nem leitura de arquivo (CA-12.4)", async () => {
+  const { validarSQL } = await import("../web/banco.js");
+  assert.equal(validarSQL("SELECT 1;"), "SELECT 1");
+  assert.equal(validarSQL("WITH a AS (SELECT 1) SELECT * FROM a"), "WITH a AS (SELECT 1) SELECT * FROM a");
+  assert.equal(validarSQL("SELECT 'a;b' -- comentário"), "SELECT 'a;b'");
+  for (const ruim of ["DROP TABLE pessoa", "SELECT 1; SELECT 2", "SELECT * FROM read_csv('/etc/passwd')", "COPY pessoa TO 'x'",
+    "SELECT * FROM query('DROP TABLE x')", "INSERT INTO pessoa VALUES (1)", "SET enable_external_access = true", "ATTACH 'x.db'", "", "PRAGMA version"])
+    assert.throws(() => validarSQL(ruim), /consulta vazia|apenas|não permitido/, ruim);
 });
