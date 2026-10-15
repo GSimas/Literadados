@@ -1,6 +1,6 @@
 // Explorador: panorama e análises (RF-03 a RF-10). Cada função recebe as linhas filtradas e o contexto do painel.
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, astGenero } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, astGenero, botaoExportarGrafico } from "./ui.js";
 
 export function renderPanorama(L) {
   const k = M.kpis(L);
@@ -124,7 +124,7 @@ export function renderSankey(L, { D }) {
     const i = regiaoCor.domain.indexOf(reg);
     return id.startsWith("Nasc") && i >= 0 ? regiaoCor.range[i] : css("--s-na");
   };
-  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "img").attr("aria-label", "Fluxo da região de nascimento à região da editora e ao resultado");
+  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "img").attr("class", "sankey").attr("aria-label", "Fluxo da região de nascimento à região da editora e ao resultado");
   const caminhos = svg.append("g").attr("fill", "none").selectAll("path").data(s.links).join("path")
     .attr("d", d3.sankeyLinkHorizontal())
     .attr("stroke", (d) => (d.source.id.startsWith("Nasc") ? corNo(d.source.id) : css("--eixo"))).attr("stroke-opacity", 0.42)
@@ -134,11 +134,13 @@ export function renderSankey(L, { D }) {
   svg.append("g").selectAll("rect").data(s.nodes).join("rect")
     .attr("x", (d) => d.x0).attr("y", (d) => d.y0).attr("width", (d) => d.x1 - d.x0).attr("height", (d) => Math.max(1, d.y1 - d.y0)).attr("rx", 3)
     .attr("fill", (d) => corNo(d.id))
-    .on("pointermove", (ev, d) => dica.mostrar(ev, `<b>${esc(d.id)}</b>${fmt(d.value)} participações`)).on("pointerleave", dica.esconder);
+    // Nó em foco acende os fluxos que passam por ele (CA-19.9).
+    .on("pointermove", (ev, d) => { caminhos.attr("stroke-opacity", (x) => (x.source === d || x.target === d ? 0.8 : 0.1)); dica.mostrar(ev, `<b>${esc(d.id)}</b>${fmt(d.value)} participações`); })
+    .on("pointerleave", () => { caminhos.attr("stroke-opacity", 0.42); dica.esconder(); });
   svg.append("g").attr("font-size", 11).attr("fill", css("--tinta")).selectAll("text").data(s.nodes).join("text")
     .attr("x", (d) => (d.x0 < w / 2 ? d.x1 + 6 : d.x0 - 6)).attr("y", (d) => (d.y0 + d.y1) / 2).attr("dy", "0.35em")
     .attr("text-anchor", (d) => (d.x0 < w / 2 ? "start" : "end")).text((d) => `${d.id.replace(/^(Nasc\.|Editora): /, "")} (${d.value})`);
-  el.replaceChildren(svg.node());
+  el.replaceChildren(svg.node(), botaoExportarGrafico());
   tabela($("#t-sankey"), links, [{ rot: "De", k: "source" }, { rot: "Para", k: "target" }, { rot: "Participações", k: "value", num: true }]);
 }
 

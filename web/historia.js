@@ -29,8 +29,8 @@ function passos(H, D) {
       numero: fmtPct(H.regiao.pctSudeste), texto: `Entre as ${fmt(H.regiao.comUF)} pessoas com UF de nascimento conhecida no Brasil, <b>${fmt(H.regiao.sudeste)} nasceram no Sudeste</b>, região que tem ${fmtPct(popSudeste)} da população (Censo 2022). ${H.topUF.uf ? `Só ${esc(H.topUF.uf)} reúne ${fmt(H.topUF.pessoas)}.` : ""}`,
       nota: `${fmt(H.regiao.exterior)} pessoas estão registradas como nascidas fora do Brasil e ${fmt(H.regiao.semDado)} ainda não têm UF de nascimento na base (entre elas, outras nascidas no exterior).` },
     { layout: "todos", cor: "genero", titulo: "Agora é com você",
-      numero: "", texto: `Filtre por período e categoria, veja a <a href="#linha-do-tempo">linha do tempo</a>, o <a href="#geografia">mapa</a>, as <a href="#funil">análises</a> e o <a href="#autores">perfil de cada pessoa</a>, sempre com as fontes.`,
-      nota: "Ou pergunte em português na seção Pergunte." },
+      numero: "", texto: `Cada parte tem o próprio filtro de período e categoria. Veja a <a href="#/grafico/linha-do-tempo">linha do tempo</a>, o <a href="#/grafico/geografia">mapa</a>, as <a href="#/grafico/funil">análises</a> e o <a href="#autores">perfil de cada pessoa</a>, sempre com as fontes.`,
+      nota: "Ou pergunte em português à Diadorim, a IA no canto da tela." },
   ];
 }
 

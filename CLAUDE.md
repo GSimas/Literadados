@@ -11,7 +11,7 @@ Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nasci
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py            # CSVs → jabuti.duckdb + web/dados.json (falha se dado inconsistente)
-.venv/bin/python server.py           # http://localhost:8000 ; chat precisa de ANTHROPIC_API_KEY (ou `ant auth login`)
+.venv/bin/python server.py           # http://localhost:8000 ; a Diadorim (IA) usa login OpenRouter no navegador
 .venv/bin/python -m pytest -q        # testes Python
 node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24 não aceita pasta)
 .venv/bin/python coleta.py normalizar          # dados/coleta/* (listas brutas) → dados/*.csv, preservando enriquecimentos
@@ -24,7 +24,7 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - Gênero sem fonte: atribuído pelo primeiro nome em `dados/coleta/pessoas_zgenero_N.csv` (`genero_evidencia = 'atribuicao'`), com asterisco e nota no painel (D16). Raça nunca é atribuída.
 - Estado = UF de nascimento.
 - Todo percentual mostra n. Séries temporais em proporção (vagas mudaram em 2018).
-- Chat: banco read-only, `enable_external_access=false`, `lock_configuration`, só SELECT/WITH.
+- Diadorim (IA): só lê o banco via `/api/sql` (read-only, `enable_external_access=false`, `lock_configuration`, só SELECT/WITH). Chave OpenRouter fica no navegador de quem entrou; servidor não guarda chave. Persona inspirada no livro, sem citar trechos; sempre se declara IA.
 
 ## Aprendizados e armadilhas
 <!-- Acrescente aqui erros encontrados e o que foi aprendido. Data no formato AAAA-MM-DD. -->
@@ -78,4 +78,16 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-10-15 — SVG: `transform-origin`/`transform-box` no CSS também mudam o `transform="rotate(...)"` do atributo e deslocam a peça (pernas do logotipo). Não misture transformação por CSS com o atributo no mesmo elemento.
 - 2026-10-15 — Painel do navegador oculto: animações e View Transitions ficam congeladas e a primeira captura sai com a entrada pela metade. Confira o estado por JS (`getAnimations()`, `currentTime`) e tire uma segunda captura. `fecharAnimado` tem tempo-limite, porque `animationend` pode não chegar.
 - 2026-10-15 — Dica do Observable Plot usa `--plot-background` (branco por padrão). Sem `.grafico svg { --plot-background: var(--superficie) }`, ela fica branca com texto claro no tema escuro.
+- 2026-10-15 — `requestAnimationFrame` também congela com o painel do navegador oculto (`visibilityState` continua "visible"). Lógica de interação (destaque no hover) roda direto no `pointermove`; não dependa de rAF para estado.
+- 2026-10-15 — Módulos ES ficaram presos no cache do navegador (`server.py` não mandava cabeçalho de cache). Agora há `Cache-Control: no-cache`. Se o navegador ainda segurar a versão velha, use `fetch(arquivo, {cache: "reload"})` antes de recarregar.
+- 2026-10-15 — Componente com `display` próprio (chip, flex) vence o atributo `hidden`. A regra global `[hidden] { display: none !important }` resolve.
+- 2026-10-15 — Gráfico em `<dialog>` fechado não tem largura: desenhe na abertura (`JANELAS` em `app.js`), nunca no carregamento.
+- 2026-10-15 — OpenRouter PKCE: `openrouter.ai/auth?callback_url&code_challenge&code_challenge_method=S256&state`, depois `POST /api/v1/auth/keys` com `{code, code_verifier, code_challenge_method}` → `key`. `localhost` vale como callback em qualquer porta. Sem conta logada, o OpenRouter manda para `/sign-up` com o `redirect_url` preservado. `openrouter/free` filtra os modelos gratuitos pelos recursos do pedido (tools).
+- 2026-10-15 — De novo o transform em SVG: animação CSS com `transform` no grupo da dica do Plot anula o `translate()` do atributo, e o balão "desliza" da origem. Em elemento SVG com `transform=` no atributo, anime só `opacity`.
+- 2026-10-15 — Filtros são por parte (D22): `filtros[parte]` em `app.js`; `renderParte(parte)` desenha só ela. Ao criar uma seção nova filtrável, acrescente o id a `PARTES` e um `<div data-filtro="id">`.
+- 2026-10-15 — `padding` em % é calculado sobre a largura do **pai**, não do próprio elemento. No centro do anel, `padding: 15%` usava a largura do anel inteiro e espremia o texto em 90 px. Calcule a partir do próprio tamanho (`calc(var(--miolo) * …)`). Para manter um círculo, fixe largura e altura (o `aspect-ratio` deixa a altura crescer com o conteúdo).
+- 2026-10-15 — Modelos de IA listam nomes de tabela como "Fontes". O bloco "Onde conferir" é montado por `diadorim.referencias()` a partir das consultas (perfis, UFs, gráfico pelo SQL, URLs de fonte, Método), e o "Fontes:" do modelo só aproveita links válidos.
+- 2026-10-15 — Exportar SVG para imagem: classes e variáveis CSS não vão junto no `XMLSerializer`. Copie os estilos calculados para `style` (fill, stroke, fonte…). A legenda do Plot é HTML fora do SVG e precisa ser redesenhada. Para testar download no navegador do app sem baixar, intercepte `HTMLAnchorElement.prototype.click` e `URL.createObjectURL`.
+- 2026-10-15 — XLSX sem biblioteca: ZIP STORE com CRC-32 e cinco XML (`exportar.xlsx`). O `openpyxl` abre (conferido fora do projeto, com `pip install --target` no scratchpad). O SheetJS do npm (0.18.5) está parado e tem CVE.
+- 2026-10-15 — Regra genérica acrescentada no fim do CSS (`position: relative` para posicionar o botão de exportar) sobrescreveu o `position: sticky` do gráfico da história, e a história "travou" no primeiro passo. Elemento `sticky` já serve de referência para filhos absolutos: não acrescente `relative` a ele. Painel oculto não dispara `focusin` com `focus()`; para testar, despache o evento.
 

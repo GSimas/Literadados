@@ -38,9 +38,9 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-01.4 🧪** O build imprime a cobertura por edição (gênero, UF, raça, idade).
 - **CA-01.5 🧪** Organizadores (de antologia, obra reunida ou póstuma) ficam com `papel = 'organizador'` e não entram em nenhuma contagem do painel, nem com o filtro "autores e ilustradores". Obra creditada só a organizadores (antologia sem autores listados) é válida no build e fica fora das contagens de pessoas.
 
-### RF-02 Filtros globais
-- **CA-02.1 👁** Filtros de período (ano inicial e final), categorias e papel (só autores ou autores e ilustradores; organizadores nunca entram) valem para todas as seções, menos o chat.
-- **CA-02.2 👁** O estado dos filtros fica na URL (link compartilhável).
+### RF-02 Filtros por parte
+- **CA-02.1 👁** Não há filtro global: o Panorama, cada janela de gráfico e a galeria de Autores têm **filtro próprio** (período, categorias e papel, que é só autores ou autores e ilustradores; organizadores nunca entram), e cada um vale só para a sua parte. A História guiada e a Diadorim usam sempre o recorte completo. Cada filtro mostra o resumo do próprio recorte (pessoas · indicações), tem botão de limpar quando foi mudado e baixa em CSV as linhas da sua parte (RF-14).
+- **CA-02.2 🧪👁** O estado de cada filtro fica na URL, num parâmetro com o nome da parte (`?panorama=2015-2025~Poesia,Romance~todos`, `?funil=2019-2025`), e o link é compartilhável. Filtros no padrão não aparecem na URL. A ida e a volta da codificação são testadas.
 
 ### RF-03 Panorama
 - **CA-03.1 🧪👁** Cartões com: indicações, pessoas, obras, % mulheres, **piso** de % negros (com "pelo menos"), cobertura de raça, número de UFs de nascimento distintas (de 27) e número de editoras.
@@ -75,7 +75,9 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-10.1 👁** Para as edições com júri coletado: júri × lista × vencedoras em % mulheres, % negros declarados e % nascidos fora do Sudeste.
 
 ### RF-11 Explorador de pessoas e perfis
-- **CA-11.1 👁** Galeria de todas as pessoas do recorte (cartões com foto ou avatar, nome, UF, participações e prêmios), com busca por nome, ordenação (prêmios, participações, nome) e alternância para tabela.
+- **CA-11.1 👁** Galeria de todas as pessoas do recorte (anel de retratos, CA-11.5), com busca por nome, ordenação (prêmios, participações, nome) e alternância para tabela.
+- **CA-11.5 🧪👁** Galeria em **anel**: os retratos (só a foto, ou as iniciais) são círculos em anéis concêntricos ao redor de um **centro vazio**. Do anel de dentro para fora segue a ordenação escolhida, e os círculos nunca se sobrepõem nem passam da largura disponível. O centro é sempre um **círculo perfeito** (largura igual à altura, ocupando cerca de 24% da largura do anel), com folga interna, e o texto do resumo se ajusta ao tamanho dele. No hover ou no foco, o retrato ganha brilho de fundo e o centro mostra o resumo da pessoa: nome, UF · ano de nascimento, indicações e selo de 1º lugar ou prêmios. O clique abre o perfil completo em janela modal.
+- **CA-11.6 👁** Galeria e tabela são **paginadas**, com 100 pessoas por página. Há setas à esquerda e à direita do anel (e as teclas ← e →) e o indicador "1–100 de 713 · página 1 de 8". O anel ocupa quase a altura toda da tela. Busca e ordenação voltam à página 1. Uma mudança de filtro mantém a página, desde que ela ainda exista.
 - **CA-11.2 👁** O perfil de cada pessoa tem endereço próprio (`#/pessoa/<id>`, link compartilhável), lista as participações em linha do tempo e a **fonte de cada atributo**. Raça mostra o trecho literal e o link. Há links para Wikidata e Wikipédia quando existem.
 - **CA-11.4 🧪👁** Gênero sem fonte pode ser **atribuído pelo primeiro nome** (`genero_evidencia = 'atribuicao'`, sem `genero_fonte`). O build falha se a atribuição vier com fonte ou sem gênero definido. Todo número de gênero (abertura, panorama, história) leva um asterisco quando o recorte inclui pessoas com gênero atribuído. A nota de rodapé diz quantas são, que o dado pode estar errado e como pedir correção (gustavosimassilva@gmail.com). O perfil e a tabela de pessoas marcam o gênero atribuído com o mesmo asterisco.
 - **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
@@ -83,7 +85,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-15 Página, navegação e tema
 - **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo (pessoas, % mulheres, piso de % negras), calculados dos dados.
 - **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
-- **CA-15.3 👁** Os filtros globais ficam num painel recolhível, com resumo do recorte ativo sempre visível.
+- **CA-15.3 👁** O cabeçalho não tem filtro: cada parte filtrável traz o seu (RF-02).
 
 ### RF-16 História guiada (scrollytelling)
 - **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento.
@@ -104,28 +106,57 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-19.4 👁** Abertura: o fundo é um carrossel contínuo de fotos livres em faixas que correm em sentidos opostos, com pontos e brilho animados de leve. Os números da abertura contam até o valor.
 - **CA-19.5 👁** Logotipo próprio (casco de jabuti feito de células de dados) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
 - **CA-19.6 👁** O tema é escolhido num botão de ícone de **tamanho fixo**, que abre um menu pequeno (Claro, Escuro, Automático), e o ícone mostra o tema ativo.
+- **CA-19.8 👁** Dicas (balões) dos gráficos entram e saem com fade, tanto as do Observable Plot quanto as dos gráficos feitos à mão (mapa, Sankey, história).
+- **CA-19.9 👁** Em todo gráfico, o elemento sob o mouse (barra, célula, ponto, UF, fluxo) fica em destaque e os demais do mesmo gráfico ficam mais transparentes. Ao sair do gráfico, tudo volta ao normal.
+- **CA-19.10 👁** Todo bloco (cartões de número, cartões de gráfico, cartões da linha do tempo, passos da história, blocos de método e referências) ganha um brilho de fundo no hover, um foco de luz na cor da marca que acompanha o ponteiro, e a borda e a sombra acendem junto.
 - **CA-19.7 🧪👁** Contraste AA (≥ 4,5:1) nos dois temas, para texto sobre página, superfície, chips e botões, conferido por teste sobre os tokens de `style.css`. Dicas dos gráficos usam fundo e texto do tema.
 
-### RF-12 Pergunte aos dados (IA)
-- **CA-12.1 👁** Pergunta em português → resposta em português com o número, a tabela de resultado e o SQL usado (recolhível).
-- **CA-12.2 🧪** A IA só executa consultas de leitura. Escrita, múltiplos comandos, leitura de arquivos e acesso externo são recusados.
-- **CA-12.3** A resposta menciona a cobertura quando envolve raça e trata o número de negros como piso.
-- **CA-12.4 🧪** Sem credencial da API, o endpoint responde 503 com instrução clara, e o resto do app continua funcionando.
-- **CA-12.5 👁** Sugestões de perguntas prontas, incluindo as três perguntas originais do projeto.
+### RF-20 Gráficos em janelas
+- **CA-20.1 👁** Da Linha do tempo em diante (linha do tempo, mapa e Sankey, evolução, funil, categorias, idade, editoras, júri), os gráficos ficam **fora do fluxo da página**. A página mostra uma grade de cartões-botão ("Gráficos"), cada um com título, pergunta e ícone, e o clique abre uma **janela modal** grande com o bloco completo (controles, gráfico, legenda, tabela). Autores e Pergunte continuam na página.
+- **CA-20.2 👁** Cada janela tem endereço próprio (`#/grafico/<id>`, link compartilhável) e fecha com ×, Esc ou clique fora, voltando ao endereço anterior. Um perfil aberto de dentro da janela abre por cima dela, e fechar o perfil devolve à janela.
+- **CA-20.3 👁** A janela traz o próprio filtro no topo (RF-02). O gráfico é desenhado ao abrir, na largura da janela, e redesenhado quando mudam o filtro, o tema ou o tamanho da tela. Janelas fechadas não são desenhadas.
+- **CA-20.4 👁** A navegação tem o item "Gráficos" no lugar de "Linha do tempo", "Mapa" e "Análises".
+
+### RF-21 Busca no cabeçalho
+- **CA-21.1 🧪** Busca **determinística** (sem IA) sobre um índice montado dos dados: pessoas, livros, editoras, estados, regiões, categorias, edições, gráficos e seções. Ela ignora acentos e maiúsculas, e cada palavra digitada precisa aparecer. A ordem é fixa: nome exato, começo do nome, começo de palavra, trecho; o desempate é pelo tipo, depois pelo tamanho do nome, depois pela ordem alfabética. A mesma busca dá sempre o mesmo resultado.
+- **CA-21.2 👁** Campo no cabeçalho das duas páginas, que abre com `/` ou Ctrl/⌘+K. Os resultados aparecem numa lista própria com o tipo, o nome com o trecho encontrado destacado e um detalhe (UF · ano, autores · edição, sede…). A lista funciona por teclado (setas, Enter, Esc) e por mouse.
+- **CA-21.3 👁** Cada resultado leva ao lugar certo: pessoa → perfil; livro → perfil de quem escreveu; estado/região → perfil do lugar (RF-22); editora → gráfico de editoras; categoria → gráfico de categorias; edição → linha do tempo; gráfico → janela; seção → âncora ou `metodo.html`.
+
+### RF-22 Perfis de estados e regiões
+- **CA-22.1 👁** Cada UF (`#/uf/<UF>`) e cada região (`#/regiao/<Região>`) tem perfil próprio, com link compartilhável, aberto na mesma janela dos perfis de pessoas. O perfil traz: mapa com o lugar em destaque; números (pessoas-autoras nascidas ali e a parcela do total com UF conhecida, indicações, pessoas premiadas e vencedoras, % mulheres com o asterisco do gênero atribuído, piso de % negras, pessoas por milhão de habitantes comparadas à média do Brasil); parcela por edição (gráfico com o n); parcela por categoria; na região, as pessoas por UF; e a lista de pessoas em chips que abrem os perfis.
+- **CA-22.2 🧪** Os números vêm de `metricas.perfilLugar`, uma função pura testada sobre o recorte completo de autores.
+- **CA-22.3 👁** Os perfis se ligam entre si: UF de nascimento no perfil da pessoa → perfil da UF; região no perfil da UF → perfil da região; UFs no perfil da região → perfis das UFs; o painel lateral do mapa tem botão para o perfil da UF clicada.
+
+### RF-12 Diadorim, a IA do Literadados
+Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Sertão: Veredas*: firme, leal, de poucas palavras e fala com sabor de sertão, mas sempre clara. A personagem é inspirada no livro, sem reproduzir trechos dele.
+- **CA-12.1 👁** Botão flutuante no canto inferior direito, com o retrato da Diadorim (chapéu de couro, olhos verdes) animado no hover; o cabeçalho do chat também se anima e acende no hover. O clique abre um painel de chat, que vira tela cheia no celular. O painel fecha com ×, Esc ou o próprio botão.
+- **CA-12.2 👁** A primeira mensagem declara que Diadorim é uma **inteligência artificial**, que os números vêm de consultas à base e que ela pode errar.
+- **CA-12.3 👁** Login pelo **OpenRouter com PKCE** (S256), feito no navegador. A chave de quem entrou fica só no navegador dela (localStorage) e há botão para sair. Modelo `openrouter/free`, um roteador de modelos gratuitos que suportam ferramentas.
+- **CA-12.4 🧪** Contexto completo: o prompt traz as regras do Literadados e o esquema do banco (`GET /api/contexto`), e a IA consulta qualquer dado por `POST /api/sql`. Só leitura: banco `read_only`, acesso externo desligado, configuração travada, só um `SELECT`/`WITH`, limite de linhas e de tempo. SQL recusado responde 400.
+- **CA-12.5 👁** Toda resposta traz referências: links internos que levam à parte do Literadados com a informação (`#/pessoa/<id>`, `#/grafico/<id>`, `#autores`, `#panorama`, `metodo.html#metodologia`, `metodo.html#referencias`) e links das fontes externas da base. Os links internos navegam no próprio painel. O SQL usado aparece recolhível. A resposta interpreta Markdown: negrito, itálico, código, listas (também logo depois de um parágrafo), títulos, citações, linha horizontal e **tabelas** `| … |`, que viram tabelas de verdade e exportáveis. Todo HTML vindo do modelo continua escapado.
+- **CA-12.6** Raça como piso, cobertura e gênero atribuído seguem as mesmas regras do painel (o prompt as traz). Sem login, o painel funciona normalmente e o chat só mostra o botão de entrar.
+- **CA-12.7 👁** Sugestões de perguntas prontas, incluindo as três perguntas originais do projeto.
+- **CA-12.8 👁** Toda mensagem mostra o horário. As respostas mostram também o modelo que de fato respondeu (o `model` devolvido pelo OpenRouter).
+- **CA-12.9 🧪👁** Enquanto pensa, a Diadorim mostra os passos: ler o contexto, cada rodada com o modelo, cada consulta SQL (resumida) com o número de linhas devolvidas ou o erro, e a escrita da resposta. No fim, os passos ficam recolhidos na resposta.
+- **CA-12.10 👁** Botão "Nova conversa", que limpa o histórico e volta à apresentação.
+- **CA-12.11 👁** Configuração do modelo: a lista de **todos os modelos do OpenRouter** vem ao vivo de `GET /api/v1/models`, com busca por nome, filtros "só gratuitos" e "só com ferramentas" (ligado por padrão), preço por milhão de tokens e tamanho do contexto. O padrão é `openrouter/free`. A escolha fica salva no navegador e aparece no cabeçalho do chat.
 
 ### RF-13 Metodologia e transparência
+Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), com o mesmo cabeçalho, logotipo e tema. O item "Método" da navegação leva a essa página, e ela tem links de volta para as seções do painel.
 - **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial, organizadores fora das contagens) e o protocolo de raça.
 - **CA-13.2 👁** Instrução de como pedir correção, com fonte, e o contato (gustavosimassilva@gmail.com).
 - **CA-13.3 🧪👁** Cada pessoa registra se a busca de autodeclaração racial foi `completa` (protocolo cumprido) ou `parcial` (interrompida). A cobertura por edição mostra a % de buscas completas, e o panorama avisa quando há buscas parciais: "sem declaração" com busca parcial não significa ausência de declaração.
 
 ### RF-14 Exportação
-- **CA-14.1 👁** Botão que baixa em CSV as linhas filtradas.
+- **CA-14.1 👁** Cada filtro tem um botão que baixa em CSV as linhas filtradas da sua parte.
+- **CA-14.2 👁** Todo gráfico (das janelas, do mapa, do Sankey, da história e dos perfis de lugar) tem botão de exportar. Ele abre uma janela com duas opções: **JPG com fundo** (cor de fundo do tema) e **PNG sem fundo** (transparente). A imagem sai em resolução dobrada, com o título do gráfico, a legenda de cores e a linha "Literadados · Prêmio Jabuti 2010–2025".
+- **CA-14.3 🧪👁** Toda tabela tem botão de exportar, que abre uma janela com **XLSX** ou **CSV** (UTF-8 com BOM). O XLSX é gerado no navegador, sem biblioteca externa, e os números viram números na planilha.
 
 ## 5. Requisitos não funcionais
 
-- **RNF-01 Simplicidade:** sem etapa de build no frontend. Bibliotecas com versão fixa via CDN. O backend usa apenas `duckdb` e `anthropic`.
+- **RNF-01 Simplicidade:** sem etapa de build no frontend. Bibliotecas com versão fixa via CDN. O backend usa apenas `duckdb`. A IA roda no navegador, pelo OpenRouter, com a chave de quem entrou.
 - **RNF-02 Honestidade estatística:** todo percentual mostra o n. Quando n < 5, o valor aparece com aviso de "n pequeno". Séries temporais usam proporções (o número de vagas mudou em 2018).
-- **RNF-03 Segurança do chat:** banco aberto só para leitura, acesso externo desligado e configuração travada, só `SELECT`/`WITH`, limite de linhas e de tempo, chave só no servidor.
+- **RNF-03 Segurança do chat:** banco aberto só para leitura, acesso externo desligado e configuração travada, só `SELECT`/`WITH`, limite de linhas e de tempo. O servidor não guarda chave nenhuma: a chave do OpenRouter é de quem entrou e fica no navegador dela.
 - **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência de raça. Gênero é a única exceção: sem fonte, pode ser atribuído pelo primeiro nome, sempre marcado como atribuído (CA-11.4, D16). Todo atributo com fonte tem a fonte exibida.
 - **RNF-05 Acessibilidade:** contraste AA nos dois temas, navegação por teclado nos filtros, na história, na galeria e no chat, títulos e descrições nos gráficos, tabela equivalente para cada gráfico, layout utilizável a partir de 360 px, `prefers-reduced-motion` respeitado.
 - **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s.

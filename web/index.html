@@ -41,17 +41,19 @@
   <nav class="nav" aria-label="Seções">
     <a href="#historia">História</a>
     <a href="#panorama">Panorama</a>
-    <a href="#linha-do-tempo">Linha do tempo</a>
-    <a href="#geografia">Mapa</a>
-    <a href="#funil">Análises</a>
+    <a href="#graficos">Gráficos</a>
     <a href="#autores">Autores</a>
-    <a href="#pergunte">Pergunte</a>
-    <a href="#metodologia">Método</a>
+    <a href="metodo.html">Método</a>
   </nav>
+  <div class="busca-global" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    <label for="busca-global" class="sr">Buscar no Literadados</label>
+    <input id="busca-global" type="search" role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list"
+      autocomplete="off" spellcheck="false" placeholder="Buscar livro, autor, estado…">
+    <kbd aria-hidden="true">/</kbd>
+    <ul id="busca-resultados" class="menu busca-resultados" role="listbox" aria-label="Resultados da busca" hidden></ul>
+  </div>
   <div class="barra-acoes">
-    <button id="abrir-filtros" class="botao-icone" type="button" aria-controls="painel-filtros" aria-expanded="false" title="Filtros">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="rot-botao">Filtros</span>
-    </button>
     <button id="tema" class="botao-icone so-icone" type="button" aria-haspopup="menu" aria-controls="menu-tema" aria-expanded="false" aria-label="Tema de cores"></button>
     <div id="menu-tema" class="menu" role="menu" aria-label="Tema de cores" hidden>
       <button type="button" role="menuitemradio" data-tema="light" aria-checked="false"></button>
@@ -61,20 +63,6 @@
   </div>
   <div class="progresso" id="progresso" aria-hidden="true"></div>
 </header>
-
-<aside id="painel-filtros" class="painel-filtros" hidden aria-label="Filtros do painel">
-  <form id="filtros" class="filtros">
-    <div class="filtros-linha">
-      <label>De <select id="f-ini"></select></label>
-      <label>até <select id="f-fim"></select></label>
-      <label>Pessoas <select id="f-papel"><option value="autor">só autores</option><option value="todos">autores e ilustradores</option></select></label>
-      <button id="limpar" type="button" class="botao-fantasma">Limpar filtros</button>
-      <button id="baixar" type="button" class="botao-fantasma">Baixar CSV do recorte</button>
-    </div>
-    <fieldset id="f-cats"><legend>Categorias</legend></fieldset>
-    <p class="muted pequeno">Os filtros valem para o panorama, a linha do tempo, o mapa, as análises e a galeria. A história guiada usa sempre o recorte completo de autores.</p>
-  </form>
-</aside>
 
 <main id="conteudo">
   <!-- Abertura (RF-15) -->
@@ -100,16 +88,16 @@
     <div class="historia-grade">
       <figure class="historia-grafico" aria-hidden="true">
         <svg id="g-historia"></svg>
+        <button type="button" class="exportar-botao" data-exportar="grafico" aria-label="Exportar gráfico como imagem" title="Exportar imagem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg></button>
         <div id="historia-legenda" class="historia-legenda"></div>
       </figure>
       <div class="historia-passos" id="historia-passos"></div>
     </div>
   </section>
 
-  <div class="recorte" id="recorte" role="status" aria-live="polite"></div>
-
   <section id="panorama" class="secao" aria-labelledby="h-panorama">
     <header class="secao-cab"><p class="sobretitulo">Panorama</p><h2 id="h-panorama">O recorte em números</h2></header>
+    <div data-filtro="panorama"></div>
     <div id="kpis" class="kpis"></div>
     <div class="cartao">
       <h3>Edições com listas coletadas</h3>
@@ -117,8 +105,115 @@
     </div>
   </section>
 
-  <!-- Linha do tempo (RF-17) -->
-  <section id="linha-do-tempo" class="secao" aria-labelledby="h-tempo">
+  <!-- Gráficos em janelas (RF-20, D19): cada cartão abre um <dialog class="janela"> -->
+  <section id="graficos" class="secao" aria-labelledby="h-graficos">
+    <header class="secao-cab"><p class="sobretitulo">Gráficos</p><h2 id="h-graficos">Explore os dados</h2>
+      <p class="lead">Cada cartão abre um gráfico com tabela equivalente e o próprio filtro.</p></header>
+    <div class="graficos">
+      <a class="cartao-grafico" href="#/grafico/linha-do-tempo" data-janela="linha-do-tempo">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8V5M12 16v3M18 8V5"/></svg>
+        <span class="cg-sobre">Linha do tempo</span>
+        <span class="cg-titulo">Dezesseis edições, uma a uma</span>
+        <span class="cg-desc">Como a lista de cada edição se compõe e quem levou o 1º lugar em cada categoria.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/geografia" data-janela="geografia">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+        <span class="cg-sobre">Mapa</span>
+        <span class="cg-titulo">Onde nasceram</span>
+        <span class="cg-desc">UF de nascimento das pessoas do recorte.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/evolucao" data-janela="evolucao">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M9 20V6M14 20v-8M19 20V4"/><path d="M3 20h18"/></svg>
+        <span class="cg-sobre">Análises · Evolução</span>
+        <span class="cg-titulo">Como cada edição se compõe</span>
+        <span class="cg-desc">Composição de cada edição em proporção.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/funil" data-janela="funil">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
+        <span class="cg-sobre">Análises · Funil</span>
+        <span class="cg-titulo">Quem sobe ao pódio</span>
+        <span class="cg-desc">Participação de cada grupo em cada etapa.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/segregacao" data-janela="segregacao">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span class="cg-sobre">Análises · Categorias</span>
+        <span class="cg-titulo">Quem concorre onde</span>
+        <span class="cg-desc">Mulheres e autores negros estão concentrados em algumas categorias?</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/idade" data-janela="idade">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="15" r="1.6"/><circle cx="9" cy="11" r="1.6"/><circle cx="9" cy="17" r="1.6"/><circle cx="13" cy="13" r="1.6"/><circle cx="17" cy="9" r="1.6"/><circle cx="19" cy="15" r="1.6"/><path d="M3 21h18"/></svg>
+        <span class="cg-sobre">Análises · Idade</span>
+        <span class="cg-titulo">Idade no ano do prêmio</span>
+        <span class="cg-desc">Cada ponto é uma participação.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/editoras" data-janela="editoras">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 10h11M4 15h14M4 20h7"/></svg>
+        <span class="cg-sobre">Análises · Editoras</span>
+        <span class="cg-titulo">Quem publica o que chega</span>
+        
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+      <a class="cartao-grafico" href="#/grafico/juri" data-janela="juri">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0M10.5 20a5.5 5.5 0 0 1 11 0"/></svg>
+        <span class="cg-sobre">Análises · Júri</span>
+        <span class="cg-titulo">Quem julga e quem vence</span>
+        <span class="cg-desc">O perfil de quem julga se parece com o de quem vence?</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+  <!-- Autores (RF-11) -->
+  <section id="autores" class="secao" aria-labelledby="h-autores">
+    <header class="secao-cab"><p class="sobretitulo">Autores</p><h2 id="h-autores">Todas as pessoas do recorte</h2>
+      <p class="lead">Cada círculo é uma pessoa. Passe o mouse para ver o resumo no centro; clique para abrir o perfil com as fontes. Foto só quando há arquivo livre no Wikimedia Commons; nos demais casos, iniciais com uma cor que não diz nada sobre a pessoa.</p></header>
+    <div data-filtro="autores"></div>
+    <div class="galeria-controles" id="galeria-controles">
+      <label class="busca">Buscar <input id="busca" type="search" autocomplete="off" placeholder="nome da pessoa"></label>
+      <label>Ordenar <select id="ordem"><option value="premios">mais prêmios</option><option value="participacoes">mais participações</option><option value="nome">nome (A–Z)</option></select></label>
+      <div class="segmentado" id="vista" role="radiogroup" aria-label="Visualização">
+        <button type="button" role="radio" aria-checked="true" data-v="galeria">Anel</button>
+        <button type="button" role="radio" aria-checked="false" data-v="tabela">Tabela</button>
+      </div>
+      <span id="galeria-contagem" class="muted" aria-live="polite"></span>
+    </div>
+    <div class="anel-palco">
+      <button id="pag-ant" class="pag-seta" type="button" aria-label="Página anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="anel-meio">
+        <div id="galeria" class="anel" role="group" aria-label="Pessoas desta página"></div>
+    <div class="tabela-exportavel" id="tabela-pessoas-wrap" hidden><button type="button" class="exportar-botao exportar-tabela" data-exportar="tabela" title="Exportar tabela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg><span>Exportar</span></button>
+        <div class="cartao rolagem"><table id="t-pessoas" class="tabela"></table></div></div>
+      </div>
+      <button id="pag-prox" class="pag-seta" type="button" aria-label="Próxima página"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p id="paginacao" class="pag-intervalo" aria-live="polite"></p>
+  </section>
+
+
+</main>
+
+<footer class="rodape">
+  <p id="nota-genero" class="nota-genero"></p>
+  <p><b>Literadados</b> · dados abertos sobre o Prêmio Jabuti. <a href="metodo.html">Método e referências</a>. Fotos: Wikimedia Commons (créditos nos perfis). Malha: IBGE.</p>
+  <p id="gerado-em" class="muted"></p>
+</footer>
+
+<dialog id="linha-do-tempo" class="janela" aria-labelledby="h-tempo">
+  <div class="janela-topo"><div data-filtro="linha-do-tempo"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Linha do tempo</p><h2 id="h-tempo">Dezesseis edições, uma a uma</h2>
       <p class="lead">Como a lista de cada edição se compõe e quem levou o 1º lugar em cada categoria. Role a faixa para o lado; clique num nome para abrir o perfil.</p></header>
     <figure class="cartao"><div id="g-tempo-multiplos" class="grafico"></div>
@@ -129,9 +224,11 @@
       <ol id="tempo-trilho" class="tempo-trilho" tabindex="0" aria-label="Edições do Prêmio Jabuti"></ol>
       <button class="tempo-seta" type="button" data-dir="1" aria-label="Próximas edições">›</button>
     </div>
-  </section>
-
-  <section id="geografia" class="secao" aria-labelledby="h-geografia">
+  </div>
+</dialog>
+<dialog id="geografia" class="janela" aria-labelledby="h-geografia">
+  <div class="janela-topo"><div data-filtro="geografia"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Mapa</p><h2 id="h-geografia">Onde nasceram</h2>
       <p class="lead">UF de nascimento das pessoas do recorte. Em números absolutos, o mapa repete a população; por milhão de habitantes, mostra quem está acima ou abaixo do seu peso. Clique numa UF para ver quem nasceu nela.</p></header>
     <div class="controles" role="group" aria-label="Medida do mapa">
@@ -148,9 +245,11 @@
     </div>
     <figure class="cartao"><h3>Da região de nascimento à editora e ao resultado</h3><div id="g-sankey" class="grafico"></div>
       <details><summary>Ver dados em tabela</summary><div id="t-sankey"></div></details></figure>
-  </section>
-
-  <section id="evolucao" class="secao" aria-labelledby="h-evolucao">
+  </div>
+</dialog>
+<dialog id="evolucao" class="janela" aria-labelledby="h-evolucao">
+  <div class="janela-topo"><div data-filtro="evolucao"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Evolução</p><h2 id="h-evolucao">Como cada edição se compõe</h2>
       <p class="lead">Composição de cada edição em proporção. Desde 2018 há menos vagas premiadas, por isso comparamos fatias, não contagens.</p></header>
     <div class="controles" role="group" aria-label="Opções da evolução">
@@ -158,125 +257,230 @@
       <label>Etapa <select id="evo-etapa"><option value="lista">Toda a lista</option><option value="premiada">Só premiadas</option></select></label>
     </div>
     <figure class="cartao"><div id="g-evolucao" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-evolucao"></div></details></figure>
-  </section>
-
-  <section id="funil" class="secao" aria-labelledby="h-funil">
+  </div>
+</dialog>
+<dialog id="funil" class="janela" aria-labelledby="h-funil">
+  <div class="janela-topo"><div data-filtro="funil"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Funil</p><h2 id="h-funil">Quem sobe ao pódio</h2>
       <p class="lead">Participação de cada grupo em cada etapa. Uma linha que desce mostra um grupo que chega à lista, mas some na hora da premiação.</p></header>
     <div class="controles"><label>Dimensão <select id="funil-dim"><option value="genero">Gênero</option><option value="raca">Raça declarada</option><option value="regiao">Região de nascimento</option></select></label></div>
     <p id="funil-resumo" class="destaque"></p>
     <figure class="cartao"><div id="g-funil" class="grafico"></div><figcaption>"Finalistas" existem só nas edições com 2ª lista (2019 em diante).</figcaption><details><summary>Ver dados em tabela</summary><div id="t-funil"></div></details></figure>
-  </section>
-
-  <section id="segregacao" class="secao" aria-labelledby="h-segregacao">
+  </div>
+</dialog>
+<dialog id="segregacao" class="janela" aria-labelledby="h-segregacao">
+  <div class="janela-topo"><div data-filtro="segregacao"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Categorias</p><h2 id="h-segregacao">Quem concorre onde</h2>
       <p class="lead">Mulheres e autores negros estão concentrados em algumas categorias? O índice de Duncan mede quanto a distribuição de mulheres difere da de homens entre as categorias.</p></header>
     <div class="duas">
       <figure class="cartao"><div id="g-segregacao" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-segregacao"></div></details></figure>
       <div id="duncan" class="cartao kpi-destaque"></div>
     </div>
-  </section>
-
-  <section id="idade" class="secao" aria-labelledby="h-idade">
+  </div>
+</dialog>
+<dialog id="idade" class="janela" aria-labelledby="h-idade">
+  <div class="janela-topo"><div data-filtro="idade"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Idade</p><h2 id="h-idade">Idade no ano do prêmio</h2>
       <p class="lead">Cada ponto é uma participação. A linha vertical marca a mediana de cada grupo.</p></header>
     <figure class="cartao"><div id="g-idade" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-idade"></div></details></figure>
-  </section>
-
-  <section id="editoras" class="secao" aria-labelledby="h-editoras">
+  </div>
+</dialog>
+<dialog id="editoras" class="janela" aria-labelledby="h-editoras">
+  <div class="janela-topo"><div data-filtro="editoras"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Editoras</p><h2 id="h-editoras">Quem publica o que chega</h2></header>
     <div class="duas">
       <figure class="cartao"><h3>Editoras com mais indicações</h3><div id="g-editoras" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-editoras"></div></details></figure>
       <figure class="cartao"><h3>Grupos editoriais e independentes</h3><div id="g-grupos" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-grupos"></div></details></figure>
     </div>
-  </section>
-
-  <section id="juri" class="secao" aria-labelledby="h-juri">
+  </div>
+</dialog>
+<dialog id="juri" class="janela" aria-labelledby="h-juri">
+  <div class="janela-topo"><div data-filtro="juri"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Júri</p><h2 id="h-juri">Quem julga e quem vence</h2>
       <p class="lead">O perfil de quem julga se parece com o de quem vence? Os nomes dos jurados são divulgados desde 2019.</p></header>
     <figure class="cartao"><div id="g-juri" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-juri"></div></details></figure>
-  </section>
-
-  <!-- Autores (RF-11) -->
-  <section id="autores" class="secao" aria-labelledby="h-autores">
-    <header class="secao-cab"><p class="sobretitulo">Autores</p><h2 id="h-autores">Todas as pessoas do recorte</h2>
-      <p class="lead">Foto só quando há arquivo livre no Wikimedia Commons, sempre com crédito; nos demais casos, iniciais com uma cor que não diz nada sobre a pessoa. Clique num cartão para abrir o perfil com as fontes.</p></header>
-    <div class="galeria-controles">
-      <label class="busca">Buscar <input id="busca" type="search" autocomplete="off" placeholder="nome da pessoa"></label>
-      <label>Ordenar <select id="ordem"><option value="premios">mais prêmios</option><option value="participacoes">mais participações</option><option value="nome">nome (A–Z)</option></select></label>
-      <div class="segmentado" id="vista" role="radiogroup" aria-label="Visualização">
-        <button type="button" role="radio" aria-checked="true" data-v="galeria">Galeria</button>
-        <button type="button" role="radio" aria-checked="false" data-v="tabela">Tabela</button>
-      </div>
-      <span id="galeria-contagem" class="muted" aria-live="polite"></span>
-    </div>
-    <div id="galeria" class="galeria"></div>
-    <div class="cartao rolagem" id="tabela-pessoas-wrap" hidden><table id="t-pessoas" class="tabela"></table></div>
-    <button id="mais" type="button" class="botao-fantasma centro">Mostrar mais</button>
-  </section>
-
-  <section id="pergunte" class="secao" aria-labelledby="h-pergunte">
-    <header class="secao-cab"><p class="sobretitulo">Pergunte</p><h2 id="h-pergunte">Pergunte aos dados</h2>
-      <p class="lead">A IA transforma sua pergunta em uma consulta ao banco e mostra o SQL usado. Ela só lê dados, e os números vêm do banco, não da memória do modelo.</p></header>
-    <div id="sugestoes" class="sugestoes"></div>
-    <div id="conversa" class="conversa" aria-live="polite"></div>
-    <form id="chat" class="chat">
-      <label for="pergunta" class="sr">Sua pergunta</label>
-      <textarea id="pergunta" rows="2" maxlength="1000" placeholder="Ex.: quantas mulheres do Nordeste foram premiadas?" required></textarea>
-      <button type="submit" class="botao">Perguntar</button>
-    </form>
-  </section>
-
-  <section id="metodologia" class="secao" aria-labelledby="h-metodologia">
-    <header class="secao-cab"><p class="sobretitulo">Método</p><h2 id="h-metodologia">Como os dados foram feitos</h2></header>
-    <div class="texto colunas-texto">
-      <div>
-        <h3>De onde vêm os dados</h3>
-        <p>Listas oficiais do Prêmio Jabuti (Câmara Brasileira do Livro), conferidas em duas fontes jornalísticas ou oficiais. Dados das pessoas vêm do Wikidata, conferidos por humano, e de biografias públicas. Cada atributo guarda sua fonte (veja o perfil de cada pessoa).</p>
-        <h3>Definições</h3>
-        <ul>
-          <li><b>Lista:</b> obras da 1ª lista pública da categoria (≈10). Até 2018 eram chamadas de finalistas; de 2019 em diante, de semifinalistas.</li>
-          <li><b>Finalistas:</b> 2ª lista (≈5), só existe de 2019 em diante.</li>
-          <li><b>Premiadas:</b> 1º, 2º e 3º lugares até 2017; só o 1º a partir de 2018. <b>Vencedoras:</b> 1º lugar.</li>
-          <li><b>Organizadores</b> de antologias, obras reunidas e edições póstumas ficam registrados, mas não entram nas contagens: o perfil medido é o de quem escreveu.</li>
-          <li><b>Estado:</b> UF de nascimento. <b>Unidade de contagem:</b> participação, ou seja, uma pessoa em uma indicação. O panorama e a história contam pessoas distintas.</li>
-          <li><b>Categorias:</b> Romance (Romance Literário a partir de 2020; Romance de Entretenimento fica fora), Contos (Contos e Crônicas até 2017; Conto a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, Infantil e Juvenil (só em 2018) e Livro do Ano.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Raça: só autodeclaração</h3>
-        <p>Raça entra apenas quando a própria pessoa se declarou publicamente (entrevista, perfil, depoimento, registro de candidatura no TSE), com link e trecho literal, ou quando consta de fonte curada por identidade (o portal Literafro, da UFMG). Nunca é inferida por foto, sobrenome ou IA. Como pessoas brancas raramente se declaram, o percentual de pessoas negras é um <b>piso</b> ("pelo menos") e o de pessoas brancas não é calculável. "Negras" agrupa pretas, pardas e quem se declarou negro sem especificar.</p>
-        <p>Cada pessoa registra se a busca de autodeclaração foi <b>completa</b> (protocolo cumprido) ou <b>parcial</b> (interrompida); onde é parcial, "sem declaração" pode esconder uma declaração pública.</p>
-        <h3>Gênero: fonte ou atribuição marcada</h3>
-        <p>O gênero vem de fonte pública (Wikidata, Wikipédia, biografias). Quando nenhuma fonte foi achada, ele foi <b>atribuído pelo primeiro nome</b> e aparece com asterisco (*): pode estar errado. Apelidos ambíguos e iniciais continuam como "não identificado". Raça nunca é atribuída.</p>
-        <h3>Fotos e perfis</h3>
-        <p>Fotos vêm do Wikimedia Commons, só com licença livre e com autoria e licença exibidas. Quem não tem foto livre aparece com as iniciais; a cor do avatar sai de um cálculo sobre o identificador da pessoa e não carrega nenhuma informação sobre ela.</p>
-        <h3>Encontrou um erro?</h3>
-        <p>Correções são bem-vindas, sobretudo da própria pessoa. Envie o nome, o dado correto e a fonte pública para <a href="mailto:gustavosimassilva@gmail.com">gustavosimassilva@gmail.com</a>. Mudanças entram pelos arquivos em <code>dados/</code> e ficam registradas.</p>
-      </div>
-    </div>
-    <h3>Cobertura por edição</h3>
-    <div id="t-cobertura" class="rolagem"></div>
-  </section>
-
-  <!-- Referências (RF-18) -->
-  <section id="referencias" class="secao" aria-labelledby="h-referencias">
-    <header class="secao-cab"><p class="sobretitulo">Referências</p><h2 id="h-referencias">Em que fontes os dados se apoiam</h2>
-      <p class="lead">Todas as URLs citadas na base (listas, júris, gênero, nascimento e raça), agrupadas por tipo de fonte. O número indica quantos registros cada domínio sustenta.</p></header>
-    <div id="referencias-grupos" class="referencias"></div>
-  </section>
-</main>
-
-<footer class="rodape">
-  <p id="nota-genero" class="nota-genero"></p>
-  <p><b>Literadados</b> · dados abertos sobre o Prêmio Jabuti. Fotos: Wikimedia Commons (créditos nos perfis). Malha: IBGE.</p>
-  <p id="gerado-em" class="muted"></p>
-</footer>
+  </div>
+</dialog>
 
 <dialog id="perfil" class="perfil" aria-labelledby="perfil-nome">
   <form method="dialog"><button class="fechar" aria-label="Fechar perfil">×</button></form>
   <div id="perfil-corpo"></div>
 </dialog>
 <div id="tip" class="tip-flutuante" hidden></div>
+
+<!-- Diadorim, a IA do Literadados (RF-12, D20): botão flutuante + painel de chat -->
+<button id="diadorim-botao" class="diadorim-botao" type="button" aria-controls="diadorim" aria-expanded="false" aria-label="Conversar com Diadorim, a IA do Literadados">
+  <svg class="dd-avatar" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <radialGradient id="dd-ceu1" cx=".72" cy=".72" r=".9"><stop offset="0" stop-color="#f0b45a"/><stop offset=".35" stop-color="#b8612f"/><stop offset=".7" stop-color="#4a2a22"/><stop offset="1" stop-color="#16251f"/></radialGradient>
+        <radialGradient id="dd-sol1"><stop offset="0" stop-color="#fff1c4"/><stop offset=".55" stop-color="#f6c262"/><stop offset="1" stop-color="#f6c262" stop-opacity="0"/></radialGradient>
+        <linearGradient id="dd-couro1" x1="0" y1="0" x2="1" y2=".4"><stop offset="0" stop-color="#3e2414"/><stop offset=".6" stop-color="#6e4325"/><stop offset="1" stop-color="#9a6438"/></linearGradient>
+        <linearGradient id="dd-chap1" x1="0" y1="0" x2="1" y2=".3"><stop offset="0" stop-color="#4a2c17"/><stop offset=".55" stop-color="#7c4d29"/><stop offset="1" stop-color="#b0753f"/></linearGradient>
+        <radialGradient id="dd-pele1" cx=".64" cy=".62" r=".7"><stop offset="0" stop-color="#e7b48c"/><stop offset=".55" stop-color="#c08560"/><stop offset="1" stop-color="#8a5638"/></radialGradient>
+        <linearGradient id="dd-lado1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a1d10" stop-opacity=".55"/><stop offset=".5" stop-color="#3a1d10" stop-opacity="0"/></linearGradient>
+        <linearGradient id="dd-lenco1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a1f19"/><stop offset=".6" stop-color="#b3392c"/><stop offset="1" stop-color="#d4573f"/></linearGradient>
+        <radialGradient id="dd-iris1" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="#8ff0bd"/><stop offset=".45" stop-color="#2fae6d"/><stop offset="1" stop-color="#145a37"/></radialGradient>
+        <filter id="dd-suave1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter>
+        <clipPath id="dd-oe1"><path d="M47.6 58.4 Q52.4 54.9 57 58 Q52.6 61 47.6 58.4Z"/></clipPath>
+        <clipPath id="dd-od1"><path d="M63 58 Q67.6 54.9 72.4 58.4 Q67.4 61 63 58Z"/></clipPath>
+      </defs>
+      <rect width="120" height="120" fill="url(#dd-ceu1)"/>
+      <g class="dd-sol"><circle cx="90" cy="84" r="24" fill="url(#dd-sol1)"/></g>
+      <path d="M0 90 Q28 84 56 88 T120 85 V120 H0Z" fill="#14231b"/>
+      <g class="dd-vereda" fill="none" stroke="#132019" stroke-linecap="round">
+        <path d="M15 92 Q14 78 16.5 63" stroke-width="2.4"/>
+        <path d="M16.5 63 q-9 -1 -14 5 M16.5 63 q-8 -6 -11 -14 M16.5 63 q-1 -9 -3 -15 M16.5 63 q5 -8 11 -12 M16.5 63 q9 -2 14 4 M16.5 63 q7 2 9 9" stroke-width="2"/>
+        <path d="M106 88 Q105.5 80 106.5 73 M106.5 73 q-5 0 -7 3 M106.5 73 q-3 -4 -4 -8 M106.5 73 q3 -4 6 -6 M106.5 73 q5 0 7 3" stroke-width="1.2" opacity=".8"/>
+      </g>
+      <path d="M20 120 C22 101 37 92 60 90 C83 92 98 101 100 120Z" fill="url(#dd-couro1)"/>
+      <path d="M43 94 Q46 107 43.5 120 M77 94 Q74 107 76.5 120 M30 104 Q44 99 50 97" fill="none" stroke="#e0b07a" stroke-opacity=".35" stroke-width=".8" stroke-dasharray="1.6 1.4"/>
+      <path d="M50 77 Q49.5 87 46 92 L74 92 Q70.5 87 70 77Z" fill="#a8704d"/>
+      <ellipse cx="60" cy="84" rx="12" ry="3.5" fill="#4a2716" opacity=".55" filter="url(#dd-suave1)"/>
+      <path d="M43 90 Q60 99.5 77 90 L71 97 Q60 105 49 97Z" fill="url(#dd-lenco1)"/>
+      <path d="M56 98 l4 7 l4 -7 Q60 100 56 98Z" fill="#8e271f"/>
+      <path d="M43 50 Q40.5 68 46.5 80 L50 79 Q46 66 47 51Z M77 50 Q79.5 68 73.5 80 L70 79 Q74 66 73 51Z" fill="#24150d"/>
+      <ellipse cx="41.6" cy="61" rx="2.8" ry="5" fill="#a26a48"/>
+      <ellipse cx="78.4" cy="61" rx="2.8" ry="5" fill="#c58c66"/>
+      <path d="M60 36 C72 36 78.5 45 78.5 57 C78.5 69 73 79.5 60 83.5 C47 79.5 41.5 69 41.5 57 C41.5 45 48 36 60 36Z" fill="url(#dd-pele1)"/>
+      <path d="M60 36 C72 36 78.5 45 78.5 57 C78.5 69 73 79.5 60 83.5 C47 79.5 41.5 69 41.5 57 C41.5 45 48 36 60 36Z" fill="url(#dd-lado1)"/>
+      <path d="M42 49 Q60 57 78 49 L78 42 Q60 38 42 42Z" fill="#26140b" opacity=".55" filter="url(#dd-suave1)"/>
+      <path d="M47.5 54.6 Q52.5 51.6 57.2 53.9 M62.8 53.9 Q67.5 51.6 72.5 54.6" fill="none" stroke="#24150d" stroke-width="1.5" stroke-linecap="round"/>
+      <g class="dd-olhos">
+        <g class="dd-olho"><path d="M47.6 58.4 Q52.4 54.9 57 58 Q52.6 61 47.6 58.4Z" fill="#e9dccb"/>
+          <g clip-path="url(#dd-oe1)"><circle cx="52.4" cy="58" r="2.25" fill="url(#dd-iris1)"/><circle cx="52.4" cy="58" r="1" fill="#0b130e"/><circle cx="53.1" cy="57.3" r=".5" fill="#fff"/></g>
+          <path d="M47.4 58.3 Q52.4 54.6 57.2 57.9" fill="none" stroke="#1c0f08" stroke-width="1" stroke-linecap="round"/></g>
+        <g class="dd-olho"><path d="M63 58 Q67.6 54.9 72.4 58.4 Q67.4 61 63 58Z" fill="#efe3d2"/>
+          <g clip-path="url(#dd-od1)"><circle cx="67.6" cy="58" r="2.25" fill="url(#dd-iris1)"/><circle cx="67.6" cy="58" r="1" fill="#0b130e"/><circle cx="68.3" cy="57.3" r=".5" fill="#fff"/></g>
+          <path d="M62.8 57.9 Q67.6 54.6 72.6 58.3" fill="none" stroke="#1c0f08" stroke-width="1" stroke-linecap="round"/></g>
+      </g>
+      <path d="M49 61.6 Q52.4 63 56 61.4 M64 61.4 Q67.6 63 71 61.6" fill="none" stroke="#7c4a30" stroke-opacity=".45" stroke-width=".7"/>
+      <path d="M60.6 59 Q59.6 66 57.4 69.4 Q60 71.2 63 69.6" fill="none" stroke="#7a4730" stroke-width="1" stroke-linecap="round" stroke-opacity=".8"/>
+      <ellipse cx="58" cy="69.6" rx="1.1" ry=".6" fill="#5e3220" opacity=".55"/><ellipse cx="62.2" cy="69.6" rx="1.1" ry=".6" fill="#5e3220" opacity=".55"/>
+      <path d="M54.2 74.4 Q57.3 73 60 73.8 Q62.7 73 65.8 74.4 Q60 75.4 54.2 74.4Z" fill="#7e4232"/>
+      <path d="M55 74.6 Q60 78 65 74.6 Q60 75.8 55 74.6Z" fill="#a85f4a"/>
+      <path d="M57.5 77.4 Q60 78.3 62.5 77.4" fill="none" stroke="#f0c39e" stroke-opacity=".4" stroke-width=".7"/>
+      <path d="M42 53 Q44 72 52 82.5 M78 53 Q76 72 68 82.5" fill="none" stroke="#2b170b" stroke-width=".9" stroke-opacity=".85"/>
+      <g class="dd-chapeu">
+        <path d="M23 53 Q60 33 97 53 Q60 45 23 53Z" fill="#3a2111"/>
+        <path d="M23 53 Q60 35.5 97 53 Q92 49.5 60 44.5 Q28 49.5 23 53Z" fill="url(#dd-chap1)"/>
+        <path d="M40 47 C40 29 49.5 20.5 60 20.5 C70.5 20.5 80 29 80 47 Q60 41.5 40 47Z" fill="url(#dd-chap1)"/>
+        <path d="M44 45 Q60 25 76 45 Q60 39.5 44 45Z" fill="#6a3f20"/>
+        <path d="M45.6 44 Q60 27.6 74.4 44" fill="none" stroke="#e8c48c" stroke-opacity=".7" stroke-width=".7" stroke-dasharray="1.3 1.1"/>
+        <path d="M60 31.2 l1.3 2.7 3 .3 -2.2 2 .6 2.9 -2.7 -1.5 -2.7 1.5 .6 -2.9 -2.2 -2 3 -.3Z" fill="#f2c063"/>
+        <path d="M50 25 Q60 20.5 70 25" fill="none" stroke="#ffd9a6" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M26 52.4 Q60 38 94 52.4" fill="none" stroke="#e8c48c" stroke-opacity=".35" stroke-width=".6" stroke-dasharray="1.2 1.2"/>
+      </g>
+      <circle cx="60" cy="60" r="59" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="6" filter="url(#dd-suave1)"/>
+    </svg>
+  <span class="dd-rotulo" aria-hidden="true">Pergunte à <b>Diadorim</b></span>
+</button>
+<section id="diadorim" class="diadorim" role="dialog" aria-labelledby="diadorim-titulo" hidden>
+  <header class="dd-cab">
+    <svg class="dd-avatar" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <radialGradient id="dd-ceu2" cx=".72" cy=".72" r=".9"><stop offset="0" stop-color="#f0b45a"/><stop offset=".35" stop-color="#b8612f"/><stop offset=".7" stop-color="#4a2a22"/><stop offset="1" stop-color="#16251f"/></radialGradient>
+        <radialGradient id="dd-sol2"><stop offset="0" stop-color="#fff1c4"/><stop offset=".55" stop-color="#f6c262"/><stop offset="1" stop-color="#f6c262" stop-opacity="0"/></radialGradient>
+        <linearGradient id="dd-couro2" x1="0" y1="0" x2="1" y2=".4"><stop offset="0" stop-color="#3e2414"/><stop offset=".6" stop-color="#6e4325"/><stop offset="1" stop-color="#9a6438"/></linearGradient>
+        <linearGradient id="dd-chap2" x1="0" y1="0" x2="1" y2=".3"><stop offset="0" stop-color="#4a2c17"/><stop offset=".55" stop-color="#7c4d29"/><stop offset="1" stop-color="#b0753f"/></linearGradient>
+        <radialGradient id="dd-pele2" cx=".64" cy=".62" r=".7"><stop offset="0" stop-color="#e7b48c"/><stop offset=".55" stop-color="#c08560"/><stop offset="1" stop-color="#8a5638"/></radialGradient>
+        <linearGradient id="dd-lado2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a1d10" stop-opacity=".55"/><stop offset=".5" stop-color="#3a1d10" stop-opacity="0"/></linearGradient>
+        <linearGradient id="dd-lenco2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a1f19"/><stop offset=".6" stop-color="#b3392c"/><stop offset="1" stop-color="#d4573f"/></linearGradient>
+        <radialGradient id="dd-iris2" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="#8ff0bd"/><stop offset=".45" stop-color="#2fae6d"/><stop offset="1" stop-color="#145a37"/></radialGradient>
+        <filter id="dd-suave2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter>
+        <clipPath id="dd-oe2"><path d="M47.6 58.4 Q52.4 54.9 57 58 Q52.6 61 47.6 58.4Z"/></clipPath>
+        <clipPath id="dd-od2"><path d="M63 58 Q67.6 54.9 72.4 58.4 Q67.4 61 63 58Z"/></clipPath>
+      </defs>
+      <rect width="120" height="120" fill="url(#dd-ceu2)"/>
+      <g class="dd-sol"><circle cx="90" cy="84" r="24" fill="url(#dd-sol2)"/></g>
+      <path d="M0 90 Q28 84 56 88 T120 85 V120 H0Z" fill="#14231b"/>
+      <g class="dd-vereda" fill="none" stroke="#132019" stroke-linecap="round">
+        <path d="M15 92 Q14 78 16.5 63" stroke-width="2.4"/>
+        <path d="M16.5 63 q-9 -1 -14 5 M16.5 63 q-8 -6 -11 -14 M16.5 63 q-1 -9 -3 -15 M16.5 63 q5 -8 11 -12 M16.5 63 q9 -2 14 4 M16.5 63 q7 2 9 9" stroke-width="2"/>
+        <path d="M106 88 Q105.5 80 106.5 73 M106.5 73 q-5 0 -7 3 M106.5 73 q-3 -4 -4 -8 M106.5 73 q3 -4 6 -6 M106.5 73 q5 0 7 3" stroke-width="1.2" opacity=".8"/>
+      </g>
+      <path d="M20 120 C22 101 37 92 60 90 C83 92 98 101 100 120Z" fill="url(#dd-couro2)"/>
+      <path d="M43 94 Q46 107 43.5 120 M77 94 Q74 107 76.5 120 M30 104 Q44 99 50 97" fill="none" stroke="#e0b07a" stroke-opacity=".35" stroke-width=".8" stroke-dasharray="1.6 1.4"/>
+      <path d="M50 77 Q49.5 87 46 92 L74 92 Q70.5 87 70 77Z" fill="#a8704d"/>
+      <ellipse cx="60" cy="84" rx="12" ry="3.5" fill="#4a2716" opacity=".55" filter="url(#dd-suave2)"/>
+      <path d="M43 90 Q60 99.5 77 90 L71 97 Q60 105 49 97Z" fill="url(#dd-lenco2)"/>
+      <path d="M56 98 l4 7 l4 -7 Q60 100 56 98Z" fill="#8e271f"/>
+      <path d="M43 50 Q40.5 68 46.5 80 L50 79 Q46 66 47 51Z M77 50 Q79.5 68 73.5 80 L70 79 Q74 66 73 51Z" fill="#24150d"/>
+      <ellipse cx="41.6" cy="61" rx="2.8" ry="5" fill="#a26a48"/>
+      <ellipse cx="78.4" cy="61" rx="2.8" ry="5" fill="#c58c66"/>
+      <path d="M60 36 C72 36 78.5 45 78.5 57 C78.5 69 73 79.5 60 83.5 C47 79.5 41.5 69 41.5 57 C41.5 45 48 36 60 36Z" fill="url(#dd-pele2)"/>
+      <path d="M60 36 C72 36 78.5 45 78.5 57 C78.5 69 73 79.5 60 83.5 C47 79.5 41.5 69 41.5 57 C41.5 45 48 36 60 36Z" fill="url(#dd-lado2)"/>
+      <path d="M42 49 Q60 57 78 49 L78 42 Q60 38 42 42Z" fill="#26140b" opacity=".55" filter="url(#dd-suave2)"/>
+      <path d="M47.5 54.6 Q52.5 51.6 57.2 53.9 M62.8 53.9 Q67.5 51.6 72.5 54.6" fill="none" stroke="#24150d" stroke-width="1.5" stroke-linecap="round"/>
+      <g class="dd-olhos">
+        <g class="dd-olho"><path d="M47.6 58.4 Q52.4 54.9 57 58 Q52.6 61 47.6 58.4Z" fill="#e9dccb"/>
+          <g clip-path="url(#dd-oe2)"><circle cx="52.4" cy="58" r="2.25" fill="url(#dd-iris2)"/><circle cx="52.4" cy="58" r="1" fill="#0b130e"/><circle cx="53.1" cy="57.3" r=".5" fill="#fff"/></g>
+          <path d="M47.4 58.3 Q52.4 54.6 57.2 57.9" fill="none" stroke="#1c0f08" stroke-width="1" stroke-linecap="round"/></g>
+        <g class="dd-olho"><path d="M63 58 Q67.6 54.9 72.4 58.4 Q67.4 61 63 58Z" fill="#efe3d2"/>
+          <g clip-path="url(#dd-od2)"><circle cx="67.6" cy="58" r="2.25" fill="url(#dd-iris2)"/><circle cx="67.6" cy="58" r="1" fill="#0b130e"/><circle cx="68.3" cy="57.3" r=".5" fill="#fff"/></g>
+          <path d="M62.8 57.9 Q67.6 54.6 72.6 58.3" fill="none" stroke="#1c0f08" stroke-width="1" stroke-linecap="round"/></g>
+      </g>
+      <path d="M49 61.6 Q52.4 63 56 61.4 M64 61.4 Q67.6 63 71 61.6" fill="none" stroke="#7c4a30" stroke-opacity=".45" stroke-width=".7"/>
+      <path d="M60.6 59 Q59.6 66 57.4 69.4 Q60 71.2 63 69.6" fill="none" stroke="#7a4730" stroke-width="1" stroke-linecap="round" stroke-opacity=".8"/>
+      <ellipse cx="58" cy="69.6" rx="1.1" ry=".6" fill="#5e3220" opacity=".55"/><ellipse cx="62.2" cy="69.6" rx="1.1" ry=".6" fill="#5e3220" opacity=".55"/>
+      <path d="M54.2 74.4 Q57.3 73 60 73.8 Q62.7 73 65.8 74.4 Q60 75.4 54.2 74.4Z" fill="#7e4232"/>
+      <path d="M55 74.6 Q60 78 65 74.6 Q60 75.8 55 74.6Z" fill="#a85f4a"/>
+      <path d="M57.5 77.4 Q60 78.3 62.5 77.4" fill="none" stroke="#f0c39e" stroke-opacity=".4" stroke-width=".7"/>
+      <path d="M42 53 Q44 72 52 82.5 M78 53 Q76 72 68 82.5" fill="none" stroke="#2b170b" stroke-width=".9" stroke-opacity=".85"/>
+      <g class="dd-chapeu">
+        <path d="M23 53 Q60 33 97 53 Q60 45 23 53Z" fill="#3a2111"/>
+        <path d="M23 53 Q60 35.5 97 53 Q92 49.5 60 44.5 Q28 49.5 23 53Z" fill="url(#dd-chap2)"/>
+        <path d="M40 47 C40 29 49.5 20.5 60 20.5 C70.5 20.5 80 29 80 47 Q60 41.5 40 47Z" fill="url(#dd-chap2)"/>
+        <path d="M44 45 Q60 25 76 45 Q60 39.5 44 45Z" fill="#6a3f20"/>
+        <path d="M45.6 44 Q60 27.6 74.4 44" fill="none" stroke="#e8c48c" stroke-opacity=".7" stroke-width=".7" stroke-dasharray="1.3 1.1"/>
+        <path d="M60 31.2 l1.3 2.7 3 .3 -2.2 2 .6 2.9 -2.7 -1.5 -2.7 1.5 .6 -2.9 -2.2 -2 3 -.3Z" fill="#f2c063"/>
+        <path d="M50 25 Q60 20.5 70 25" fill="none" stroke="#ffd9a6" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M26 52.4 Q60 38 94 52.4" fill="none" stroke="#e8c48c" stroke-opacity=".35" stroke-width=".6" stroke-dasharray="1.2 1.2"/>
+      </g>
+      <circle cx="60" cy="60" r="59" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="6" filter="url(#dd-suave2)"/>
+    </svg>
+    <div><h2 id="diadorim-titulo">Diadorim</h2><p>IA do Literadados · <span id="diadorim-modelo">openrouter/free</span></p></div>
+    <button id="diadorim-nova" class="dd-icone" type="button" aria-label="Nova conversa" title="Nova conversa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button id="diadorim-config-botao" class="dd-icone" type="button" aria-label="Escolher o modelo" title="Escolher o modelo" aria-expanded="false" aria-controls="diadorim-config"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg></button>
+    <button id="diadorim-sair" class="chip-link" type="button" hidden>Sair</button>
+    <button id="diadorim-fechar" class="fechar" type="button" aria-label="Fechar a conversa">×</button>
+  </header>
+  <div id="diadorim-config" class="dd-config" hidden>
+    <div class="dd-config-cab"><b>Modelo da Diadorim</b><button type="button" class="chip-link" data-config-fechar>Voltar à conversa</button></div>
+    <p class="muted pequeno">Todos os modelos disponíveis no OpenRouter agora. Os pagos cobram da sua conta do OpenRouter. Sem ferramentas, o modelo não consulta o banco.</p>
+    <label class="sr" for="dd-modelo-busca">Buscar modelo</label>
+    <input id="dd-modelo-busca" type="search" placeholder="Buscar modelo (nome ou id)…" autocomplete="off">
+    <div class="dd-config-filtros">
+      <label class="chip"><input type="checkbox" id="dd-so-gratis">só gratuitos</label>
+      <label class="chip"><input type="checkbox" id="dd-so-tools" checked>só com ferramentas</label>
+      <span id="dd-modelos-n" class="muted pequeno"></span>
+    </div>
+    <ul id="dd-modelos" class="dd-modelos" role="listbox" aria-label="Modelos"></ul>
+  </div>
+  <div id="diadorim-conversa" class="dd-conversa" aria-live="polite"></div>
+  <div id="diadorim-entrar" class="dd-entrar">
+    <p>Para conversar, entre com sua conta do <b>OpenRouter</b> (é grátis). A chave fica só neste navegador, e o Literadados não a guarda.</p>
+    <button type="button" class="botao">Entrar com OpenRouter</button>
+  </div>
+  <div id="diadorim-sugestoes" class="dd-sugestoes" hidden></div>
+  <form id="diadorim-form" class="dd-form" hidden>
+    <label for="diadorim-pergunta" class="sr">Sua pergunta</label>
+    <textarea id="diadorim-pergunta" rows="1" maxlength="1000" placeholder="Pergunte sobre o Jabuti…" required></textarea>
+    <button type="submit" class="botao" aria-label="Enviar pergunta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+</section>
+<dialog id="exportar" class="exportar" aria-labelledby="exportar-titulo">
+  <form id="exportar-form">
+    <div class="exportar-cab"><div><h2 id="exportar-titulo">Exportar</h2><p id="exportar-sub" class="muted pequeno"></p></div>
+      <button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+    <div id="exportar-opcoes" class="exportar-opcoes" role="radiogroup" aria-label="Formato"></div>
+    <p id="exportar-erro" class="exportar-erro" role="alert"></p>
+    <div class="exportar-acoes"><button type="button" class="botao-fantasma" data-fechar>Cancelar</button><button type="submit" class="botao">Baixar</button></div>
+  </form>
+</dialog>
 </body>
 </html>

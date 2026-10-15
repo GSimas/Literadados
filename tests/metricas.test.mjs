@@ -214,3 +214,76 @@ test("gênero atribuído pelo nome é contado por pessoa (CA-11.4)", () => {
   assert.equal(M.kpis(L).generoAtribuido, 2); // a aparece em duas edições e conta uma vez
   assert.equal(M.historia(L).genero.atribuido, 2);
 });
+
+test("anel: n retratos que cabem na largura, sem sobreposição e fora do miolo (CA-11.5)", () => {
+  for (const [n, W] of [[100, 1100], [100, 720], [100, 343], [50, 720], [7, 343], [1, 900], [0, 900]]) {
+    const a = M.anel(n, W);
+    assert.equal(a.pos.length, n);
+    assert.ok(a.raio * 2 <= Math.max(260, W) || a.d === 18, `${n}/${W}: não cabe`);
+    for (const p of a.pos) assert.ok(Math.hypot(p.x, p.y) - a.d / 2 >= a.miolo - 1e-9, "invade o miolo");
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++)
+      assert.ok(Math.hypot(a.pos[i].x - a.pos[j].x, a.pos[i].y - a.pos[j].y) >= a.d, `${n}/${W}: ${i} e ${j} se sobrepõem`);
+  }
+  assert.ok(M.anel(100, 1100).d > M.anel(100, 343).d); // tela estreita encolhe os retratos
+  assert.ok(M.anel(100, 720).miolo >= 720 * 0.24); // miolo largo para o resumo (CA-11.5)
+});
+
+test("filtro na URL: ida e volta, padrão vazio, lixo ignorado (CA-02.2)", () => {
+  const ANOS = [2010, 2025], CATS = ["Romance", "Contos", "Poesia", "Livro do Ano"];
+  const padrao = M.filtroDeTexto(null, ANOS, CATS);
+  assert.deepEqual(padrao, { anoIni: 2010, anoFim: 2025, categorias: CATS, papel: "autor" });
+  assert.equal(M.filtroParaTexto(padrao, ANOS, CATS), "");
+  const f = { anoIni: 2015, anoFim: 2019, categorias: ["Poesia", "Livro do Ano"], papel: "todos" };
+  const t = M.filtroParaTexto(f, ANOS, CATS);
+  assert.equal(t, "2015-2019~Poesia,Livro do Ano~todos");
+  assert.deepEqual(M.filtroDeTexto(t, ANOS, CATS), f);
+  assert.equal(M.filtroParaTexto({ ...padrao, anoIni: 2019 }, ANOS, CATS), "2019-2025");
+  assert.deepEqual(M.filtroDeTexto("1990-3000~Ficção Científica", ANOS, CATS), padrao); // fora do recorte volta ao padrão
+  assert.deepEqual(M.filtroDeTexto("2020-2012", ANOS, CATS).anoFim, 2020); // fim nunca antes do início
+});
+
+// ---------- busca e perfis de lugar (RF-21, RF-22) ----------
+const Dmini = {
+  participacao: [
+    { ano: 2016, nome_original: "Romance", categoria: "Romance", obra_id: "o1", titulo: "Ponciá Vicêncio", pessoa_id: "ce", nome: "Conceição Evaristo", papel: "autor" },
+    { ano: 2019, nome_original: "Poesia", categoria: "Poesia", obra_id: "o2", titulo: "Conceição", pessoa_id: "jc", nome: "João Conceito", papel: "autor" },
+    { ano: 2019, nome_original: "Poesia", categoria: "Poesia", obra_id: "o2", titulo: "Conceição", pessoa_id: "org", nome: "Organizadora", papel: "organizador" },
+  ],
+  pessoas: [{ id: "ce", nome: "Conceição Evaristo", uf_nascimento: "MG", ano_nascimento: 1946 }, { id: "jc", nome: "João Conceito" }, { id: "org", nome: "Organizadora" }],
+  obras: [{ id: "o1", titulo: "Ponciá Vicêncio", editora_id: "e1" }, { id: "o2", titulo: "Conceição", editora_id: "e1" }],
+  editoras: [{ id: "e1", nome: "Pallas", municipio_sede: "Rio de Janeiro", uf_sede: "RJ", grupo: null }],
+  ufs: [{ uf: "MG", nome: "Minas Gerais", regiao: "Sudeste" }, { uf: "EX", nome: "Exterior", regiao: "Exterior" }],
+  categorias: [{ categoria: "Romance" }, { categoria: "Poesia" }], anos_coletados: [2016, 2019], jurados: [],
+};
+
+test("buscar: determinística, sem acento, nome exato antes de trecho (CA-21.1)", () => {
+  const ix = M.indiceBusca(Dmini);
+  assert.ok(!ix.some((e) => e.rotulo === "Organizadora")); // só organizou: fora da busca
+  const r = M.buscar(ix, "CONCEIÇÃO");
+  // exato (livro) → começo do nome (pessoa) → só pelo autor (livro dela); "Conceito" não contém "conceicao"
+  assert.deepEqual(r.map((e) => `${e.tipo}:${e.rotulo}`), ["Livro:Conceição", "Pessoa:Conceição Evaristo", "Livro:Ponciá Vicêncio"]);
+  assert.deepEqual(M.buscar(ix, "concei"), M.buscar(ix, "concei")); // mesma entrada, mesma saída
+  assert.equal(M.buscar(ix, "ponciá vic")[0].href, "#/pessoa/ce"); // livro leva a quem escreveu
+  assert.equal(M.buscar(ix, "minas")[0].href, "#/uf/MG");
+  assert.equal(M.buscar(ix, "sudeste")[0].href, "#/regiao/Sudeste");
+  assert.equal(M.buscar(ix, "2019")[0].tipo, "Edição");
+  assert.equal(M.buscar(ix, "evaristo ponc")[0].rotulo, "Ponciá Vicêncio"); // livro achado pelo autor + título
+  assert.deepEqual(M.buscar(ix, "   "), []);
+});
+
+test("perfilLugar: parcela, premiadas e fatias por edição e categoria (CA-22.2)", () => {
+  const ls = [
+    L({ ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "o1", pessoa_id: "a", genero: "mulher", uf_nascimento: "MG", regiao_nascimento: "Sudeste", premiada: true, vencedora: true }),
+    L({ ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "o2", pessoa_id: "b", genero: "homem", uf_nascimento: "BA", regiao_nascimento: "Nordeste" }),
+    L({ ano: 2019, categoria: "Poesia", nome_original: "Poesia", obra_id: "o3", pessoa_id: "a", genero: "mulher", uf_nascimento: "MG", regiao_nascimento: "Sudeste" }),
+    L({ ano: 2019, categoria: "Poesia", nome_original: "Poesia", obra_id: "o4", pessoa_id: "x", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
+  ];
+  const p = M.perfilLugar(ls, (l) => l.uf_nascimento === "MG");
+  assert.equal(p.pessoas, 1);
+  assert.equal(p.pessoasBR, 2); // exterior fora da base
+  assert.equal(p.parcela, 50);
+  assert.equal(p.premiadas, 1);
+  assert.equal(p.vencedoras, 1);
+  assert.deepEqual(p.porAno, [{ ano: 2016, n: 1, total: 2, pct: 50 }, { ano: 2019, n: 1, total: 1, pct: 100 }]);
+  assert.deepEqual(p.porCategoria.map((c) => c.categoria), ["Poesia", "Romance"]);
+});

@@ -1,7 +1,6 @@
 """Testes de aceitação do backend (spec RF-01, RF-12). Rodar: .venv/bin/python -m pytest -q"""
 import csv
 import json
-import os
 import shutil
 import subprocess
 import threading
@@ -249,56 +248,29 @@ def test_sql_limita_linhas(db_mini):
     assert len(r["linhas"]) == server.LIMITE_LINHAS and r["truncado"]
 
 
-def test_chat_sem_chave_503(db_mini, monkeypatch, tmp_path):  # CA-12.4
-    for k in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_PROFILE"):
-        monkeypatch.delenv(k, raising=False)
-    monkeypatch.setenv("HOME", str(tmp_path))  # sem perfil do `ant auth login`
+def test_api_sql_e_contexto(db_mini, monkeypatch, tmp_path):  # CA-12.4: a Diadorim lê o banco só por aqui
     monkeypatch.setattr(server, "DB", db_mini)
+    monkeypatch.setattr(server, "_SISTEMA", None)
     web = tmp_path / "web"
     web.mkdir()
     (web / "index.html").write_text("ok", encoding="utf-8")
     srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(server.Handler, directory=str(web)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{srv.server_address[1]}"
+    post = lambda corpo: urllib.request.urlopen(urllib.request.Request(url + "/api/sql", data=json.dumps(corpo).encode(), method="POST"))
     try:
-        req = urllib.request.Request(url + "/api/chat", data=json.dumps({"pergunta": "quantas mulheres?"}).encode(), method="POST")
-        with pytest.raises(urllib.error.HTTPError) as e:
-            urllib.request.urlopen(req)
-        assert e.value.code == 503 and "ANTHROPIC_API_KEY" in json.loads(e.value.read())["erro"]
-        assert urllib.request.urlopen(url + "/index.html").read() == b"ok"  # painel segue funcionando
-        req = urllib.request.Request(url + "/api/chat", data=b'{"pergunta": ""}', method="POST")
-        with pytest.raises(urllib.error.HTTPError) as e:
-            urllib.request.urlopen(req)
-        assert e.value.code == 400
+        r = json.loads(post({"sql": "SELECT COUNT(*) AS n FROM v_participacao WHERE genero = 'mulher'"}).read())
+        assert r["colunas"] == ["n"] and r["linhas"] == [[1]]
+        for ruim in ["DROP TABLE pessoa", "SELECT 1; SELECT 2", "SELECT * FROM read_csv('/etc/passwd')", "SELECT * FROM tabela_que_nao_existe"]:
+            with pytest.raises(urllib.error.HTTPError) as e:
+                post({"sql": ruim})
+            assert e.value.code == 400 and json.loads(e.value.read())["erro"]
+        ctx = json.loads(urllib.request.urlopen(url + "/api/contexto").read())["sistema"]
+        assert "v_participacao" in ctx and "piso" in ctx and "genero_atribuido" in ctx
+        assert urllib.request.urlopen(url + "/index.html").read() == b"ok"
+        assert urllib.request.urlopen(url + "/index.html").headers["Cache-Control"] == "no-cache"
     finally:
         srv.shutdown()
-
-
-def test_ferramenta_do_chat_registra_consultas(db_mini):
-    """Sem chamar a API: um cliente falso executa a ferramenta como o Tool Runner faria."""
-    class Final:
-        stop_reason = "end_turn"
-        content = [type("B", (), {"type": "text", "text": "Há 1 mulher."})()]
-
-    class Runner:
-        def __init__(self, tools, **_):
-            self.tools = tools
-
-        def until_done(self):
-            ok = self.tools[0].call({"sql": "SELECT COUNT(*) FROM v_participacao WHERE genero = 'mulher'"})
-            erro = self.tools[0].call({"sql": "DROP TABLE pessoa"})
-            assert "ERRO" in str(erro) and "[[1]]" in str(ok)
-            return Final()
-
-    class Cliente:
-        api_key = "falsa"
-        beta = type("Beta", (), {"messages": type("M", (), {"tool_runner": staticmethod(lambda **kw: Runner(**kw))})()})()
-
-    server._SISTEMA = None
-    r = server.responder("quantas mulheres?", [], client=Cliente(), db=db_mini)
-    assert r["resposta"] == "Há 1 mulher."
-    assert len(r["consultas"]) == 1 and r["consultas"][0]["linhas"] == [[1]]
-    server._SISTEMA = None
 
 
 def test_perguntas_originais(tmp_path):
@@ -314,36 +286,6 @@ def test_perguntas_originais(tmp_path):
     assert isinstance(q1["linhas"][0][0], int) and isinstance(q2["linhas"][0][0], int)
     assert q3["colunas"] == ["nome", "premios"]
 
-
-@pytest.mark.integracao
-@pytest.mark.skipif(not os.environ.get("ANTHROPIC_API_KEY"), reason="sem ANTHROPIC_API_KEY: chat real não testado")
-def test_chat_real_perguntas_originais(tmp_path):
-    """P3: o chat, com a API real, responde às três perguntas originais com os mesmos números do SQL de referência."""
-    build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
-    db = tmp_path / "r.duckdb"
-    ref = lambda sql: server.executar_sql(sql, db)["linhas"]
-    casos = [
-        ("Quantos autores pretos nascidos em São Paulo chegaram à lista do Jabuti em Contos?",
-         str(ref("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
-            WHERE raca = 'preta' AND uf_nascimento = 'SP' AND categoria = 'Contos' AND papel = 'autor'""")[0][0])),
-        ("Quantas mulheres nascidas no Nordeste foram premiadas?",
-         str(ref("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
-            WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada AND papel = 'autor'""")[0][0])),
-        ("Quais autores nascidos em Santa Catarina foram mais premiados?",
-         ref("""SELECT nome FROM v_participacao WHERE uf_nascimento = 'SC' AND papel = 'autor'
-            GROUP BY nome ORDER BY SUM(premiada::INT) DESC, nome LIMIT 1""")[0][0]),
-    ]
-    server._SISTEMA = None
-    try:
-        for pergunta, esperado in casos:
-            r = server.responder(pergunta, [], db=db)
-            assert r["consultas"], f"o modelo respondeu sem consultar o banco: {pergunta}"
-            assert esperado in r["resposta"], f"{pergunta!r}: esperado {esperado!r} em {r['resposta']!r}"
-    finally:
-        server._SISTEMA = None
-
-
-# ---------- interface narrativa (RF-07, RF-11, RF-18; design D15) ----------
 
 def test_build_exporta_midia(mini):  # CA-11.3
     _csv(mini / "pessoa_midia.csv", [

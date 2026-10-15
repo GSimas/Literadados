@@ -30,14 +30,15 @@ Categorias no recorte: Romance (Romance Literário a partir de 2020), Contos (e 
 - **Abertura:** a pergunta central e três números do recorte completo, com um carrossel de fotos livres ao fundo.
 - **História guiada:** um ponto por pessoa-autora, que se reorganiza a cada passo: gênero, da lista ao 1º lugar, piso racial e região de nascimento.
 - **Panorama:** cartões com n, cobertura e edições coletadas.
-- **Linha do tempo:** composição de cada edição e as obras vencedoras por categoria.
-- **Mapa:** coroplético por UF de nascimento, em números absolutos ou por milhão de habitantes, e Sankey região → editora → resultado.
-- **Análises:** evolução por edição, funil (lista → finalistas → premiadas → vencedoras), segregação por categoria (índice de Duncan), idade no ano do prêmio, editoras e júri.
-- **Autores:** galeria e tabela com busca. Cada pessoa tem um perfil com link próprio (`#/pessoa/<id>`) e a fonte de cada atributo.
-- **Pergunte aos dados:** pergunta em português → SQL somente leitura → resposta com o número, a tabela e o SQL usado.
-- **Método e Referências:** cobertura por edição, definições, protocolo de raça e todas as fontes.
+- **Gráficos:** uma grade de cartões. Cada cartão abre uma janela com endereço próprio (`#/grafico/<id>`): linha do tempo (composição de cada edição e vencedoras), mapa por UF de nascimento (absoluto ou por milhão de habitantes) com Sankey região → editora → resultado, evolução por edição, funil (lista → finalistas → premiadas → vencedoras), categorias (índice de Duncan), idade no ano do prêmio, editoras e júri. No hover, o elemento sob o mouse fica em destaque e os demais esmaecem.
+- **Autores:** um anel de retratos ao redor de um centro vazio e circular, com 100 por página e setas laterais. No hover, o retrato brilha e o centro mostra o resumo da pessoa; o clique abre o perfil completo, com link próprio (`#/pessoa/<id>`) e a fonte de cada atributo. Há também a vista em tabela, com busca e ordenação.
+- **Diadorim:** a IA do Literadados, num botão flutuante no canto da tela. O login é com a conta do OpenRouter (PKCE). O padrão é o roteador gratuito `openrouter/free`, e qualquer modelo do OpenRouter pode ser escolhido na configuração, numa lista buscada ao vivo com preço, contexto e suporte a ferramentas. Ela consulta o banco com SQL somente leitura e mostra ao vivo os passos (consultas e linhas devolvidas). Cada mensagem traz horário e modelo, e cada resposta traz o SQL usado e um bloco "Onde conferir" montado pelo próprio Literadados: perfis, estados, gráfico relacionado, fontes e Método. Há botão de nova conversa.
+- **Busca** no cabeçalho (atalhos `/` e Ctrl/⌘+K): determinística, sem IA, sobre pessoas, livros, editoras, estados, regiões, categorias, edições, gráficos e seções. Cada resultado leva ao perfil, ao gráfico ou à seção certa.
+- **Perfis de estados e regiões** (`#/uf/SP`, `#/regiao/Nordeste`): mapa com o lugar em destaque, números (pessoas-autoras e a parcela do Brasil, indicações, premiadas, % mulheres, piso de % negras, pessoas por milhão de habitantes comparadas à média), parcela por edição e por categoria, pessoas por UF (na região) e a lista de quem nasceu ali.
+- **Exportar:** todo gráfico sai como JPG com fundo ou PNG sem fundo (com título, legenda e rodapé), e toda tabela como XLSX ou CSV. O XLSX é gerado no navegador, sem biblioteca.
+- **Método e referências** ([`metodo.html`](web/metodo.html)): cobertura por edição, definições, protocolo de raça, gênero atribuído e todas as fontes, agrupadas por domínio.
 
-Os filtros de período, categoria e papel valem para todas as seções, menos a história e o chat, e ficam na URL.
+Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **filtro próprio** (período, categorias e papel), com o resumo do recorte e um botão de CSV. Cada filtro fica na URL (`?funil=2019-2025~Poesia`), e o link pode ser compartilhado. A história e a Diadorim usam o recorte completo.
 
 ## Princípios (inegociáveis)
 
@@ -57,13 +58,13 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python server.py     # http://localhost:8000
 ```
 
-O painel funciona sem chave. O chat precisa de `ANTHROPIC_API_KEY` no ambiente ou de `ant auth login`. Sem credencial, `/api/chat` responde 503 e o resto continua funcionando.
+O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador, e o servidor não guarda nada.
 
 ## Testes
 
 ```bash
-.venv/bin/python -m pytest -q        # build, checagens, segurança do SQL, chat, mídia, fontes
-node --test tests/*.test.mjs         # métricas do painel e contraste AA dos dois temas
+.venv/bin/python -m pytest -q        # build, checagens, segurança do SQL, /api/sql e /api/contexto, mídia, fontes
+node --test tests/*.test.mjs         # métricas, paginação, contraste AA, Markdown e laço de ferramentas da Diadorim
 ```
 
 ## Como o projeto é feito (SDD)
@@ -80,7 +81,7 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `dados/coleta/` | Levantamentos brutos (listas por edição, pesquisas de pessoas, protocolo em `PROTOCOLO_PESSOAS.md`) |
 | `build.py` | CSVs → `jabuti.duckdb` + `web/dados.json`, com checagens de consistência |
 | `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `malha` (UFs) |
-| `server.py` | Servidor estático + `/api/chat` (Claude com SQL somente leitura) |
+| `server.py` | Servidor estático + `GET /api/contexto` e `POST /api/sql` (SQL somente leitura) para a Diadorim |
 | `web/` | Frontend sem etapa de build: Observable Plot e d3 via CDN, módulos ES |
 | `tests/` | `pytest` (backend) e `node --test` (métricas e contraste) |
 | `PLANO_COLETA.md` | Protocolo de coleta das edições |
@@ -95,6 +96,6 @@ Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `
 - **Motion:** transições sutis em botões, seções, perfis, menus e no carrossel da abertura. Tudo se desliga com `prefers-reduced-motion`.
 - **Temas claro, escuro e automático:** escolhidos num menu no ícone do cabeçalho. O contraste AA dos dois temas é testado automaticamente.
 
-## Segurança do chat
+## Segurança da Diadorim
 
-Banco aberto só para leitura, `enable_external_access=false`, `lock_configuration`, apenas `SELECT`/`WITH`, limite de linhas e de tempo, e chave só no servidor.
+O banco abre só para leitura, com `enable_external_access=false` e `lock_configuration`. Só entram `SELECT`/`WITH`, com limite de linhas e de tempo. A IA roda no navegador com a chave do OpenRouter de quem entrou, e o servidor não guarda chave nenhuma. As respostas são escapadas, e só viram link as rotas do painel, `metodo.html` e endereços `https`.

@@ -1,6 +1,6 @@
 // Linha do tempo (RF-17): pequenos múltiplos por edição + faixa rolável com marcos e vencedoras por categoria.
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, nPequeno, esc, css, largura, estilo, tabela, vazio, CATEGORIAS } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, css, largura, estilo, tabela, vazio, CATEGORIAS, desenhar } from "./ui.js";
 
 const INDICADORES = [
   { k: "pctMulheres", n: "mulheres", t: "total", rot: "Mulheres", cor: "--s1" },
@@ -17,7 +17,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado }) {
   const longo = e.flatMap((x) => INDICADORES.map((i) => ({ ano: x.ano, indicador: i.rot, pct: x[i.k], n: x[i.n], total: x[i.t] })));
   const marcos = M.MARCOS.filter((m) => anosVis.includes(m.ano));
   const estreito = largura(el) < 640;
-  el.replaceChildren(Plot.plot({
+  desenhar(el, Plot.plot({
     width: largura(el), height: estreito ? 520 : 230, marginTop: 28, marginRight: estreito ? 28 : undefined, marginBottom: 34, style: estilo(),
     ariaLabel: "Composição da lista por edição: mulheres, negras (piso) e nascidas no Sudeste",
     fx: estreito ? undefined : { domain: INDICADORES.map((i) => i.rot), label: null, padding: 0.12 },
