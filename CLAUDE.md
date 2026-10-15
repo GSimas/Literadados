@@ -1,4 +1,4 @@
-# CLAUDE.md — JabutiDados
+# CLAUDE.md — Literadados
 
 Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nascimento) de autores do Prêmio Jabuti 2010–2025.
 

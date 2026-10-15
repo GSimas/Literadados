@@ -1,11 +1,11 @@
-# Spec — JabutiDados
+# Spec — Literadados
 
 > Fase SDD 1/3 (o quê e por quê). Desenho técnico: [design.md](design.md). Tarefas: [tasks.md](tasks.md).
 > Toda mudança de comportamento começa aqui: edite o requisito e o critério de aceitação **antes** do código.
 
 ## 1. Problema
 
-Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores do Prêmio Jabuti. Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O JabutiDados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
+Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores do Prêmio Jabuti. Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
 
 ## 2. Escopo
 

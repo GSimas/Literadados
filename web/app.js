@@ -1,4 +1,4 @@
-// Painel JabutiDados. Agregações em metricas.js (testadas); aqui só estado, DOM e desenho.
+// Painel Literadados. Agregações em metricas.js (testadas); aqui só estado, DOM e desenho.
 import * as M from "./metricas.js";
 
 const D = await fetch("dados.json").then((r) => r.json());
@@ -48,7 +48,7 @@ function montarFiltros() {
   $("#baixar").addEventListener("click", () => {
     const linhas = M.filtrar(D.participacao, estado);
     const url = URL.createObjectURL(new Blob(["﻿" + d3.csvFormat(linhas)], { type: "text/csv;charset=utf-8" }));
-    Object.assign(document.createElement("a"), { href: url, download: `jabutidados_${estado.anoIni}-${estado.anoFim}.csv` }).click();
+    Object.assign(document.createElement("a"), { href: url, download: `literadados_${estado.anoIni}-${estado.anoFim}.csv` }).click();
     URL.revokeObjectURL(url);
   });
 }

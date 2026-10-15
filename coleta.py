@@ -20,7 +20,7 @@ from pathlib import Path
 RAIZ = Path(__file__).parent
 DADOS = RAIZ / "dados"
 BRUTO = DADOS / "coleta"
-UA = "JabutiDados/0.1 (pesquisa sobre o Prêmio Jabuti)"
+UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
 
 CAMPOS = {
     "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",

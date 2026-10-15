@@ -1,4 +1,4 @@
-# JabutiDados
+# Literadados
 
 Painel interativo e IA conversacional sobre quem chega ao Prêmio Jabuti (2010–2025): gênero, raça autodeclarada e estado de nascimento de autores na lista, entre finalistas e entre premiados.
 

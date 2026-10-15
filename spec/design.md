@@ -1,4 +1,4 @@
-# Design — JabutiDados
+# Design — Literadados
 
 > Fase SDD 2/3 (como). Requisitos: [spec.md](spec.md). Tarefas: [tasks.md](tasks.md).
 

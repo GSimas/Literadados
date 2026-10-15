@@ -1,4 +1,4 @@
-# JabutiDados — plano de coleta piloto
+# Literadados — plano de coleta piloto
 
 **Recorte final:** Prêmio Jabuti 2010–2025 · Romance, Contos, Poesia, Crônica, Infantil, Juvenil, Livro do Ano.
 **Modelo:** [schema.sql](schema.sql). Cada aba da planilha corresponde a uma tabela, com as mesmas colunas.

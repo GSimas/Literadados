@@ -1,4 +1,4 @@
--- JabutiDados — modelo de dados (DuckDB; também roda no SQLite)
+-- Literadados — modelo de dados (DuckDB; também roda no SQLite)
 -- Carga: uma aba da planilha → um CSV → INSERT INTO <tabela> BY NAME SELECT * FROM read_csv('<tabela>.csv');
 -- (DuckDB lê célula vazia como NULL; o .import do SQLite grava '' e burlaria os CHECKs.)
 -- Recorte: Prêmio Jabuti 2010–2025 · Romance, Contos, Poesia, Crônica, Infantil, Juvenil, Livro do Ano

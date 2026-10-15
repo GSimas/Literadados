@@ -1,4 +1,4 @@
-"""Servidor do JabutiDados: arquivos de web/ + POST /api/chat (IA texto→SQL). Spec RF-12, design §3."""
+"""Servidor do Literadados: arquivos de web/ + POST /api/chat (IA texto→SQL). Spec RF-12, design §3."""
 import json
 import os
 import re
@@ -77,7 +77,7 @@ def _prompt_sistema(db: Path = DB) -> str:
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
     con.close()
-    return f"""Você é o assistente de dados do JabutiDados, base sobre o perfil dos autores do Prêmio Jabuti.
+    return f"""Você é o assistente de dados do Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
 Responda sempre em português do Brasil, de forma direta, começando pelo número pedido.
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
@@ -197,7 +197,7 @@ def main():
     if not DB.exists():
         raise SystemExit("jabuti.duckdb não existe. Rode antes: python build.py")
     srv = ThreadingHTTPServer(("127.0.0.1", porta), partial(Handler, directory=str(RAIZ / "web")))
-    print(f"JabutiDados em http://localhost:{porta}")
+    print(f"Literadados em http://localhost:{porta}")
     srv.serve_forever()
 
 

@@ -1,4 +1,4 @@
-# Tarefas — JabutiDados
+# Tarefas — Literadados
 
 > Fase SDD 3/3. Cada tarefa aponta o requisito ou critério que entrega. Marque `[x]` só quando o critério estiver verificado: teste verde (🧪) ou conferência no navegador (👁).
 
