@@ -135,3 +135,9 @@
 - [x] T17.3 Cabeçalho da Diadorim animado e iluminado no hover (CA-12.1) 👁
 - [x] T17.4 "2 vezes 1º lugar" no lugar de "2 1º lugares"; linha do tempo do perfil com entrada escalonada e brilho no hover 👁
 - [x] T17.5 Cobertura por edição (metodo.html): sem rolagem dupla; o contêiner externo também tinha `.rolagem` 👁
+
+## T18 Deploy estático no Netlify (RNF-07, D26)
+- [x] T18.1 Build exporta Parquet, `views.sql` e `contexto.json` 🧪
+- [x] T18.2 `web/banco.js` (DuckDB-WASM) e Diadorim sem `/api`; `validarSQL` testado no Node 🧪
+- [x] T18.3 `server.py` só estático; testes ajustados 🧪
+- [x] T18.4 `netlify.toml`, deploy e domínio `literadados.gustavosimas.com` (Netlify DNS) 👁

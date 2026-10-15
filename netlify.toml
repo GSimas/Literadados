@@ -1,0 +1,12 @@
+# Literadados no Netlify (spec RNF-07, design D26): site estático. O build roda localmente (python build.py)
+# e gera web/dados.json, web/contexto.json e web/banco/*.parquet, que vão versionados; o Netlify só publica web/.
+[build]
+  publish = "web"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "public, max-age=0, must-revalidate"

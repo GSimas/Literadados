@@ -1,6 +1,7 @@
 // Diadorim, a IA do Literadados (spec RF-12, design D20): chat flutuante no navegador, com login OpenRouter (PKCE)
-// e o modelo openrouter/free. Os dados vêm do nosso servidor (/api/contexto e /api/sql), só leitura.
+// e o modelo openrouter/free. Contexto em contexto.json e SQL num DuckDB que roda no navegador (banco.js, design D26).
 import { $, esc, fecharAnimado, BOTAO_TABELA } from "./ui.js";
+import { consultarSQL } from "./banco.js";
 
 const OPENROUTER = "https://openrouter.ai";
 const MODELO = "openrouter/free";
@@ -182,22 +183,25 @@ async function concluirLogin() {
 let sistema = null;
 async function prompt() {
   if (sistema) return sistema;
-  const r = await fetch("api/contexto");
-  if (!r.ok) throw new Error("O servidor do Literadados não respondeu (rode python server.py).");
+  const r = await fetch("contexto.json");
+  if (!r.ok) throw new Error("Não achei o contexto do Literadados (contexto.json). Rode python build.py.");
   sistema = `${PERSONA}\n\n${REGRAS_LINK}\n\n${(await r.json()).sistema}`;
   return sistema;
 }
 
-async function consultar(sql, consultas) {
-  const r = await fetch("api/sql", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql }) });
-  const corpo = await r.json().catch(() => ({ erro: `resposta inválida (${r.status})` }));
-  if (!r.ok) return { erro: corpo.erro };
-  consultas.push(corpo);
-  return { colunas: corpo.colunas, linhas: corpo.linhas, truncado: corpo.truncado };
+// Consulta no banco do navegador; erro de validação ou do DuckDB volta para o modelo como {erro}.
+async function consultarBanco(sql, consultas, aoPasso) {
+  try {
+    const r = await consultarSQL(sql, aoPasso);
+    consultas.push(r);
+    return { colunas: r.colunas, linhas: r.linhas, truncado: r.truncado };
+  } catch (e) {
+    return { erro: e.message };
+  }
 }
 
 // Laço de ferramentas. aoPasso({tipo, texto}) narra cada etapa para a interface (CA-12.9).
-export async function responder(pergunta, historico, chave, { modelo = MODELO, aoPasso = () => {} } = {}) {
+export async function responder(pergunta, historico, chave, { modelo = MODELO, aoPasso = () => {}, consultar = consultarBanco } = {}) {
   aoPasso({ tipo: "contexto", texto: "Lendo as regras e o esquema do Literadados" });
   const mensagens = [{ role: "system", content: await prompt() }, ...historico.slice(-12), { role: "user", content: pergunta }];
   const consultas = [];
@@ -231,7 +235,7 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
       }
       const sql = String(args.sql);
       aoPasso({ tipo: "sql", texto: `Consultando o banco: ${sql.replace(/\s+/g, " ").slice(0, 140)}${sql.length > 140 ? "…" : ""}` });
-      const res = await consultar(sql, consultas);
+      const res = await consultar(sql, consultas, aoPasso);
       aoPasso(res.erro ? { tipo: "erro", texto: `A consulta voltou com erro: ${res.erro}` }
         : { tipo: "resultado", texto: `${res.linhas.length}${res.truncado ? "+" : ""} linha${res.linhas.length === 1 ? "" : "s"} de volta` });
       mensagens.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(res) });

@@ -206,85 +206,58 @@ def test_dados_reais_passam_no_build(tmp_path):
 
 # ---------- RF-12 ----------
 
-@pytest.fixture
-def db_mini(mini):
-    _build(mini)
-    return mini.parent / "t.duckdb"
+# ---------- banco no navegador (CA-12.4, RNF-07, D26) ----------
+# O DuckDB-WASM recria o banco a partir dos Parquet + views.sql; aqui o DuckDB do Python faz o mesmo caminho.
+
+def _banco_do_navegador(web: Path):
+    con = duckdb.connect()
+    for t in json.loads((web / "contexto.json").read_text(encoding="utf-8"))["tabelas"]:
+        con.execute(f"CREATE TABLE {t} AS SELECT * FROM read_parquet('{web / 'banco' / f'{t}.parquet'}')")
+    for v in [x.strip() for x in (web / "banco" / "views.sql").read_text(encoding="utf-8").split(";\n") if x.strip()]:
+        con.execute(v)
+    return con
 
 
-def test_sql_seguro_aceita_select(db_mini):
-    r = server.executar_sql("SELECT COUNT(*) AS n FROM pessoa -- comentário", db_mini)
-    assert r["colunas"] == ["n"] and r["linhas"] == [[2]]
+@pytest.mark.parametrize("base", ["mini", "reais"])
+def test_banco_do_navegador_igual_ao_build(base, mini, tmp_path):  # CA-12.4: mesmas linhas e mesmas views
+    d = mini if base == "mini" else RAIZ / "dados"
+    build.build(d, tmp_path / "r.duckdb", tmp_path / "web" / "dados.json")
+    nav, orig = _banco_do_navegador(tmp_path / "web"), duckdb.connect(str(tmp_path / "r.duckdb"), read_only=True)
+    for q in ["SELECT COUNT(*), COUNT(DISTINCT pessoa_id), SUM(premiada::INT) FROM v_participacao", "SELECT * FROM v_cobertura ORDER BY ano",
+              "SELECT COUNT(*) FROM pessoa WHERE genero_evidencia = 'atribuicao'"]:
+        assert nav.execute(q).fetchall() == orig.execute(q).fetchall(), q
+    ctx = json.loads((tmp_path / "web" / "contexto.json").read_text(encoding="utf-8"))["sistema"]
+    assert "v_participacao" in ctx and "piso" in ctx and "genero_atribuido" in ctx
 
 
-@pytest.mark.parametrize("sql", [
-    "INSERT INTO pessoa (id, nome) VALUES ('x', 'x')",
-    "DELETE FROM pessoa",
-    "SELECT 1; DROP TABLE pessoa",
-    "SELECT * FROM read_csv('/etc/hosts')",
-    "SELECT * FROM 'dados/pessoa.csv'",
-    "COPY pessoa TO '/tmp/vazou.csv'",
-    "ATTACH '/tmp/x.duckdb'",
-    "SET enable_external_access = true",
-    "SELECT * FROM query('SELECT 1')",
-    "SELECT getenv('HOME')",
-    "INSTALL httpfs",
-])
-def test_sql_seguro_recusa(db_mini, sql):  # CA-12.2
-    with pytest.raises((server.SQLRecusado, server.duckdb.Error)):
-        server.executar_sql(sql, db_mini)
-
-
-def test_sql_seguro_banco_somente_leitura_mesmo_sem_filtro(db_mini):  # CA-12.2: a garantia é do banco, não da regex
-    con = server.conectar(db_mini)
-    for sql in ["DELETE FROM pessoa", "SELECT * FROM read_csv('/etc/hosts')", "SET enable_external_access = true"]:
-        with pytest.raises(server.duckdb.Error):
-            con.execute(sql)
-    con.close()
-
-
-def test_sql_limita_linhas(db_mini):
-    r = server.executar_sql("SELECT * FROM range(1000)", db_mini)
-    assert len(r["linhas"]) == server.LIMITE_LINHAS and r["truncado"]
-
-
-def test_api_sql_e_contexto(db_mini, monkeypatch, tmp_path):  # CA-12.4: a Diadorim lê o banco só por aqui
-    monkeypatch.setattr(server, "DB", db_mini)
-    monkeypatch.setattr(server, "_SISTEMA", None)
+def test_servidor_local_so_estatico(tmp_path):  # RNF-07: sem /api; cache revalidado
     web = tmp_path / "web"
     web.mkdir()
     (web / "index.html").write_text("ok", encoding="utf-8")
     srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(server.Handler, directory=str(web)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{srv.server_address[1]}"
-    post = lambda corpo: urllib.request.urlopen(urllib.request.Request(url + "/api/sql", data=json.dumps(corpo).encode(), method="POST"))
     try:
-        r = json.loads(post({"sql": "SELECT COUNT(*) AS n FROM v_participacao WHERE genero = 'mulher'"}).read())
-        assert r["colunas"] == ["n"] and r["linhas"] == [[1]]
-        for ruim in ["DROP TABLE pessoa", "SELECT 1; SELECT 2", "SELECT * FROM read_csv('/etc/passwd')", "SELECT * FROM tabela_que_nao_existe"]:
-            with pytest.raises(urllib.error.HTTPError) as e:
-                post({"sql": ruim})
-            assert e.value.code == 400 and json.loads(e.value.read())["erro"]
-        ctx = json.loads(urllib.request.urlopen(url + "/api/contexto").read())["sistema"]
-        assert "v_participacao" in ctx and "piso" in ctx and "genero_atribuido" in ctx
-        assert urllib.request.urlopen(url + "/index.html").read() == b"ok"
-        assert urllib.request.urlopen(url + "/index.html").headers["Cache-Control"] == "no-cache"
+        r = urllib.request.urlopen(url + "/index.html")
+        assert r.read() == b"ok" and r.headers["Cache-Control"] == "no-cache"
+        with pytest.raises(urllib.error.HTTPError):
+            urllib.request.urlopen(urllib.request.Request(url + "/api/sql", data=b"{}", method="POST"))
     finally:
         srv.shutdown()
 
 
 def test_perguntas_originais(tmp_path):
-    """As três perguntas que motivaram o projeto rodam na base real e devolvem número."""
-    build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
-    db = tmp_path / "r.duckdb"
-    q1 = server.executar_sql("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
-        WHERE raca = 'preta' AND uf_nascimento = 'SP' AND categoria = 'Contos' AND papel = 'autor'""", db)
-    q2 = server.executar_sql("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
-        WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada AND papel = 'autor'""", db)
-    q3 = server.executar_sql("""SELECT nome, SUM(premiada::INT) AS premios FROM v_participacao
-        WHERE uf_nascimento = 'SC' AND papel = 'autor' GROUP BY nome ORDER BY premios DESC""", db)
-    assert isinstance(q1["linhas"][0][0], int) and isinstance(q2["linhas"][0][0], int)
-    assert q3["colunas"] == ["nome", "premios"]
+    """As três perguntas que motivaram o projeto rodam na base real (no banco do navegador) e devolvem número."""
+    build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "web" / "r.json")
+    con = _banco_do_navegador(tmp_path / "web")
+    q1 = con.execute("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
+        WHERE raca = 'preta' AND uf_nascimento = 'SP' AND categoria = 'Contos' AND papel = 'autor'""").fetchone()[0]
+    q2 = con.execute("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
+        WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada AND papel = 'autor'""").fetchone()[0]
+    q3 = con.execute("""SELECT nome, SUM(premiada::INT) AS premios FROM v_participacao
+        WHERE uf_nascimento = 'SC' AND papel = 'autor' GROUP BY nome ORDER BY premios DESC""")
+    assert isinstance(q1, int) and isinstance(q2, int)
+    assert [d[0] for d in q3.description] == ["nome", "premios"]
 
 
 def test_build_exporta_midia(mini):  # CA-11.3
