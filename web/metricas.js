@@ -298,3 +298,103 @@ function ordenar(arr, dim) {
   const ordem = ORDEM[dim];
   return arr.sort((a, b) => a.ano - b.ano || ordem.indexOf(a.grupo) - ordem.indexOf(b.grupo));
 }
+
+// ---------- interface narrativa (spec RF-11, RF-16, RF-17; design D15) ----------
+
+const porPessoaAgreg = (linhas) => {
+  const m = new Map();
+  for (const l of linhas) {
+    const p = m.get(l.pessoa_id) ?? { ...l, premiada: false, vencedora: false, n: 0 };
+    p.premiada ||= !!l.premiada;
+    p.vencedora ||= !!l.vencedora;
+    p.n++;
+    m.set(l.pessoa_id, p);
+  }
+  return [...m.values()];
+};
+
+// Um ponto por pessoa para a história guiada, com os grupos de cada dimensão e o melhor resultado.
+export function pontosHistoria(linhas) {
+  return porPessoaAgreg(linhas).map((p) => ({
+    id: p.pessoa_id, nome: p.nome, genero: p.genero, raca: grupo(p, "raca"), regiao: grupo(p, "regiao"),
+    etapa: p.vencedora ? "vencedora" : p.premiada ? "premiada" : "lista", participacoes: p.n,
+  }));
+}
+
+// Números da narrativa (CA-16.2): sempre calculados, com n e total.
+export function historia(linhas) {
+  const ps = pontosHistoria(linhas);
+  const n = ps.length;
+  const conta = (f, base = ps) => base.filter(f).length;
+  const venc = ps.filter((p) => p.etapa === "vencedora");
+  const prem = ps.filter((p) => p.etapa !== "lista");
+  const comUF = ps.filter((p) => !FALTANTES.has(p.regiao) && p.regiao !== "Exterior");
+  const ufs = contar(porPessoa(linhas).filter((l) => l.uf_nascimento && l.uf_nascimento !== "EX"), (l) => l.uf_nascimento);
+  const [topUF, topN] = [...ufs].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0] ?? [null, 0];
+  const g = (base) => ({
+    mulheres: conta((p) => p.genero === "mulher", base), homens: conta((p) => p.genero === "homem", base),
+    naoBinarias: conta((p) => p.genero === "nao_binario", base), semGenero: conta((p) => p.genero === "nao_identificado", base),
+  });
+  const gt = g(ps), gv = g(venc), gp = g(prem);
+  const negras = conta((p) => p.raca === "negra");
+  const sudeste = conta((p) => p.regiao === "Sudeste", comUF);
+  return {
+    pessoas: n,
+    indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
+    edicoes: distintos(linhas, (l) => l.ano),
+    genero: { ...gt, pctMulheres: pct(gt.mulheres, n) },
+    premiadas: { pessoas: prem.length, mulheres: gp.mulheres, pctMulheres: pct(gp.mulheres, prem.length) },
+    vencedoras: { pessoas: venc.length, ...gv, pctMulheres: pct(gv.mulheres, venc.length) },
+    raca: {
+      negras, pctNegras: pct(negras, n), indigenas: conta((p) => p.raca === "indigena"),
+      declaradas: conta((p) => p.raca !== "sem_declaracao"), semDeclaracao: conta((p) => p.raca === "sem_declaracao"),
+      negrasVencedoras: conta((p) => p.raca === "negra", venc),
+    },
+    regiao: {
+      comUF: comUF.length, sudeste, pctSudeste: pct(sudeste, comUF.length),
+      exterior: conta((p) => p.regiao === "Exterior"), semDado: conta((p) => p.regiao === "sem dado"),
+      por: Object.fromEntries(ORDEM.regiao.map((r) => [r, conta((p) => p.regiao === r)])),
+    },
+    topUF: { uf: topUF, pessoas: topN },
+  };
+}
+
+// Composição da lista por edição (CA-17.2): participações, com n e total.
+export function porEdicao(linhas) {
+  return [...groupBy(linhas, (l) => l.ano)].sort((a, b) => a[0] - b[0]).map(([ano, ls]) => {
+    const comUF = ls.filter((l) => l.regiao_nascimento && l.regiao_nascimento !== "Exterior");
+    const m = ls.filter((l) => l.genero === "mulher").length;
+    const ng = ls.filter((l) => l.negra).length;
+    const sud = comUF.filter((l) => l.regiao_nascimento === "Sudeste").length;
+    return {
+      ano, total: ls.length, mulheres: m, pctMulheres: pct(m, ls.length), negras: ng, pctNegras: pct(ng, ls.length),
+      comUF: comUF.length, sudeste: sud, pctSudeste: pct(sud, comUF.length),
+    };
+  });
+}
+
+// Obras vencedoras (1º lugar) por edição e categoria, com autoria (CA-17.1).
+export function vencedorasPorAno(linhas, ordemCategorias = []) {
+  const obras = new Map();
+  for (const l of linhas.filter((x) => x.vencedora)) {
+    const k = `${l.ano}|${l.categoria}|${l.obra_id}`;
+    const o = obras.get(k) ?? { ano: l.ano, categoria: l.categoria, obra_id: l.obra_id, titulo: l.titulo, editora: l.editora, pessoas: [] };
+    if (!o.pessoas.some((p) => p.id === l.pessoa_id)) o.pessoas.push({ id: l.pessoa_id, nome: l.nome });
+    obras.set(k, o);
+  }
+  const ordem = (c) => ordemCategorias.indexOf(c) + 1 || 99;
+  return [...obras.values()].sort((a, b) => a.ano - b.ano || ordem(a.categoria) - ordem(b.categoria) || String(a.titulo).localeCompare(b.titulo));
+}
+
+// Avatar neutro (CA-11.3): o matiz vem só do id, nunca de gênero, raça ou região.
+export function corAvatar(id) {
+  let h = 2166136261;
+  for (const c of String(id)) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0;
+  return h % 360;
+}
+
+export function iniciais(nome) {
+  const partes = String(nome).replace(/\(.*?\)/g, "").split(/\s+/).filter((p) => p && !/^(d[aeo]s?|e|van|von|del?)$/i.test(p));
+  if (!partes.length) return "?";
+  return (partes[0][0] + (partes.length > 1 ? partes.at(-1)[0] : "")).toLocaleUpperCase("pt-BR");
+}
