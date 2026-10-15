@@ -28,7 +28,8 @@ id,nome,wikidata,genero,genero_fonte,raca,raca_evidencia,raca_fonte,raca_trecho,
 - Só autodeclaração da própria pessoa, com **trecho literal** (`raca_trecho`), URL (`raca_fonte`) e `raca_evidencia=autodeclaracao` (ou `fonte_curada` para Literafro com afirmação de identidade).
 - Valores: `preta`, `parda`, `negra`, `indigena`, `amarela`, `branca`. Nada achado: `sem_declaracao`.
 - Rejeite e anote em `observacao` com "REVISAR": descrição de terceiros, alusão, ascendência ("descendente de…"), discurso indireto do jornalista.
-- `raca_busca=completa` quando o protocolo foi cumprido; `parcial` se interrompido.
+- O índice do Literafro já foi conferido para todas as pessoas na coleta das edições; não gaste busca com ele, a menos que o resultado da busca acima aponte uma página do Literafro.
+- `raca_busca=completa` quando a busca acima foi feita (uma busca com os termos do protocolo basta) e os resultados lidos; `parcial` só se a pessoa não foi pesquisada (teto) ou a busca falhou.
 - Quando `falta` não contém `raca`, deixe `raca` e `raca_busca` vazios.
 
 ## Observação
