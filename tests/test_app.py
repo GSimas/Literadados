@@ -1,6 +1,7 @@
 """Testes de aceitação do backend (spec RF-01, RF-12). Rodar: .venv/bin/python -m pytest -q"""
 import csv
 import json
+import os
 import shutil
 import subprocess
 import threading
@@ -292,3 +293,31 @@ def test_perguntas_originais(tmp_path):
         WHERE uf_nascimento = 'SC' AND papel = 'autor' GROUP BY nome ORDER BY premios DESC""", db)
     assert isinstance(q1["linhas"][0][0], int) and isinstance(q2["linhas"][0][0], int)
     assert q3["colunas"] == ["nome", "premios"]
+
+
+@pytest.mark.integracao
+@pytest.mark.skipif(not os.environ.get("ANTHROPIC_API_KEY"), reason="sem ANTHROPIC_API_KEY: chat real não testado")
+def test_chat_real_perguntas_originais(tmp_path):
+    """P3: o chat, com a API real, responde às três perguntas originais com os mesmos números do SQL de referência."""
+    build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
+    db = tmp_path / "r.duckdb"
+    ref = lambda sql: server.executar_sql(sql, db)["linhas"]
+    casos = [
+        ("Quantos autores pretos nascidos em São Paulo chegaram à lista do Jabuti em Contos?",
+         str(ref("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
+            WHERE raca = 'preta' AND uf_nascimento = 'SP' AND categoria = 'Contos' AND papel = 'autor'""")[0][0])),
+        ("Quantas mulheres nascidas no Nordeste foram premiadas?",
+         str(ref("""SELECT COUNT(DISTINCT pessoa_id) FROM v_participacao
+            WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada AND papel = 'autor'""")[0][0])),
+        ("Quais autores nascidos em Santa Catarina foram mais premiados?",
+         ref("""SELECT nome FROM v_participacao WHERE uf_nascimento = 'SC' AND papel = 'autor'
+            GROUP BY nome ORDER BY SUM(premiada::INT) DESC, nome LIMIT 1""")[0][0]),
+    ]
+    server._SISTEMA = None
+    try:
+        for pergunta, esperado in casos:
+            r = server.responder(pergunta, [], db=db)
+            assert r["consultas"], f"o modelo respondeu sem consultar o banco: {pergunta}"
+            assert esperado in r["resposta"], f"{pergunta!r}: esperado {esperado!r} em {r['resposta']!r}"
+    finally:
+        server._SISTEMA = None
