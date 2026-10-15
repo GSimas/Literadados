@@ -229,7 +229,7 @@ def aplicar_pessoas():
     """Incorpora dados/coleta/pessoas_*.csv (pesquisa manual/assistida) em dados/pessoa.csv. Célula vazia não apaga dado."""
     from datetime import date
     pessoas = {p["id"]: p for p in ler("pessoa")}
-    n = 0
+    antes = {i: dict(p) for i, p in pessoas.items()}
     for arq in sorted(glob.glob(str(BRUTO / "pessoas_*.csv"))):
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             p = pessoas.get(r["id"])
@@ -239,6 +239,9 @@ def aplicar_pessoas():
             for k in CAMPOS["pessoa"][2:-1]:
                 if r.get(k, "").strip():
                     p[k] = r[k].strip()
+    n = 0
+    for i, p in pessoas.items():
+        if p != antes[i]:  # revisado_em só muda quando o resultado final muda
             p["revisado_em"] = date.today().isoformat()
             n += 1
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
