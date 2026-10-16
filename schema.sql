@@ -115,8 +115,9 @@ CREATE TABLE categoria_edicao (
   premio_id      TEXT NOT NULL,
   ano            INTEGER NOT NULL,
   nome_original  TEXT NOT NULL,               -- ex. 'Contos e Crônicas', 'Romance Literário'
-  -- Taxonomia comum a todos os prêmios (CA-26.3); 'Geral' = categoria única, com prosa e poesia concorrendo juntas.
-  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano','Geral')),
+  -- Taxonomia comum a todos os prêmios (CA-26.3); 'Geral' = categoria única, com prosa e poesia concorrendo juntas;
+  -- 'Prosa' = romance, conto, crônica e dramaturgia juntos, sem poesia (Oceanos 2023 em diante).
+  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano','Geral','Prosa')),
   vagas_lista    INTEGER,                     -- tamanho da 1ª lista pública (≈10 nos dois regimes)
   vagas_curta    INTEGER,                     -- 2ª lista (≈5); NULL se a edição não teve
   vagas_premio   INTEGER NOT NULL,            -- 3 até 2017, 1 a partir de 2018

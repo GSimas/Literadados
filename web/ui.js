@@ -19,8 +19,8 @@ export const ROT_GEN = { mulher: "Mulher", homem: "Homem", nao_binario: "Não bi
 export const CONTATO = "gustavosimassilva@gmail.com";
 export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" title="Inclui gênero atribuído pelo nome: ver nota">*</a>` : "");
 // Taxonomia comum (CA-26.3), na ordem dos menus e gráficos. CATEGORIAS = as que existem nos dados (definirDados).
-export const ORDEM_CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];
-export const CATEGORIAS = ORDEM_CATEGORIAS.filter((c) => c !== "Geral");
+export const ORDEM_CATEGORIAS = ["Romance", "Contos", "Crônica", "Prosa", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];
+export const CATEGORIAS = ORDEM_CATEGORIAS.filter((c) => c !== "Geral" && c !== "Prosa");
 // Prêmios da base, na ordem de D.premios (o 1º é o padrão, DA-4), e o nome de cada um.
 export const PREMIOS = [];
 export const NOME_PREMIO = {};

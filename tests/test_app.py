@@ -221,11 +221,14 @@ def _regime_antigo(ano: int) -> str:
 def test_etapa0_so_jabuti(tmp_path):  # CA-26.1, CA-26.2: a migração para premio_id não muda o Jabuti
     p = build.build(RAIZ / "dados", tmp_path / "e.duckdb", tmp_path / "e.json")
     con = duckdb.connect(str(tmp_path / "e.duckdb"), read_only=True)
-    assert con.execute("SELECT DISTINCT premio, premio_nome FROM v_participacao").fetchall() == [("jabuti", "Prêmio Jabuti")]
+    # O Jabuti continua sendo o padrão e o mesmo de antes, com ou sem outros prêmios na base.
+    assert ("jabuti", "Prêmio Jabuti") in con.execute("SELECT DISTINCT premio, premio_nome FROM v_participacao").fetchall()
     anos = dict(con.execute("SELECT ano, regime FROM edicao WHERE premio_id = 'jabuti'").fetchall())
     assert set(anos) == set(range(1959, 2026)) and all(r == _regime_antigo(a) for a, r in anos.items())
-    assert [x["id"] for x in p["premios"]] == ["jabuti"]
-    assert all("premio" not in l for l in p["participacao"] + p["edicoes"] + p["categorias"] + p["jurados"])  # padrão fica fora do JSON
+    assert p["premios"][0]["id"] == "jabuti"
+    n_jabuti = con.execute("SELECT COUNT(*) FROM v_participacao WHERE premio = 'jabuti'").fetchone()[0]
+    assert sum("premio" not in l for l in p["participacao"]) == n_jabuti  # padrão fica fora do JSON
+    assert all(x.get("premio") != "jabuti" for x in p["edicoes"] + p["categorias"] + p["jurados"])
 
 
 def test_build_falha_edicao_antes_do_premio(mini):  # CA-26.1

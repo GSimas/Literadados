@@ -175,7 +175,9 @@ def normalizar():
             continue
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             autores = nomes(r["autores"])
-            ed_nome = nomes(r["editora"])[0] if nomes(r["editora"]) else ""
+            # Coedição ("Objetiva / Alfaguara", ou "A | B"): vale a 1ª editora. Só " / " com espaços, porque "S/A" é sufixo.
+            eds = [e.strip() for e in re.split(r"\|| +/ +", r["editora"] or "") if e.strip()]
+            ed_nome = eds[0] if eds else ""
             # Editora de outro país (coluna opcional editora_pais, ISO): outra editora, mesmo com o mesmo nome de uma
             # brasileira (Companhia das Letras de Lisboa ≠ de São Paulo). Id e nome levam o país; sede no exterior.
             ed_pais = (r.get("editora_pais") or "").strip().upper()
