@@ -141,3 +141,28 @@
 - [x] T18.2 `web/banco.js` (DuckDB-WASM) e Diadorim sem `/api`; `validarSQL` testado no Node 🧪
 - [x] T18.3 `server.py` só estático; testes ajustados 🧪
 - [x] T18.4 `netlify.toml`, deploy e domínio `literadados.gustavosimas.com` (Netlify DNS) 👁
+
+## T19 Auditoria de desempenho, acessibilidade e resiliência (out/2026, RNF-05, RNF-08)
+- [x] T19.1 Cronologia do perfil em ordem de ano, com júri e organização intercalados (CA-11.2) 🧪
+- [x] T19.2 d3, Plot e d3-sankey com `defer`; tema salvo aplicado por script inline no `<head>` 👁
+- [x] T19.3 Abertura reserva o espaço dos números (esqueleto invisível); CLS da carga 0,09 → 0 👁
+- [x] T19.4 axe-core sem violações: marcas do Plot fora da árvore de acessibilidade (o `<svg>` tem rótulo e há tabela), mapa como `group`, iniciais do avatar ocultas, cabeçalho da Diadorim sem landmark duplicado 👁
+- [x] T19.5 Aviso com "Tentar de novo" quando os dados não carregam ou uma parte falha ao desenhar 👁
+- [x] T19.6 `X-Frame-Options: DENY` no `netlify.toml`; cache segue revalidado (arquivos sem hash) 👁
+
+## T20 Diadorim com contexto, toque, desempenho, ranking e livros (out/2026)
+- [x] T20.1 Resposta nunca seca: prompt, insistência automática e bloco "Quem são" montado do banco (CA-12.12) 🧪
+- [x] T20.2 Alvos de toque de 44 px em `pointer: coarse`; anel com `capacidadeAnel` (CA-11.7) 🧪👁
+- [x] T20.3 Fontes locais com fallback ajustado; Plot e d3-sankey sob demanda; miniaturas WebP (RNF-08, D27) 👁
+- [x] T20.4 Janela de ranking (RF-23) 🧪👁
+- [x] T20.5 Perfil de livro `#/obra/<id>` e coleta de capas (RF-24) 🧪👁
+
+## T21 Série histórica 1959–2009 (out/2026, RF-25)
+- [x] T21.1 Premiados 1959–2009 das categorias do recorte: site oficial × "Edições anteriores" da CBL (Wayback) × Wikipédia por edição; colocações e divergências resolvidas com fonte (`dados/coleta/historico/`) 🧪
+- [x] T21.2 Listas públicas completas de 2000–2009 (CBL arquivada, Folha, DGABC), com editora da época; 1991–1999 sem lista completa achada 🧪
+- [x] T21.3 Mapeamento de categorias antigas; `colocacao` até 5 (1993); regimes "1959–1992 vencedor por categoria" e "1993–2009 pódio" 🧪
+- [x] T21.4 Filtros com série 1959–2025 e padrão 2010–2025 (ranking na série toda); aviso de edições sem lista pública (CA-25.2) 🧪👁
+- [x] T21.5 Pessoas novas: Wikipédia + Wikidata em lote (ofício e ano conferidos), 3 lotes de pesquisa pelo protocolo; restante com `raca_busca = parcial` 
+- [x] T21.6 `dados.json` < 1 MB: chaves nulas fora, `premiada`/`vencedora` derivadas da colocação, `papel` só quando não é autor (RNF-06) 🧪
+- [x] T21.7 Busca de raça das 139 pessoas com `parcial` (`pessoas_hist_raca_4..6.csv`: 0 autodeclarações, 5 casos em `revisao_raca.csv`); sede/grupo das 60 editoras novas (51 com sede, 5 unificadas por `canonico`)
+- [ ] T21.8 Pendências: capas pelo Google Books (cota anônima com limite 0 em 16/out; precisa de chave de API), revisão humana dos casos em `revisao_raca.csv`

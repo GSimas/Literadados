@@ -4,9 +4,13 @@
   publish = "web"
   command = ""
 
+# Nenhum arquivo tem hash no nome (módulos ES servidos como estão), então nada pode ser "immutable":
+# cache revalidado por ETag (304 barato) evita misturar módulos de versões diferentes depois de um deploy.
+# Compressão (Brotli/gzip) o Netlify já aplica sozinho.
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Cache-Control = "public, max-age=0, must-revalidate"

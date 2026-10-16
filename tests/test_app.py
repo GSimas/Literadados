@@ -64,7 +64,7 @@ def test_build_gera_banco_e_json(mini):  # CA-01.1, CA-01.4
     assert j["anos_coletados"] == [2016]  # 2017 sem indicações = não coletada, não falha
     assert p["cobertura"][0]["pct_raca"] == 50.0
     linha_a = next(x for x in j["participacao"] if x["pessoa_id"] == "a")
-    assert linha_a["vencedora"] is True
+    assert linha_a["colocacao"] == 1  # premiada/vencedora são derivadas da colocação no navegador (metricas.expandir)
     assert next(x for x in j["pessoas"] if x["id"] == "a")["negra"] is True
 
 
@@ -91,7 +91,7 @@ def test_json_compacto_reconstroi_v_participacao(base, mini, tmp_path):  # CA-RN
     db, saida = tmp_path / "c.duckdb", tmp_path / "c.json"
     build.build(dados, db, saida)
     j = json.loads(saida.read_text(encoding="utf-8"))
-    assert all(set(l) == COMPACTA for l in j["participacao"]), "participação deve ser compacta"
+    assert all(set(l) <= COMPACTA for l in j["participacao"]), "participação deve ser compacta"  # campos nulos saem do JSON (RNF-06)
     con = duckdb.connect(str(db), read_only=True)
     esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY ano, categoria, obra_id, papel, pessoa_id"), default=str))
     con.close()
@@ -146,7 +146,7 @@ def test_genero_atribuido(mini, genero, fonte, ok):  # CA-11.4
             _build(mini)
         return
     j = _build(mini)
-    assert [p["genero_evidencia"] for p in sorted(j["pessoas"], key=lambda p: p["id"])] == [None, "atribuicao"]
+    assert [p.get("genero_evidencia") for p in sorted(j["pessoas"], key=lambda p: p["id"])] == [None, "atribuicao"]
     con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
     assert con.execute("SELECT pessoa_id FROM v_participacao WHERE genero_atribuido").fetchall() == [("b",)]
 
@@ -305,3 +305,19 @@ def test_malha_uf_tem_27_ufs():  # CA-07.3
     esperadas = {r[0] for r in con.execute("SELECT uf FROM uf WHERE uf <> 'EX'").fetchall()}
     assert len(g["features"]) == 27 and ufs == esperadas
     assert all(f["geometry"]["type"] in ("Polygon", "MultiPolygon") for f in g["features"])
+
+
+def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
+    build.build(RAIZ / "dados", tmp_path / "h.duckdb", tmp_path / "h.json")
+    j = json.loads((tmp_path / "h.json").read_text(encoding="utf-8"))
+    assert j["anos_coletados"] == list(range(1959, 2026))
+    assert j["anos"] == [1959, 2025] and j["recorte"] == [2010, 2025]
+    con = duckdb.connect(str(tmp_path / "h.duckdb"), read_only=True)
+    # toda edição antiga tem premiado em ao menos 3 categorias do recorte, e o Livro do Ano só tem vencedores
+    por_ano = dict(con.execute("SELECT ano, COUNT(DISTINCT categoria) FROM v_participacao WHERE ano < 2010 AND premiada GROUP BY ano").fetchall())
+    assert set(por_ano) == set(range(1959, 2010)) and min(por_ano.values()) >= 3
+    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN categoria_edicao c USING (ano, nome_original) WHERE c.categoria = 'Livro do Ano' AND i.colocacao IS DISTINCT FROM 1").fetchone()[0] == 0
+    # editora antiga só com fonte da época: o site oficial atual dá a editora de hoje (Companhia das Letras, fundada em 1986, em 1959)
+    assert con.execute("""SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id JOIN editora e ON e.id = o.editora_id
+                          WHERE i.ano < 1986 AND e.nome ILIKE '%companhia das letras%'""").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id WHERE i.ano < 2000 AND o.editora_id IS NOT NULL").fetchone()[0] == 0

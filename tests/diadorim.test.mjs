@@ -39,11 +39,12 @@ test("laço de ferramentas: consulta o banco pelo /api/sql e devolve texto e con
       return json({ model: "x/y:free", choices: [{ message: { role: "assistant", tool_calls: [{ id: "t1", type: "function", function: { name: "consultar_sql", arguments: '{"sql":"SELECT 42 AS n"}' } }] } }] });
     }
     assert.deepEqual(JSON.parse(corpo.messages.at(-1).content), { colunas: ["n"], linhas: [[42]], truncado: false });
-    return json({ model: "x/y:free", choices: [{ message: { role: "assistant", content: "São 42.\n\nFontes: [Panorama](#panorama)" } }] });
+    return json({ model: "x/y:free", choices: [{ message: { role: "assistant", content: "São 42. É a soma de todas as participações do recorte, de 2010 a 2025, nas oito categorias acompanhadas pelo Literadados, contando cada pessoa uma vez por obra e por edição em que apareceu.\n\nFontes: [Panorama](#panorama)" } }] });
   };
   const consultar = async (sql, consultas) => { chamadas.push(`sql:${sql}`); consultas.push({ sql, colunas: ["n"], linhas: [[42]], truncado: false }); return { colunas: ["n"], linhas: [[42]], truncado: false }; };
   const r = await responder("quantos?", [], "chave-teste", { consultar });
-  assert.equal(r.texto, "São 42.\n\nFontes: [Panorama](#panorama)");
+  assert.equal(r.texto, "São 42. É a soma de todas as participações do recorte, de 2010 a 2025, nas oito categorias acompanhadas pelo Literadados, contando cada pessoa uma vez por obra e por edição em que apareceu.\n\nFontes: [Panorama](#panorama)");
+  assert.equal(r.contexto, undefined);
   assert.equal(r.consultas.length, 1);
   assert.equal(r.modelo, "x/y:free");
   assert.deepEqual(chamadas.filter((u) => !u.startsWith("https://")), ["contexto.json", "sql:SELECT 42 AS n"]);
@@ -107,4 +108,62 @@ test("validarSQL: só um SELECT/WITH, sem escrita nem leitura de arquivo (CA-12.
   for (const ruim of ["DROP TABLE pessoa", "SELECT 1; SELECT 2", "SELECT * FROM read_csv('/etc/passwd')", "COPY pessoa TO 'x'",
     "SELECT * FROM query('DROP TABLE x')", "INSERT INTO pessoa VALUES (1)", "SET enable_external_access = true", "ATTACH 'x.db'", "", "PRAGMA version"])
     assert.throws(() => validarSQL(ruim), /consulta vazia|apenas|não permitido/, ruim);
+});
+
+// Resposta seca (CA-12.12): só o número não basta, com qualquer modelo.
+test("respostaSeca e consultaDeDetalhe", async () => {
+  const { respostaSeca, consultaDeDetalhe } = await import("../web/diadorim.js");
+  assert.ok(respostaSeca("5"));
+  assert.ok(respostaSeca("São **5** mulheres.\n\nFontes: [Funil](#/grafico/funil) [Mapa](#/grafico/geografia) [Método](metodo.html#metodologia) [x](#/uf/CE)"));
+  assert.ok(!respostaSeca("São 5 mulheres nascidas no Nordeste entre as premiadas: Socorro Acioli (CE), Ana Maria Gonçalves (MG não), e outras três, de um total de 120 premiadas no recorte, ou 4,2% delas."));
+  assert.equal(consultaDeDetalhe("SELECT COUNT(DISTINCT pessoa_id) AS n FROM v_participacao WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada;"),
+    "SELECT pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao FROM v_participacao WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada ORDER BY nome, ano LIMIT 200");
+  assert.match(consultaDeDetalhe("select count(*) from v_participacao v where v.premiada order by 1 limit 5"), /FROM v_participacao v where v\.premiada ORDER BY nome/);
+  for (const sem of ["SELECT nome FROM v_participacao", "SELECT uf_nascimento, COUNT(*) FROM v_participacao GROUP BY 1", "WITH x AS (SELECT 1) SELECT COUNT(*) FROM x", "SELECT COUNT(*) FROM pessoa"])
+    assert.equal(consultaDeDetalhe(sem), null, sem);
+});
+
+test("blocoContexto: pessoas com link, estado, obras e contagem por UF", async () => {
+  const { blocoContexto } = await import("../web/diadorim.js");
+  const c = { colunas: ["pessoa_id", "nome", "uf_nascimento", "ano", "categoria", "titulo", "colocacao"], truncado: false,
+    linhas: [["socorro-acioli", "Socorro Acioli", "CE", 2013, "Infantil", "Ela Tem Olhos de Céu", 1], ["ana", "Ana", "BA", 2012, "Poesia", "Livro", 2], ["ana", "Ana", "BA", 2015, "Contos", "Outro", 3]] };
+  const b = blocoContexto(c);
+  assert.match(b, /\*\*Quem são\*\* \(2 pessoas\)/);
+  assert.ok(b.includes("- [Socorro Acioli](#/pessoa/socorro-acioli) (CE): 2013 · Infantil · *Ela Tem Olhos de Céu*, 1º lugar"));
+  assert.ok(b.includes("- [Ana](#/pessoa/ana) (BA): 2012 · Poesia · *Livro*, 2º lugar; 2015 · Contos · *Outro*, 3º lugar"));
+  assert.ok(b.includes("**Por estado de nascimento:** BA 1 · CE 1."));
+  assert.equal(blocoContexto({ colunas: ["n"], linhas: [[5]] }), "");
+});
+
+test("laço: resposta só com o número → insiste uma vez → ainda seca → Literadados detalha a contagem", async () => {
+  globalThis.location = { origin: "http://localhost:8000" };
+  const pedidos = [];
+  globalThis.fetch = async (url, opt = {}) => {
+    const json = (corpo) => ({ ok: true, status: 200, json: async () => corpo });
+    if (url === "contexto.json") return json({ sistema: "x" });
+    const corpo = JSON.parse(opt.body);
+    pedidos.push(corpo.messages.at(-1));
+    return pedidos.length === 1
+      ? json({ choices: [{ message: { role: "assistant", tool_calls: [{ id: "t", type: "function", function: { name: "consultar_sql", arguments: JSON.stringify({ sql: "SELECT COUNT(DISTINCT pessoa_id) AS n FROM v_participacao WHERE premiada" }) } }] } }] })
+      : json({ choices: [{ message: { role: "assistant", content: "5" } }] });
+  };
+  const sqls = [];
+  const consultar = async (sql, consultas) => {
+    sqls.push(sql);
+    const r = /^SELECT pessoa_id/.test(sql)
+      ? { colunas: ["pessoa_id", "nome", "uf_nascimento", "ano", "categoria", "titulo", "colocacao"], linhas: [["socorro-acioli", "Socorro Acioli", "CE", 2013, "Infantil", "Ela Tem Olhos de Céu", 1]], truncado: false }
+      : { colunas: ["n"], linhas: [[5]], truncado: false };
+    consultas.push({ sql, ...r });
+    return r;
+  };
+  const passos = [];
+  const r = await responder("Quantas mulheres nascidas no Nordeste foram premiadas?", [], "k", { consultar, aoPasso: (p) => passos.push(p.texto) });
+  assert.equal(pedidos.length, 3); // pergunta, resultado da consulta, insistência
+  assert.equal(pedidos[2].role, "user");
+  assert.match(pedidos[2].content, /curta demais/);
+  assert.equal(r.texto, "5");
+  assert.equal(sqls[1], "SELECT pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao FROM v_participacao WHERE premiada ORDER BY nome, ano LIMIT 200");
+  assert.ok(r.contexto.includes("[Socorro Acioli](#/pessoa/socorro-acioli) (CE)"));
+  assert.equal(r.consultas.at(-1).auto, true);
+  assert.ok(passos.includes("Resposta seca demais: pedindo contexto ao modelo"));
 });

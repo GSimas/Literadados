@@ -10,7 +10,7 @@ from pathlib import Path
 import duckdb
 
 RAIZ = Path(__file__).parent
-TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -21,6 +21,11 @@ def _linhas(con, sql, params=None):
     cur = con.execute(sql, params or [])
     cols = [d[0] for d in cur.description]
     return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+
+def _sem_nulos(linhas):
+    """Tira chaves nulas (o navegador lê campo ausente como null): mantém o dados.json abaixo de 1 MB (RNF-06)."""
+    return [{k: v for k, v in l.items() if v is not None} for l in linhas]
 
 
 def carregar(con, dados: Path):
@@ -100,33 +105,65 @@ def fontes(con) -> list[dict]:
     return sorted(por.values(), key=lambda r: (-r["registros"], r["dominio"]))
 
 
+def _fontes_wd(pessoas):
+    """Fonte igual à página do Wikidata da própria pessoa vira "wd" (RNF-06); metricas.expandir remonta a URL."""
+    for p in pessoas:
+        url = f"https://www.wikidata.org/wiki/{p.get('wikidata')}"
+        for k in ("genero_fonte", "nascimento_fonte", "raca_fonte"):
+            if p.get("wikidata") and p.get(k) == url:
+                p[k] = "wd"
+    return pessoas
+
+
+def _capa_compacta(c: dict) -> dict:
+    """Capa no dados.json só com fonte e ids (RNF-06); o navegador remonta as URLs (pessoas.urlsCapa). Formato fora do padrão vai inteiro."""
+    import re
+    if c["fonte"] == "open_library":
+        m, p = re.search(r"/b/id/(\d+)-M\.jpg$", c["capa_url"]), re.search(r"/(books|works)/(OL\w+)$", c["pagina"] or "")
+        if m and p:
+            return {"obra_id": c["obra_id"], "f": "ol", "i": m.group(1), "p": p.group(2)}
+    if c["fonte"] == "google_books":
+        m = re.search(r"[?&]id=([\w-]+)", c["capa_url"])
+        if m:
+            return {"obra_id": c["obra_id"], "f": "gb", "i": m.group(1)}
+    return {"obra_id": c["obra_id"], "url": c["capa_url"], "fonte": c["fonte"], "pagina": c["pagina"]}
+
+
+def _tem_miniatura(pessoa_id: str) -> bool:
+    return all((RAIZ / "web" / "fotos" / f"{pessoa_id}-{w}.webp").exists() for w in (160, 480))
+
+
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "anos": [2010, 2025],
+        "anos": [min(anos_coletados), 2025],
+        "recorte": [2010, 2025],  # recorte comparável (listas públicas de ~10 por categoria): o painel abre nele (RF-25)
         "anos_coletados": anos_coletados,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
         "regimes": _linhas(con, "SELECT DISTINCT ano, regime FROM v_participacao ORDER BY ano"),
-        "participacao": _linhas(con, """SELECT ano, nome_original, obra_id, pessoa_id, papel, lista_curta, colocacao,
-                                               premiada, vencedora FROM v_participacao
-                                        ORDER BY ano, categoria, obra_id, papel, pessoa_id"""),
-        "obras": _linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
-                                 WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id"""),
-        "pessoas": _linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
+        "participacao": _sem_nulos(_linhas(con, """SELECT ano, nome_original, obra_id, pessoa_id, NULLIF(papel, 'autor') AS papel,
+                                               lista_curta, colocacao FROM v_participacao
+                                        ORDER BY ano, categoria, obra_id, v_participacao.papel, pessoa_id""")),
+        "obras": _sem_nulos(_linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
+                                 WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id""")),
+        "pessoas": _fontes_wd(_sem_nulos(_linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
-                                          nascimento_fonte FROM pessoa ORDER BY nome"""),
+                                          nascimento_fonte FROM pessoa ORDER BY nome"""))),
         "jurados": _linhas(con, """SELECT j.ano, c.categoria, j.pessoa_id FROM jurado j
                                    JOIN categoria_edicao c USING (ano, nome_original) ORDER BY ALL"""),
-        "categorias": _linhas(con, "SELECT * FROM categoria_edicao ORDER BY ano, categoria, nome_original"),
+        "categorias": _sem_nulos(_linhas(con, "SELECT * EXCLUDE (fonte) FROM categoria_edicao ORDER BY ano, categoria, nome_original")),
         "editoras": _linhas(con, "SELECT * FROM editora ORDER BY nome"),
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
         "cobertura": _linhas(con, "SELECT * FROM v_cobertura ORDER BY ano"),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
-        "midia": [{k: v for k, v in m.items() if v is not None} for m in _linhas(con, """
+        # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
+        "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
+                  for m in _linhas(con, """
                   SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
+        "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
     }
 
@@ -138,15 +175,21 @@ def prompt_sistema(con) -> str:
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
     return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
-Responda sempre em português do Brasil, de forma direta, começando pelo número pedido.
+Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
+Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
+comparar com o total do recorte (n e %) e fechar com uma frase de leitura. Para isso, além da contagem, consulte as linhas
+por trás do número (pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao).
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
 Regras de análise:
-- Recorte da base: Prêmio Jabuti 2010–2025, categorias {", ".join(c[0] for c in cats)}.
+- Recorte da base: Prêmio Jabuti 1959–2025 (série histórica), categorias {", ".join(c[0] for c in cats)}.
 - Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
 - "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
-- Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: 1º a 3º até 2017, só 1º depois), vencedora (vencedora = true).
+- Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
+- Série histórica: antes de 2010, em geral não houve lista pública de indicados; nessas edições (categoria_edicao.vagas_lista vazio) a "lista" é só a das premiadas.
+  Por isso, comparações de composição da lista usam 2010–2025, salvo se a pergunta pedir a história toda ("desde 1959", décadas, "sempre"):
+  aí use os premiados (premiada = true) e diga que antes de 2010 só eles são conhecidos. Rankings e trajetórias de pessoas usam a série toda.
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
   Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
   Perguntas sobre "pretos" devem mostrar também o agrupamento negros, porque muitos autores dizem só "negro".

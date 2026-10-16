@@ -1,7 +1,9 @@
 CREATE VIEW v_participacao AS
 SELECT
   i.ano,
-  CASE WHEN i.ano <= 2017 THEN '2010–2017 pódio'
+  CASE WHEN i.ano <= 1992 THEN '1959–1992 vencedor por categoria'
+       WHEN i.ano <= 2009 THEN '1993–2009 pódio'
+       WHEN i.ano <= 2017 THEN '2010–2017 pódio'
        WHEN i.ano = 2018  THEN '2018 transição'
        ELSE '2019–2025 vencedor único' END              AS regime,
   c.categoria, c.nome_original,

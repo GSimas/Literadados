@@ -38,6 +38,8 @@ const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 // Remonta as linhas de v_participacao a partir do dados.json compacto (design D13).
 // Só junções: as regras (regime, negra, premiada, vencedora) já vêm do SQL. A ordem das chaves é a da view.
 export function expandir(D) {
+  // Fonte "wd" no dados.json = página do Wikidata da própria pessoa (build._fontes_wd, RNF-06).
+  for (const p of D.pessoas) for (const k of ["genero_fonte", "nascimento_fonte", "raca_fonte"]) if (p[k] === "wd") p[k] = `https://www.wikidata.org/wiki/${p.wikidata}`;
   const por = (arr, chave) => new Map(arr.map((x) => [chave(x), x]));
   const regime = por(D.regimes, (r) => r.ano);
   const categoria = por(D.categorias, (c) => `${c.ano}|${c.nome_original}`);
@@ -56,25 +58,25 @@ export function expandir(D) {
       nome_original: l.nome_original,
       obra_id: l.obra_id,
       titulo: o.titulo,
-      ano_publicacao: o.ano_publicacao,
+      ano_publicacao: o.ano_publicacao ?? null,
       editora: e?.nome ?? null,
       grupo_editorial: e?.grupo ?? null,
       uf_editora: e?.uf_sede ?? null,
       pessoa_id: l.pessoa_id,
       nome: p.nome,
-      papel: l.papel,
+      papel: l.papel ?? "autor", // JSON omite "autor" e deriva premiada/vencedora da colocação (RNF-06)
       genero: p.genero,
       genero_atribuido: p.genero_evidencia === "atribuicao",
       raca: p.raca,
-      raca_busca: p.raca_busca,
+      raca_busca: p.raca_busca ?? null,
       negra: p.negra,
-      uf_nascimento: p.uf_nascimento,
+      uf_nascimento: p.uf_nascimento ?? null,
       regiao_nascimento: uf.get(p.uf_nascimento)?.regiao ?? null,
       idade_no_premio: p.ano_nascimento == null ? null : l.ano - p.ano_nascimento,
-      lista_curta: l.lista_curta,
-      colocacao: l.colocacao,
-      premiada: l.premiada,
-      vencedora: l.vencedora,
+      lista_curta: l.lista_curta ?? null,
+      colocacao: l.colocacao ?? null,
+      premiada: l.colocacao != null,
+      vencedora: l.colocacao === 1,
     };
   });
 }
@@ -290,6 +292,19 @@ export function resumoPessoas(linhas, pessoas) {
   });
 }
 
+// Ranking de pessoas (RF-23): por prêmios (pódio), 1º lugares ou indicações. Empate na medida desempata pelas outras e pelo
+// nome; a posição é de competição (1, 2, 2, 4) e só olha a medida escolhida.
+export const MEDIDAS_RANKING = { premios: ["premios", "vitorias", "participacoes"], vitorias: ["vitorias", "premios", "participacoes"],
+  participacoes: ["participacoes", "premios", "vitorias"] };
+export function ranking(linhas, pessoas, medida = "premios", n = 20) {
+  const ordem = MEDIDAS_RANKING[medida];
+  const lista = resumoPessoas(linhas, pessoas).filter((p) => p[medida] > 0)
+    .sort((a, b) => ordem.reduce((r, k) => r || b[k] - a[k], 0) || a.nome.localeCompare(b.nome, "pt-BR"));
+  let pos = 0;
+  return lista.map(({ linhas: _, ...p }, i) => ({ ...p, posicao: i && lista[i - 1][medida] === p[medida] ? pos : (pos = i + 1) }))
+    .filter((p) => p.posicao <= n);
+}
+
 function groupBy(arr, chave) {
   const m = new Map();
   for (const x of arr) { const k = chave(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); }
@@ -420,23 +435,32 @@ export function anel(n, largura) {
     }
     return { d, miolo, raio: (n ? r - passo : miolo) + d / 2, pos };
   };
-  for (let d = Math.min(68, W / 8); d > 18; d -= 1) {
+  for (let d = Math.min(68, W / 5); d > 18; d -= 1) { // poucos retratos numa tela estreita: até W/5 (alvo de toque, CA-11.7)
     const a = montar(d);
     if (a.raio * 2 <= W) return a;
   }
   return montar(18);
 }
 
+// Quantas pessoas cabem no anel com retratos de pelo menos dMin px (alvo de toque, CA-11.7). anel(n).d só cai quando n cresce.
+export function capacidadeAnel(largura, dMin = 44, max = 100) {
+  let lo = 1, hi = max;
+  while (lo < hi) { const m = Math.ceil((lo + hi) / 2); if (anel(m, largura).d >= dMin) lo = m; else hi = m - 1; }
+  return lo;
+}
+
 // Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
 // Texto vazio = padrão; valores fora do recorte voltam ao padrão.
-export function filtroDeTexto(texto, [a0, a1], cats) {
+// [a0, a1]: anos válidos (a série toda); [p0, p1]: anos do padrão da parte (RF-25: 2010–2025, ou a série no ranking).
+export function filtroDeTexto(texto, [a0, a1], cats, [p0, p1] = [a0, a1]) {
   const [anos = "", ...resto] = String(texto ?? "").split("~");
   const [i, f] = anos.split("-").map(Number);
-  const anoIni = i >= a0 && i <= a1 ? i : a0;
-  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : a1);
+  const anoIni = i >= a0 && i <= a1 ? i : p0;
+  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : p1);
   const lista = resto.find((r) => r && r !== "todos")?.split(",").filter((c) => cats.includes(c));
   return { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
 }
+// [a0, a1]: anos do padrão da parte (o que não muda o padrão não vai para a URL).
 export function filtroParaTexto(f, [a0, a1], cats) {
   const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
   if (padraoAnos && todasCats && f.papel !== "todos") return "";
@@ -479,7 +503,7 @@ export function indiceBusca(D) {
     if (!ol) continue;
     const autores = [...new Set(ol.filter((l) => l.papel === "autor").map((l) => l.nome))];
     const edicoes = [...new Set(ol.map((l) => `${l.categoria} ${l.ano}`))];
-    add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/pessoa/${(ol.find((l) => l.papel === "autor") ?? ol[0]).pessoa_id}`, autores.join(" "));
+    add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/obra/${o.id}`, autores.join(" "));
   }
   const ufs = D.ufs.filter((u) => u.uf !== "EX");
   for (const u of ufs) add("Estado", u.nome, `${u.uf} · ${u.regiao}`, `#/uf/${u.uf}`, u.uf);
@@ -490,7 +514,7 @@ export function indiceBusca(D) {
     if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
   }
   for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
-  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
+  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 1992 ? "um vencedor por categoria" : a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   return e;
 }

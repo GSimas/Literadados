@@ -1,6 +1,6 @@
 // Explorador: panorama e análises (RF-03 a RF-10). Cada função recebe as linhas filtradas e o contexto do painel.
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, astGenero, botaoExportarGrafico } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, astGenero, botaoExportarGrafico, BOTAO_TABELA } from "./ui.js";
 
 export function renderPanorama(L) {
   const k = M.kpis(L);
@@ -220,4 +220,35 @@ export function renderJuri(L, { D, estado }) {
   }));
   tabela($("#t-juri"), j, [{ rot: "Edição", k: "ano" }, { rot: "Grupo", k: "quem" }, { rot: "Indicador", k: "indicador" },
     { rot: "n", k: "n", num: true }, { rot: "Total", k: "total", num: true }, { rot: "%", f: (d) => fmtPct(d.pct) + nPequeno(d.total), num: true }]);
+}
+
+// Ranking de pessoas (RF-23): mais premiadas, mais 1º lugares ou mais indicadas, no recorte do filtro da janela.
+const ROT_MEDIDA = { premios: "Prêmios (pódio)", vitorias: "1º lugares", participacoes: "Indicações" };
+export function renderRanking(L, { D, abrirPerfil }) {
+  const el = $("#g-ranking"), medida = $("#rank-medida [aria-checked=true]")?.dataset.v ?? "premios";
+  const r = M.ranking(L, D.pessoas, medida, 20);
+  if (!r.length) return vazio(el), tabela($("#t-ranking"), [], []);
+  const nomeRot = (d) => `${d.posicao}º ${d.nome}`;
+  const c = cores("genero");
+  desenhar(el, Plot.plot({
+    width: largura(el), height: 50 + r.length * 30, marginLeft: Math.min(230, 16 + d3.max(r, (d) => nomeRot(d).length) * 6.6), marginRight: 34, style: estilo(),
+    ariaLabel: `Ranking de pessoas por ${ROT_MEDIDA[medida].toLowerCase()}`,
+    x: { label: ROT_MEDIDA[medida], grid: true, tickFormat: "d" }, y: { domain: r.map(nomeRot), label: null },
+    color: { ...c, legend: true, tickFormat: rotulo },
+    marks: [
+      Plot.barX(r, { x: medida, y: nomeRot, fill: "genero", insetTop: 4, insetBottom: 4, rx: 3,
+        channels: { UF: (d) => d.uf_nascimento ?? "sem dado", Prêmios: "premios", "1º lugares": "vitorias", Indicações: "participacoes" },
+        tip: { format: { y: false, fill: (g) => rotulo(g), x: false } } }),
+      Plot.text(r, { x: medida, y: nomeRot, text: (d) => String(d[medida]), dx: 6, textAnchor: "start", fill: css("--tinta-2"), fontSize: 11 }),
+      Plot.ruleX([0], { stroke: css("--eixo") }),
+    ],
+  }));
+  // Clique numa barra abre o perfil (o Plot liga cada barra ao índice do dado).
+  const svg = el.querySelector("svg[aria-label^='Ranking']") ?? el.querySelector("svg:last-of-type");
+  svg?.querySelectorAll("g[aria-label='bar'] > *").forEach((b) => { b.style.cursor = "pointer"; });
+  svg?.addEventListener("click", (e) => { const i = e.target.closest("g[aria-label='bar'] > *")?.__data__; if (Number.isInteger(i)) abrirPerfil(r[i].id); });
+  $("#t-ranking").innerHTML = `<div class="tabela-exportavel">${BOTAO_TABELA}<div class="rolagem"><table class="tabela"><thead><tr>
+    <th class="num" scope="col">Posição</th><th scope="col">Pessoa</th><th scope="col">UF nasc.</th><th class="num" scope="col">Prêmios</th><th class="num" scope="col">1º lugares</th><th class="num" scope="col">Indicações</th></tr></thead>
+    <tbody>${r.map((p) => `<tr><td class="num">${p.posicao}º</td><td><button type="button" class="link-pessoa" data-pessoa="${esc(p.id)}">${esc(p.nome)}</button></td>
+      <td>${esc(p.uf_nascimento ?? "–")}</td><td class="num">${p.premios}</td><td class="num">${p.vitorias}</td><td class="num">${p.participacoes}</td></tr>`).join("")}</tbody></table></div></div>`;
 }

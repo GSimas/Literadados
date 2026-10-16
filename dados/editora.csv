@@ -2,6 +2,7 @@ id,nome,grupo,municipio_sede,uf_sede
 11-editora,11 Editora,,Jaú,SP
 7letras,7Letras,,Rio de Janeiro,RJ
 8inverso,8Inverso,,,
+a-girafa,A Girafa,,São Paulo,SP
 abacatte-editorial,Abacatte Editorial,,Belo Horizonte,MG
 aboio,Aboio,,Cotia,SP
 age-editora,Editora AGE,,Porto Alegre,RS
@@ -13,15 +14,20 @@ alfaguara,Alfaguara,Penguin Random House,Rio de Janeiro,RJ
 alua,Aluá Editora,,Quixadá,CE
 ama-livros,AMA Livros,,Porto Alegre,RS
 amarcord,Amarcord,Grupo Editorial Record,Rio de Janeiro,RJ
+ampub-comercial-ltda,Ampub Comercial Ltda.,,,
 andrea-jakobsson-estudio,Andrea Jakobsson Estúdio,,Rio de Janeiro,RJ
+annablume-editora,Annablume Editora,,São Paulo,SP
+anome-livros,Anome Livros,,Belo Horizonte,MG
 ararinha-editorial,Ararinha Editorial,,Santo André,SP
 ardotempo,Ardotempo,,,
+armazem-de-ideias,Armazém de Idéias,,Belo Horizonte,MG
 arquipelago-editorial,Arquipélago Editorial,,Porto Alegre,RS
 arte-editora,Arte Editora,,,
 artes-e-oficios,Artes e Ofícios,,Porto Alegre,RS
 atelie-editorial,Ateliê Editorial,,Cotia,SP
 atica,Editora Ática,Somos Educação,São Paulo,SP
 atual-editora,Atual Editora,Somos Educação,São Paulo,SP
+auana-editora,Auana Editora,,São Paulo,SP
 autentica,Autêntica,Grupo Autêntica,Belo Horizonte,MG
 autentica-contemporanea,Autêntica Contemporânea,Grupo Autêntica,Belo Horizonte,MG
 bem-te-vi,Editora Bem-Te-Vi,,,
@@ -31,6 +37,7 @@ bertrand-brasil,Bertrand Brasil,Grupo Editorial Record,Rio de Janeiro,RJ
 biruta,Editora Biruta,,São Paulo,SP
 blucher,Blucher,,São Paulo,SP
 boitempo,Boitempo,,São Paulo,SP
+bom-texto-editora-e-produtora-de-arte-ltda,Bom Texto Editora e Produtora de Arte Ltda.,,Rio de Janeiro,RJ
 brinque-book,Brinque-Book,,São Paulo,SP
 cachalote,Cachalote,,Cotia,SP
 caixote,Caixote,,São Paulo,SP
@@ -40,28 +47,33 @@ casa-29,Editora Casa 29,,,
 casa-dos-mundos,Casa dos Mundos,,São Paulo,SP
 cepe,Cepe,,Recife,PE
 ciclo-continuo-editorial,Ciclo Contínuo Editorial,,São Paulo,SP
+ciencia-do-acidente,Ciência do Acidente,,São Paulo,SP
 ciranda-na-escola,Ciranda na Escola,,Jandira,SP
 circulo-de-poemas,Círculo de Poemas,,São Paulo,SP
 civilizacao-brasileira,Civilização Brasileira,Grupo Editorial Record,Rio de Janeiro,RJ
 clb-producoes,CLB Produções,,,
 cobogo,Cobogó,,Rio de Janeiro,RJ
+codex,Códex,,São Paulo,SP
 com-arte,Com-Arte,,,
 comboio-de-corda,Comboio de Corda,,São Paulo,SP
 companhia-das-letras,Companhia das Letras,Penguin Random House,São Paulo,SP
 companhia-das-letrinhas,Companhia das Letrinhas,Penguin Random House,São Paulo,SP
 conexoes-criativas,Conexões Criativas,,Salvador,BA
 confraria-do-vento,Confraria do Vento,,Rio de Janeiro,RJ
+contra-capa,Contra Capa,,Rio de Janeiro,RJ
 contracorrente,Editora Contracorrente,,Avaré,SP
 cora-editora,Cora Editora,,Belo Horizonte,MG
 coragem,Coragem,,Porto Alegre,RS
 coralina,Editora Coralina,,Porto Alegre,RS
 corsario-sata,Corsário-Satã,,São Paulo,SP
+cortez-editora-e-livraria,Cortez Editora e Livraria,,São Paulo,SP
 cosac-naify,Cosac Naify,,São Paulo,SP
 cousa,Editora Cousa,,Piúma,ES
 criadeira-livros,Criadeira Livros,,Cotia,SP
 crisalida,Crisálida,,Belo Horizonte,MG
 cruz-e-sousa,Editora Cruz e Sousa,,Florianópolis,SC
 cultura-e-barbarie,Cultura e Barbárie,,Florianópolis,SC
+dantes,Dantes,,Rio de Janeiro,RJ
 dba,DBA Editora,,São Paulo,SP
 dcl,Editora DCL,,São Paulo,SP
 demonio-negro,Demônio Negro,,São Paulo,SP
@@ -76,17 +88,24 @@ edicoes-besourobox,Edições BesouroBox,,Porto Alegre,RS
 edicoes-de-janeiro,Edições de Janeiro,,Rio de Janeiro,RJ
 edicoes-democrito-rocha,Edições Demócrito Rocha,,Fortaleza,CE
 edicoes-garupa,Edições Garupa,,Rio de Janeiro,RJ
+edicoes-inteligentes,Edições Inteligentes,,São Paulo,SP
 edicoes-jabuticaba,Edições Jabuticaba,,São Paulo,SP
 edicoes-sm,Edições SM,Grupo SM,São Paulo,SP
+ediouro,Ediouro,Grupo Ediouro,Rio de Janeiro,RJ
 edith,Edith,,,
 editora-34,Editora 34,,São Paulo,SP
+editora-arx,Editora Arx,,São Paulo,SP
+editora-brasiliense,Editora Brasiliense,,São Paulo,SP
+editora-casa-lygia-bojunga-ltda,Editora Casa Lygia Bojunga Ltda.,,Rio de Janeiro,RJ
 editora-cidade-nova,Editora Cidade Nova,,Vargem Grande Paulista,SP
 editora-contexto,Editora Contexto,,São Paulo,SP
 editora-da-cidade,Editora da Cidade,,São Paulo,SP
 editora-da-ucg,Editora da UCG,,Goiânia,GO
 editora-da-universidade-federal-do-para,Editora da UFPA,,Belém,PA
+editora-de-cultura,Editora de Cultura,,São Paulo,SP
 editora-do-brasil,Editora do Brasil,,São Paulo,SP
 editora-dsop,Editora DSOP,,São Paulo,SP
+editora-fundamento-educacional,Editora Fundamento Educacional,,Curitiba,PR
 editora-jaguatirica,Editora Jaguatirica,,Rio de Janeiro,RJ
 editora-kelps,Editora Kelps,,Goiânia,GO
 editora-le,Editora Lê,,Belo Horizonte,MG
@@ -98,7 +117,10 @@ editora-positivo,Editora Positivo,,Curitiba,PR
 editora-pulo-do-gato,Editora Pulo do Gato,,São Paulo,SP
 editora-record,Editora Record,Grupo Editorial Record,Rio de Janeiro,RJ
 editora-rovelle,Editora Rovelle,,Rio de Janeiro,RJ
+editora-terceiro-nome-ltda,Editora Terceiro Nome Ltda.,,São Paulo,SP
+editora-ufmg,Editora UFMG,,Belo Horizonte,MG
 editora-unesp,Editora Unesp,,São Paulo,SP
+editora-unicamp,Editora Unicamp,,Campinas,SP
 editora-zahar,Editora Zahar,,Rio de Janeiro,RJ
 edufba,Edufba,,Salvador,BA
 elefante,Editora Elefante,,São Paulo,SP
@@ -115,17 +137,22 @@ fina,FiNA,,Vitória,ES
 florear-livros,Florear Livros,,Londrina,PR
 flyve,Flyve,,Campinas,SP
 folhas-de-relva-edicoes,Folhas de Relva Edições,,,
+formato,Formato,,Belo Horizonte,MG
 fosforo,Fósforo,,São Paulo,SP
+francis,Francis,,São Paulo,SP
 ftd,FTD Educação,,São Paulo,SP
 fundacao-waldemar-alcantara,Fundação Waldemar Alcântara,,Fortaleza,CE
 funpec-editora,Funpec Editora,,Ribeirão Preto,SP
 gaivota,Gaivota,,São Paulo,SP
 galera-record,Galera Record,Grupo Editorial Record,Rio de Janeiro,RJ
+galo-branco,Galo Branco,,Rio de Janeiro,RJ
 geracao,Geração,,São Paulo,SP
 giostri-editora,Giostri Editora,,Ubatuba,SP
 global,Global,,São Paulo,SP
 globinho,Globinho,Grupo Globo,São Paulo,SP
 globo-livros,Globo Livros,Grupo Globo,São Paulo,SP
+gm-minister,Gm Minister,,,
+green-forest-do-brasil,Green Forest do Brasil,,São Paulo,SP
 grua-livros,Grua Livros,,São Paulo,SP
 gutenberg,Gutenberg,Grupo Autêntica,Belo Horizonte,MG
 harpercollins-brasil,HarperCollins Brasil,HarperCollins,Rio de Janeiro,RJ
@@ -138,9 +165,12 @@ ima-editorial,Imã Editorial,,Rio de Janeiro,RJ
 imago,Imago Editora,,Rio de Janeiro,RJ
 imeph,Editora Imeph,,Fortaleza,CE
 imperial-novo-milenio,Imperial Novo Milênio,,Rio de Janeiro,RJ
+imprensa-oficial-do-estado,Imprensa Oficial do Estado,,São Paulo,SP
+imprensa-universitaria,Imprensa Universitária,,Fortaleza,CE
 impressoes-de-minas,Impressões de Minas,,Belo Horizonte,MG
 independente,Independente,,,
 instante,Editora Instante,,São Paulo,SP
+instituto-moreira-salles,Instituto Moreira Salles,,Rio de Janeiro,RJ
 intrinseca,Intrínseca,,Rio de Janeiro,RJ
 inverso,Editora InVerso,,Curitiba,PR
 jandaira,Editora Jandaíra,,São Paulo,SP
@@ -151,7 +181,10 @@ kapulana,Editora Kapulana,,São Paulo,SP
 kotter-editorial,Kotter Editorial,,Curitiba,PR
 l-pm-editores,L&PM Editores,,Porto Alegre,RS
 labrador,Labrador,,São Paulo,SP
+lacerda-editores,Lacerda Editores,,Rio de Janeiro,RJ
 lacre,Lacre,,Rio de Janeiro,RJ
+lamparina,Lamparina,,Rio de Janeiro,RJ
+landy,Landy,,São Paulo,SP
 laranja-original,Laranja Original,,São Paulo,SP
 le-chien,Le Chien,,,
 leitura-fina,Leitura Fina,,Vitória,ES
@@ -162,34 +195,47 @@ link-editora,Link Editora,,,
 livre,Livre,,,
 lumme-editor,Lumme Editor,,São Paulo,SP
 luna-parque,Luna Parque Edições,,São Paulo,SP
+m-h-bastos-aguiar-memorial-editora-e-livraria,M H Bastos Aguiar - Memorial Editora e Livraria,,São Mateus,ES
 male,Malê Editora,,Rio de Janeiro,RJ
 manati,Manati Produções Editoriais,,Rio de Janeiro,RJ
+manuela-editorial-ltda-editora-arte-paubrasil,Manuela Editorial Ltda. (Editora Arte Paubrasil),,São Paulo,SP
 maralto,Maralto Edições,,Curitiba,PR
 marte-cultura-e-educacao,Editora Marte,,,
 martelo,Martelo Casa Editorial,,Goiânia,GO
+martins-fontes,Martins Fontes,,São Paulo,SP
+massao-ohno,Massao Ohno,,São Paulo,SP
 melhoramentos,Editora Melhoramentos,,São Paulo,SP
+mercado-aberto,Mercado Aberto,,Porto Alegre,RS
+mercuryo-jovem,Mercuryo Jovem,,São Paulo,SP
 metamorfose,Editora Metamorfose,,Porto Alegre,RS
 miguilim,Editora Miguilim,,Belo Horizonte,MG
 moinhos,Moinhos,,Belo Horizonte,MG
 mondrongo,Mondrongo,,Itabuna,BA
 morula-editorial,Mórula Editorial,,Rio de Janeiro,RJ
+movimento,Movimento,,Porto Alegre,RS
 multifoco,Editora Multifoco,,Rio de Janeiro,RJ
+myrrha,Myrrha,,Rio de Janeiro,RJ
 nao-editora,Não Editora,,Porto Alegre,RS
 nave-editora,Editora Nave,,Florianópolis,SC
 nemo,Nemo,Grupo Autêntica,Belo Horizonte,MG
 nexo-design-e-editora-insight,Nexo Design e Editora Insight,,Curitiba,PR
 nosotros-editorial,"nosotros, editorial",,,
 nova-alexandria,Editora Nova Alexandria,,São Paulo,SP
+nova-didatica,Nova Didática,,,
 nova-fronteira,Nova Fronteira,Grupo Ediouro,Rio de Janeiro,RJ
 novo-seculo,Novo Século Editora,,,SP
 nversos,Nversos Editora,,São Paulo,SP
 objetiva,Objetiva,Penguin Random House,Rio de Janeiro,RJ
+odysseus,Odysseus,,São Paulo,SP
 oficios-terrestres-edicoes,Ofícios Terrestres Edições,,Campinas,SP
 olhares,Editora Olhares,,São Paulo,SP
+olho-d-agua,Olho D'agua,,São Paulo,SP
 organismo,Organismo Editora,,Salvador,BA
+orobo-edicoes,Orobó Edições,,,MG
 oze-editora,ÔZé Editora,,São Paulo,SP
 padaria-de-livros,Padaria de Livros,,São Paulo,SP
 paes,Paés,,Recife,PE
+palavra-e-imagem,Palavra e Imagem,,Rio de Janeiro,RJ
 palavras-projetos-editoriais,Palavras Projetos Editoriais,,,
 pallas,Pallas Editora,,Rio de Janeiro,RJ
 panda-books,Panda Books,,São Paulo,SP
@@ -206,6 +252,7 @@ premius-editora,Premius Editora,,Fortaleza,CE
 projeto,Editora Projeto,,Porto Alegre,RS
 prosa-nova,Prosa Nova Editora,,Curitiba,PR
 publifolha,Publifolha,Grupo Folha,São Paulo,SP
+pulsar,Pulsar,,Belo Horizonte,MG
 quatro-cantos,Quatro Cantos,,São Paulo,SP
 quelonio,Editora Quelônio,,São Paulo,SP
 quilombhoje,Quilombhoje,,São Paulo,SP
@@ -213,6 +260,7 @@ quintal-edicoes,Quintal Edições,,,
 quixote-do-editoras-associadas,Quixote+Do Editoras Associadas,,Belo Horizonte,MG
 reformatorio,Reformatório,,São Paulo,SP
 relicario,Relicário Edições,,Belo Horizonte,MG
+relume-dumara,Relume Dumará,,Rio de Janeiro,RJ
 rhj,RHJ Livros,,Belo Horizonte,MG
 rocco,Rocco,,Rio de Janeiro,RJ
 rocquinho,Rocquinho,,Rio de Janeiro,RJ
@@ -222,11 +270,14 @@ saraiva,Editora Saraiva,,São Paulo,SP
 scipione,Scipione,Somos Educação,São Paulo,SP
 scortecci,Scortecci,,São Paulo,SP
 seguinte,Seguinte,Penguin Random House,São Paulo,SP
+senac,Senac,,São Paulo,SP
 sesi-sp-editora,Sesi-SP Editora,,São Paulo,SP
 sete,Sete,,,
 sisko,Sisko Editora,,São Paulo,SP
 solisluna,Solisluna Editora,,Lauro de Freitas,BA
 star-print,Star Print,,,
+studio-nobel,Studio Nobel,,São Paulo,SP
+sulina,Sulina,,Porto Alegre,RS
 taverna,Editora Taverna,,Porto Alegre,RS
 telucazu-edicoes,Telucazu Edições,,,
 terceiro-selo,Terceiro Selo,,Porto Alegre,RS
@@ -236,6 +287,7 @@ tibi-livros,Tibi Livros,,,
 tinta-da-china-brasil,Tinta-da-china Brasil,,Rio de Janeiro,RJ
 todavia,Todavia,,São Paulo,SP
 toma-ai-um-poema,Toma Aí Um Poema,,,
+topbooks,TopBooks,,Rio de Janeiro,RJ
 tordesilhas,Tordesilhas,,São Paulo,SP
 trioleca-casa-editorial,Trioleca Casa Editorial,,São Paulo,SP
 tusquets,Tusquets Editores,Grupo Planeta,São Paulo,SP
@@ -245,8 +297,11 @@ v-de-moura-mendonca-livros,V. de Moura Mendonça Livros,,São Paulo,SP
 vasta,Vasta,,Rio de Janeiro,RJ
 verus,Verus Editora,Grupo Editorial Record,Campinas,SP
 viseu,Editora Viseu,,Maringá,PR
+vozes,Vozes,,Petrópolis,RJ
+w11,W11,,São Paulo,SP
 wei-editora,Wei Editora,,Boa Vista,RR
 wmf-martins-fontes,WMF Martins Fontes,,São Paulo,SP
+ws-editor,WS Editor,,Porto Alegre,RS
 yellowfante,Yellowfante,,Belo Horizonte,MG
 zarte,Editora Zarte,,Feira de Santana,BA
 zit-editora,Zit Editora,,Rio de Janeiro,RJ

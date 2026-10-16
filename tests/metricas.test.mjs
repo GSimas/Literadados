@@ -263,7 +263,7 @@ test("buscar: determinística, sem acento, nome exato antes de trecho (CA-21.1)"
   // exato (livro) → começo do nome (pessoa) → só pelo autor (livro dela); "Conceito" não contém "conceicao"
   assert.deepEqual(r.map((e) => `${e.tipo}:${e.rotulo}`), ["Livro:Conceição", "Pessoa:Conceição Evaristo", "Livro:Ponciá Vicêncio"]);
   assert.deepEqual(M.buscar(ix, "concei"), M.buscar(ix, "concei")); // mesma entrada, mesma saída
-  assert.equal(M.buscar(ix, "ponciá vic")[0].href, "#/pessoa/ce"); // livro leva a quem escreveu
+  assert.equal(M.buscar(ix, "ponciá vic")[0].href, "#/obra/o1"); // livro abre o perfil do livro (RF-24)
   assert.equal(M.buscar(ix, "minas")[0].href, "#/uf/MG");
   assert.equal(M.buscar(ix, "sudeste")[0].href, "#/regiao/Sudeste");
   assert.equal(M.buscar(ix, "2019")[0].tipo, "Edição");
@@ -286,4 +286,59 @@ test("perfilLugar: parcela, premiadas e fatias por edição e categoria (CA-22.2
   assert.equal(p.vencedoras, 1);
   assert.deepEqual(p.porAno, [{ ano: 2016, n: 1, total: 2, pct: 50 }, { ano: 2019, n: 1, total: 1, pct: 100 }]);
   assert.deepEqual(p.porCategoria.map((c) => c.categoria), ["Poesia", "Romance"]);
+});
+
+test("capacidadeAnel: maior página com retratos de pelo menos 44 px (CA-11.7)", () => {
+  for (const w of [320, 360, 414, 700]) {
+    const n = M.capacidadeAnel(w, 44, 100);
+    assert.ok(M.anel(n, w).d >= 44, `w=${w}`);
+    if (n < 100) assert.ok(M.anel(n + 1, w).d < 44, `w=${w} não é o máximo`);
+  }
+  assert.ok(M.capacidadeAnel(320) < M.capacidadeAnel(700));
+});
+
+test("ranking: medida, desempate e posição de competição (RF-23)", () => {
+  const pessoas = [{ id: "a", nome: "Ana" }, { id: "b", nome: "Bia" }, { id: "c", nome: "Caio" }, { id: "d", nome: "Davi" }];
+  const L = [
+    { pessoa_id: "a", premiada: true, vencedora: true }, { pessoa_id: "a", premiada: false, vencedora: false },
+    { pessoa_id: "b", premiada: true, vencedora: false }, { pessoa_id: "b", premiada: true, vencedora: false }, { pessoa_id: "b", premiada: false, vencedora: false },
+    { pessoa_id: "c", premiada: true, vencedora: true },
+    { pessoa_id: "d", premiada: false, vencedora: false },
+  ];
+  const r = M.ranking(L, pessoas, "premios");
+  assert.deepEqual(r.map((p) => [p.id, p.posicao, p.premios]), [["b", 1, 2], ["a", 2, 1], ["c", 2, 1]]); // a e c empatam; a tem mais indicações
+  assert.deepEqual(M.ranking(L, pessoas, "vitorias").map((p) => [p.id, p.posicao]), [["a", 1], ["c", 1]]);
+  assert.deepEqual(M.ranking(L, pessoas, "participacoes", 1).map((p) => p.id), ["b"]);
+  assert.ok(!("linhas" in r[0]));
+});
+
+test("filtro com série histórica: anos válidos 1959–2025, padrão 2010–2025 (RF-25)", () => {
+  const SERIE = [1959, 2025], RECORTE = [2010, 2025], CATS = ["Romance", "Poesia"];
+  const p = M.filtroDeTexto(null, SERIE, CATS, RECORTE);
+  assert.deepEqual([p.anoIni, p.anoFim], [2010, 2025]);
+  assert.equal(M.filtroParaTexto(p, RECORTE, CATS), ""); // padrão não vai para a URL
+  const h = M.filtroDeTexto("1959-1990", SERIE, CATS, RECORTE);
+  assert.deepEqual([h.anoIni, h.anoFim], [1959, 1990]); // anos antigos valem na URL
+  assert.equal(M.filtroParaTexto(h, RECORTE, CATS), "1959-1990");
+  assert.deepEqual([M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoIni, M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoFim], [2010, 2025]);
+  assert.deepEqual([M.filtroDeTexto(null, SERIE, CATS).anoIni], [1959]); // sem padrão próprio, a série toda (ranking)
+});
+
+test("urlsCapa remonta as URLs da capa compacta (RF-24, RNF-06)", async () => {
+  const { urlsCapa } = await import("../web/pessoas.js");
+  assert.deepEqual(urlsCapa({ obra_id: "x", f: "ol", i: "12369845", p: "OL35664121M" }),
+    { url: "https://covers.openlibrary.org/b/id/12369845-M.jpg", pagina: "https://openlibrary.org/books/OL35664121M", fonte: "open_library" });
+  assert.equal(urlsCapa({ obra_id: "x", f: "gb", i: "abc-D_1" }).pagina, "https://books.google.com/books?id=abc-D_1");
+  assert.equal(urlsCapa(undefined), null);
+  assert.equal(urlsCapa({ obra_id: "x", url: "https://a/b.jpg", fonte: "open_library", pagina: null }).url, "https://a/b.jpg");
+});
+
+test("expandir remonta fonte 'wd' como a página do Wikidata da pessoa (RNF-06)", () => {
+  const D = { regimes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
+    editoras: [], ufs: [], pessoas: [{ id: "a", nome: "A", wikidata: "Q1", genero: "mulher", genero_fonte: "wd", nascimento_fonte: "https://x", raca: "sem_declaracao" }],
+    participacao: [{ ano: 2020, nome_original: "Poesia", obra_id: "o", pessoa_id: "a", colocacao: 1 }] };
+  const [l] = M.expandir(D);
+  assert.equal(D.pessoas[0].genero_fonte, "https://www.wikidata.org/wiki/Q1");
+  assert.equal(D.pessoas[0].nascimento_fonte, "https://x");
+  assert.deepEqual([l.papel, l.premiada, l.vencedora, l.lista_curta], ["autor", true, true, null]);
 });
