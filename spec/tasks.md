@@ -187,3 +187,17 @@
 - [x] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁
 - [x] T23.9 Gauntlet 1 (revisão adversarial + auditoria do RF-26): obra só casa pela mesma pessoa, editora sem herança, ordem explícita do prêmio, `dados.json` dividido, avisos/facetas em todos os gráficos, país via Wikidata, busca e textos 🧪👁
 - [x] T23.10 Plataforma de prêmios (DA-4/DA-5 revistas, CA-26.15): padrão = todos os prêmios, história com seletor, textos e logotipo sem prêmio fixo, teste de varredura 🧪👁
+
+## T24 Encontrável por buscadores e IAs e perfil de edição (out/2026, RF-27, RF-28, D32)
+- [x] T24.1 Textos de contexto das 90 edições pelo protocolo (`dados/coleta/contexto/lote_*.csv` → `dados/edicao_contexto.csv`); tabela `edicao_contexto` e checagens no build 🧪
+- [x] T24.2 `metricas.perfilEdicao` e perfil `#/edicao/<prêmio>/<ano>` com gráficos; anos da faixa de cobertura, busca e linha do tempo levam a ele 🧪👁
+- [x] T24.3 `seo.py`: páginas de prêmio, edição, pessoa, UF, listas, perguntas e dados, com JSON-LD; sitemap, `llms.txt`, `llms-full.txt` 🧪
+- [x] T24.4 `index.html` e `metodo.html`: canônico, Open Graph, JSON-LD, números reais na abertura, links de consulta; `robots.txt`, `404.html`, imagem `og.png` 🧪👁
+- [x] T24.5 Paridade dos números com `metricas.historia`; páginas sem JS conferidas no navegador e no axe-core 🧪👁
+- [ ] T24.6 Revisão humana dos 26 textos com `revisar` (`coleta.py contexto` lista); conferir colocações de 2001 (Romance e Contos e Crônicas: Folha de 19/05/2001 diverge da base) e as categorias sem vencedor em 1987, 1988 e 1992
+
+## T25 Perfil de editora (out/2026, RF-29, D33)
+- [x] T25.1 `metricas.perfilEditora` e perfil `#/editora/<id>` com gráfico e tabela 🧪👁
+- [x] T25.2 Links para o perfil: livro, pessoa, edição, linha do tempo, busca, gráfico de editoras 👁
+- [x] T25.3 Páginas estáticas `/editoras/<id>/` e `/editoras/` com paridade de números 🧪
+- [x] T25.4 README atualizado (logotipo em PNG, badges, estado atual) 👁

@@ -31,6 +31,7 @@ CAMPOS = {
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
     "autoria": ["premio_id", "obra_id", "pessoa_id", "papel"],
     "edicao": ["premio_id", "ano", "regime", "fonte"],
+    "edicao_contexto": ["premio_id", "ano", "texto", "fontes", "revisar"],
     "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "etapa_lista", "fonte"],
     "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
     "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
@@ -708,6 +709,21 @@ def capas():
         time.sleep(0.5)
 
 
+def contexto():
+    """Junta os lotes de texto de edição (dados/coleta/contexto/lote_*.csv, PROTOCOLO.md) em dados/edicao_contexto.csv (RF-28).
+    Lote posterior (ordem numérica) vence na mesma edição; o build confere fonte e edição."""
+    lotes = sorted((DADOS / "coleta" / "contexto").glob("lote_*.csv"), key=lambda a: int(re.search(r"(\d+)", a.stem).group(1)))
+    textos = {}
+    for arq in lotes:
+        for l in csv.DictReader(arq.open(encoding="utf-8")):
+            textos[(l["premio_id"], int(l["ano"]))] = {**l, "texto": l["texto"].strip(), "fontes": " ; ".join(u.strip() for u in l["fontes"].split(";") if u.strip())}
+    gravar("edicao_contexto", [textos[k] for k in sorted(textos)])
+    revisar = [f"{p} {a}: {t['revisar']}" for (p, a), t in sorted(textos.items()) if t.get("revisar")]
+    print(f"{len(textos)} textos de {len(lotes)} lotes; {len(revisar)} pedem revisão humana")
+    for r in revisar:
+        print(f"  REVISAR {r}")
+
+
 if __name__ == "__main__":
     {"normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
-     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas}[sys.argv[1]]()
+     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "contexto": contexto}[sys.argv[1]]()

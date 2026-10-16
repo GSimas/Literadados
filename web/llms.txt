@@ -1,0 +1,32 @@
+# Literadados
+
+> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos): gênero, raça autodeclarada e UF de nascimento de 1.411 pessoas-autoras em 2.753 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+
+Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
+
+## Números principais
+
+- Base inteira: 1.411 pessoas-autoras; 36% mulheres (504); pelo menos 29 pessoas negras (2,1%).
+- Prêmio Jabuti (1959–2025, 67 edições): 1.021 pessoas-autoras; mulheres 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274); pelo menos 24 pessoas negras.
+- Prêmio Oceanos (2003–2025, 23 edições): 642 pessoas-autoras; mulheres 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31); pelo menos 14 pessoas negras.
+
+## Páginas
+
+- [Perguntas frequentes](https://literadados.gustavosimas.com/perguntas/): respostas curtas com números e n
+- [Prêmios](https://literadados.gustavosimas.com/premios/): cada prêmio e cada edição, com vencedores, indicados e contexto histórico
+- [Pessoas de A a Z](https://literadados.gustavosimas.com/pessoas/): perfil de cada pessoa, com fontes
+- [Estados](https://literadados.gustavosimas.com/estados/): onde nasceram as pessoas-autoras
+- [Editoras](https://literadados.gustavosimas.com/editoras/): cada editora, com indicações, premiadas e autores publicados
+- [Dados abertos](https://literadados.gustavosimas.com/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar
+- [Método](https://literadados.gustavosimas.com/metodo.html): fontes, definições, protocolo de raça, cobertura
+
+## Prêmios
+
+- [Prêmio Jabuti](https://literadados.gustavosimas.com/premios/jabuti/)
+- [Prêmio Oceanos](https://literadados.gustavosimas.com/premios/oceanos/)
+
+## Optional
+
+- [Texto completo: premiadas de cada edição e contexto](https://literadados.gustavosimas.com/llms-full.txt)
+- [Painel interativo](https://literadados.gustavosimas.com/): gráficos, filtros e a Diadorim
+

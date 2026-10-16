@@ -1,5 +1,6 @@
 // Galeria de pessoas e perfil com rota por hash (RF-11): #/pessoa/<id>.
 import * as M from "./metricas.js";
+import { linkEditora } from "./editoras.js";
 import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, astGenero, CONTATO, movimentoReduzido, PREMIOS, NOME_PREMIO, nomesPremios, noPremio, nomePais } from "./ui.js";
 
 const PAGINA = 100;
@@ -148,6 +149,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   const links = [
     m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia</a>`,
     p.wikidata && `<a href="https://www.wikidata.org/wiki/${esc(p.wikidata)}" target="_blank" rel="noopener noreferrer">Wikidata ${esc(p.wikidata)}</a>`,
+    `<a href="/pessoas/${encodeURIComponent(id)}/">Página permanente</a>`, // página estática, indexável (RF-27)
     `<a href="#/pessoa/${esc(id)}" data-copiar="${esc(id)}">Link deste perfil</a>`,
   ].filter(Boolean).join("");
   return `<article>
@@ -179,7 +181,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
         <h3>${esc(tituloPremios(ps))}</h3>
         <ol class="cronologia">${[ // indicação, júri e organização numa só ordem por ano (no mesmo ano, nessa ordem)
           ...ls.map((l) => [l.ano, 0, `<li class="${l.premiada ? "premio" : ""}" style="--i:IDX"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · ${esc(l.categoria)}<br>
-          <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a>${l.editora ? ` <span class="muted">(${esc(l.editora)})</span>` : ""}<br>
+          <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a>${l.editora ? ` <span class="muted">(${linkEditora(l.editora, D)})</span>` : ""}<br>
           <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}${l.papel !== "autor" ? ` · ${esc(l.papel)}` : ""}</span></li>`]),
           ...jur.map((j) => [j.ano, 1, `<li style="--i:IDX"><span class="ano">${j.ano}</span>${selo(multi, j.premio ?? PREMIOS[0])} · jurado(a) de ${esc(j.categoria)}</li>`]),
           ...org.map((l) => [l.ano, 2, `<li style="--i:IDX"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · organizou <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a> <span class="muted pequeno">(fora das contagens)</span></li>`]),
@@ -239,7 +241,7 @@ export function htmlObra(id, { D }) {
           ${autores.length ? `<dt>Autoria</dt><dd><span class="chips">${chips(autores)}</span></dd>` : ""}
           ${ilus.length ? `<dt>Ilustração</dt><dd><span class="chips">${chips(ilus)}</span></dd>` : ""}
           ${orgs.length ? `<dt>Organização</dt><dd><span class="chips">${chips(orgs)}</span></dd>` : ""}
-          <dt>Editora</dt><dd>${ed ? `${esc(ed.nome)}<br><span class="muted pequeno">${ed.grupo ? `grupo ${esc(ed.grupo)}` : "independente"}${ed.municipio_sede ? ` · sede: ${esc(ed.municipio_sede)}${ed.uf_sede ? `/${esc(ed.uf_sede)}` : ""}` : ""}</span>` : "–"}</dd>
+          <dt>Editora</dt><dd>${ed ? `<a href="#/editora/${esc(ed.id)}">${esc(ed.nome)}</a><br><span class="muted pequeno">${ed.grupo ? `grupo ${esc(ed.grupo)}` : "independente"}${ed.municipio_sede ? ` · sede: ${esc(ed.municipio_sede)}${ed.uf_sede ? `/${esc(ed.uf_sede)}` : ""}` : ""}</span>` : "–"}</dd>
           <dt>Publicação</dt><dd>${o.ano_publicacao ? esc(o.ano_publicacao) : "–"}</dd>
         </dl>
         ${outras.length ? `<h3 style="margin-top:1.2rem">Outras obras de ${autores.length > 1 ? "quem escreveu" : esc(autores[0].nome)} ${PREMIOS.length > 1 ? "na base" : esc(noPremio())}</h3>
@@ -248,7 +250,7 @@ export function htmlObra(id, { D }) {
       <section aria-label="Participações ${esc(noPremio(ps.length ? ps : PREMIOS))}">
         <h3>${esc(tituloPremios(ps))}</h3>
         <ol class="cronologia">${edicoes.map((l, i) => `<li class="${l.premiada ? "premio" : ""}" style="--i:${i}"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · ${esc(l.categoria)}${l.nome_original !== l.categoria ? ` <span class="muted pequeno">(${esc(l.nome_original)})</span>` : ""}<br>
-          ${l.editora && l.editora !== ed?.nome ? `<span class="muted pequeno">edição: ${esc(l.editora)}</span><br>` : ""}<span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}</span></li>`).join("")}</ol>
+          ${l.editora && l.editora !== ed?.nome ? `<span class="muted pequeno">edição: ${linkEditora(l.editora, D)}</span><br>` : ""}<span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}</span></li>`).join("")}</ol>
       </section>
     </div></article>`;
 }

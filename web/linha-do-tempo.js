@@ -1,6 +1,7 @@
 // Linha do tempo (RF-17): pequenos múltiplos por edição + faixa rolável com marcos e vencedoras por categoria.
 // Com vários prêmios no recorte (CA-26.9, CA-26.10), cada prêmio tem a sua linha de painéis e o seu bloco em cada ano.
 import * as M from "./metricas.js";
+import { linkEditora } from "./editoras.js";
 import { $, fmt, fmtPct, nPequeno, esc, css, largura, estilo, tabela, vazio, CATEGORIAS, PREMIOS, NOME_PREMIO, desenhar } from "./ui.js";
 
 const INDICADORES = [
@@ -73,7 +74,8 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
       ${x ? `<div class="mini-barras">${INDICADORES.map((i) => barra(x, i)).join("")}<span class="muted pequeno">${fmt(x.total)} ${semLista(p, ano) ? "participações de premiados (sem lista pública)" : "participações na lista"}</span></div>` : `<p class="muted">Sem dados no recorte.</p>`}
       ${vs.length ? `<ul class="vencedoras">${vs.map((o) => `<li><span class="cat">${esc(o.categoria)}</span><a class="titulo" href="#/obra/${esc(o.obra_id)}">${esc(o.titulo)}</a><br>
         <span class="chips">${o.pessoas.map((pp) => `<button type="button" class="link-pessoa" data-pessoa="${esc(pp.id)}">${esc(pp.nome)}</button>`).join("")}</span>
-        ${o.editora ? `<span class="muted"> · ${esc(o.editora)}</span>` : ""}</li>`).join("")}</ul>` : ""}`;
+        ${o.editora ? `<span class="muted"> · ${linkEditora(o.editora, D)}</span>` : ""}</li>`).join("")}</ul>` : ""}
+      ${x ? `<a class="chip-link tempo-perfil" href="#/edicao/${esc(p)}/${ano}">Perfil da edição${multi ? ` <span class="sr">${esc(nome(p))} ${ano}</span>` : ` <span class="sr">${ano}</span>`}</a>` : ""}`;
   };
   $("#tempo-trilho").innerHTML = anosVis.map((ano) => {
     // Com vários prêmios, o ano mostra só os prêmios que tiveram edição nele.

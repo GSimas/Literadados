@@ -32,7 +32,7 @@ export function htmlLugar(tipo, chave, { D, linhas }) {
         <p>${p.pessoas ? `<b>${fmt(p.pessoas)} pessoas-autoras</b> nasceram ${uf ? "neste estado" : "nesta região"}: ${fmtPct(p.parcela)} das ${fmt(p.pessoasBR)} com UF de nascimento conhecida no Brasil.`
           : `Nenhuma pessoa-autora do recorte tem UF de nascimento ${uf ? "neste estado" : "nesta região"}.`}</p>
         <p class="muted pequeno">${D.premios?.length > 1 ? `Todos os prêmios da base (${esc(nomesPremios())}), cada pessoa contada uma vez` : esc(nomesPremios())}; série completa (${D.anos[0]}–${D.anos[1]}), todas as categorias, só autores. População: Censo 2022.</p>
-        <div class="links-externos"><a href="#/${tipo}/${encodeURIComponent(chave)}" data-copiar>Link deste perfil</a></div>
+        <div class="links-externos">${uf && p.pessoas ? `<a href="/estados/${esc(uf.uf)}/">Página permanente</a>` : ""}<a href="#/${tipo}/${encodeURIComponent(chave)}" data-copiar>Link deste perfil</a></div>
       </div>
     </header>
     <div class="lugar-corpo">

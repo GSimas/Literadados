@@ -9,8 +9,10 @@ from pathlib import Path
 
 import duckdb
 
+import seo
+
 RAIZ = Path(__file__).parent
-TABELAS = ["premio", "edicao", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
+TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
@@ -68,6 +70,10 @@ def checar(con):
     # Antologia creditada só ao organizador é válida (design D14); obra sem nenhum dos dois, não.
     for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador'))"):
         erros.append(f"obra sem autor nem organizador: {r['id']}")
+    # Texto de edição (CA-28.3): toda fonte é uma URL; a FK já recusa edição inexistente.
+    for r in _linhas(con, "SELECT premio_id, ano, fontes FROM edicao_contexto ORDER BY ALL"):
+        if any(not u.strip().startswith("http") for u in r["fontes"].split(" ; ")):
+            erros.append(f"{r['premio_id']} {r['ano']}: texto de contexto com fonte que não é URL")
     # Colocação repetida é legítima (empates: Livro do Ano Não Ficção 2016, 3º lugar de Contos 2014);
     # o total de premiadas já é conferido contra vagas_premio acima.
     if erros:
@@ -191,6 +197,12 @@ def exportar(con) -> dict:
         "qids_repetidos": {q: ids.split(",") for q, ids in con.execute(
             "SELECT wikidata, string_agg(id, ',' ORDER BY id) FROM pessoa WHERE wikidata IS NOT NULL GROUP BY 1 HAVING COUNT(*) > 1 ORDER BY 1").fetchall()},
     }
+
+
+def contextos(con) -> dict:
+    """Textos de contexto das edições (RF-28), fora do dados.json: o perfil de edição busca edicoes.json ao abrir (D32)."""
+    return {f"{r['premio_id']}|{r['ano']}": {"texto": r["texto"], "fontes": [u.strip() for u in r["fontes"].split(" ; ")]}
+            for r in _linhas(con, "SELECT premio_id, ano, texto, fontes FROM edicao_contexto ORDER BY premio_id, ano")}
 
 
 def varios_premios(con) -> int:
@@ -322,6 +334,9 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
         checar(con)
         payload = exportar(con)
         exportar_banco(con, saida.parent)
+        saida.parent.mkdir(exist_ok=True)
+        (saida.parent / "edicoes.json").write_text(json.dumps(contextos(con), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        seo.gerar(con, saida.parent)
     except BaseException:
         con.close()
         tmp.unlink(missing_ok=True)

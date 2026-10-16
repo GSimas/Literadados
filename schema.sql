@@ -112,6 +112,17 @@ CREATE TABLE edicao (
   PRIMARY KEY (premio_id, ano)
 );
 
+-- Texto de contexto de cada edição (RF-28, CA-28.3), escrito pelo protocolo dados/coleta/contexto/PROTOCOLO.md.
+CREATE TABLE edicao_contexto (
+  premio_id  TEXT NOT NULL,
+  ano        INTEGER NOT NULL,
+  texto      TEXT NOT NULL CHECK (length(texto) >= 200),
+  fontes     TEXT NOT NULL CHECK (fontes LIKE 'http%'),  -- URLs separadas por ' ; '; pelo menos uma
+  revisar    TEXT,                                       -- o que pede conferência humana (vazio = sustentado)
+  PRIMARY KEY (premio_id, ano),
+  FOREIGN KEY (premio_id, ano) REFERENCES edicao(premio_id, ano)
+);
+
 -- Uma linha por categoria por edição: traduz o nome oficial para a categoria padronizada
 -- e guarda o número de vagas, para que as séries temporais usem taxas e não contagens.
 CREATE TABLE categoria_edicao (

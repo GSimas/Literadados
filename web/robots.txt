@@ -1,0 +1,26 @@
+# Literadados — dados abertos sobre prêmios literários (spec RF-27).
+# Buscadores e robôs de IA são bem-vindos: o conteúdo é público e cada dado tem fonte.
+# Resumo para modelos de linguagem: https://literadados.gustavosimas.com/llms.txt
+
+User-agent: *
+Allow: /
+
+# Robôs de IA, explicitamente liberados (busca e treinamento)
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
+User-agent: cohere-ai
+User-agent: DuckAssistBot
+Allow: /
+
+Sitemap: https://literadados.gustavosimas.com/sitemap.xml

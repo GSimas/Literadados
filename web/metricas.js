@@ -638,7 +638,7 @@ export function indiceBusca(D) {
   for (const l of ls) if (l.editora) obrasPorEditora.set(l.editora, (obrasPorEditora.get(l.editora) ?? new Set()).add(l.obra_id));
   for (const ed of D.editoras) {
     const n = obrasPorEditora.get(ed.nome)?.size;
-    if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
+    if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), `#/editora/${ed.id}`, ed.grupo ?? ""); // perfil da editora (CA-29.2)
   }
   for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
   // Edições com dados de cada prêmio; o Jabuti mantém a descrição curta do formato, os outros mostram o regime da edição.
@@ -646,9 +646,8 @@ export function indiceBusca(D) {
   const regime = new Map((D.edicoes ?? []).map((x) => [`${x.premio ?? padrao}|${x.ano}`, x.regime]));
   const comDados = [...new Set(ls.map((l) => `${l.premio ?? padrao}|${l.ano}`))].map((k) => k.split("|")).sort((a, b) => a[1] - b[1]);
   for (const [p, a] of comDados.length ? comDados : D.anos_coletados.map((a) => [padrao, String(a)])) {
-    // A edição abre a linha do tempo filtrada naquele prêmio e ano (CA-26.12); sem ~p:, o filtro seria o padrão, todos os prêmios.
-    add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "",
-      multi ? `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo` : `?linha-do-tempo=${a}-${a}#/grafico/linha-do-tempo`, a);
+    // A edição abre o perfil da edição (CA-28.1), que diz de que prêmio é (CA-26.12).
+    add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "", `#/edicao/${p}/${a}`, a);
   }
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   if (multi) add("Gráfico", "Entre prêmios", "quem passa por mais de um prêmio", "#/grafico/entre-premios", "sobreposicao premios");
@@ -690,5 +689,89 @@ export function perfilLugar(linhas, pred) {
     vencedoras: distintos(dentro.filter((l) => l.vencedora), (l) => l.pessoa_id),
     porAno: fatia((l) => l.ano).map(({ grupo, ...r }) => ({ ano: grupo, ...r })).sort((a, b) => a.ano - b.ano),
     porCategoria: fatia((l) => l.categoria).map(({ grupo, ...r }) => ({ categoria: grupo, ...r })).sort((a, b) => b.pct - a.pct || a.categoria.localeCompare(b.categoria)),
+  };
+}
+
+// ---------- perfil de edição (RF-28, CA-28.2) ----------
+// Números de uma edição (prêmio + ano) com as regras da história: só autores, pessoas distintas, % sobre todas as pessoas,
+// negras = piso, Sudeste sobre quem tem UF no Brasil. As mesmas contas estão em seo.py (paridade testada).
+export function resumoEdicao(autores) {
+  const ps = [...new Map(autores.map((l) => [l.pessoa_id, l])).values()];
+  const n = ps.length, mulheres = ps.filter((p) => p.genero === "mulher").length, negras = ps.filter((p) => p.negra).length;
+  const comUF = ps.filter((p) => p.regiao_nascimento && p.regiao_nascimento !== "Exterior");
+  const sudeste = comUF.filter((p) => p.regiao_nascimento === "Sudeste").length;
+  return {
+    pessoas: n, mulheres, pctMulheres: pct(mulheres, n), negras, pctNegras: pct(negras, n),
+    comUF: comUF.length, sudeste, pctSudeste: pct(sudeste, comUF.length),
+    generoAtribuido: ps.filter((p) => p.genero_atribuido).length, semDeclaracao: ps.filter((p) => p.raca === "sem_declaracao").length,
+  };
+}
+
+const ordemCategoria = (a, b) => (a === "Livro do Ano") - (b === "Livro do Ano") || a.localeCompare(b, "pt-BR");
+
+export function perfilEdicao(linhas, premio, ano) {
+  const doPremio = linhas.filter((l) => l.premio === premio);
+  const daEd = doPremio.filter((l) => l.ano === ano);
+  if (!daEd.length) return null;
+  const autores = (ls) => ls.filter((l) => l.papel === "autor");
+  const anos = [...new Set(doPremio.map((l) => l.ano))].sort((a, b) => a - b);
+  const i = anos.indexOf(ano), anterior = anos[i - 1] ?? null, seguinte = anos[i + 1] ?? null;
+  // Composição em pessoas distintas, por etapa (lista inteira e só premiadas) e dimensão.
+  const composicao = [];
+  for (const etapa of ["lista", "premiada"]) {
+    const sel = autores(daEd).filter(ETAPAS.find((e) => e.id === etapa).teste);
+    const ps = [...new Map(sel.map((l) => [l.pessoa_id, l])).values()];
+    for (const dim of ["genero", "raca", "regiao"]) {
+      const c = contar(ps, (p) => grupo(p, dim));
+      for (const g of ORDEM[dim]) if (c.get(g)) composicao.push({ etapa, dim, grupo: g, n: c.get(g), total: ps.length, pct: pct(c.get(g), ps.length) });
+    }
+  }
+  const pessoaDe = (ls, papel) => [...new Map(ls.filter((l) => l.papel === papel).map((l) => [l.pessoa_id, { id: l.pessoa_id, nome: l.nome }])).values()];
+  const categorias = [...groupBy(daEd, (l) => `${l.categoria}|${l.nome_original}`)].map(([, ls]) => ({
+    categoria: ls[0].categoria, nome_original: ls[0].nome_original,
+    obras: [...groupBy(ls, (l) => l.obra_id)].map(([obra_id, o]) => ({
+      obra_id, titulo: o[0].titulo, editora: o[0].editora ?? null, colocacao: o[0].colocacao ?? null, lista_curta: o[0].lista_curta ?? 0,
+      autores: pessoaDe(o, "autor"), ilustradores: pessoaDe(o, "ilustrador"), organizadores: pessoaDe(o, "organizador"),
+    })).sort((a, b) => (a.colocacao ?? 99) - (b.colocacao ?? 99) || b.lista_curta - a.lista_curta || a.titulo.localeCompare(b.titulo, "pt-BR")),
+  })).sort((a, b) => ordemCategoria(a.categoria, b.categoria) || a.nome_original.localeCompare(b.nome_original, "pt-BR"));
+  return {
+    premio, premio_nome: daEd[0].premio_nome, ano, regime: daEd[0].regime, anterior, seguinte,
+    obras: distintos(daEd, (l) => l.obra_id),
+    indicacoes: distintos(daEd, (l) => `${l.nome_original}|${l.obra_id}`),
+    ...resumoEdicao(autores(daEd)),
+    antes: anterior == null ? null : resumoEdicao(autores(doPremio.filter((l) => l.ano === anterior))),
+    composicao, categorias,
+  };
+}
+
+// ---------- perfil de editora (RF-29, D33) ----------
+// Indicações contadas como em editoras(): só autoria, obra distinta por prêmio, ano e categoria. Pessoas com resumoEdicao.
+export function perfilEditora(linhas, nome) {
+  const daEd = linhas.filter((l) => l.editora === nome);
+  if (!daEd.length) return null;
+  const ind = indicacoesDeAutor(daEd).sort((a, b) => a.ano - b.ano || a.premio.localeCompare(b.premio) || a.categoria.localeCompare(b.categoria) || a.titulo.localeCompare(b.titulo, "pt-BR"));
+  const todas = editoras(linhas, Infinity), total = ind.length;
+  const pessoasDe = (k) => [...new Map(daEd.filter((l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}` === k && l.papel === "autor")
+    .map((l) => [l.pessoa_id, { id: l.pessoa_id, nome: l.nome }])).values()];
+  const porPremio = [...groupBy(ind, (l) => l.premio)].map(([premio, ls]) => ({
+    premio, premio_nome: ls[0].premio_nome, indicacoes: ls.length, premiadas: ls.filter((l) => l.premiada).length, vencedoras: ls.filter((l) => l.vencedora).length,
+    de: Math.min(...ls.map((l) => l.ano)), ate: Math.max(...ls.map((l) => l.ano)),
+  }));
+  const porAno = [...groupBy(ind, (l) => `${l.premio}|${l.ano}`)].map(([, ls]) => ({
+    premio: ls[0].premio, premio_nome: ls[0].premio_nome, ano: ls[0].ano, premiadas: ls.filter((l) => l.premiada).length, outras: ls.filter((l) => !l.premiada).length,
+  }));
+  const autoresPorPessoa = contar(daEd.filter((l) => l.papel === "autor"), (l) => l.pessoa_id);
+  const nomes = new Map(daEd.map((l) => [l.pessoa_id, l.nome]));
+  return {
+    editora: nome, grupo: daEd[0].grupo_editorial ?? null, uf: daEd[0].uf_editora ?? null,
+    indicacoes: total, premiadas: ind.filter((l) => l.premiada).length, vencedoras: ind.filter((l) => l.vencedora).length,
+    posicao: 1 + todas.filter((e) => e.total > total).length, editorasNaBase: todas.length,
+    de: ind[0]?.ano ?? null, ate: ind.at(-1)?.ano ?? null,
+    ...resumoEdicao(daEd.filter((l) => l.papel === "autor")),
+    porPremio, porAno,
+    obras: ind.map((l) => ({ premio: l.premio, premio_nome: l.premio_nome, ano: l.ano, categoria: l.categoria, nome_original: l.nome_original, obra_id: l.obra_id,
+      titulo: l.titulo, colocacao: l.colocacao ?? null, lista_curta: l.lista_curta ?? 0, premiada: !!l.premiada, autores: pessoasDe(`${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`) })),
+    maisPublicados: [...autoresPorPessoa].map(([id, n]) => ({ id, nome: nomes.get(id), indicacoes: n }))
+      .sort((a, b) => b.indicacoes - a.indicacoes || a.nome.localeCompare(b.nome, "pt-BR")).slice(0, 12),
   };
 }

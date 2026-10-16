@@ -7,6 +7,8 @@ import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
 import { montarPessoas, renderPessoas, htmlPerfil, htmlObra } from "./pessoas.js";
+import { htmlEdicao, carregarContextos, celulaEdicao } from "./edicoes.js";
+import { htmlEditora } from "./editoras.js";
 import { montarTema } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
@@ -138,7 +140,7 @@ function montarNavegacao() {
 
 // ---------- perfis com rota por hash (CA-11.2, RF-22) ----------
 // Perfis (pessoa, UF, região) abrem por cima do que estiver aberto; fechar volta ao último endereço que não era perfil.
-const PERFIL = /^#\/(pessoa|obra|uf|regiao)\/(.+)$/;
+const PERFIL = /^#\/(pessoa|obra|uf|regiao|edicao|editora)\/(.+)$/;
 let fundo = PERFIL.test(location.hash) ? "" : location.hash;
 addEventListener("hashchange", () => { if (!PERFIL.test(location.hash)) fundo = location.hash; });
 function abrirPerfil(id) { location.hash = `#/pessoa/${id}`; }
@@ -184,7 +186,7 @@ function fecharJanela(dlg) {
   if (location.hash === `#/grafico/${dlg.id}`) history.replaceState(null, "", `${location.pathname}${location.search}`);
 }
 
-// Rota única por hash: #/grafico/<id> abre a janela; #/pessoa|uf|regiao/<id> abre o perfil por cima (a janela fica);
+// Rota única por hash: #/grafico/<id> abre a janela; #/pessoa|obra|uf|regiao|edicao|editora/<id> abre o perfil por cima (a janela fica);
 // outro hash fecha os dois.
 async function rota() {
   const perfil = location.hash.match(PERFIL), graf = location.hash.match(/^#\/grafico\/([\w-]+)$/);
@@ -201,8 +203,11 @@ async function rota() {
   }
   if (!perfil) return;
   const [, tipo, chave] = perfil;
+  const [premioEd, anoEd] = tipo === "edicao" ? decodeURIComponent(chave).split("/") : [];
   const r = tipo === "pessoa" ? { html: htmlPerfil(decodeURIComponent(chave), ctx) }
     : tipo === "obra" ? { html: htmlObra(decodeURIComponent(chave), ctx) }
+    : tipo === "editora" ? htmlEditora(decodeURIComponent(chave), { D, linhas: D.participacao })
+    : tipo === "edicao" ? htmlEdicao(premioEd, +anoEd, { D, linhas: D.participacao, contexto: (await carregarContextos())[`${premioEd}|${anoEd}`] })
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });
   if (!r?.html) return;
   $("#perfil-corpo").innerHTML = r.html;
@@ -240,7 +245,7 @@ function renderMetodologia() {
   $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${fmt(cob.size)} edições coletadas${premios.length > 1 ? ` em ${premios.length} prêmios` : ""}.`;
   $("#faixa-cobertura").innerHTML = premios.map((p) => {
     const anos = ANOS.filter((a) => a >= (p.ano_inicio ?? ANOS[0])), nome = esc(nomesPremios([p.id]));
-    const celulas = anos.map((a) => { const ok = cob.has(`${p.id}|${a}`); return `<div role="listitem" class="${ok ? "ok" : ""}" title="${nome} ${a}: ${ok ? "coletada" : "não coletada"}">${a}</div>`; }).join("");
+    const celulas = anos.map((a) => celulaEdicao(p.id, nomesPremios([p.id]), a, cob.has(`${p.id}|${a}`))).join(""); // ano coletado abre o perfil da edição (CA-28.1)
     return `${premios.length > 1 ? `<p class="faixa-premio">${nome} <span class="muted">${fmt(anos.filter((a) => cob.has(`${p.id}|${a}`)).length)} de ${fmt(anos.length)} edições</span></p>` : ""}<div class="faixa" role="list" aria-label="Edições ${esc(p.nome ?? "")}">${celulas}</div>`;
   }).join("");
 }
