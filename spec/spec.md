@@ -32,7 +32,7 @@ Cada requisito tem critérios de aceitação (CA) verificáveis. Os marcados com
 
 ### RF-01 Base de dados
 Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando gera o banco e os dados do app.
-- **CA-01.1 🧪** `python build.py` cria `jabuti.duckdb` e `web/dados.json` a partir de `dados/*.csv`.
+- **CA-01.1 🧪** `python build.py` cria `literadados.duckdb` e `web/dados.json` (mais `web/dados-<prêmio>.json` com vários prêmios, CA-26.14) a partir de `dados/*.csv`.
 - **CA-01.2 🧪** O build **falha** (código ≠ 0, mensagem clara) se uma restrição do schema for violada: raça sem fonte, categoria fora do recorte, chave estrangeira inexistente.
 - **CA-01.3 🧪** O build **falha** se uma edição coletada tiver lista com tamanho diferente de `vagas_lista`, ou número de premiadas diferente de `vagas_premio`. Edições sem nenhuma indicação contam como "não coletadas" e não falham.
 - **CA-01.4 🧪** O build imprime a cobertura por edição (gênero, UF, raça, idade).
@@ -152,8 +152,8 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 - **CA-26.2 🧪** **Etapa 0, só com o Jabuti:** depois da migração para `premio_id`, a base tem só `premio_id = 'jabuti'`, e `v_participacao` (mais a coluna `premio`), o `dados.json` remontado e todos os testes atuais dão os mesmos números de antes. Só então entra o primeiro prêmio novo.
 - **CA-26.3 🧪** Categorias: cada `categoria_edicao` mapeia o nome original para uma **taxonomia comum** (as categorias atuais mais as que os novos prêmios trouxerem, como Ensaio e Dramaturgia, se entrarem no recorte), e há a categoria **Geral** para prêmios de categoria única (prosa e poesia concorrendo juntas). O CHECK de categoria aceita só a taxonomia comum.
 - **CA-26.4 🧪** Etapas: o vocabulário canônico (lista, finalista, premiada, vencedora) vale para todos os prêmios. Cada prêmio e edição diz o que é a "lista" ali (por exemplo, semifinalistas) e se houve 2ª lista. O regime de cada edição é um dado por prêmio e ano, não uma regra escrita na view.
-- **CA-26.5 🧪** Identidade: a mesma pessoa em dois prêmios é um registro só. `coleta.py normalizar` casa primeiro pelo QID do Wikidata, depois pelo nome, e o casamento só pelo nome entra numa lista para conferência humana. Obra casa por título **e** sobrenome de autor, nunca só pelo título. O build informa quantas pessoas estão em mais de um prêmio.
-- **CA-26.6 🧪** A editora pode variar por indicação (o mesmo livro concorre em edições diferentes, de países diferentes). O gráfico de editoras conta a editora da indicação.
+- **CA-26.5 🧪** Identidade: a mesma pessoa em dois prêmios é um registro só. `coleta.py normalizar` casa primeiro pela decisão humana registrada, depois pelo QID do Wikidata, depois pelo nome, e o casamento só pelo nome entra numa lista para conferência humana. Obra casa por título **e** a mesma pessoa na autoria, nunca só pelo título; título e sobrenome iguais com pessoas diferentes viram obras diferentes e vão para a conferência. O resultado não muda entre execuções. O build informa quantas pessoas estão em mais de um prêmio e avisa quando há casamentos a conferir.
+- **CA-26.6 🧪** A editora é a de cada indicação (o mesmo livro concorre em edições diferentes, de países diferentes; editora homônima de outro país é outra editora). Indicação sem editora com fonte da época fica sem editora, nunca herda a de outro ano ou prêmio. O gráfico de editoras conta a editora da indicação.
 - **CA-26.7 🧪** Cobertura (CA-01.4, RF-13) por prêmio e edição.
 
 **Painel**
@@ -163,7 +163,7 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 - **CA-26.11 🧪👁** Janela nova, **Entre prêmios**: pessoas premiadas em dois ou mais prêmios, sobreposição entre os pares de prêmios (com n) e a ordem em que cada pessoa chegou a cada um.
 - **CA-26.12 🧪** Nenhum texto fixa o Jabuti onde a parte cobre vários prêmios: abertura, busca ("Oceanos 2019" como edição), rodapé da exportação, Método e prompt da Diadorim leem os prêmios de `dados.json`.
 - **CA-26.13 🧪** Diadorim: `v_participacao` tem a coluna `premio`, e o prompt lista os prêmios, os formatos de cada um e a regra de não comparar taxas de prêmios diferentes sem dizer as bases.
-- **CA-26.14 🧪** RNF-06 continua valendo: cada arquivo de dados carregado na abertura tem menos de 1 MB (D31 diz como dividir).
+- **CA-26.14 🧪** RNF-06 continua valendo: cada arquivo de dados carregado na abertura tem menos de 1 MB. Com vários prêmios, um arquivo por prêmio (D31), e o painel remonta exatamente as linhas de `v_participacao`.
 
 **Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
 - **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.

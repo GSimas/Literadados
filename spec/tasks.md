@@ -184,4 +184,5 @@
 - [x] T23.5 Filtro de prêmio por parte e facetas por prêmio (CA-26.8, CA-26.9); `dados.json` dividido se passar de 1 MB (CA-26.14) 🧪👁
 - [x] T23.6 Perfis, linha do tempo, busca e textos com vários prêmios (CA-26.10, CA-26.12) 🧪👁
 - [x] T23.7 Janela Entre prêmios (`metricas.entrePremios`, CA-26.11) 🧪👁
-- [ ] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁
+- [x] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁
+- [x] T23.9 Gauntlet 1 (revisão adversarial + auditoria do RF-26): obra só casa pela mesma pessoa, editora sem herança, ordem explícita do prêmio, `dados.json` dividido, avisos/facetas em todos os gráficos, país via Wikidata, busca e textos 🧪👁
