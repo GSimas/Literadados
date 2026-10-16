@@ -60,7 +60,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 
 O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador.
 
-**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/contexto.json` e `web/banco/*.parquet`, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e `netlify deploy --prod --dir web`.
+**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/contexto.json` e `web/banco/*.parquet`, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e push para o `main`. O Netlify está ligado ao repositório e publica `web/` a cada push; PRs ganham prévia de deploy.
 
 ## Testes
 
