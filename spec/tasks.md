@@ -164,4 +164,5 @@
 - [x] T21.4 Filtros com série 1959–2025 e padrão 2010–2025 (ranking na série toda); aviso de edições sem lista pública (CA-25.2) 🧪👁
 - [x] T21.5 Pessoas novas: Wikipédia + Wikidata em lote (ofício e ano conferidos), 3 lotes de pesquisa pelo protocolo; restante com `raca_busca = parcial` 
 - [x] T21.6 `dados.json` < 1 MB: chaves nulas fora, `premiada`/`vencedora` derivadas da colocação, `papel` só quando não é autor (RNF-06) 🧪
-- [ ] T21.7 Pendências: capas pelo Google Books (cota diária), busca de raça das pessoas com `parcial`, sede/grupo das editoras novas, revisão humana dos casos em `revisao_raca.csv`
+- [x] T21.7 Busca de raça das 139 pessoas com `parcial` (`pessoas_hist_raca_4..6.csv`: 0 autodeclarações, 5 casos em `revisao_raca.csv`); sede/grupo das 60 editoras novas (51 com sede, 5 unificadas por `canonico`)
+- [ ] T21.8 Pendências: capas pelo Google Books (cota anônima com limite 0 em 16/out; precisa de chave de API), revisão humana dos casos em `revisao_raca.csv`
