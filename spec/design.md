@@ -171,3 +171,40 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 - **D29** Ranking e perfil de livro (RF-23, RF-24). `metricas.ranking` é pura e testada; `renderRanking` usa o índice que o Plot liga a cada barra para o clique. Capas em `dados/obra_capa.csv` (tabela `obra_capa`): Google Books primeiro (cota anônima diária compartilhada; quando acaba, segue só com a Open Library e não marca "sem capa"), Open Library depois. Obras procuradas nas duas fontes sem resultado ficam em `dados/coleta/capas_sem_resultado.txt` e não são buscadas de novo. Capa é exibida da fonte, com `referrerpolicy="no-referrer"`, sem cópia no site.
 - **D10** As vagas variam por edição (empates criaram listas de 11 a 16 e pódios de 4; houve empate no Livro do Ano de 2016). Nenhum código assume 10/5/3; tudo vem de `categoria_edicao`.
 - **D30** Série completa por padrão (CA-25.2 a CA-25.5). O build deixa de exportar `recorte`; o padrão de toda parte é `D.anos` (1959–2025), e `metricas.filtrar` sem período não corta anos. `filtroDeTexto(texto, anos, cats)` perde o 4º parâmetro (padrão próprio por parte): o padrão é sempre a série. O conjunto de edições sem lista pública (`semLista`, calculado em `app.js` a partir de `vagas_lista`) vai no contexto das partes, para o resumo do filtro, a linha do tempo e o aviso do funil. Textos com período leem `D.anos`/`D.anos_coletados` (`#hero-periodo`, história, perfil de lugar) ou o filtro da parte (rodapé da exportação, via `data-anos` no elemento da parte). `metricas.editoras` ignora obra sem editora e `metricas.semEditora` conta essas indicações para a nota. Eixo de anos: `metricas.passoAnos(n, largura)` (1, 2, 5 ou 10; pura e testada) decide quais rótulos aparecem; a folga das barras da evolução é uma fração da banda, para nunca passar da largura da barra. Os rótulos dos marcos da evolução vão para a primeira linha livre (sem encostar no anterior) e, perto das bordas, alinham pela ponta. O resumo do funil só chama de queda uma diferença de pelo menos meio ponto (abaixo disso, os dois % arredondam iguais).
+- **D31** Vários prêmios (RF-26). Decisões DA-1 a DA-5 aprovadas em 2026-10-16, como estão abaixo. A implementação começa pela etapa 0.
+
+  **Schema.**
+  - `premio (id, nome, organizador, ano_inicio, abrangencia ∈ {nacional, lusofono}, tipo ∈ {obra, conjunto}, fonte)`, com `'jabuti'` como primeira linha.
+  - `edicao (premio_id, ano, regime, fonte)` substitui o `CASE` de regime de `v_participacao` (CA-26.4) e serve de âncora para os marcos da linha do tempo.
+  - `categoria_edicao` ganha `premio_id` na chave `(premio_id, ano, nome_original)` e `etapa_lista` (o que a "lista" é ali: `indicados`, `semifinalistas`, `finalistas` ou `premiados`). O CHECK de `ano` passa a ir do `ano_inicio` do prêmio até o ano corrente (verificado no build, já que o CHECK não lê outra tabela). O CHECK de `categoria` ganha `Geral` e o que a DA-1 trouxer.
+  - `indicacao` e `jurado` ganham `premio_id` (FK para `categoria_edicao`). `indicacao.editora_id` é opcional e, quando preenchida, vale no lugar de `obra.editora_id` (`COALESCE` na view; CA-26.6).
+  - `v_participacao` ganha `premio` e `premio_nome`; `v_cobertura` agrupa por `premio, ano`.
+  - `jabuti.duckdb` vira `literadados.duckdb` (build, testes, `.gitignore`, CLAUDE.md).
+
+  **Etapa 0 (CA-26.2).** A migração entra com só o Jabuti: `premio_id = 'jabuti'` em todos os CSVs, `edicao` gerada a partir do `CASE` atual, e os mesmos números. Os testes atuais passam sem mudança de valor. O teste novo `test_etapa0_so_jabuti` confere que `v_participacao` sem a coluna `premio` é igual à de antes da migração, a partir de um retrato guardado em `tests/`.
+
+  **Coleta.**
+  - As listas brutas passam para `dados/coleta/<premio>/` (`lista_AAAA.csv`, `jurados_AAAA.csv`, `categorias_edicao.csv`). As do Jabuti são movidas com `git mv`. Os arquivos de pessoas (`pessoas_*.csv`) continuam na raiz de `dados/coleta/`, porque pessoa é uma só.
+  - `normalizar` processa o Jabuti primeiro, para os ids atuais não mudarem (fotos, capas e links dependem deles), e depois os outros prêmios na ordem de `premio`.
+  - **Casamento de pessoa:** primeiro o QID (`pessoa.wikidata`), depois o nome normalizado. O casamento só pelo nome vai para `dados/coleta/<premio>/casamentos_revisar.csv`, para decisão humana. Homônimos seguem a regra de hoje (nome distinto na lista).
+  - **Casamento de obra:** título normalizado e sobrenome de algum autor. Mesmo título com autoria diferente gera id com sufixo.
+
+  **`dados.json`.**
+  - Entram `premios` e `edicoes`, que substitui `regimes`.
+  - Na participação, o campo `premio` fica fora quando é `jabuti`, como já acontece com `papel = 'autor'` (D13, T21.6). Assim a base atual não cresce.
+  - Se o arquivo passar de 1 MB com os novos prêmios, ele é dividido: `dados.json` fica com o que é comum (pessoas, obras, editoras, prêmios) e a participação do Jabuti, e cada prêmio ganha um `dados-<premio>.json`, carregado quando algum filtro o inclui (CA-26.14). `metricas.expandir` aceita várias partes.
+
+  **Painel.**
+  - O texto do filtro ganha o segmento `~p:jabuti,oceanos`, omitido no padrão (DA-4).
+  - `metricas.filtrar` recebe `premios`. Funil, evolução, categorias, júri e linha do tempo recebem `fx`/`fy` por prêmio quando há mais de um (CA-26.9). O índice de Duncan é calculado dentro de cada prêmio, sem `Geral` e sem `Livro do Ano`.
+  - `CATEGORIAS` vem dos dados, não de uma constante. A busca gera "<Prêmio> AAAA" para cada edição.
+  - Janela nova `entre-premios`, alimentada por `metricas.entrePremios(linhas)`, que é pura e testada (CA-26.11).
+  - Diadorim: `build.prompt_sistema` lista `premio` e `edicao`. `validarSQL` não muda.
+  - O build agrupa as referências pelo domínio dos novos prêmios (RF-18).
+
+  **Decisões (aprovadas).**
+  - **DA-1:** o **Oceanos** é o piloto, porque tem listas públicas de semifinalistas e finalistas parecidas com as do Jabuti de 2019 em diante e testa logo a DA-3. Depois vem o **Prêmio Literário da Biblioteca Nacional**, cujas categorias por gênero mapeiam direto na taxonomia, mas que em geral só tem premiados públicos. Depois, o São Paulo de Literatura. As categorias ficam nos mesmos gêneros do recorte atual, mais `Geral`. Formatos e períodos de cada prêmio são conferidos na coleta, com fonte, como foi com o Jabuti.
+  - **DA-2:** prêmios pelo conjunto da obra ficam **fora** por enquanto. Não há livro, e misturá-los ao funil e às métricas por obra confunde. Se entrarem depois, ganham uma tabela `distincao (premio_id, ano, pessoa_id, fonte)`, que aparece só nos perfis e na janela Entre prêmios.
+  - **DA-3:** autores de fora do Brasil **entram**. Sem eles, o Oceanos perde parte do que premia. A tabela `pessoa` ganha `pais_nascimento` (ISO 3166-1, `BR` para quem tem UF), e `uf_nascimento = 'EX'` passa a valer só com `pais_nascimento <> 'BR'`. O mapa continua sendo do Brasil, e a geografia ganha a dimensão "país". Raça segue o mesmo protocolo (autodeclaração literal com URL, nunca inferência), e o Método avisa que os termos seguem as categorias do IBGE.
+  - **DA-4:** o painel **abre com o Jabuti**, com o seletor de prêmio em cada filtro e a opção "todos". Os links compartilhados continuam significando o que significam hoje, e a História guiada segue sendo a do Jabuti. Isso vale até haver três prêmios ou mais coletados; aí a decisão é reavaliada.
+  - **DA-5:** a marca Literadados e o logotipo ficam. O título da abertura passa a vir do prêmio padrão (`premios[0]`), e a descrição da página cita os prêmios da base.

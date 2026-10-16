@@ -11,7 +11,7 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 
 | Dentro | Fora (por enquanto) |
 |---|---|
-| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante) | Outros prêmios (Oceanos, São Paulo de Literatura…) |
+| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante) | Outros prêmios (Oceanos, Biblioteca Nacional…): em implementação (RF-26), fora do painel até a coleta do piloto (T23.4) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
@@ -142,6 +142,36 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-25.4 🧪👁** Indicações sem editora conhecida (série histórica sem fonte da época) não aparecem como uma "editora" no ranking de editoras: ficam fora da lista, e o gráfico informa quantas são.
 - **CA-25.5 🧪** Nenhum texto do painel fixa o período antigo: sobretítulo da abertura, história, perfil de lugar, rodapé da exportação e descrição da página vêm de `dados.json` (`anos`, `anos_coletados`) ou dizem 1959–2025. O `dados.json` não tem mais o campo `recorte`.
 
+### RF-26 Vários prêmios
+> Decisões DA-1 a DA-5 fechadas em 2026-10-16 (fim desta seção). A implementação começa pela etapa 0 (CA-26.2), que não muda o painel. Desenho: D31.
+
+O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra e editora são **um registro só**, compartilhado entre os prêmios: quem foi indicada ao Jabuti e ao Oceanos tem um perfil, com as duas trajetórias.
+
+**Base e build**
+- **CA-26.1 🧪** Há uma tabela `premio` (id, nome, organizador, ano de início, abrangência, tipo, fonte). `categoria_edicao`, `indicacao` e `jurado` levam `premio_id` na chave. O build falha se o prêmio não existir, e as checagens de vagas (CA-01.3) valem por prêmio, ano e categoria.
+- **CA-26.2 🧪** **Etapa 0, só com o Jabuti:** depois da migração para `premio_id`, a base tem só `premio_id = 'jabuti'`, e `v_participacao` (mais a coluna `premio`), o `dados.json` remontado e todos os testes atuais dão os mesmos números de antes. Só então entra o primeiro prêmio novo.
+- **CA-26.3 🧪** Categorias: cada `categoria_edicao` mapeia o nome original para uma **taxonomia comum** (as categorias atuais mais as que os novos prêmios trouxerem, como Ensaio e Dramaturgia, se entrarem no recorte), e há a categoria **Geral** para prêmios de categoria única (prosa e poesia concorrendo juntas). O CHECK de categoria aceita só a taxonomia comum.
+- **CA-26.4 🧪** Etapas: o vocabulário canônico (lista, finalista, premiada, vencedora) vale para todos os prêmios. Cada prêmio e edição diz o que é a "lista" ali (por exemplo, semifinalistas) e se houve 2ª lista. O regime de cada edição é um dado por prêmio e ano, não uma regra escrita na view.
+- **CA-26.5 🧪** Identidade: a mesma pessoa em dois prêmios é um registro só. `coleta.py normalizar` casa primeiro pelo QID do Wikidata, depois pelo nome, e o casamento só pelo nome entra numa lista para conferência humana. Obra casa por título **e** sobrenome de autor, nunca só pelo título. O build informa quantas pessoas estão em mais de um prêmio.
+- **CA-26.6 🧪** A editora pode variar por indicação (o mesmo livro concorre em edições diferentes, de países diferentes). O gráfico de editoras conta a editora da indicação.
+- **CA-26.7 🧪** Cobertura (CA-01.4, RF-13) por prêmio e edição.
+
+**Painel**
+- **CA-26.8 🧪👁** Todo filtro de parte (RF-02) ganha o **prêmio** (um, vários ou todos), guardado na URL junto com o resto do filtro. A ida e a volta da codificação são testadas. O padrão é o Jabuti (DA-4), e o padrão não aparece na URL.
+- **CA-26.9 🧪👁** Nenhum percentual soma bases diferentes sem avisar. Com mais de um prêmio no recorte, a evolução, o funil, as categorias, o júri e a linha do tempo mostram **um prêmio por faceta** (ou por linha), cada um com o seu n. Os cartões do panorama contam pessoas distintas e dizem quantos prêmios entram no recorte.
+- **CA-26.10 👁** O perfil de pessoa mostra a trajetória em todos os prêmios, em ordem de ano, com o prêmio em cada item. O perfil de livro mostra todas as participações do livro, de qualquer prêmio. A linha do tempo tem os marcos de cada prêmio (criação, mudanças de formato).
+- **CA-26.11 🧪👁** Janela nova, **Entre prêmios**: pessoas premiadas em dois ou mais prêmios, sobreposição entre os pares de prêmios (com n) e a ordem em que cada pessoa chegou a cada um.
+- **CA-26.12 🧪** Nenhum texto fixa o Jabuti onde a parte cobre vários prêmios: abertura, busca ("Oceanos 2019" como edição), rodapé da exportação, Método e prompt da Diadorim leem os prêmios de `dados.json`.
+- **CA-26.13 🧪** Diadorim: `v_participacao` tem a coluna `premio`, e o prompt lista os prêmios, os formatos de cada um e a regra de não comparar taxas de prêmios diferentes sem dizer as bases.
+- **CA-26.14 🧪** RNF-06 continua valendo: cada arquivo de dados carregado na abertura tem menos de 1 MB (D31 diz como dividir).
+
+**Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
+- **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.
+- **DA-2 Conjunto da obra:** prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) ficam fora (ver §6).
+- **DA-3 Autores de fora do Brasil:** entram. A pessoa ganha país de nascimento (`BR` para quem tem UF), e a geografia ganha a dimensão "país"; o mapa continua sendo do Brasil. Raça segue o mesmo protocolo de autodeclaração, e o Método avisa que os termos seguem as categorias do IBGE.
+- **DA-4 Visão padrão:** o painel abre com o Jabuti; cada filtro tem o seletor de prêmio, com a opção "todos". A História guiada continua sendo a do Jabuti. Isso é reavaliado quando houver três prêmios ou mais coletados.
+- **DA-5 Identidade:** a marca Literadados e o logotipo ficam. O título da abertura vem do prêmio padrão, e a descrição da página cita os prêmios da base.
+
 ### RF-12 Diadorim, a IA do Literadados
 Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Sertão: Veredas*: firme, leal, de poucas palavras e fala com sabor de sertão, mas sempre clara. A personagem é inspirada no livro, sem reproduzir trechos dele.
 - **CA-12.1 👁** Botão flutuante no canto inferior direito, com o retrato da Diadorim (chapéu de couro, olhos verdes) animado no hover; o cabeçalho do chat também se anima e acende no hover. O clique abre um painel de chat, que vira tela cheia no celular. O painel fecha com ×, Esc ou o próprio botão.
@@ -189,4 +219,5 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 | Bar chart race (barras que se reordenam), rede júri ↔ premiados | Exige a série completa |
 | Tema das obras (hipótese do "tema obrigatório") | Exige sinopses e classificação revisada |
 | Efeito do prêmio nas visualizações da Wikipédia | Fase 2; exige coleta de séries de visualizações |
-| Outros prêmios | O Jabuti precisa estar sólido antes |
+| Outros prêmios | Saiu desta lista: virou o RF-26 |
+| Prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) | Não há livro concorrendo; misturá-los ao funil e às métricas por obra confunde (DA-2). Se entrarem, vão para uma tabela `distincao` à parte (D31) |
