@@ -12,7 +12,7 @@ const INDICADORES = [
 const ROT_REGIME = { "1959–1992 vencedor por categoria": "vencedor único", "1993–2009 pódio": "pódio 1º–3º", "2010–2017 pódio": "pódio 1º–3º", "2018 transição": "transição", "2019–2025 vencedor único": "vencedor único" };
 
 export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) {
-  // Edição sem lista pública (Jabuti 1959–1999, CA-25.3): as participações são só dos premiados. Chave "<prêmio>|<ano>".
+  // Edição sem lista pública (no Jabuti, 1959–1999; CA-25.3): as participações são só dos premiados. Chave "<prêmio>|<ano>".
   const semLista = (p, a) => SEM_LISTA.has(`${p}|${a}`);
   const el = $("#g-tempo-multiplos");
   const ps = [...M.porPremio(L, PREMIOS).keys()], multi = ps.length > 1;
@@ -28,7 +28,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   const temFy = estreito || multi;
   const canais = { ...(estreito ? {} : { fx: "indicador" }), ...(temFy ? { fy: fyRot } : {}) };
   // Marcos só dos prêmios do recorte, repetidos em cada painel do próprio prêmio.
-  const marcos = M.marcosDe(ps, PREMIOS[0], D.premios ?? []).filter((m) => anosVis.includes(m.ano))
+  const marcos = M.marcosDe(ps, D.premios ?? []).filter((m) => anosVis.includes(m.ano))
     .flatMap((m) => INDICADORES.map((i) => ({ ano: m.ano, premio_nome: nome(m.premio), indicador: i.rot })));
   const paineis = estreito ? dominioFy.length : multi ? ps.length : 1;
   desenhar(el, Plot.plot({
@@ -56,7 +56,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
 
   const porAno = new Map(e.map((x) => [`${x.premio}|${x.ano}`, x]));
   const venc = M.vencedorasPorAno(L, CATEGORIAS);
-  // Regime de cada edição de cada prêmio (D31); D.edicoes omite o prêmio padrão.
+  // Regime de cada edição de cada prêmio (D31); D.edicoes omite o 1º prêmio da ordem (economia).
   const regime = new Map(D.edicoes.map((r) => [`${r.premio ?? PREMIOS[0]}|${r.ano}`, r.regime]));
   const barra = (x, i) => {
     const v = x[i.k];
@@ -66,7 +66,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   // Bloco de um prêmio num ano: marcos, composição da lista e vencedoras por categoria.
   const bloco = (p, ano) => {
     const x = porAno.get(`${p}|${ano}`), reg = regime.get(`${p}|${ano}`);
-    const m = M.marcosDe([p], PREMIOS[0], D.premios ?? []).filter((mm) => mm.ano === ano);
+    const m = M.marcosDe([p], D.premios ?? []).filter((mm) => mm.ano === ano);
     const vs = venc.filter((o) => o.ano === ano && o.premio === p);
     return `${multi ? `<div class="tempo-premio">${esc(nome(p))}${reg ? ` <span class="tempo-regime">${esc(ROT_REGIME[reg] ?? reg)}</span>` : ""}</div>` : ""}
       ${m.map((mm) => `<div class="tempo-marco">${esc(mm.texto)}</div>`).join("")}

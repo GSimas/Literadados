@@ -9,7 +9,8 @@ const RODADAS = 6;
 const CHAVE = "or_chave";
 const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios"];
 export const SUGESTOES = [
-  "Quantos autores pretos nascidos em São Paulo chegaram à lista do Jabuti em Contos?",
+  "Quantos autores pretos nascidos em São Paulo chegaram às listas em Contos, em cada prêmio?",
+  "Quem chegou à lista de mais de um prêmio?",
   "Quantas mulheres nascidas no Nordeste foram premiadas?",
   "Quais autores nascidos em Santa Catarina foram mais premiados?",
   "Em que categoria a participação de mulheres é maior?",

@@ -21,7 +21,7 @@ export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" ti
 // Taxonomia comum (CA-26.3), na ordem dos menus e gráficos. CATEGORIAS = as que existem nos dados (definirDados).
 export const ORDEM_CATEGORIAS = ["Romance", "Contos", "Crônica", "Prosa", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];
 export const CATEGORIAS = ORDEM_CATEGORIAS.filter((c) => c !== "Geral" && c !== "Prosa");
-// Prêmios da base, na ordem de D.premios (o 1º é o padrão, DA-4), e o nome de cada um.
+// Prêmios da base, na ordem de D.premios (só ordena listas e facetas; o padrão são todos, DA-4), e o nome de cada um.
 export const PREMIOS = [];
 export const NOME_PREMIO = {};
 export function definirDados(D) {
@@ -53,11 +53,14 @@ export async function carregarDados(base = "") {
 // País de nascimento (DA-3): código ISO → nome em português ("PT" → "Portugal").
 const PAISES = typeof Intl !== "undefined" && Intl.DisplayNames ? new Intl.DisplayNames(["pt-BR"], { type: "region" }) : null;
 export const nomePais = (iso) => { try { return (iso && PAISES?.of(iso)) || iso || ""; } catch { return iso; } };
-// "Prêmio Jabuti", "Prêmio Jabuti e Oceanos", "3 prêmios" (rodapés e resumos).
-export function nomesPremios(ids = PREMIOS.slice(0, 1)) {
+// "Prêmio Jabuti", "Prêmios Jabuti e Oceanos", "3 prêmios" (rodapés e resumos). Padrão: todos os prêmios da base (DA-4).
+export function nomesPremios(ids = PREMIOS) {
   const ns = ids.map((p) => NOME_PREMIO[p] ?? p);
-  return ns.length <= 2 ? ns.join(" e ") : `${ns.length} prêmios`;
+  if (ns.length > 2) return `${ns.length} prêmios`;
+  return ns.length === 2 && ns.every((n) => /^Prêmio\s/.test(n)) ? `Prêmios ${ns.map((n) => n.replace(/^Prêmio\s+/, "")).join(" e ")}` : ns.join(" e ");
 }
+// "no Prêmio Jabuti" com um prêmio só; "nos prêmios" com vários (títulos e rótulos de participação).
+export const noPremio = (ids = PREMIOS) => (ids.length === 1 ? `no ${NOME_PREMIO[ids[0]] ?? ids[0]}` : "nos prêmios");
 
 // Cor fixa por grupo (a mesma em todos os gráficos); dado faltante sempre em cinza.
 export function cores(dim) {

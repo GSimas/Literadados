@@ -147,7 +147,7 @@ def _tem_miniatura(pessoa_id: str) -> bool:
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
     premios = _linhas(con, "SELECT * EXCLUDE (fonte, ordem) FROM premio ORDER BY ordem")
-    padrao = [premios[0]["id"]] if premios else [None]  # ordem 1 = padrão do painel (DA-4); no JSON, `premio` só aparece quando é outro
+    padrao = [premios[0]["id"]] if premios else [None]  # 1º da ordem: no JSON, `premio` só aparece quando é outro (economia; o painel abre com todos, DA-4)
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
@@ -209,7 +209,6 @@ def prompt_sistema(con) -> str:
                               FROM premio p JOIN indicacao i ON i.premio_id = p.id
                               JOIN categoria_edicao c USING (premio_id, ano, nome_original)
                               GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ordem ORDER BY p.ordem""")
-    padrao = premios[0] if premios else {"id": "jabuti", "nome": "Prêmio Jabuti"}
     varios = len(premios) > 1
     nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"
     # Formatos de cada prêmio (CA-26.13): os regimes da tabela edicao, com os anos em que valeram.
@@ -220,12 +219,14 @@ def prompt_sistema(con) -> str:
     recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}): "
                         f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}. Formatos: {'; '.join(regimes.get(p['id'], []))}."
                         for p in premios)
-    regra_premios = (f"""- Vários prêmios: se a pergunta não citar prêmio, responda sobre o {padrao['nome']} (premio = '{padrao['id']}'), o padrão do painel,
-  e diga isso; cite os outros só se perguntarem. Ao comparar prêmios, mostre cada um com o próprio n e %: nunca some ou
-  faça média de percentuais de prêmios diferentes (formatos, vagas e períodos diferem). A mesma pessoa pode estar em mais
-  de um prêmio (pessoa_id é o mesmo): "pessoas distintas" na base toda é COUNT(DISTINCT pessoa_id) sobre todos os prêmios.
+    # DA-4/DA-5 (revistas): a plataforma é de prêmios, sem prêmio padrão; sem prêmio na pergunta, todos, lado a lado.
+    regra_premios = ("""- Vários prêmios: se a pergunta não citar prêmio, responda sobre todos os prêmios da base, como o painel, e diga isso.
+  Mostre cada prêmio com o próprio n e % (GROUP BY premio): nunca some ou faça média de percentuais de prêmios diferentes
+  (formatos, vagas e períodos diferem). Contagem de pessoas na base toda pode vir junto, dita como tal: a mesma pessoa pode
+  estar em mais de um prêmio (pessoa_id é o mesmo), e "pessoas distintas" na base toda é COUNT(DISTINCT pessoa_id) sobre todos.
 """ if varios else "")
-    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do {nomes}.
+    return f"""Você responde sobre o Literadados, plataforma de dados sobre o perfil de quem chega a prêmios literários.
+Prêmios na base: {nomes}.
 Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
 Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
 comparar com o total do recorte (n e %) e fechar com uma frase de leitura. Para isso, além da contagem, consulte as linhas
@@ -246,9 +247,9 @@ Regras de análise:
 - Editora: v_participacao.editora = indicacao.editora_id, a edição que concorreu; vazia = sem editora conhecida da época
   (comum antes de 2000). Nunca use obra.editora_id para contar editoras: é só a 1ª editora conhecida do livro.
 - Autoria: o crédito é de cada prêmio (autoria.premio_id); v_participacao já junta pelo prêmio da indicação.
-- Período padrão: a série completa, {padrao.get('de', 1959)}–{padrao.get('ate', 2025)}, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
+- Período padrão: a série completa de cada prêmio (os períodos do recorte acima), como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
 - No Jabuti, de 1959 a 1999 não houve lista pública de indicados (etapa_lista = 'premiados', vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
-  Ao comparar a lista com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
+  Ao comparar a lista do Jabuti com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
   Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
   Perguntas sobre "pretos" devem mostrar também o agrupamento negros, porque muitos autores dizem só "negro".
@@ -257,7 +258,7 @@ Regras de análise:
 - Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
 - genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
   informe quantas pessoas do recorte têm gênero atribuído.
-- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Literadados ({nomes}).
+- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Literadados (prêmios literários: {nomes}).
 Não repita o SQL no texto (ele é mostrado à parte).
 
 Esquema (DuckDB):

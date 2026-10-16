@@ -122,10 +122,9 @@ button:disabled { opacity: .5; cursor: wait; }
 }
 .marca { display: inline-flex; align-items: center; gap: .5rem; font-family: var(--fonte-titulo); font-weight: 700; font-size: 1.2rem; color: var(--tinta);
   text-decoration: none; white-space: nowrap; background: none; }
-/* Logotipo (CA-19.5): casco de jabuti feito de células de dados; no hover as células acendem em sequência. */
+/* Logotipo (CA-19.5): hexágono com sete células de dados, sem prêmio; no hover as células acendem em sequência. */
 .logo { width: 30px; height: 30px; flex: none; overflow: visible; transition: transform var(--dur-3) var(--curva-mola), filter var(--dur-3); }
-.logo .lt-casco { fill: var(--marca); }
-.logo .lt-membro { fill: color-mix(in srgb, var(--marca) 80%, var(--tinta)); }
+.logo .lt-casco { fill: var(--marca); stroke: var(--marca); stroke-width: 4; stroke-linejoin: round; }
 .logo .lt-celula { fill: var(--superficie); transition: fill var(--dur-2), fill-opacity var(--dur-2); }
 .marca-texto { position: relative; }
 .marca-texto em { font-style: normal; color: var(--link); }
@@ -210,6 +209,10 @@ input[type="checkbox"]:checked::after { transform: translateY(-1px) rotate(-45de
 /* ---------- história guiada (RF-16) ---------- */
 .historia { position: relative; padding: 0 16px; border-top: 1px solid var(--borda); background: linear-gradient(180deg, var(--pagina), var(--superficie) 18%, var(--superficie) 82%, var(--pagina)); }
 .pular-historia { position: absolute; right: 16px; top: 1rem; z-index: 3; }
+/* Seletor do prêmio da história (CA-16.1): no topo, antes do gráfico; com vários prêmios, quebra de linha no celular. */
+.historia-premio { max-width: 1200px; margin: 0 auto; padding: 1rem 9rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; position: relative; z-index: 3; }
+.historia-premio .segmentado { flex-wrap: wrap; }
+@media (max-width: 720px) { .historia-premio { padding-right: 0; padding-top: 3rem; } }
 .historia-grade { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2rem; }
 .historia-grafico { position: sticky; top: calc(var(--barra-h) + 1rem); height: calc(100svh - var(--barra-h) - 2rem); margin: 0; display: flex; flex-direction: column; justify-content: center; }
 #g-historia { width: 100%; flex: 1; min-height: 0; }
@@ -279,6 +282,8 @@ details[open] > :not(summary) { animation: desdobra var(--dur-3) var(--curva); }
 .faixa { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 3px; }
 .faixa div { text-align: center; font-size: .72rem; padding: .4rem 0; border-radius: 5px; background: var(--grade); color: var(--tinta-2); }
 .faixa div.ok { background: var(--marca); color: var(--sobre-marca); font-weight: 600; }
+.faixa-premio { margin: .9rem 0 .4rem; font-weight: 600; font-size: .9rem; }
+.faixa-premio:first-child { margin-top: 0; }
 
 /* ---------- linha do tempo (RF-17) ---------- */
 .tempo-trilho-wrap { position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: .5rem; align-items: center; }

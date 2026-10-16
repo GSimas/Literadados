@@ -1,6 +1,6 @@
 // Galeria de pessoas e perfil com rota por hash (RF-11): #/pessoa/<id>.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, astGenero, CONTATO, movimentoReduzido, PREMIOS, NOME_PREMIO, nomesPremios, nomePais } from "./ui.js";
+import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, astGenero, CONTATO, movimentoReduzido, PREMIOS, NOME_PREMIO, nomesPremios, noPremio, nomePais } from "./ui.js";
 
 const PAGINA = 100;
 let pagina = 1, nPag = 1; // CA-11.6: busca e ordenação voltam à 1; filtro mantém, se a página ainda existir
@@ -18,8 +18,8 @@ function indexarEtapas(D) {
   if (etapaDe.size) return;
   etapaDe = new Map(D.categorias.map((c) => [`${c.premio ?? PREMIOS[0]}|${c.ano}|${c.nome_original}`, c.etapa_lista]));
 }
-// Seção de participações: com um prêmio só, "No Prêmio Jabuti"; com vários, "Nos prêmios" e o prêmio em cada item (CA-26.10).
-const tituloPremios = (ps) => (ps.length > 1 ? "Nos prêmios" : `No ${nomesPremios(ps.length ? ps : undefined)}`);
+// Seção de participações: com um prêmio só, "No Prêmio X"; com vários, "Nos prêmios" e o prêmio em cada item (CA-26.10).
+const tituloPremios = (ps) => { const t = noPremio(ps.length ? ps : PREMIOS); return t[0].toUpperCase() + t.slice(1); };
 const selo = (multi, p) => (multi ? ` · <span class="selo-premio">${esc(NOME_PREMIO[p] ?? p)}</span>` : "");
 const premiosDe = (...listas) => PREMIOS.filter((p) => listas.some((ls) => ls.some((l) => (l.premio ?? PREMIOS[0]) === p)));
 
@@ -175,7 +175,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
         </dl>
         ${coautores.length ? `<h3 style="margin-top:1.2rem">Dividiu obras com</h3><p class="chips">${coautores.map((c) => `<button type="button" class="link-pessoa" data-pessoa="${esc(c.pessoa_id)}">${esc(c.nome)}${c.papel === "ilustrador" ? " <span class='muted pequeno'>(ilustração)</span>" : ""}</button>`).join("")}</p>` : ""}
       </section>
-      <section aria-label="Participações ${multi ? "nos prêmios" : `no ${esc(nomesPremios(ps.length ? ps : undefined))}`}">
+      <section aria-label="Participações ${esc(noPremio(ps.length ? ps : PREMIOS))}">
         <h3>${esc(tituloPremios(ps))}</h3>
         <ol class="cronologia">${[ // indicação, júri e organização numa só ordem por ano (no mesmo ano, nessa ordem)
           ...ls.map((l) => [l.ano, 0, `<li class="${l.premiada ? "premio" : ""}" style="--i:IDX"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · ${esc(l.categoria)}<br>
@@ -242,10 +242,10 @@ export function htmlObra(id, { D }) {
           <dt>Editora</dt><dd>${ed ? `${esc(ed.nome)}<br><span class="muted pequeno">${ed.grupo ? `grupo ${esc(ed.grupo)}` : "independente"}${ed.municipio_sede ? ` · sede: ${esc(ed.municipio_sede)}${ed.uf_sede ? `/${esc(ed.uf_sede)}` : ""}` : ""}</span>` : "–"}</dd>
           <dt>Publicação</dt><dd>${o.ano_publicacao ? esc(o.ano_publicacao) : "–"}</dd>
         </dl>
-        ${outras.length ? `<h3 style="margin-top:1.2rem">Outras obras de ${autores.length > 1 ? "quem escreveu" : esc(autores[0].nome)} ${PREMIOS.length > 1 ? "na base" : `no ${esc(nomesPremios())}`}</h3>
+        ${outras.length ? `<h3 style="margin-top:1.2rem">Outras obras de ${autores.length > 1 ? "quem escreveu" : esc(autores[0].nome)} ${PREMIOS.length > 1 ? "na base" : esc(noPremio())}</h3>
           <ul class="obras-lista">${outras.map((l) => `<li><a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a> <span class="muted pequeno">${l.ano}${PREMIOS.length > 1 ? ` · ${esc(NOME_PREMIO[l.premio] ?? l.premio)}` : ""} · ${esc(l.categoria)}</span></li>`).join("")}</ul>` : ""}
       </section>
-      <section aria-label="Participações ${multi ? "nos prêmios" : `no ${esc(nomesPremios(ps))}`}">
+      <section aria-label="Participações ${esc(noPremio(ps.length ? ps : PREMIOS))}">
         <h3>${esc(tituloPremios(ps))}</h3>
         <ol class="cronologia">${edicoes.map((l, i) => `<li class="${l.premiada ? "premio" : ""}" style="--i:${i}"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · ${esc(l.categoria)}${l.nome_original !== l.categoria ? ` <span class="muted pequeno">(${esc(l.nome_original)})</span>` : ""}<br>
           ${l.editora && l.editora !== ed?.nome ? `<span class="muted pequeno">edição: ${esc(l.editora)}</span><br>` : ""}<span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}</span></li>`).join("")}</ol>

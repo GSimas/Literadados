@@ -36,7 +36,7 @@ export function renderEvolucao(L, { D, ANOS, estado }) {
     const com = new Set(dados.filter((d) => d.premio === p).map((d) => d.ano));
     return anosVis.filter((a) => a >= (inicio.get(p) ?? -Infinity) && !com.has(a)).map((ano) => ({ ano, premio_nome: NOME_PREMIO[p] ?? p }));
   });
-  const marcos = M.marcosDe(ps, PREMIOS[0], D?.premios ?? []).filter((m) => anosVis.includes(m.ano)).map((m) => ({ ...m, premio_nome: NOME_PREMIO[m.premio] ?? m.premio }));
+  const marcos = M.marcosDe(ps, D?.premios ?? []).filter((m) => anosVis.includes(m.ano)).map((m) => ({ ...m, premio_nome: NOME_PREMIO[m.premio] ?? m.premio }));
   if (!dados.length) return vazio(el), tabela($("#t-evolucao"), [], []);
   // Barra com no máximo 26px; a folga é fração da banda, para a barra não sumir com 67 edições no celular (CA-25.3).
   const banda = (largura(el) - 60) / anosVis.length, folga = Math.max(banda * 0.12, (banda - 26) / 2);
@@ -261,7 +261,7 @@ export function renderEditoras(L) {
 
 export function renderJuri(L, { D, estado }) {
   const el = $("#g-juri");
-  // Júri de cada prêmio comparado com a lista e as vencedoras do mesmo prêmio (CA-10.1, CA-26.9); D.jurados omite o prêmio padrão.
+  // Júri de cada prêmio comparado com a lista e as vencedoras do mesmo prêmio (CA-10.1, CA-26.9); D.jurados omite o 1º prêmio da ordem (economia).
   const ps = premiosDe(L), multi = ps.length > 1;
   const j = porPremio(L, (ls) => {
     const p = ls[0].premio, anos = new Set(ls.map((l) => l.ano));

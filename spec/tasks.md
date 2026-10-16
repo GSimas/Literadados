@@ -186,3 +186,4 @@
 - [x] T23.7 Janela Entre prêmios (`metricas.entrePremios`, CA-26.11) 🧪👁
 - [x] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁
 - [x] T23.9 Gauntlet 1 (revisão adversarial + auditoria do RF-26): obra só casa pela mesma pessoa, editora sem herança, ordem explícita do prêmio, `dados.json` dividido, avisos/facetas em todos os gráficos, país via Wikidata, busca e textos 🧪👁
+- [x] T23.10 Plataforma de prêmios (DA-4/DA-5 revistas, CA-26.15): padrão = todos os prêmios, história com seletor, textos e logotipo sem prêmio fixo, teste de varredura 🧪👁

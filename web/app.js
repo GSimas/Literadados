@@ -21,13 +21,9 @@ const [D] = await Promise.all([carregarDados(), carregarMalha()])
   });
 D.participacao = M.expandir(D); // JSON compacto → linhas de v_participacao (design D13)
 definirDados(D); // categorias presentes nos dados e prêmios da base (CA-26.3, CA-26.8)
-{ // rodapé: os prêmios da base (DA-5)
+{ // rodapé: os prêmios da base, vindos dos dados (DA-5)
   const ns = (D.premios ?? []).map((p) => p.nome);
-  if (ns.length > 1) {
-    $$("[data-premios-texto]").forEach((el) => { el.textContent = `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}`; });
-    $("#diadorim-pergunta")?.setAttribute("placeholder", "Pergunte sobre os prêmios…"); // CA-26.12
-    $("#tempo-trilho")?.setAttribute("aria-label", "Edições dos prêmios do recorte");
-  }
+  if (ns.length) $$("[data-premios-texto]").forEach((el) => { el.textContent = ns.length > 1 ? `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}` : ns[0]; });
 }
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
@@ -37,8 +33,8 @@ const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
 const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios"];
 const PARTES = ["panorama", ...IDS_JANELAS, "autores"];
 // Toda parte abre na série completa (CA-25.2, D30); o filtro recorta dentro dela.
-// Padrão: só o 1º prêmio (o Jabuti, DA-4); o filtro de cada parte escolhe outros. Entre prêmios abre com todos (CA-26.11).
-const premiosPadrao = (parte) => (parte === "entre-premios" ? [...PREMIOS] : PREMIOS.slice(0, 1));
+// Padrão: todos os prêmios da base (DA-4); o filtro de cada parte recorta um ou vários.
+const premiosPadrao = () => [...PREMIOS];
 const padraoDe = (parte) => () => M.filtroDeTexto(null, D.anos, CATEGORIAS, PREMIOS, premiosPadrao(parte));
 const padrao = padraoDe("panorama");
 const filtros = (() => {
@@ -47,8 +43,8 @@ const filtros = (() => {
 })();
 const PERIODO = `${D.anos[0]}–${D.anos[1]}`;
 document.documentElement.dataset.anos = PERIODO; // rodapé da exportação fora das partes filtráveis (história, perfis)
-document.documentElement.dataset.premios = nomesPremios(); // a história e os perfis de lugar são do prêmio padrão (DA-4)
-// Edições sem lista pública de indicados (Jabuti 1959–1999): ali "lista" = só premiadas. Chave "<prêmio>|<ano>" (CA-26.4).
+document.documentElement.dataset.premios = nomesPremios(); // rodapé da exportação fora das partes: todos os prêmios (DA-4)
+// Edições sem lista pública de indicados (no Jabuti, 1959–1999): ali "lista" = só premiadas. Chave "<prêmio>|<ano>" (CA-26.4).
 const SEM_LISTA = M.edicoesSemLista(D.categorias, PREMIOS[0]);
 const linhasDe = (parte) => M.filtrar(D.participacao, filtros[parte]);
 function gravarURL() {
@@ -82,11 +78,21 @@ function montarFiltros() {
 montarTema(() => { renderTudo(); historia.redesenhar(); });
 
 // ---------- abertura (CA-15.1) ----------
+// "Jabuti 1959–2025 (67 edições) · Oceanos 2003–2025 (23 edições)": cada prêmio com o próprio período, sem somar edições.
+function periodosPremios(L) {
+  const anos = d3.rollup(L, (v) => new Set(v.map((l) => l.ano)), (l) => l.premio);
+  const um = PREMIOS.length === 1;
+  return PREMIOS.filter((p) => anos.has(p)).map((p) => {
+    const a = [...anos.get(p)].sort((x, y) => x - y);
+    const nome = um ? nomesPremios([p]) : nomesPremios([p]).replace(/^Prêmio\s+/, "");
+    return `${nome} ${a[0]}–${a.at(-1)} (${fmt(a.length)} edições)`;
+  }).join(" · ");
+}
 function renderAbertura() {
   const L0 = M.filtrar(D.participacao, padrao()), H = M.historia(L0);
-  // A abertura é a do prêmio padrão (DA-4, DA-5): título, período e edições vêm dos dados.
-  $("#hero-periodo").textContent = `${nomesPremios()} · ${PERIODO} · ${fmt(new Set(L0.map((l) => l.ano)).size)} edições`;
-  $("#h-hero").textContent = `Quem chega ao ${nomesPremios()}?`;
+  // A abertura é de todos os prêmios da base (DA-4, DA-5): prêmios, períodos e edições vêm dos dados.
+  $("#hero-periodo").textContent = periodosPremios(L0);
+  $("#h-hero").textContent = "Quem chega aos prêmios literários?";
   // Números contam até o valor (CA-19.4); o texto final é o valor formatado exato.
   const nums = [
     [H.pessoas, fmt, "", `pessoas-autoras em ${fmt(H.indicacoes)} indicações`],
@@ -96,8 +102,8 @@ function renderAbertura() {
   $("#hero-numeros").innerHTML = nums.map(([, , extra, t]) => `<div class="hero-num"><b><span class="n"></span>${extra}</b><span>${t}</span></div>`).join("");
   $$("#hero-numeros .n").forEach((el, i) => contar(el, nums[i][0], (v) => nums[i][1](i === 0 && v != null ? Math.round(v) : v)));
   // Carrossel decorativo: fotos livres (vencedoras primeiro), em 3 faixas que correm em sentidos opostos. Nenhum dado codificado.
-  // Vencedoras de qualquer papel do prêmio padrão primeiro (ilustradoras incluídas, como antes do multi-prêmio).
-  const vencedoras = new Set(D.participacao.filter((l) => l.vencedora && l.premio === PREMIOS[0]).map((l) => l.pessoa_id));
+  // Vencedoras de qualquer papel e de qualquer prêmio primeiro (ilustradoras incluídas).
+  const vencedoras = new Set(D.participacao.filter((l) => l.vencedora).map((l) => l.pessoa_id));
   const fotos = D.pessoas.filter((p) => midiaPorId.get(p.id)?.imagem).sort((a, b) => vencedoras.has(b.id) - vencedoras.has(a.id)).slice(0, 60);
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
   const span = (p) => `<span style="background-image:url('${srcFoto(p.id, midiaPorId.get(p.id), 160).replace(/'/g, "%27")}')"></span>`;
@@ -228,8 +234,15 @@ $("#perfil-corpo").addEventListener("click", async (e) => {
 
 // ---------- rodapé e faixa de cobertura (método e referências ficam em metodo.html, D18) ----------
 function renderMetodologia() {
-  $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${D.anos_coletados.length} de ${ANOS.length} edições coletadas.`;
-  $("#faixa-cobertura").innerHTML = ANOS.map((a) => `<div role="listitem" class="${D.anos_coletados.includes(a) ? "ok" : ""}" title="${a}: ${D.anos_coletados.includes(a) ? "coletada" : "não coletada"}">${a}</div>`).join("");
+  // Edições por prêmio (CA-26.7): cada prêmio na própria linha, a partir da 1ª edição; nunca uma soma de anos de prêmios diferentes.
+  const cob = new Set(D.cobertura.map((c) => `${c.premio ?? PREMIOS[0]}|${c.ano}`));
+  const premios = D.premios?.length ? D.premios : [{ id: PREMIOS[0], nome: "" }];
+  $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${fmt(cob.size)} edições coletadas${premios.length > 1 ? ` em ${premios.length} prêmios` : ""}.`;
+  $("#faixa-cobertura").innerHTML = premios.map((p) => {
+    const anos = ANOS.filter((a) => a >= (p.ano_inicio ?? ANOS[0])), nome = esc(nomesPremios([p.id]));
+    const celulas = anos.map((a) => { const ok = cob.has(`${p.id}|${a}`); return `<div role="listitem" class="${ok ? "ok" : ""}" title="${nome} ${a}: ${ok ? "coletada" : "não coletada"}">${a}</div>`; }).join("");
+    return `${premios.length > 1 ? `<p class="faixa-premio">${nome} <span class="muted">${fmt(anos.filter((a) => cob.has(`${p.id}|${a}`)).length)} de ${fmt(anos.length)} edições</span></p>` : ""}<div class="faixa" role="list" aria-label="Edições ${esc(p.nome ?? "")}">${celulas}</div>`;
+  }).join("");
 }
 
 // Nota de rodapé do asterisco de gênero (CA-11.4): contagem na base inteira de pessoas-autoras.
@@ -273,7 +286,7 @@ renderAbertura();
 renderNotaGenero();
 renderMetodologia();
 renderTudo();
-const historia = montarHistoria({ D, abrirPerfil });
+const historia = montarHistoria({ D, abrirPerfil, semLista: SEM_LISTA });
 montarNavegacao();
 rota();
 revelarAoRolar();

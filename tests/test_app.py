@@ -1,6 +1,7 @@
 """Testes de aceitação do backend (spec RF-01, RF-12). Rodar: .venv/bin/python -m pytest -q"""
 import csv
 import json
+import re
 import shutil
 import subprocess
 import threading
@@ -534,6 +535,29 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id WHERE i.ano < 2000 AND o.editora_id IS NOT NULL").fetchone()[0] == 0
 
 
+# Frases que fazem do site o site de um prêmio só (CA-26.15, DA-5) ou que usam o 1º prêmio como padrão (DA-4).
+FIXAM_UM_PREMIO = [
+    r"Quem chega ao Prêmio", r"sobre o (Prêmio )?Jabuti", r"edições do Jabuti", r"principal prêmio do livro", r"abre no Jabuti",
+    r"Edições do Prêmio Jabuti", r"desde 1959", r'\?\? "Prêmio Jabuti"', r"jabuti visto de cima", r"casco de jabuti",
+    r"PREMIOS\.slice\(0, ?1\)", r"premios\[0\]\.id\]", r"lt-membro",
+]
+
+
+def test_textos_de_plataforma():  # CA-26.15
+    """Texto genérico não cita um prêmio; nome de prêmio no HTML só junto de uma regra dele ("no Jabuti, …", "… do Oceanos:")."""
+    web = RAIZ / "web"
+    for arq in [web / "index.html", web / "metodo.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
+        txt = arq.read_text(encoding="utf-8")
+        for padrao in FIXAM_UM_PREMIO:
+            assert not re.search(padrao, txt), f"{arq.name}: {padrao}"
+    for arq in ["index.html", "metodo.html"]:
+        txt = re.sub(r"<span data-premios-texto>[^<]*</span>", "", (web / arq).read_text(encoding="utf-8"))  # lista vinda dos dados
+        txt = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", "", txt, flags=re.S)
+        for m in re.finditer(r"(?:Prêmio )?(?:Jabuti|Oceanos)", txt):
+            antes, depois = txt[max(0, m.start() - 3):m.start()], txt[m.end():m.end() + 1]
+            assert antes in ("no ", "No ", "<i>") or depois == ":", f"{arq}: …{txt[max(0, m.start() - 50):m.end() + 20]}…"
+
+
 def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
     """O painel abre na série completa: nenhum texto fixa 2010–2025 como o período do painel."""
     web = RAIZ / "web"
@@ -543,4 +567,5 @@ def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
             assert proibido not in txt, f"{arq}: {proibido}"
     build.build(RAIZ / "dados", tmp_path / "p.duckdb", tmp_path / "p.json")
     prompt = build.prompt_sistema(duckdb.connect(str(tmp_path / "p.duckdb"), read_only=True))
-    assert "Período padrão: a série completa, 1959–2025" in prompt and "usam 2010–2025" not in prompt
+    assert "Período padrão: a série completa de cada prêmio" in prompt and "usam 2010–2025" not in prompt
+    assert "o padrão do painel" not in prompt  # sem prêmio padrão (DA-4 revista): sem prêmio na pergunta, todos

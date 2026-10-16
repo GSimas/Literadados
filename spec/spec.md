@@ -5,7 +5,7 @@
 
 ## 1. Problema
 
-Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores do Prêmio Jabuti. Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
+Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores de prêmios literários (hoje, Prêmio Jabuti e Prêmio Oceanos; a plataforma recebe outros pelo mesmo modelo). Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
 
 ## 2. Escopo
 
@@ -84,12 +84,12 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
 
 ### RF-15 Página, navegação e tema
-- **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo (pessoas, % mulheres, piso de % negras), calculados dos dados.
+- **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo de **todos os prêmios da base** (pessoas distintas, % mulheres, piso de % negras), calculados dos dados. Nem o título nem a descrição se referem a um prêmio só: os prêmios e períodos vêm dos dados (DA-5).
 - **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
 - **CA-15.3 👁** O cabeçalho não tem filtro: cada parte filtrável traz o seu (RF-02).
 
 ### RF-16 História guiada (scrollytelling)
-- **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento.
+- **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento. Um seletor no topo escolhe o prêmio da história ("Todos os prêmios", padrão, ou um deles; DA-4); com todos, cada pessoa é um ponto só, e o passo da lista às vencedoras diz que junta prêmios de formatos diferentes. Os textos não citam um prêmio fixo.
 - **CA-16.2 🧪** Todos os números da narrativa vêm de uma função pura sobre os dados (nunca texto fixo) e mostram o n.
 - **CA-16.3 👁** A rolagem encaixa em cada passo (scroll-snap). Com `prefers-reduced-motion`, não há encaixe nem animação. Há um link para pular a história, e os passos funcionam com teclado.
 
@@ -105,7 +105,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-19.2 👁** Nenhum controle com aparência nativa do sistema: listas de opções (selects) viram menus próprios, operáveis por teclado (setas, Enter, Esc, Home/End) e com `role="listbox"`. Caixas de seleção, campos, diálogos, dicas dos gráficos e tabelas recolhíveis seguem o estilo do Literadados. As barras de rolagem são próprias e **grossas** (14 px).
 - **CA-19.3 👁** Nenhum link azul sublinhado: nomes de pessoas, fontes, links externos e referências aparecem como chips clicáveis. Links dentro de texto corrido usam a cor da marca, com sublinhado animado no hover.
 - **CA-19.4 👁** Abertura: o fundo é um carrossel contínuo de fotos livres em faixas que correm em sentidos opostos, com pontos e brilho animados de leve. Os números da abertura contam até o valor.
-- **CA-19.5 👁** Logotipo próprio (casco de jabuti feito de células de dados) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
+- **CA-19.5 👁** Logotipo próprio (um hexágono de sete células de dados, sem referência a um prêmio) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
 - **CA-19.6 👁** O tema é escolhido num botão de ícone de **tamanho fixo**, que abre um menu pequeno (Claro, Escuro, Automático), e o ícone mostra o tema ativo.
 - **CA-19.8 👁** Dicas (balões) dos gráficos entram e saem com fade, tanto as do Observable Plot quanto as dos gráficos feitos à mão (mapa, Sankey, história).
 - **CA-19.9 👁** Em todo gráfico, o elemento sob o mouse (barra, célula, ponto, UF, fluxo) fica em destaque e os demais do mesmo gráfico ficam mais transparentes. Ao sair do gráfico, tudo volta ao normal.
@@ -157,7 +157,7 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 - **CA-26.7 🧪** Cobertura (CA-01.4, RF-13) por prêmio e edição.
 
 **Painel**
-- **CA-26.8 🧪👁** Todo filtro de parte (RF-02) ganha o **prêmio** (um, vários ou todos), guardado na URL junto com o resto do filtro. A ida e a volta da codificação são testadas. O padrão é o Jabuti (DA-4), e o padrão não aparece na URL.
+- **CA-26.8 🧪👁** Todo filtro de parte (RF-02) ganha o **prêmio** (um, vários ou todos), guardado na URL junto com o resto do filtro. A ida e a volta da codificação são testadas. O padrão são todos os prêmios (DA-4), e o padrão não aparece na URL.
 - **CA-26.9 🧪👁** Nenhum percentual soma bases diferentes sem avisar. Com mais de um prêmio no recorte, a evolução, o funil, as categorias, o júri e a linha do tempo mostram **um prêmio por faceta** (ou por linha), cada um com o seu n. Os cartões do panorama contam pessoas distintas e dizem quantos prêmios entram no recorte.
 - **CA-26.10 👁** O perfil de pessoa mostra a trajetória em todos os prêmios, em ordem de ano, com o prêmio em cada item. O perfil de livro mostra todas as participações do livro, de qualquer prêmio. A linha do tempo tem os marcos de cada prêmio (criação, mudanças de formato).
 - **CA-26.11 🧪👁** Janela nova, **Entre prêmios**: pessoas premiadas em dois ou mais prêmios, sobreposição entre os pares de prêmios (com n) e a ordem em que cada pessoa chegou a cada um.
@@ -165,12 +165,14 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 - **CA-26.13 🧪** Diadorim: `v_participacao` tem a coluna `premio`, e o prompt lista os prêmios, os formatos de cada um e a regra de não comparar taxas de prêmios diferentes sem dizer as bases.
 - **CA-26.14 🧪** RNF-06 continua valendo: cada arquivo de dados carregado na abertura tem menos de 1 MB. Com vários prêmios, um arquivo por prêmio (D31), e o painel remonta exatamente as linhas de `v_participacao`.
 
+- **CA-26.15 🧪👁** Plataforma, não um prêmio (DA-5): nenhum texto genérico do site (título da página, abertura, cabeçalhos, rodapés, placeholders, rótulos, prompt da Diadorim, README) se refere a um prêmio só. O nome de um prêmio só aparece junto de um dado ou de uma regra daquele prêmio (ex.: "no Jabuti, até 1999 só há premiados"). Um teste varre `web/` e falha com frases que fixam um prêmio.
+
 **Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
 - **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.
 - **DA-2 Conjunto da obra:** prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) ficam fora (ver §6).
 - **DA-3 Autores de fora do Brasil:** entram. A pessoa ganha país de nascimento (`BR` para quem tem UF), e a geografia ganha a dimensão "país"; o mapa continua sendo do Brasil. Raça segue o mesmo protocolo de autodeclaração, e o Método avisa que os termos seguem as categorias do IBGE.
-- **DA-4 Visão padrão:** o painel abre com o Jabuti; cada filtro tem o seletor de prêmio, com a opção "todos". A História guiada continua sendo a do Jabuti. Isso é reavaliado quando houver três prêmios ou mais coletados.
-- **DA-5 Identidade:** a marca Literadados e o logotipo ficam. O título da abertura vem do prêmio padrão, e a descrição da página cita os prêmios da base.
+- **DA-4 Visão padrão** (revista em 2026-10-16): o painel abre com **todos os prêmios**; cada filtro tem o seletor de prêmio para recortar um ou vários. Com mais de um prêmio, os gráficos de taxa usam facetas por prêmio (CA-26.9). A História guiada e os perfis de lugar têm o mesmo padrão (todos), com seletor na história. A ordem dos prêmios (coluna `ordem`) só define a ordem de listas e facetas e a coleta, não um prêmio "principal".
+- **DA-5 Identidade** (revista em 2026-10-16): o Literadados é uma plataforma de prêmios literários, não de um prêmio. Título ("Quem chega aos prêmios literários?"), descrição, rodapés, placeholder da Diadorim, busca e textos dos gráficos falam de prêmios em geral; regra que é de um prêmio só (formatos, anos sem lista pública, júri divulgado) aparece com o nome do prêmio. O logotipo perde o jabuti e fica com as células de dados.
 
 ### RF-12 Diadorim, a IA do Literadados
 Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Sertão: Veredas*: firme, leal, de poucas palavras e fala com sabor de sertão, mas sempre clara. A personagem é inspirada no livro, sem reproduzir trechos dele.

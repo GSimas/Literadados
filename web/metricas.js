@@ -35,11 +35,17 @@ export const MARCOS = [
   { premio: "oceanos", ano: 2017, texto: "Livros de qualquer país" },
   { premio: "oceanos", ano: 2023, texto: "Prosa e Poesia" },
 ];
-// premios = null: só os do prêmio padrão (o 1º da lista), como antes de haver vários prêmios. Com a lista da base
-// (D.premios), cada prêmio que não é o padrão ganha também o marco da 1ª edição (ano_inicio), vindo dos dados.
-export const marcosDe = (premios, padrao = "jabuti", base = []) => {
-  const sel = premios ?? [padrao];
-  const inicios = base.filter((p) => p.id !== padrao && sel.includes(p.id)).map((p) => ({ premio: p.id, ano: p.ano_inicio, texto: "1ª edição" }));
+// Formato do pódio de cada prêmio, para textos que juntam ou comparam prêmios (sempre ditos com o nome do prêmio, DA-5).
+export const FORMATOS = {
+  jabuti: "até 1992 havia um vencedor por categoria; de 1993 a 2017, pódio de 1º a 3º; desde 2018, só o 1º",
+  oceanos: "o pódio teve 3 ou 4 premiados até 2022 (de 2012 a 2014, um vencedor por categoria e o Grande Prêmio); desde 2023, um vencedor em prosa e outro em poesia",
+};
+// Marcos dos prêmios escolhidos (premios = null: todos). Com a lista da base (D.premios), cada prêmio criado depois do
+// início da série ganha também o marco da 1ª edição (ano_inicio), vindo dos dados; o mais antigo já começa no eixo.
+export const marcosDe = (premios, base = []) => {
+  const sel = premios ?? [...new Set([...MARCOS.map((m) => m.premio), ...base.map((p) => p.id)])];
+  const inicio0 = Math.min(...base.map((p) => p.ano_inicio ?? Infinity));
+  const inicios = base.filter((p) => p.ano_inicio > inicio0 && sel.includes(p.id)).map((p) => ({ premio: p.id, ano: p.ano_inicio, texto: "1ª edição" }));
   return [...MARCOS.filter((m) => sel.includes(m.premio)), ...inicios.filter((i) => !MARCOS.some((m) => m.premio === i.premio && m.ano === i.ano))];
 };
 
@@ -65,7 +71,7 @@ export function expandir(D) {
   // Fonte "wd" no dados.json = página do Wikidata da própria pessoa (build._fontes_wd, RNF-06).
   for (const p of D.pessoas) for (const k of ["genero_fonte", "nascimento_fonte", "raca_fonte"]) if (p[k] === "wd") p[k] = `https://www.wikidata.org/wiki/${p.wikidata}`;
   const por = (arr, chave) => new Map(arr.map((x) => [chave(x), x]));
-  // `premio` fica fora do JSON quando é o prêmio padrão, o 1º de D.premios (design D31).
+  // `premio` fica fora do JSON quando é o 1º de D.premios, só por economia (design D31; o painel abre com todos, DA-4).
   const padrao = D.premios?.[0]?.id ?? null, pr = (x) => x.premio ?? padrao;
   const premio = por(D.premios ?? [], (p) => p.id);
   const edicao = por(D.edicoes, (e) => `${pr(e)}|${e.ano}`);
@@ -403,7 +409,8 @@ export function historia(linhas) {
   return {
     pessoas: n,
     indicacoes: distintos(linhas, (l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`),
-    edicoes: distintos(linhas, (l) => l.ano),
+    edicoes: distintos(linhas, (l) => `${l.premio}|${l.ano}`), // edição = prêmio + ano (CA-26.9)
+    premios: distintos(linhas, (l) => l.premio),
     genero: { ...gt, pctMulheres: pct(gt.mulheres, n), atribuido: porPessoa(linhas).filter((l) => l.genero_atribuido).length },
     premiadas: { pessoas: prem.length, mulheres: gp.mulheres, pctMulheres: pct(gp.mulheres, prem.length) },
     vencedoras: { pessoas: venc.length, ...gv, pctMulheres: pct(gv.mulheres, venc.length) },
@@ -495,10 +502,10 @@ export function capacidadeAnel(largura, dMin = 44, max = 100) {
 }
 
 // Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores)
-// + "~p:jabuti,oceanos" (prêmios, CA-26.8). Texto vazio = padrão: a série completa [a0, a1] (CA-25.2) e só o 1º prêmio de
+// + "~p:jabuti,oceanos" (prêmios, CA-26.8). Texto vazio = padrão: a série completa [a0, a1] (CA-25.2) e todos os prêmios de
 // `premios` (DA-4); valores fora da série ou prêmios desconhecidos voltam ao padrão. Sem `premios`, o filtro não tem prêmio.
-// padraoP: prêmios do padrão desta parte (a janela Entre prêmios abre com todos).
-export function filtroDeTexto(texto, [a0, a1], cats, premios = null, padraoP = premios?.slice(0, 1)) {
+// padraoP: prêmios do padrão desta parte (todos, se não for dito outro).
+export function filtroDeTexto(texto, [a0, a1], cats, premios = null, padraoP = premios) {
   const [anos = "", ...resto] = String(texto ?? "").split("~");
   const [i, f] = anos.split("-").map(Number);
   const anoIni = i >= a0 && i <= a1 ? i : a0;
@@ -510,7 +517,7 @@ export function filtroDeTexto(texto, [a0, a1], cats, premios = null, padraoP = p
   return { ...f_, premios: ps?.length ? premios.filter((p) => ps.includes(p)) : [...padraoP] };
 }
 // [a0, a1]: anos do padrão (a série completa); o que não muda o padrão não vai para a URL.
-export function filtroParaTexto(f, [a0, a1], cats, premios = null, padraoP = premios?.slice(0, 1)) {
+export function filtroParaTexto(f, [a0, a1], cats, premios = null, padraoP = premios) {
   const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
   const padraoPremios = !premios?.length || !f.premios || (f.premios.length === padraoP.length && f.premios.every((p, i) => p === padraoP[i]));
   if (padraoAnos && todasCats && f.papel !== "todos" && padraoPremios) return "";
@@ -605,8 +612,9 @@ export function indiceBusca(D) {
   const porPessoaId = groupBy(ls, (l) => l.pessoa_id), porObra = groupBy(ls, (l) => l.obra_id);
   const jurados = new Set(D.jurados.map((j) => j.pessoa_id));
   // Vários prêmios (CA-26.12): edições e livros dizem de que prêmio são; "Prêmio Oceanos" → "Oceanos".
-  const premios = D.premios ?? [], padrao = premios[0]?.id ?? "jabuti", multi = premios.length > 1;
-  const curto = (id) => (premios.find((p) => p.id === id)?.nome ?? "Prêmio Jabuti").replace(/^Prêmio\s+/, "");
+  // padrao: só para descompactar (o JSON omite o 1º prêmio da ordem); não é prêmio principal (DA-4).
+  const premios = D.premios ?? [], padrao = premios[0]?.id, multi = premios.length > 1;
+  const curto = (id) => (premios.find((p) => p.id === id)?.nome ?? id ?? "").replace(/^Prêmio\s+/, "");
   const e = [];
   const add = (tipo, rotulo, sub, href, extra = "") => e.push({ tipo, rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) });
   for (const p of D.pessoas) {
@@ -638,10 +646,9 @@ export function indiceBusca(D) {
   const regime = new Map((D.edicoes ?? []).map((x) => [`${x.premio ?? padrao}|${x.ano}`, x.regime]));
   const comDados = [...new Set(ls.map((l) => `${l.premio ?? padrao}|${l.ano}`))].map((k) => k.split("|")).sort((a, b) => a[1] - b[1]);
   for (const [p, a] of comDados.length ? comDados : D.anos_coletados.map((a) => [padrao, String(a)])) {
-    // Edição de outro prêmio abre a linha do tempo já filtrada naquele prêmio e ano (CA-26.12).
+    // A edição abre a linha do tempo filtrada naquele prêmio e ano (CA-26.12); sem ~p:, o filtro seria o padrão, todos os prêmios.
     add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "",
-      // O padrão também leva filtro explícito (só o ano): substitui um filtro de outro prêmio deixado na URL.
-      p === padrao ? `?linha-do-tempo=${a}-${a}#/grafico/linha-do-tempo` : `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo`, a);
+      multi ? `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo` : `?linha-do-tempo=${a}-${a}#/grafico/linha-do-tempo`, a);
   }
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   if (multi) add("Gráfico", "Entre prêmios", "quem passa por mais de um prêmio", "#/grafico/entre-premios", "sobreposicao premios");

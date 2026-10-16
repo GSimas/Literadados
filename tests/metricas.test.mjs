@@ -378,16 +378,18 @@ const LP = [
 ];
 const PS = ["jabuti", "oceanos"];
 
-test("filtro com prêmio: padrão é o 1º prêmio e não vai para a URL; ida e volta (CA-26.8)", () => {
+test("filtro com prêmio: padrão são todos os prêmios e não vai para a URL; ida e volta (CA-26.8, DA-4)", () => {
   const CATS = ["Romance", "Poesia", "Geral"], ANOS = [1959, 2025];
   const p = M.filtroDeTexto(null, ANOS, CATS, PS);
-  assert.deepEqual(p.premios, ["jabuti"]);
+  assert.deepEqual(p.premios, ["jabuti", "oceanos"]);
   assert.equal(M.filtroParaTexto(p, ANOS, CATS, PS), "");
-  const f = { ...p, premios: ["oceanos", "jabuti"], categorias: ["Geral"] };
+  assert.equal(M.filtroParaTexto({ ...p, premios: ["jabuti"] }, ANOS, CATS, PS), "1959-2025~p:jabuti"); // um prêmio só vai para a URL
+  const f = { ...p, premios: ["oceanos"], categorias: ["Geral"] };
   const t = M.filtroParaTexto(f, ANOS, CATS, PS);
-  assert.equal(t, "1959-2025~Geral~p:oceanos,jabuti");
-  assert.deepEqual(M.filtroDeTexto(t, ANOS, CATS, PS).premios, ["jabuti", "oceanos"]); // ordem da base
-  assert.deepEqual(M.filtroDeTexto("1959-2025~p:fantasma", ANOS, CATS, PS).premios, ["jabuti"]); // desconhecido → padrão
+  assert.equal(t, "1959-2025~Geral~p:oceanos");
+  assert.deepEqual(M.filtroDeTexto("1959-2025~p:oceanos,jabuti", ANOS, CATS, PS).premios, ["jabuti", "oceanos"]); // ordem da base
+  assert.deepEqual(M.filtroDeTexto(t, ANOS, CATS, PS), f);
+  assert.deepEqual(M.filtroDeTexto("1959-2025~p:fantasma", ANOS, CATS, PS).premios, ["jabuti", "oceanos"]); // desconhecido → padrão (todos)
   assert.deepEqual(M.filtroDeTexto("2000-2010~todos~p:oceanos", ANOS, CATS, PS), { anoIni: 2000, anoFim: 2010, categorias: CATS, papel: "todos", premios: ["oceanos"] });
   assert.ok(!("premios" in M.filtroDeTexto(null, ANOS, CATS))); // sem prêmios, o filtro é o de antes
   assert.equal(M.filtrar(LP, { premios: ["oceanos"] }).length, 3);
@@ -431,7 +433,7 @@ test("edições sem lista pública por prêmio; marcos só dos prêmios do recor
   ];
   assert.deepEqual([...M.edicoesSemLista(cats, "jabuti")].sort(), ["jabuti|1990", "jabuti|2017", "oceanos|2016"]);
   assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
-  assert.ok(M.marcosDe(null).length > 0 && M.marcosDe(null).every((m) => m.premio === "jabuti"));
+  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["jabuti", "oceanos"]); // null = todos (DA-4)
 });
 test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
   const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
@@ -451,9 +453,9 @@ test("juntar: partes de outros prêmios se somam ao dados.json (CA-26.14)", () =
 
 test("marcos: 1ª edição dos outros prêmios vem dos dados (CA-26.10)", () => {
   const base = [{ id: "jabuti", ano_inicio: 1959 }, { id: "oceanos", ano_inicio: 2003 }];
-  const mo = M.marcosDe(["oceanos"], "jabuti", base);
+  const mo = M.marcosDe(["oceanos"], base);
   assert.ok(mo.every((m) => m.premio === "oceanos") && mo.some((m) => m.ano === 2003 && m.texto === "1ª edição") && mo.length > 1);
-  assert.ok(!M.marcosDe(["jabuti"], "jabuti", base).some((m) => m.texto === "1ª edição")); // o padrão não ganha marco de criação
+  assert.ok(!M.marcosDe(["jabuti"], base).some((m) => m.texto === "1ª edição")); // o prêmio mais antigo já começa no eixo
 });
 
 test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no lugar de EX (CA-26.12)", () => {
@@ -464,7 +466,13 @@ test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no 
   const oc = ix.find((e) => e.tipo === "Edição" && e.rotulo === "Oceanos 2018");
   assert.equal(oc.href, "?linha-do-tempo=2018-2018~p:oceanos#/grafico/linha-do-tempo");
   assert.equal(oc.sub, "categoria única");
-  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "?linha-do-tempo=2016-2016#/grafico/linha-do-tempo");
+  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "?linha-do-tempo=2016-2016~p:jabuti#/grafico/linha-do-tempo"); // sem ~p:, abriria todos
   assert.ok(ix.find((e) => e.rotulo === "Eva Angolana").sub.startsWith("Angola"));
   assert.ok(ix.some((e) => e.rotulo === "Entre prêmios"));
+});
+test("história com vários prêmios: edição é prêmio + ano; pessoa conta uma vez (CA-16.1, DA-4)", () => {
+  const ls = [L({ premio: "jabuti", ano: 2018, obra_id: "a1", pessoa_id: "p" }), L({ premio: "oceanos", ano: 2018, obra_id: "a2", pessoa_id: "p" })];
+  const h = M.historia(ls);
+  assert.deepEqual([h.edicoes, h.premios, h.pessoas, h.indicacoes], [2, 2, 1, 2]);
+  assert.ok(Object.keys(M.FORMATOS).every((p) => M.MARCOS.some((m) => m.premio === p))); // formato só de prêmio conhecido
 });

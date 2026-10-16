@@ -13,7 +13,7 @@ CREATE TABLE uf (
   populacao_2022  INTEGER                     -- Censo IBGE 2022 (preencher na coleta), para taxas per capita
 );
 
--- Prêmios da base (RF-26, design D31). ordem = 1 é o padrão do painel (DA-4), e a coleta processa nessa ordem.
+-- Prêmios da base (RF-26, design D31). ordem só ordena listas, facetas e a coleta; o painel abre com todos (DA-4).
 -- Prêmios pelo conjunto da obra ficam fora (DA-2): todo prêmio aqui premia livros.
 CREATE TABLE premio (
   id           TEXT PRIMARY KEY,               -- slug ('jabuti', 'oceanos')
