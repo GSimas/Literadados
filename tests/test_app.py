@@ -311,7 +311,7 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     build.build(RAIZ / "dados", tmp_path / "h.duckdb", tmp_path / "h.json")
     j = json.loads((tmp_path / "h.json").read_text(encoding="utf-8"))
     assert j["anos_coletados"] == list(range(1959, 2026))
-    assert j["anos"] == [1959, 2025] and j["recorte"] == [2010, 2025]
+    assert j["anos"] == [1959, 2025] and "recorte" not in j  # série completa por padrão (CA-25.2)
     con = duckdb.connect(str(tmp_path / "h.duckdb"), read_only=True)
     # toda edição antiga tem premiado em ao menos 3 categorias do recorte, e o Livro do Ano só tem vencedores
     por_ano = dict(con.execute("SELECT ano, COUNT(DISTINCT categoria) FROM v_participacao WHERE ano < 2010 AND premiada GROUP BY ano").fetchall())
@@ -321,3 +321,15 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     assert con.execute("""SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id JOIN editora e ON e.id = o.editora_id
                           WHERE i.ano < 1986 AND e.nome ILIKE '%companhia das letras%'""").fetchone()[0] == 0
     assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id WHERE i.ano < 2000 AND o.editora_id IS NOT NULL").fetchone()[0] == 0
+
+
+def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
+    """O painel abre na série completa: nenhum texto fixa 2010–2025 como o período do painel."""
+    web = RAIZ / "web"
+    for arq in ["index.html", "metodo.html", *[p.name for p in web.glob("*.js")]]:
+        txt = (web / arq).read_text(encoding="utf-8")
+        for proibido in ("Prêmio Jabuti 2010–2025", "2010–2025 · 16 edições", "Entre 2010 e 2025", "Recorte completo: 2010–2025", "Dezesseis edições", "D.recorte"):
+            assert proibido not in txt, f"{arq}: {proibido}"
+    build.build(RAIZ / "dados", tmp_path / "p.duckdb", tmp_path / "p.json")
+    prompt = build.prompt_sistema(duckdb.connect(str(tmp_path / "p.duckdb"), read_only=True))
+    assert "Período padrão: a série completa, 1959–2025" in prompt and "usam 2010–2025" not in prompt

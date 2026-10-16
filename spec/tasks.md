@@ -166,3 +166,11 @@
 - [x] T21.6 `dados.json` < 1 MB: chaves nulas fora, `premiada`/`vencedora` derivadas da colocação, `papel` só quando não é autor (RNF-06) 🧪
 - [x] T21.7 Busca de raça das 139 pessoas com `parcial` (`pessoas_hist_raca_4..6.csv`: 0 autodeclarações, 5 casos em `revisao_raca.csv`); sede/grupo das 60 editoras novas (51 com sede, 5 unificadas por `canonico`)
 - [ ] T21.8 Pendências: capas pelo Google Books (cota anônima com limite 0 em 16/out; precisa de chave de API), revisão humana dos casos em `revisao_raca.csv`
+
+## T22 Série completa por padrão (out/2026, CA-25.2 a CA-25.5, D30)
+- [x] T22.1 Build sem `recorte`; padrão de todas as partes = 1959–2025; `filtrar` sem período não corta anos 🧪
+- [x] T22.2 Textos com período a partir dos dados (abertura, história, lugar, exportação, descrição, método) 🧪👁
+- [x] T22.3 Avisos de edições sem lista pública (história, funil, linha do tempo); marcos de 1993 e 2000 👁
+- [x] T22.4 Editoras: indicações sem editora fora do ranking, com contagem 🧪👁
+- [x] T22.5 Eixos com muitas edições (rótulos de 5/10 anos; barras que cabem no celular) 👁
+- [x] T22.6 Diadorim: prompt com a série completa como padrão e o aviso das edições sem lista 🧪

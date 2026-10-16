@@ -29,15 +29,15 @@ coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar 
 | premiada | recebeu colocação (1º a 3º até 2017; 1º depois) | `colocacao IS NOT NULL` |
 | vencedora | 1º lugar | `colocacao = 1` |
 
-Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único` (coluna `regime`).
+Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único` (coluna `regime`). De 1959 a 1999 não há lista pública: a etapa lista é só a das premiadas (`categoria_edicao.vagas_lista` vazio).
 
 ### `web/dados.json` (contrato)
 
 ```json
 {
   "gerado_em": "ISO-8601",
-  "anos": [2010, 2025],
-  "anos_coletados": [2010, 2011, ...],
+  "anos": [1959, 2025],
+  "anos_coletados": [1959, 1960, ...],
   "regimes": [ { "ano", "regime" } ],
   "participacao": [ { "ano", "nome_original", "obra_id", "pessoa_id", "papel",
                       "lista_curta", "colocacao", "premiada", "vencedora" } ],
@@ -170,3 +170,4 @@ Regimes: `2010–2017 pódio`, `2018 transição`, `2019–2025 vencedor único`
 - **D28** Resposta seca da Diadorim (CA-12.12): regra no prompt (`build.prompt_sistema` e persona), na descrição da ferramenta, uma insistência automática e, por fim, o detalhamento determinístico. `consultaDeDetalhe` só reescreve o caso simples `SELECT <agregado> FROM v_participacao [WHERE …]` (sem GROUP BY/WITH/UNION/JOIN), trocando a lista de colunas pelas da pessoa e da obra; outro formato fica sem o bloco. A consulta automática passa por `validarSQL` e pelo banco somente leitura, como as do modelo.
 - **D29** Ranking e perfil de livro (RF-23, RF-24). `metricas.ranking` é pura e testada; `renderRanking` usa o índice que o Plot liga a cada barra para o clique. Capas em `dados/obra_capa.csv` (tabela `obra_capa`): Google Books primeiro (cota anônima diária compartilhada; quando acaba, segue só com a Open Library e não marca "sem capa"), Open Library depois. Obras procuradas nas duas fontes sem resultado ficam em `dados/coleta/capas_sem_resultado.txt` e não são buscadas de novo. Capa é exibida da fonte, com `referrerpolicy="no-referrer"`, sem cópia no site.
 - **D10** As vagas variam por edição (empates criaram listas de 11 a 16 e pódios de 4; houve empate no Livro do Ano de 2016). Nenhum código assume 10/5/3; tudo vem de `categoria_edicao`.
+- **D30** Série completa por padrão (CA-25.2 a CA-25.5). O build deixa de exportar `recorte`; o padrão de toda parte é `D.anos` (1959–2025), e `metricas.filtrar` sem período não corta anos. `filtroDeTexto(texto, anos, cats)` perde o 4º parâmetro (padrão próprio por parte): o padrão é sempre a série. O conjunto de edições sem lista pública (`semLista`, calculado em `app.js` a partir de `vagas_lista`) vai no contexto das partes, para o resumo do filtro, a linha do tempo e o aviso do funil. Textos com período leem `D.anos`/`D.anos_coletados` (`#hero-periodo`, história, perfil de lugar) ou o filtro da parte (rodapé da exportação, via `data-anos` no elemento da parte). `metricas.editoras` ignora obra sem editora e `metricas.semEditora` conta essas indicações para a nota. Eixo de anos: `metricas.passoAnos(n, largura)` (1, 2, 5 ou 10; pura e testada) decide quais rótulos aparecem; a folga das barras da evolução é uma fração da banda, para nunca passar da largura da barra. Os rótulos dos marcos da evolução vão para a primeira linha livre (sem encostar no anterior) e, perto das bordas, alinham pela ponta. O resumo do funil só chama de queda uma diferença de pelo menos meio ponto (abaixo disso, os dois % arredondam iguais).

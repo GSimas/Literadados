@@ -22,6 +22,8 @@ export const ETAPAS = [
 ];
 
 export const MARCOS = [
+  { ano: 1993, texto: "Pódio de 1º a 3º" },
+  { ano: 2000, texto: "Listas públicas" },
   { ano: 2018, texto: "Reforma: só o 1º lugar" },
   { ano: 2020, texto: "Romance Literário" },
   { ano: 2021, texto: "CBL coleta raça" },
@@ -87,7 +89,8 @@ export function grupo(l, dim) {
   return l.regiao_nascimento ?? "sem dado";
 }
 
-export function filtrar(linhas, { anoIni = 2010, anoFim = 2025, categorias = null, papel = "autor" } = {}) {
+// Sem período, não corta anos: o padrão do painel é a série completa (CA-25.2, D30).
+export function filtrar(linhas, { anoIni = -Infinity, anoFim = Infinity, categorias = null, papel = "autor" } = {}) {
   return linhas.filter(
     (l) =>
       l.ano >= anoIni && l.ano <= anoFim &&
@@ -119,6 +122,9 @@ export function kpis(linhas) {
     editoras: new Set(linhas.map((l) => l.editora).filter(Boolean)).size,
   };
 }
+
+// Rótulos do eixo de anos (CA-25.3): com dezenas de edições, só de 2 em 2, 5 em 5 ou 10 em 10 anos.
+export const passoAnos = (n, largura = 900) => [1, 2, 5, 10].find((p) => (n / p) * 38 <= largura) ?? 10;
 
 // Composição por edição (100%), etapa 'lista' ou 'premiada'. Edições sem linhas não aparecem (o gráfico marca lacuna).
 export function composicao(linhas, dim, etapa = "lista") {
@@ -195,11 +201,14 @@ export function segregacao(linhas) {
   return out;
 }
 
+// Indicações (obras) por editora. Obra sem editora conhecida (série histórica sem fonte da época) não é uma editora:
+// fica fora da lista e é contada à parte por semEditora (CA-25.4).
+const indicacoesDeAutor = (linhas) => [...new Map(linhas.filter((l) => l.papel === "autor").map((l) => [`${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
+export const semEditora = (linhas) => indicacoesDeAutor(linhas).filter((l) => !l.editora).length;
 export function editoras(linhas, top = 15) {
-  const porObra = [...new Map(linhas.filter((l) => l.papel === "autor").map((l) => [`${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
   const m = new Map();
-  for (const l of porObra) {
-    const nome = l.editora ?? "Editora não informada";
+  for (const l of indicacoesDeAutor(linhas).filter((x) => x.editora)) {
+    const nome = l.editora;
     const r = m.get(nome) ?? { editora: nome, grupo: l.grupo_editorial ?? null, premiadas: 0, outras: 0 };
     l.premiada ? r.premiadas++ : r.outras++;
     m.set(nome, r);
@@ -450,17 +459,16 @@ export function capacidadeAnel(largura, dMin = 44, max = 100) {
 }
 
 // Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
-// Texto vazio = padrão; valores fora do recorte voltam ao padrão.
-// [a0, a1]: anos válidos (a série toda); [p0, p1]: anos do padrão da parte (RF-25: 2010–2025, ou a série no ranking).
-export function filtroDeTexto(texto, [a0, a1], cats, [p0, p1] = [a0, a1]) {
+// Texto vazio = padrão, a série completa [a0, a1] (CA-25.2); valores fora da série voltam ao padrão.
+export function filtroDeTexto(texto, [a0, a1], cats) {
   const [anos = "", ...resto] = String(texto ?? "").split("~");
   const [i, f] = anos.split("-").map(Number);
-  const anoIni = i >= a0 && i <= a1 ? i : p0;
-  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : p1);
+  const anoIni = i >= a0 && i <= a1 ? i : a0;
+  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : a1);
   const lista = resto.find((r) => r && r !== "todos")?.split(",").filter((c) => cats.includes(c));
   return { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
 }
-// [a0, a1]: anos do padrão da parte (o que não muda o padrão não vai para a URL).
+// [a0, a1]: anos do padrão (a série completa); o que não muda o padrão não vai para a URL.
 export function filtroParaTexto(f, [a0, a1], cats) {
   const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
   if (padraoAnos && todasCats && f.papel !== "todos") return "";

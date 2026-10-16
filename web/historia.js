@@ -13,15 +13,15 @@ function passos(H, D) {
   const v = H.vencedoras, dif = (v.pctMulheres ?? 0) - (H.genero.pctMulheres ?? 0);
   return [
     { layout: "todos", cor: "neutro", titulo: "Cada ponto é uma pessoa",
-      numero: fmt(H.pessoas), texto: `Entre 2010 e 2025, <b>${fmt(H.indicacoes)} indicações</b> de ${fmt(H.edicoes)} edições do Jabuti levaram às listas obras de <b>${fmt(H.pessoas)} pessoas-autoras</b>, em romance, contos, crônica, poesia, infantil, juvenil e Livro do Ano.`,
-      nota: "Ilustradores e organizadores ficam fora desta conta. Role para reorganizar os pontos." },
+      numero: fmt(H.pessoas), texto: `Entre ${D.anos[0]} e ${D.anos[1]}, <b>${fmt(H.indicacoes)} indicações</b> de ${fmt(H.edicoes)} edições do Jabuti levaram às listas e ao pódio obras de <b>${fmt(H.pessoas)} pessoas-autoras</b>, em romance, contos, crônica, poesia, infantil, juvenil e Livro do Ano.`,
+      nota: "Até 1999 não há lista pública de indicados: dessas edições, só se conhecem os premiados. Ilustradores e organizadores ficam fora desta conta. Role para reorganizar os pontos." },
     { layout: "genero", cor: "genero", titulo: "Quantas são mulheres",
       numero: fmtPct(H.genero.pctMulheres) + astGenero(H.genero.atribuido), texto: `${fmt(H.genero.mulheres)} das ${fmt(H.pessoas)} pessoas são mulheres; ${fmt(H.genero.homens)} são homens${H.genero.naoBinarias ? ` e ${fmt(H.genero.naoBinarias)} são não binárias` : ""}.`,
       nota: [H.genero.atribuido ? `Para ${fmt(H.genero.atribuido)} pessoas sem fonte, o gênero foi atribuído pelo primeiro nome e pode estar errado (*).` : "",
         H.genero.semGenero ? `Para ${fmt(H.genero.semGenero)}, nem o nome permite dizer (cinza).` : ""].filter(Boolean).join(" ") },
     { layout: "etapa", cor: "genero", titulo: "Da lista ao 1º lugar",
       numero: fmtPct(v.pctMulheres) + astGenero(H.genero.atribuido), texto: `Das <b>${fmt(v.pessoas)} pessoas que venceram</b> pelo menos uma vez, ${fmt(v.mulheres)} são mulheres: ${fmtPct(v.pctMulheres)}, ${Math.abs(dif) < 1 ? "praticamente o mesmo peso" : dif < 0 ? `${fmt(Math.abs(dif), 1)} pontos a menos` : `${fmt(dif, 1)} pontos a mais`} que na lista inteira (${fmtPct(H.genero.pctMulheres)}).`,
-      nota: "Cada pessoa aparece no seu melhor resultado. Até 2017 havia 2º e 3º lugares; desde 2018, só o 1º." },
+      nota: "Cada pessoa aparece no seu melhor resultado. Até 1992 havia um vencedor por categoria; de 1993 a 2017, pódio de 1º a 3º; desde 2018, só o 1º. Como até 1999 só se conhecem os premiados, as edições antigas pesam mais entre quem venceu do que na lista." },
     { layout: "raca", cor: "raca", titulo: "Pelo menos estas pessoas são negras",
       numero: `≥ ${fmtPct(H.raca.pctNegras)}`, texto: `<b>${fmt(H.raca.negras)} pessoas</b> se declararam publicamente negras (pretas, pardas ou negras) e ${fmt(H.raca.indigenas)} indígenas. Entre quem venceu, ${fmt(H.raca.negrasVencedoras)}.`,
       nota: `Para ${fmt(H.raca.semDeclaracao)} pessoas não há autodeclaração pública (cinza). Isso não quer dizer que sejam brancas: por isso o número é um piso, nunca uma estimativa.` },

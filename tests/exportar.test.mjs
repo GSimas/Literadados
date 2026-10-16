@@ -25,7 +25,7 @@ test("xlsx: ZIP válido (CRC conferido pelo Python) com cabeçalho em texto e n�
 z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None
 s=z.read("xl/worksheets/sheet1.xml").decode()
 print(sorted(z.namelist())); print("<v>61</v>" in s, "<v>1234</v>" in s, "Nota &amp; &lt;obs&gt;" in s, ">39%<" in s, "acentuação" in s)`;
-  const saida = execFileSync("python3", ["-c", py, arq], { encoding: "utf-8" }).trim().split("\n");
+  const saida = execFileSync("python3", ["-c", py, arq], { encoding: "utf-8" }).trim().split(/\r?\n/); // Windows: Python escreve \r\n
   assert.equal(saida[0], "['[Content_Types].xml', '_rels/.rels', 'xl/_rels/workbook.xml.rels', 'xl/workbook.xml', 'xl/worksheets/sheet1.xml']");
   assert.equal(saida[1], "True True True True True");
 });

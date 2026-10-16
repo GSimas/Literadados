@@ -9,3 +9,6 @@ jabuti.duckdb
 
 # Local Netlify folder
 .netlify
+
+# Grafo do graphify (gerado localmente: graphify extract . --code-only)
+graphify-out/

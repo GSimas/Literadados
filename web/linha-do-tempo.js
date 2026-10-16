@@ -9,9 +9,9 @@ const INDICADORES = [
 ];
 const ROT_REGIME = { "1959–1992 vencedor por categoria": "vencedor único", "1993–2009 pódio": "pódio 1º–3º", "2010–2017 pódio": "pódio 1º–3º", "2018 transição": "transição", "2019–2025 vencedor único": "vencedor único" };
 
-export function renderLinhaDoTempo(L, { D, ANOS, estado }) {
-  // Edição sem lista pública (série histórica, RF-25): todas as categorias do ano, fora o Livro do Ano, sem vagas_lista.
-  const semLista = (a) => { const cs = D.categorias.filter((c) => c.ano === a && c.categoria !== "Livro do Ano"); return cs.length > 0 && cs.every((c) => c.vagas_lista == null); };
+export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: ANOS_SEM_LISTA }) {
+  // Edição sem lista pública (1959–1999, CA-25.3): as participações são só dos premiados.
+  const semLista = (a) => ANOS_SEM_LISTA.has(a);
   const el = $("#g-tempo-multiplos");
   const e = M.porEdicao(L);
   const anosVis = ANOS.filter((a) => a >= estado.anoIni && a <= estado.anoFim);

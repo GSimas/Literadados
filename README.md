@@ -5,7 +5,7 @@
 <h1 align="center">Literadados</h1>
 
 <p align="center"><b>Quem chega ao Prêmio Jabuti?</b><br>
-Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras indicadas ao principal prêmio do livro no Brasil, de 2010 a 2025: painel interativo, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
+Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras indicadas ao principal prêmio do livro no Brasil, de 1959 a 2025: painel interativo, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
 
 ---
 
@@ -13,17 +13,17 @@ Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras in
 
 | | |
 |---|---|
-| Edições coletadas | **16 de 16** (2010–2025) |
-| Indicações | 929, em 914 obras |
-| Pessoas na base | 914, entre elas **713 pessoas-autoras**, 123 ilustradoras e 111 juradas (há quem tenha mais de um papel) |
-| Editoras | 252, 226 com sede conhecida |
-| Gênero (autoras) | 551 com fonte, **155 atribuídos pelo primeiro nome** (marcados com \*), 7 não identificados |
-| UF de nascimento (autoras) | 442 de 713 |
-| Raça declarada (autoras) | 35 autodeclarações públicas, 24 pessoas negras (piso). Busca do protocolo completa para 712 de 713 |
-| Perfis | 475 QIDs do Wikidata, 426 verbetes da Wikipédia, 208 fotos com licença livre |
-| Fontes citadas | 169 domínios, agrupados na seção Referências |
+| Edições coletadas | **67 de 67** (1959–2025): listas públicas de 2000 em diante; de 1959 a 1999, só os premiados |
+| Indicações | 1.675, em 1.640 obras |
+| Pessoas na base | 1.228, entre elas **1.023 pessoas-autoras**, 124 ilustradoras, 24 organizadoras e 111 juradas (há quem tenha mais de um papel) |
+| Editoras | 307, 278 com sede conhecida |
+| Gênero (autoras) | 814 com fonte, **194 atribuídos pelo primeiro nome** (marcados com \*), 15 não identificados |
+| UF de nascimento (autoras) | 680 de 1.023 |
+| Raça declarada (autoras) | 35 autodeclarações públicas, 24 pessoas negras (piso). Busca do protocolo completa para 1.022 de 1.023 |
+| Perfis | 714 QIDs do Wikidata, 656 verbetes da Wikipédia, 300 fotos com licença livre |
+| Fontes citadas | 180 domínios, agrupados na seção Referências |
 
-Categorias no recorte: Romance (Romance Literário a partir de 2020), Contos (e Crônicas, até 2017), Crônica (desde 2018), Poesia, Infantil, Juvenil, Infantil e Juvenil (só 2018) e Livro do Ano.
+Categorias no recorte: Romance (Romance Literário a partir de 2020), Contos (e Crônicas, até 2017), Crônica (desde 2018), Poesia, Infantil, Juvenil, Infantil e Juvenil (2018 e edições antigas) e Livro do Ano. O painel abre na série completa; cada parte tem filtro de período.
 
 ## O que o painel mostra
 

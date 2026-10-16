@@ -3,7 +3,7 @@
 import { $, esc, css, fecharAnimado } from "./ui.js";
 
 // ---------- tabela → linhas ----------
-// "1.234,5" → 1234.5; "713" → 713; "39%" ou "2010–2025" continuam texto.
+// "1.234,5" → 1234.5; "713" → 713; "39%" ou "1959–2025" continuam texto.
 export function numeroBR(t) {
   const s = String(t).trim();
   if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) return Number(s.replace(/\./g, "").replace(",", "."));
@@ -117,7 +117,7 @@ async function exportarGrafico(alvo, formato) {
   raiz.innerHTML = `<text x="${pad}" y="${pad + 14}" fill="${tinta}" font-family="${fonte}" font-size="17" font-weight="700">${esc(titulo)}</text>
     ${linhasLeg.map((l, i) => l.map((a) => `<rect x="${pad + a.x}" y="${pad + 30 + i * 20}" width="12" height="12" rx="3" fill="${a.cor}"/>
       <text x="${pad + a.x + 18}" y="${pad + 40 + i * 20}" fill="${tinta2}" font-family="${fonte}" font-size="12">${esc(a.rotulo)}</text>`).join("")).join("")}
-    <text x="${pad}" y="${altura - 14}" fill="${tinta2}" font-family="${fonte}" font-size="11">Literadados · Prêmio Jabuti 2010–2025</text>`;
+    <text x="${pad}" y="${altura - 14}" fill="${tinta2}" font-family="${fonte}" font-size="11">Literadados · Prêmio Jabuti ${esc(alvo.closest("[data-anos]")?.dataset.anos ?? "")}</text>`;
   const corpo = svgComEstilos(principal);
   corpo.setAttribute("x", pad);
   corpo.setAttribute("y", topo);

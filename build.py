@@ -137,8 +137,7 @@ def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "anos": [min(anos_coletados), 2025],
-        "recorte": [2010, 2025],  # recorte comparável (listas públicas de ~10 por categoria): o painel abre nele (RF-25)
+        "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
         "anos_coletados": anos_coletados,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
@@ -187,9 +186,9 @@ Regras de análise:
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
 - "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
 - Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
-- Série histórica: antes de 2010, em geral não houve lista pública de indicados; nessas edições (categoria_edicao.vagas_lista vazio) a "lista" é só a das premiadas.
-  Por isso, comparações de composição da lista usam 2010–2025, salvo se a pergunta pedir a história toda ("desde 1959", décadas, "sempre"):
-  aí use os premiados (premiada = true) e diga que antes de 2010 só eles são conhecidos. Rankings e trajetórias de pessoas usam a série toda.
+- Período padrão: a série completa, 1959–2025, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
+- De 1959 a 1999 não houve lista pública de indicados (categoria_edicao.vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
+  Ao comparar a lista com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
   Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
   Perguntas sobre "pretos" devem mostrar também o agrupamento negros, porque muitos autores dizem só "negro".

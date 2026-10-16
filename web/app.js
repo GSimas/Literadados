@@ -27,16 +27,15 @@ const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
 // Cada parte filtrável tem seu estado; a URL guarda ?<parte>=<texto> só para os filtros fora do padrão.
 const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
 const PARTES = ["panorama", ...IDS_JANELAS, "autores"];
-// Série 1959–2025 nos filtros; cada parte abre no recorte comparável (D.recorte, 2010–2025), e o ranking na série toda (RF-25).
-const ANOS_PADRAO = { ranking: D.anos };
-const anosPadrao = (parte) => ANOS_PADRAO[parte] ?? D.recorte ?? D.anos;
-const padraoDe = (parte) => M.filtroDeTexto(null, D.anos, CATEGORIAS, anosPadrao(parte));
-const padrao = () => padraoDe("panorama");
+// Toda parte abre na série completa (CA-25.2, D30); o filtro recorta dentro dela.
+const padrao = () => M.filtroDeTexto(null, D.anos, CATEGORIAS);
 const filtros = (() => {
   const q = new URLSearchParams(location.search);
-  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS, anosPadrao(p))]));
+  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS)]));
 })();
-// Edições sem lista pública de indicados (antes dos anos 2000, em geral): ali "lista" = só premiadas.
+const PERIODO = `${D.anos[0]}–${D.anos[1]}`;
+document.documentElement.dataset.anos = PERIODO; // rodapé da exportação fora das partes filtráveis (história, perfis)
+// Edições sem lista pública de indicados (1959–1999): ali "lista" = só premiadas.
 const ANOS_SEM_LISTA = new Set(ANOS.filter((a) => {
   const cs = D.categorias.filter((c) => c.ano === a && c.categoria !== "Livro do Ano");
   return cs.length && cs.every((c) => c.vagas_lista == null);
@@ -45,7 +44,7 @@ const linhasDe = (parte) => M.filtrar(D.participacao, filtros[parte]);
 function gravarURL() {
   const q = new URLSearchParams(location.search);
   for (const p of PARTES) {
-    const t = M.filtroParaTexto(filtros[p], anosPadrao(p), CATEGORIAS);
+    const t = M.filtroParaTexto(filtros[p], D.anos, CATEGORIAS);
     if (t) q.set(p, t); else q.delete(p);
   }
   for (const k of ["ini", "fim", "cat", "papel"]) q.delete(k); // formato antigo (filtro global)
@@ -57,7 +56,7 @@ function montarFiltros() {
     const el = $(`[data-filtro="${parte}"]`);
     if (!el) continue;
     resumos[parte] = montarFiltro(el, filtros[parte], {
-      anos: ANOS, padrao: () => padraoDe(parte),
+      anos: ANOS, padrao,
       aoMudar: () => { gravarURL(); renderParte(parte); },
       baixar: () => {
         const f = filtros[parte];
@@ -75,6 +74,7 @@ montarTema(() => { renderTudo(); historia.redesenhar(); });
 // ---------- abertura (CA-15.1) ----------
 function renderAbertura() {
   const H = M.historia(M.filtrar(D.participacao, padrao()));
+  $("#hero-periodo").textContent = `Prêmio Jabuti · ${PERIODO} · ${fmt(D.anos_coletados.length)} edições`;
   // Números contam até o valor (CA-19.4); o texto final é o valor formatado exato.
   const nums = [
     [H.pessoas, fmt, "", `pessoas-autoras em ${fmt(H.indicacoes)} indicações`],
@@ -123,7 +123,7 @@ const PERFIL = /^#\/(pessoa|obra|uf|regiao)\/(.+)$/;
 let fundo = PERFIL.test(location.hash) ? "" : location.hash;
 addEventListener("hashchange", () => { if (!PERFIL.test(location.hash)) fundo = location.hash; });
 function abrirPerfil(id) { location.hash = `#/pessoa/${id}`; }
-const ctx = { D, ANOS, midiaPorId, abrirPerfil, renderPessoas: () => renderParte("autores") };
+const ctx = { D, ANOS, semLista: ANOS_SEM_LISTA, midiaPorId, abrirPerfil, renderPessoas: () => renderParte("autores") };
 const ctxDe = (parte) => ({ ...ctx, estado: filtros[parte] });
 // Janelas de gráficos (RF-20, D19): id do <dialog> → funções de render. Só janela aberta é desenhada.
 const JANELAS = {
@@ -140,6 +140,7 @@ function renderParte(parte) {
   }
   avisarFalha(parte, falhou);
   const k = M.kpis(L), f = filtros[parte];
+  $(`#${parte}`)?.setAttribute("data-anos", `${f.anoIni}–${f.anoFim}`); // rodapé da exportação (CA-14.2)
   const semLista = ANOS.filter((a) => a >= f.anoIni && a <= f.anoFim && ANOS_SEM_LISTA.has(a)).length;
   resumos[parte]?.resumo(`${fmt(k.pessoas)} pessoas · ${fmt(k.indicacoes)} indicações${semLista ? ` · ${semLista} ediç${semLista > 1 ? "ões" : "ão"} só com premiados (sem lista pública)` : ""}`);
 }
@@ -231,7 +232,7 @@ function renderTudo() {
   for (const id of janelasAbertas()) renderParte(id); // janelas fechadas desenham ao abrir (CA-20.3)
 }
 for (const id of ["#evo-dim", "#evo-etapa"]) $(id).addEventListener("change", () => renderEvolucao(linhasDe("evolucao"), ctxDe("evolucao")));
-$("#funil-dim").addEventListener("change", () => renderFunil(linhasDe("funil")));
+$("#funil-dim").addEventListener("change", () => renderFunil(linhasDe("funil"), ctxDe("funil")));
 $("#rank-medida").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-v]");
   if (!b) return;

@@ -312,16 +312,37 @@ test("ranking: medida, desempate e posição de competição (RF-23)", () => {
   assert.ok(!("linhas" in r[0]));
 });
 
-test("filtro com série histórica: anos válidos 1959–2025, padrão 2010–2025 (RF-25)", () => {
-  const SERIE = [1959, 2025], RECORTE = [2010, 2025], CATS = ["Romance", "Poesia"];
-  const p = M.filtroDeTexto(null, SERIE, CATS, RECORTE);
-  assert.deepEqual([p.anoIni, p.anoFim], [2010, 2025]);
-  assert.equal(M.filtroParaTexto(p, RECORTE, CATS), ""); // padrão não vai para a URL
-  const h = M.filtroDeTexto("1959-1990", SERIE, CATS, RECORTE);
-  assert.deepEqual([h.anoIni, h.anoFim], [1959, 1990]); // anos antigos valem na URL
-  assert.equal(M.filtroParaTexto(h, RECORTE, CATS), "1959-1990");
-  assert.deepEqual([M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoIni, M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoFim], [2010, 2025]);
-  assert.deepEqual([M.filtroDeTexto(null, SERIE, CATS).anoIni], [1959]); // sem padrão próprio, a série toda (ranking)
+test("filtro com série histórica: padrão é a série completa 1959–2025 (CA-25.2)", () => {
+  const SERIE = [1959, 2025], CATS = ["Romance", "Poesia"];
+  const p = M.filtroDeTexto(null, SERIE, CATS);
+  assert.deepEqual([p.anoIni, p.anoFim], [1959, 2025]);
+  assert.equal(M.filtroParaTexto(p, SERIE, CATS), ""); // padrão não vai para a URL
+  const r = M.filtroDeTexto("2010-2025", SERIE, CATS);
+  assert.deepEqual([r.anoIni, r.anoFim], [2010, 2025]); // o recorte recente vale na URL
+  assert.equal(M.filtroParaTexto(r, SERIE, CATS), "2010-2025");
+  const lixo = M.filtroDeTexto("1800-3000", SERIE, CATS);
+  assert.deepEqual([lixo.anoIni, lixo.anoFim], [1959, 2025]); // fora da série volta ao padrão
+});
+
+test("filtrar sem período não corta anos (CA-25.2)", () => {
+  const ls = [L({ ano: 1959, categoria: "Romance", nome_original: "Romance", obra_id: "v", pessoa_id: "v", genero: "homem", colocacao: 1 }),
+    L({ ano: 2025, categoria: "Romance", nome_original: "Romance Literário", obra_id: "n", pessoa_id: "n", genero: "mulher" })];
+  assert.equal(M.filtrar(ls).length, 2);
+  assert.equal(M.filtrar(ls, { anoIni: 2010, anoFim: 2025 }).length, 1);
+});
+
+test("editoras: indicação sem editora fica fora e é contada à parte (CA-25.4)", () => {
+  const ls = [...linhas, L({ ano: 1965, categoria: "Poesia", nome_original: "Poesia", obra_id: "antiga", pessoa_id: "x", genero: "mulher", editora: null, colocacao: 1 })];
+  assert.ok(!M.editoras(ls).some((e) => /não informada/i.test(e.editora)));
+  assert.deepEqual(M.editoras(ls), M.editoras(linhas));
+  assert.equal(M.semEditora(ls), M.semEditora(linhas) + 1);
+});
+
+test("passoAnos: rótulos de 1, 2, 5 ou 10 anos conforme o espaço (CA-25.3)", () => {
+  assert.equal(M.passoAnos(16, 900), 1);
+  assert.equal(M.passoAnos(67, 900), 5);
+  assert.equal(M.passoAnos(67, 300), 10);
+  assert.equal(M.passoAnos(67, 100), 10); // nunca mais largo que 10
 });
 
 test("urlsCapa remonta as URLs da capa compacta (RF-24, RNF-06)", async () => {

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Literadados — Quem chega ao Prêmio Jabuti?</title>
-<meta name="description" content="Gênero, raça autodeclarada e estado de nascimento de autores do Prêmio Jabuti, 2010–2025: história guiada, mapa, linha do tempo, perfis e dados com fonte.">
+<meta name="description" content="Gênero, raça autodeclarada e estado de nascimento de autores do Prêmio Jabuti, 1959–2025: história guiada, mapa, linha do tempo, perfis e dados com fonte.">
 <meta name="color-scheme" content="light dark">
 <script>/* tema salvo antes do primeiro quadro (sem piscar o tema errado); tema.js cuida do resto */try{var t=localStorage.getItem("tema");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
@@ -68,7 +68,7 @@
     <div class="hero-mosaico" id="hero-mosaico" aria-hidden="true"></div>
     <div class="hero-pontos" id="hero-pontos" aria-hidden="true"></div>
     <div class="hero-texto">
-      <p class="sobretitulo">Prêmio Jabuti · 2010–2025 · 16 edições</p>
+      <p class="sobretitulo" id="hero-periodo">Prêmio Jabuti · 1959–2025</p>
       <h1 id="h-hero">Quem chega ao Prêmio Jabuti?</h1>
       <p class="hero-lead">Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras indicadas ao principal prêmio do livro no Brasil. Cada número tem fonte; cada pessoa, um perfil.</p>
       <div class="hero-numeros" id="hero-numeros">
@@ -116,7 +116,7 @@
       <a class="cartao-grafico" href="#/grafico/linha-do-tempo" data-janela="linha-do-tempo">
         <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8V5M12 16v3M18 8V5"/></svg>
         <span class="cg-sobre">Linha do tempo</span>
-        <span class="cg-titulo">Dezesseis edições, uma a uma</span>
+        <span class="cg-titulo">Edição por edição, desde 1959</span>
         <span class="cg-desc">Como a lista de cada edição se compõe e quem levou o 1º lugar em cada categoria.</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
@@ -224,10 +224,10 @@
 <dialog id="linha-do-tempo" class="janela" aria-labelledby="h-tempo">
   <div class="janela-topo"><div data-filtro="linha-do-tempo"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
   <div class="janela-corpo">
-    <header class="secao-cab"><p class="sobretitulo">Linha do tempo</p><h2 id="h-tempo">Dezesseis edições, uma a uma</h2>
+    <header class="secao-cab"><p class="sobretitulo">Linha do tempo</p><h2 id="h-tempo">Edição por edição, desde 1959</h2>
       <p class="lead">Como a lista de cada edição se compõe e quem levou o 1º lugar em cada categoria. Role a faixa para o lado; clique num nome para abrir o perfil.</p></header>
     <figure class="cartao"><div id="g-tempo-multiplos" class="grafico"></div>
-      <figcaption>Participações na lista de cada edição. Mulheres e Sudeste sobre o total com o dado; pessoas negras é piso (autodeclaração). Passe o mouse para ver o n.</figcaption>
+      <figcaption>Participações na lista de cada edição. Mulheres e Sudeste sobre o total com o dado; pessoas negras é piso (autodeclaração). Até 1999 não há lista pública: a edição mostra só os premiados, com poucas participações (veja o n). Passe o mouse para ver o n.</figcaption>
       <details><summary>Ver dados em tabela</summary><div id="t-tempo"></div></details></figure>
     <div class="tempo-trilho-wrap">
       <button class="tempo-seta" type="button" data-dir="-1" aria-label="Edições anteriores">‹</button>
@@ -261,7 +261,7 @@
   <div class="janela-topo"><div data-filtro="evolucao"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
   <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Evolução</p><h2 id="h-evolucao">Como cada edição se compõe</h2>
-      <p class="lead">Composição de cada edição em proporção. Desde 2018 há menos vagas premiadas, por isso comparamos fatias, não contagens.</p></header>
+      <p class="lead">Composição de cada edição em proporção. As vagas mudaram ao longo do tempo (um vencedor por categoria até 1992, pódio até 2017, só o 1º desde 2018; listas públicas só de 2000 em diante), por isso comparamos fatias, não contagens.</p></header>
     <div class="controles" role="group" aria-label="Opções da evolução">
       <label>Dimensão <select id="evo-dim"><option value="genero">Gênero</option><option value="raca">Raça declarada</option><option value="regiao">Região de nascimento</option></select></label>
       <label>Etapa <select id="evo-etapa"><option value="lista">Toda a lista</option><option value="premiada">Só premiadas</option></select></label>
@@ -276,7 +276,7 @@
       <p class="lead">Participação de cada grupo em cada etapa. Uma linha que desce mostra um grupo que chega à lista, mas some na hora da premiação.</p></header>
     <div class="controles"><label>Dimensão <select id="funil-dim"><option value="genero">Gênero</option><option value="raca">Raça declarada</option><option value="regiao">Região de nascimento</option></select></label></div>
     <p id="funil-resumo" class="destaque"></p>
-    <figure class="cartao"><div id="g-funil" class="grafico"></div><figcaption>"Finalistas" existem só nas edições com 2ª lista (2019 em diante).</figcaption><details><summary>Ver dados em tabela</summary><div id="t-funil"></div></details></figure>
+    <figure class="cartao"><div id="g-funil" class="grafico"></div><figcaption>"Finalistas" existem só nas edições com 2ª lista (2019 em diante). Até 1999 não há lista pública: nessas edições, a lista é só a dos premiados.</figcaption><details><summary>Ver dados em tabela</summary><div id="t-funil"></div></details></figure>
   </div>
 </dialog>
 <dialog id="segregacao" class="janela" aria-labelledby="h-segregacao">
@@ -303,7 +303,7 @@
   <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Análises · Editoras</p><h2 id="h-editoras">Quem publica o que chega</h2></header>
     <div class="duas">
-      <figure class="cartao"><h3>Editoras com mais indicações</h3><div id="g-editoras" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-editoras"></div></details></figure>
+      <figure class="cartao"><h3>Editoras com mais indicações</h3><div id="g-editoras" class="grafico"></div><p id="editoras-nota" class="muted pequeno"></p><details><summary>Ver dados em tabela</summary><div id="t-editoras"></div></details></figure>
       <figure class="cartao"><h3>Grupos editoriais e independentes</h3><div id="g-grupos" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-grupos"></div></details></figure>
     </div>
   </div>
@@ -312,7 +312,7 @@
   <div class="janela-topo"><div data-filtro="ranking"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
   <div class="janela-corpo">
     <header class="secao-cab"><p class="sobretitulo">Ranking</p><h2 id="h-ranking">Mais premiados e mais indicados</h2>
-      <p class="lead">As 20 primeiras posições no recorte do filtro (com empates, podem ser mais). Prêmios contam o pódio (1º a 3º até 2017, só o 1º depois); indicações contam cada vez na lista. Clique numa barra ou num nome para abrir o perfil.</p></header>
+      <p class="lead">As 20 primeiras posições no recorte do filtro (com empates, podem ser mais). Prêmios contam o pódio (o vencedor da categoria até 1992, 1º a 3º de 1993 a 2017, só o 1º depois); indicações contam cada vez na lista. Clique numa barra ou num nome para abrir o perfil.</p></header>
     <div class="controles" role="group" aria-label="Medida do ranking">
       <div class="segmentado" id="rank-medida" role="radiogroup" aria-label="Medida">
         <button type="button" role="radio" aria-checked="true" data-v="premios">Prêmios</button>

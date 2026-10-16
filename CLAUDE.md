@@ -1,6 +1,6 @@
 # CLAUDE.md — Literadados
 
-Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nascimento) de autores do Prêmio Jabuti 2010–2025.
+Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nascimento) de autores do Prêmio Jabuti 1959–2025 (série completa por padrão; listas públicas de 2000 em diante, antes só premiados).
 
 ## Como trabalhar aqui (SDD)
 1. Mudança de comportamento → primeiro `spec/spec.md` (requisito + critério de aceitação), depois `spec/design.md`, depois `spec/tasks.md`, só então código.
@@ -103,3 +103,6 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-10-15 — Literafro (letras.ufmg.br) estava fora do ar; o índice está no Wayback (`web/2025id_/http://www.letras.ufmg.br/literafro/autoras?start=50`), mas a página vem com gzip: use `curl --compressed`.
 - 2026-10-16 — Google Books sem chave: depois da meia-noite do Pacífico continuou 429 com `quota_limit_value: "0"` (o limite do projeto anônimo é zero, não é cota gasta). A Open Library já não acha capa para as obras que faltam (0 de 12 na amostra). Mais capas só com chave de API do Google Books.
 - 2026-10-16 — `canonico` das editoras resolve um passo só (não segue cadeia): ao unificar X → Y, repasse para Y quem já apontava para X (as 7 pessoas físicas de `edicao-do-autor` foram para `independente`). `grupo` é um campo só por editora: obras antigas de uma editora unificada herdam o grupo atual (ex.: `schwarcz` 2009 → Companhia → PRH).
+- 2026-10-16 — Série completa por padrão (D30): o painel abre em 1959–2025 (1.023 pessoas-autoras, 1.665 indicações, 67 edições), sem `recorte` no `dados.json`. Mistura de regimes: até 1999 só há premiados, então lista × vencedoras se inverte (2010–2025: 38,6% de mulheres na lista e 39,8% entre vencedoras; série toda: 35,9% e 33,6%). Toda comparação lista × pódio tem de avisar disso. 314 indicações antigas não têm editora: sem `semEditora`, "Editora não informada" virava a 1ª barra. Com 67 edições, rótulos de marcos se sobrepõem e são cortados na borda no celular: posicione por largura medida, não por índice par/ímpar. No Windows, `execFileSync` do Python devolve `
+`: separe por `/?
+/`.

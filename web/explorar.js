@@ -24,16 +24,32 @@ export function renderEvolucao(L, { ANOS, estado }) {
   const lacunas = anosVis.filter((a) => !comDados.has(a));
   const marcos = M.MARCOS.filter((m) => anosVis.includes(m.ano));
   if (!dados.length) return vazio(el), tabela($("#t-evolucao"), [], []);
-  const folga = Math.max(2, ((largura(el) - 60) / anosVis.length - 26) / 2); // barra com no máximo 26px
+  // Barra com no máximo 26px; a folga é fração da banda, para a barra não sumir com 67 edições no celular (CA-25.3).
+  const banda = (largura(el) - 60) / anosVis.length, folga = Math.max(banda * 0.12, (banda - 26) / 2);
+  const passo = M.passoAnos(anosVis.length, largura(el) - 60);
+  // Rótulos dos marcos em linhas: cada um vai para a primeira linha onde não encosta no anterior (2018 e 2021 ficam perto).
+  // Perto das bordas, o texto se alinha pela ponta para não ser cortado (celular).
+  const fins = [], pos = new Map(), W = largura(el);
+  for (const m of marcos) {
+    const w = m.texto.length * 6.4, x = 40 + (anosVis.indexOf(m.ano) + 0.5) * banda;
+    const ancora = x + w / 2 > W - 4 ? "end" : x - w / 2 < 4 ? "start" : "middle";
+    const ini = ancora === "end" ? x - w : ancora === "start" ? x : x - w / 2;
+    let r = fins.findIndex((fim) => fim < ini - 6);
+    if (r < 0) r = fins.length;
+    fins[r] = ini + w;
+    pos.set(m, { r, ancora });
+  }
+  const rotulosMarcos = fins.flatMap((_, r) => ["start", "middle", "end"].map((ancora) => Plot.text(marcos.filter((m) => pos.get(m).r === r && pos.get(m).ancora === ancora),
+    { x: "ano", text: "texto", frameAnchor: "top", textAnchor: ancora, dx: ancora === "end" ? 3 : ancora === "start" ? -3 : 0, dy: -8 - 14 * r, fill: css("--tinta-2"), fontSize: 11 })));
   desenhar(el, Plot.plot({
-    width: largura(el), height: 360, marginTop: 36, style: estilo(),
+    width: largura(el), height: 340 + 14 * fins.length, marginTop: 22 + 14 * fins.length, style: estilo(),
     ariaLabel: "Composição por edição em barras 100% empilhadas",
-    x: { domain: anosVis, label: null, tickFormat: (d) => (anosVis.length > 10 && d % 2 ? "" : String(d)) },
+    x: { domain: anosVis, label: null, tickFormat: (d) => (d % passo ? "" : String(d)), tickSize: anosVis.length > 30 ? 0 : 6 },
     y: { label: "% das participações", grid: true, domain: [0, 100] },
     color: { ...cores(dim), legend: true, tickFormat: rotulo },
     marks: [
       Plot.ruleX(marcos, { x: "ano", stroke: css("--eixo"), strokeWidth: 1 }),
-      ...[0, 1].map((par) => Plot.text(marcos.filter((_, i) => i % 2 === par), { x: "ano", text: "texto", frameAnchor: "top", dy: par ? -8 : -22, fill: css("--tinta-2"), fontSize: 11 })),
+      ...rotulosMarcos,
       Plot.barY(dados, Plot.stackY({ order: M.ORDEM[dim] }, {
         x: "ano", y: "pct", fill: "grupo", insetTop: 1, insetBottom: 1, insetLeft: folga, insetRight: folga, rx: 3,
         channels: { Grupo: (d) => rotulo(d.grupo), Participações: "n", Total: "total" },
@@ -49,7 +65,7 @@ export function renderEvolucao(L, { ANOS, estado }) {
   ]);
 }
 
-export function renderFunil(L) {
+export function renderFunil(L, { semLista = new Set() } = {}) {
   const el = $("#g-funil"), dim = $("#funil-dim").value;
   const f = M.funil(L, dim);
   const presentes = new Set(f.filter((x) => x.etapa === "lista" && x.n > 0).map((x) => x.grupo));
@@ -57,9 +73,12 @@ export function renderFunil(L) {
   if (!dados.length) { $("#funil-resumo").textContent = ""; return vazio(el), tabela($("#t-funil"), [], []); }
   const q = M.maiorQueda(f);
   const totVenc = dados.find((x) => x.etapa === "vencedora")?.total ?? 0;
-  $("#funil-resumo").innerHTML = q && q.queda > 0
+  $("#funil-resumo").innerHTML = q && q.queda >= 0.5 // menos de meio ponto arredonda para o mesmo %: não é queda
     ? `Maior queda: <b>${rotulo(q.grupo)}</b> são ${fmtPct(q.de)} da lista e ${fmtPct(q.para)} das vencedoras (${fmt(q.nVenc)} de ${fmt(totVenc)})${nPequeno(totVenc)}.`
     : "Nenhum grupo perde participação entre a lista e as vencedoras neste recorte.";
+  // Edições sem lista pública (CA-25.3): ali a lista é só a dos premiados, o que aproxima a lista do perfil de quem venceu.
+  const nSem = new Set(L.filter((l) => semLista.has(l.ano)).map((l) => l.ano)).size;
+  if (nSem) $("#funil-resumo").insertAdjacentHTML("beforeend", ` <span class="muted">O recorte inclui ${fmt(nSem)} ediç${nSem > 1 ? "ões" : "ão"} sem lista pública (até 1999), em que a lista é só a dos premiados.</span>`);
   const etapas = M.ETAPAS.filter((e) => dados.some((x) => x.etapa === e.id)).map((e) => e.rotulo);
   const ultimos = dados.filter((x) => x.rotulo === etapas.at(-1));
   desenhar(el, Plot.plot({
@@ -172,7 +191,9 @@ export function renderIdade(L) {
 
 export function renderEditoras(L) {
   const el = $("#g-editoras"), el2 = $("#g-grupos");
-  const e = M.editoras(L);
+  const e = M.editoras(L), sem = M.semEditora(L);
+  // Indicação sem editora conhecida não vira barra (CA-25.4): a nota diz quantas ficaram fora.
+  $("#editoras-nota").textContent = sem ? `${fmt(sem)} indicaç${sem > 1 ? "ões" : "ão"} sem editora conhecida (série histórica, sem fonte da época) ficam fora.` : "";
   if (!e.length) { vazio(el); vazio(el2); return; }
   const longo = e.flatMap((d) => [{ editora: d.editora, tipo: "Premiadas", n: d.premiadas }, { editora: d.editora, tipo: "Não premiadas", n: d.outras }]);
   desenhar(el, Plot.plot({

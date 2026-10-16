@@ -11,7 +11,7 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 
 | Dentro | Fora (por enquanto) |
 |---|---|
-| Prêmio Jabuti, edições 2010–2025 | Outros prêmios (Oceanos, São Paulo de Literatura…) |
+| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante) | Outros prêmios (Oceanos, São Paulo de Literatura…) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
@@ -39,12 +39,12 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-01.5 🧪** Organizadores (de antologia, obra reunida ou póstuma) ficam com `papel = 'organizador'` e não entram em nenhuma contagem do painel, nem com o filtro "autores e ilustradores". Obra creditada só a organizadores (antologia sem autores listados) é válida no build e fica fora das contagens de pessoas.
 
 ### RF-02 Filtros por parte
-- **CA-02.1 👁** Não há filtro global: o Panorama, cada janela de gráfico e a galeria de Autores têm **filtro próprio** (período, categorias e papel, que é só autores ou autores e ilustradores; organizadores nunca entram), e cada um vale só para a sua parte. A História guiada e a Diadorim usam sempre o recorte completo. Cada filtro mostra o resumo do próprio recorte (pessoas · indicações), tem botão de limpar quando foi mudado e baixa em CSV as linhas da sua parte (RF-14).
+- **CA-02.1 👁** Não há filtro global: o Panorama, cada janela de gráfico e a galeria de Autores têm **filtro próprio** (período, categorias e papel, que é só autores ou autores e ilustradores; organizadores nunca entram), e cada um vale só para a sua parte. A História guiada e a Diadorim usam sempre a série completa (1959–2025). Cada filtro mostra o resumo do próprio recorte (pessoas · indicações), tem botão de limpar quando foi mudado e baixa em CSV as linhas da sua parte (RF-14).
 - **CA-02.2 🧪👁** O estado de cada filtro fica na URL, num parâmetro com o nome da parte (`?panorama=2015-2025~Poesia,Romance~todos`, `?funil=2019-2025`), e o link é compartilhável. Filtros no padrão não aparecem na URL. A ida e a volta da codificação são testadas.
 
 ### RF-03 Panorama
 - **CA-03.1 🧪👁** Cartões com: indicações, pessoas, obras, % mulheres, **piso** de % negros (com "pelo menos"), cobertura de raça, número de UFs de nascimento distintas (de 27) e número de editoras.
-- **CA-03.2 👁** Faixa de cobertura temporal mostra, para 2010–2025, quais edições têm dados coletados.
+- **CA-03.2 👁** Faixa de cobertura temporal mostra, para 1959–2025, quais edições têm dados coletados.
 
 ### RF-04 Evolução temporal
 - **CA-04.1 👁** Barras 100% empilhadas por edição, para a dimensão escolhida (gênero, raça declarada ou região de nascimento) e a etapa escolhida (lista ou premiadas).
@@ -94,7 +94,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-16.3 👁** A rolagem encaixa em cada passo (scroll-snap). Com `prefers-reduced-motion`, não há encaixe nem animação. Há um link para pular a história, e os passos funcionam com teclado.
 
 ### RF-17 Linha do tempo
-- **CA-17.1 👁** Linha do tempo 2010–2025 com os marcos do prêmio e, por edição, as obras vencedoras de cada categoria (autoria, editora), com acesso ao perfil de quem venceu.
+- **CA-17.1 👁** Linha do tempo 1959–2025 com os marcos do prêmio e, por edição, as obras vencedoras de cada categoria (autoria, editora), com acesso ao perfil de quem venceu.
 - **CA-17.2 🧪👁** Por edição, a composição da lista (% mulheres, piso de % negras, % Sudeste, com n) em pequenos gráficos alinhados à linha do tempo.
 
 ### RF-18 Referências
@@ -137,7 +137,10 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 
 ### RF-25 Série histórica (1959–2009)
 - **CA-25.1 🧪** A base cobre 1959–2025. De 1959 a 2009 entram os premiados das categorias do recorte, cruzados no site oficial, na página "Edições anteriores" da CBL (Wayback, 2010) e na Wikipédia por edição; listas públicas de indicados só quando achadas completas em fonte da época. Categorias antigas mapeadas para as atuais (Contos/Crônicas/Novelas → Contos; Infantil ou juvenil → Infantil e Juvenil; Livro do Ano Ficção/Não Ficção e Melhor Livro de Ficção → Livro do Ano); Autor Revelação, Ilustração e as demais ficam fora. Editora só com fonte da época.
-- **CA-25.2 🧪👁** Os filtros aceitam 1959–2025, mas cada parte abre no recorte comparável 2010–2025; o ranking abre na série toda. Quando o recorte inclui edições sem lista pública, o resumo do filtro avisa quantas. Perfis, busca e linha do tempo mostram toda a série.
+- **CA-25.2 🧪👁** Toda parte abre na **série completa, 1959–2025**: abertura, história guiada, panorama, cada janela de gráfico, galeria de autores, perfis de pessoa, livro e lugar, busca e Diadorim. Os filtros recortam qualquer período dentro da série (por exemplo, 2010–2025), e só o recorte diferente do padrão vai para a URL. Quando o recorte inclui edições sem lista pública (1959–1999), o resumo do filtro avisa quantas.
+- **CA-25.3 👁** Onde a série mistura edições com e sem lista pública, o painel diz isso: a história (passo "Da lista ao 1º lugar"), o funil e a linha do tempo explicam que, antes de 2000, a "lista" é só a dos premiados. Marcos da linha do tempo e da evolução incluem 1993 (pódio de 1º a 3º) e 2000 (listas públicas na base). Eixos com dezenas de edições mostram rótulos de 5 em 5 ou de 10 em 10 anos, e as barras não somem no celular.
+- **CA-25.4 🧪👁** Indicações sem editora conhecida (série histórica sem fonte da época) não aparecem como uma "editora" no ranking de editoras: ficam fora da lista, e o gráfico informa quantas são.
+- **CA-25.5 🧪** Nenhum texto do painel fixa o período antigo: sobretítulo da abertura, história, perfil de lugar, rodapé da exportação e descrição da página vêm de `dados.json` (`anos`, `anos_coletados`) ou dizem 1959–2025. O `dados.json` não tem mais o campo `recorte`.
 
 ### RF-12 Diadorim, a IA do Literadados
 Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Sertão: Veredas*: firme, leal, de poucas palavras e fala com sabor de sertão, mas sempre clara. A personagem é inspirada no livro, sem reproduzir trechos dele.
@@ -162,7 +165,7 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 
 ### RF-14 Exportação
 - **CA-14.1 👁** Cada filtro tem um botão que baixa em CSV as linhas filtradas da sua parte.
-- **CA-14.2 👁** Todo gráfico (das janelas, do mapa, do Sankey, da história e dos perfis de lugar) tem botão de exportar. Ele abre uma janela com duas opções: **JPG com fundo** (cor de fundo do tema) e **PNG sem fundo** (transparente). A imagem sai em resolução dobrada, com o título do gráfico, a legenda de cores e a linha "Literadados · Prêmio Jabuti 2010–2025".
+- **CA-14.2 👁** Todo gráfico (das janelas, do mapa, do Sankey, da história e dos perfis de lugar) tem botão de exportar. Ele abre uma janela com duas opções: **JPG com fundo** (cor de fundo do tema) e **PNG sem fundo** (transparente). A imagem sai em resolução dobrada, com o título do gráfico, a legenda de cores e a linha "Literadados · Prêmio Jabuti <início>–<fim>", com o período do filtro da parte (sem filtro, a série completa).
 - **CA-14.3 🧪👁** Toda tabela tem botão de exportar, que abre uma janela com **XLSX** ou **CSV** (UTF-8 com BOM). O XLSX é gerado no navegador, sem biblioteca externa, e os números viram números na planilha.
 
 ## 5. Requisitos não funcionais
