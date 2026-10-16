@@ -181,7 +181,7 @@
 - [x] T23.2 `normalizar` com vários prêmios: casamento de pessoa por QID e nome (com `casamentos_revisar.csv`), de obra por título e sobrenome (CA-26.5) 🧪
 - [x] T23.3 Editora por indicação, taxonomia comum com `Geral`, `etapa_lista` (CA-26.3, CA-26.4, CA-26.6) 🧪
 - [ ] T23.4 Coleta do prêmio piloto (DA-1), com fontes e checagem de vagas; pessoas novas pelo protocolo (gênero, UF/país, raça)
-- [ ] T23.5 Filtro de prêmio por parte e facetas por prêmio (CA-26.8, CA-26.9); `dados.json` dividido se passar de 1 MB (CA-26.14) 🧪👁
-- [ ] T23.6 Perfis, linha do tempo, busca e textos com vários prêmios (CA-26.10, CA-26.12) 🧪👁
-- [ ] T23.7 Janela Entre prêmios (`metricas.entrePremios`, CA-26.11) 🧪👁
+- [x] T23.5 Filtro de prêmio por parte e facetas por prêmio (CA-26.8, CA-26.9); `dados.json` dividido se passar de 1 MB (CA-26.14) 🧪👁
+- [x] T23.6 Perfis, linha do tempo, busca e textos com vários prêmios (CA-26.10, CA-26.12) 🧪👁
+- [x] T23.7 Janela Entre prêmios (`metricas.entrePremios`, CA-26.11) 🧪👁
 - [ ] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁

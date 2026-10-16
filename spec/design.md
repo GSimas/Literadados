@@ -140,6 +140,7 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 | 12.1 (P3) | `test_chat_real_perguntas_originais`, marcado `integracao`: com `ANTHROPIC_API_KEY`, o chat real responde às três perguntas originais citando os mesmos números do SQL de referência e consultando o banco; sem a chave é pulado (`pytest -q -rs` mostra o motivo) |
 | RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
 | 26.3, 26.4, 26.6, DA-3 | `test_taxonomia_e_etapa_lista`, `test_editora_da_indicacao`, `test_pais_de_nascimento`; `metricas.test.mjs` (`expandir`: país) |
+| 26.8, 26.9, 26.11 | `metricas.test.mjs` (filtro com prêmio, `facetar`, `entrePremios`, `edicoesSemLista`, `marcosDe`, Duncan sem Geral); conferência visual com prêmio fictício (👁) |
 | 26.5 | `test_coleta.py` (`test_casamento_*`), `test_vagas_conferidas_por_premio` (`pessoas_em_varios_premios`) |
 | 26.1, 26.2 | `test_etapa0_so_jabuti`, `test_build_falha_edicao_antes_do_premio`, `test_build_falha_premio_inexistente`, `test_vagas_conferidas_por_premio`; `metricas.test.mjs` (`expandir` com prêmio padrão) |
 
@@ -200,11 +201,14 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
   - Se o arquivo passar de 1 MB com os novos prêmios, ele é dividido: `dados.json` fica com o que é comum (pessoas, obras, editoras, prêmios) e a participação do Jabuti, e cada prêmio ganha um `dados-<premio>.json`, carregado quando algum filtro o inclui (CA-26.14). `metricas.expandir` aceita várias partes.
 
   **Painel.**
-  - O texto do filtro ganha o segmento `~p:jabuti,oceanos`, omitido no padrão (DA-4).
-  - `metricas.filtrar` recebe `premios`. Funil, evolução, categorias, júri e linha do tempo recebem `fx`/`fy` por prêmio quando há mais de um (CA-26.9). O índice de Duncan é calculado dentro de cada prêmio, sem `Geral` e sem `Livro do Ano`.
-  - `CATEGORIAS` vem dos dados, não de uma constante. A busca gera "<Prêmio> AAAA" para cada edição.
-  - Janela nova `entre-premios`, alimentada por `metricas.entrePremios(linhas)`, que é pura e testada (CA-26.11).
-  - Diadorim: `build.prompt_sistema` lista `premio` e `edicao`. `validarSQL` não muda.
+  - O texto do filtro ganha o segmento `~p:jabuti,oceanos`, omitido no padrão (DA-4). `filtroDeTexto`/`filtroParaTexto` recebem a lista de prêmios da base e o padrão da parte: o 1º prêmio em todas, menos na janela Entre prêmios, que abre com todos. Sem a lista, o filtro não tem o campo `premios` e funciona como antes. O menu de prêmios (`ui.menuMarcavel`, o mesmo das categorias) só aparece quando a base tem mais de um prêmio. Desmarcar tudo volta a marcar todos (o recorte nunca fica vazio).
+  - `metricas.filtrar` recebe `premios`. `metricas.facetar(linhas, fn)` aplica a agregação a cada prêmio e marca o resultado com `premio`/`premio_nome`. Funil (um resumo de maior queda por prêmio), evolução (lacunas só a partir do `ano_inicio` do prêmio), categorias, júri e linha do tempo usam `fy` = prêmio quando há mais de um (CA-26.9); com um só, o gráfico é o de antes. O índice de Duncan é calculado dentro de cada prêmio, sem `Geral` e sem `Livro do Ano`. Os marcos (`MARCOS`) têm prêmio, e `marcosDe` mostra só os dos prêmios do recorte. Toda chave de indicação leva o prêmio (`premio|ano|nome_original|obra_id`).
+  - Edições sem lista pública por prêmio: `metricas.edicoesSemLista` devolve chaves `prêmio|ano` a partir de `etapa_lista`.
+  - `CATEGORIAS` (e `PREMIOS`, `NOME_PREMIO`) vêm dos dados por `ui.definirDados`, chamado logo depois de carregar. A busca gera "<Prêmio sem 'Prêmio'> AAAA" para cada edição com dados, e os livros dizem o prêmio quando há mais de um.
+  - Perfis: a trajetória junta todos os prêmios, com o selo do prêmio em cada item quando há mais de um; o resultado diz a etapa pelo nome (`etapa_lista`: semifinalista, finalista) em vez de "lista"; o nascimento fora do Brasil mostra o país (`Intl.DisplayNames`). A história guiada e os perfis de lugar ficam no prêmio padrão.
+  - Janela nova `entre-premios`, alimentada por `metricas.entrePremios(linhas, ordem, etapa)`, que é pura e testada (CA-26.11): sobreposição de cada par (n e base) em mapa de calor e a lista de quem passou por mais de um, em ordem de chegada. O cartão só aparece com dois prêmios ou mais.
+  - Textos: título e sobretítulo da abertura vêm do prêmio padrão; rodapés (`data-premios-texto`) e o rodapé da exportação (`data-premios` na parte) dizem os prêmios; o Método ganha "Vários prêmios", o quadro de prêmios com regimes e a cobertura por prêmio e edição.
+  - Diadorim: `build.prompt_sistema` descreve cada prêmio (período, edições, categorias), a regra de não somar prêmios e o prêmio padrão, `pais_nascimento`, `etapa_lista`, `Geral` e a editora da edição. `validarSQL` não muda.
   - O build agrupa as referências pelo domínio dos novos prêmios (RF-18).
 
   **Decisões (aprovadas).**
