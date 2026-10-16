@@ -1,6 +1,6 @@
 // Mapa coroplético por UF de nascimento (RF-07): malha do IBGE em web/br-uf.json, carregada uma vez.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, css, largura, textoSobre, tabela, dica, foto, botaoExportarGrafico } from "./ui.js";
+import { $, $$, fmt, esc, css, largura, textoSobre, tabela, dica, foto, botaoExportarGrafico, nomePais, avisoPremios } from "./ui.js";
 
 let malha = null;
 let medida = "pessoas";
@@ -24,6 +24,7 @@ export function montarControlesMapa(redesenhar) {
 
 export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
   const el = $("#g-mapa");
+  avisoPremios(el, L);
   const u = M.porUF(L, D.ufs);
   const porUF = new Map(u.map((d) => [d.uf, d]));
   const valor = (d) => (medida === "pessoas" ? d.pessoas : d.porMilhao ?? 0);
@@ -76,12 +77,15 @@ export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
   }
   function lado() {
     const alvo = $("#mapa-uf");
-    const fora = M.kpis(L).pessoas - d3.sum(u, (d) => d.pessoas);
     if (!ufSel) {
       const top = [...u].sort((a, b) => valor(b) - valor(a)).slice(0, 5);
+      // Fora do Brasil, por país (DA-3), separado de quem ainda não tem local de nascimento.
+      const pp = M.porPais(L);
+      const paises = pp.paises.map((x) => `${esc(x.pais ? nomePais(x.pais) : "país não informado")} ${fmt(x.pessoas)}`).join(" · ");
       alvo.innerHTML = `<h3>Clique numa UF</h3><p class="muted">Maiores valores no recorte (${medida === "pessoas" ? "pessoas" : "por milhão de habitantes"}):</p>
         <ol>${top.map((d) => `<li><b>${esc(d.nome)}</b> — ${fmt(valor(d), casas)}</li>`).join("")}</ol>
-        <p class="muted pequeno">${fmt(fora)} pessoas do recorte nasceram fora do Brasil ou ainda não têm UF de nascimento.</p>`;
+        ${pp.fora ? `<p class="pequeno"><b>${fmt(pp.fora)} nasceram fora do Brasil</b>: ${paises}.</p>` : ""}
+        <p class="muted pequeno">${fmt(pp.semLocal)} pessoas do recorte ainda não têm local de nascimento.</p>`;
       return;
     }
     const d = porUF.get(ufSel);

@@ -121,7 +121,8 @@ test("mediana e sankey", () => {
 
 test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA-RNF-06.2)", () => {
   const D = {
-    regimes: [{ ano: 2016, regime: "2010–2017 pódio" }],
+    premios: [{ id: "jabuti", nome: "Prêmio Jabuti" }],
+    edicoes: [{ ano: 2016, regime: "2010–2017 pódio" }],
     categorias: [{ ano: 2016, nome_original: "Contos e Crônicas", categoria: "Contos" }],
     obras: [{ id: "o1", titulo: "O1", ano_publicacao: 2015, editora_id: "ed" }, { id: "o2", titulo: "O2", ano_publicacao: null, editora_id: null }],
     editoras: [{ id: "ed", nome: "Ed", grupo: "G", uf_sede: "SP" }],
@@ -136,10 +137,12 @@ test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA
     ],
   };
   const [a, b] = M.expandir(D);
-  assert.deepEqual(Object.keys(a), ["ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
+  assert.deepEqual(Object.keys(a), ["premio", "premio_nome", "ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
     "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "genero_atribuido", "raca", "raca_busca", "negra", "uf_nascimento",
-    "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
+    "pais_nascimento", "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
+  assert.deepEqual([a.pais_nascimento, b.pais_nascimento], ["BR", null]); // UF brasileira = BR; sem UF = sem país (DA-3)
   assert.equal(a.categoria, "Contos");
+  assert.deepEqual([a.premio, a.premio_nome], ["jabuti", "Prêmio Jabuti"]); // premio ausente no JSON = 1º de D.premios (D31)
   assert.equal(a.editora, "Ed");
   assert.equal(a.regiao_nascimento, "Nordeste");
   assert.equal(a.idade_no_premio, 56);
@@ -355,11 +358,121 @@ test("urlsCapa remonta as URLs da capa compacta (RF-24, RNF-06)", async () => {
 });
 
 test("expandir remonta fonte 'wd' como a página do Wikidata da pessoa (RNF-06)", () => {
-  const D = { regimes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
+  const D = { edicoes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
     editoras: [], ufs: [], pessoas: [{ id: "a", nome: "A", wikidata: "Q1", genero: "mulher", genero_fonte: "wd", nascimento_fonte: "https://x", raca: "sem_declaracao" }],
     participacao: [{ ano: 2020, nome_original: "Poesia", obra_id: "o", pessoa_id: "a", colocacao: 1 }] };
   const [l] = M.expandir(D);
   assert.equal(D.pessoas[0].genero_fonte, "https://www.wikidata.org/wiki/Q1");
   assert.equal(D.pessoas[0].nascimento_fonte, "https://x");
   assert.deepEqual([l.papel, l.premiada, l.vencedora, l.lista_curta], ["autor", true, true, null]);
+});
+
+// ---------- vários prêmios (RF-26) ----------
+const LP = [
+  L({ premio: "jabuti", ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "j1", pessoa_id: "a", genero: "mulher", premiada: true, vencedora: true }),
+  L({ premio: "jabuti", ano: 2016, categoria: "Romance", nome_original: "Romance", obra_id: "j2", pessoa_id: "b", genero: "homem" }),
+  L({ premio: "jabuti", ano: 2020, categoria: "Poesia", nome_original: "Poesia", obra_id: "j3", pessoa_id: "c", genero: "homem", premiada: true }),
+  L({ premio: "oceanos", ano: 2016, categoria: "Geral", nome_original: "Geral", obra_id: "j1", pessoa_id: "a", genero: "mulher" }),
+  L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x1", pessoa_id: "c", genero: "homem", premiada: true, vencedora: true, uf_nascimento: "EX", regiao_nascimento: "Exterior", pais_nascimento: "PT" }),
+  L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x2", pessoa_id: "e", genero: "mulher", uf_nascimento: "EX", regiao_nascimento: "Exterior", pais_nascimento: "AO" }),
+];
+const PS = ["jabuti", "oceanos"];
+
+test("filtro com prêmio: padrão são todos os prêmios e não vai para a URL; ida e volta (CA-26.8, DA-4)", () => {
+  const CATS = ["Romance", "Poesia", "Geral"], ANOS = [1959, 2025];
+  const p = M.filtroDeTexto(null, ANOS, CATS, PS);
+  assert.deepEqual(p.premios, ["jabuti", "oceanos"]);
+  assert.equal(M.filtroParaTexto(p, ANOS, CATS, PS), "");
+  assert.equal(M.filtroParaTexto({ ...p, premios: ["jabuti"] }, ANOS, CATS, PS), "1959-2025~p:jabuti"); // um prêmio só vai para a URL
+  const f = { ...p, premios: ["oceanos"], categorias: ["Geral"] };
+  const t = M.filtroParaTexto(f, ANOS, CATS, PS);
+  assert.equal(t, "1959-2025~Geral~p:oceanos");
+  assert.deepEqual(M.filtroDeTexto("1959-2025~p:oceanos,jabuti", ANOS, CATS, PS).premios, ["jabuti", "oceanos"]); // ordem da base
+  assert.deepEqual(M.filtroDeTexto(t, ANOS, CATS, PS), f);
+  assert.deepEqual(M.filtroDeTexto("1959-2025~p:fantasma", ANOS, CATS, PS).premios, ["jabuti", "oceanos"]); // desconhecido → padrão (todos)
+  assert.deepEqual(M.filtroDeTexto("2000-2010~todos~p:oceanos", ANOS, CATS, PS), { anoIni: 2000, anoFim: 2010, categorias: CATS, papel: "todos", premios: ["oceanos"] });
+  assert.ok(!("premios" in M.filtroDeTexto(null, ANOS, CATS))); // sem prêmios, o filtro é o de antes
+  assert.equal(M.filtrar(LP, { premios: ["oceanos"] }).length, 3);
+  assert.equal(M.filtrar(LP, { premios: PS }).length, 6);
+});
+
+test("facetar nunca soma prêmios: cada um com a própria base (CA-26.9)", () => {
+  const c = M.facetar(LP, (ls) => M.composicao(ls, "genero"), PS, { jabuti: "Prêmio Jabuti", oceanos: "Prêmio Oceanos" });
+  const m16 = c.filter((x) => x.ano === 2016 && x.grupo === "mulher");
+  assert.deepEqual(m16.map((x) => [x.premio_nome, x.n, x.total]), [["Prêmio Jabuti", 1, 2], ["Prêmio Oceanos", 1, 1]]);
+  assert.deepEqual([...M.porPremio(LP, ["oceanos", "jabuti"]).keys()], ["oceanos", "jabuti"]);
+  assert.deepEqual([...M.porPremio(LP.slice(0, 3), PS).keys()], ["jabuti"]); // prêmio sem linhas sai
+  const k = M.kpis(LP);
+  assert.deepEqual([k.pessoas, k.premios, k.exterior, k.paises, k.indicacoes], [4, 2, 2, 2, 6]); // mesma obra em 2 prêmios = 2 indicações
+});
+
+test("Duncan ignora a categoria única Geral (CA-26.3)", () => {
+  assert.equal(M.duncan(LP.filter((l) => l.premio === "oceanos")).D, null);
+});
+
+test("entrePremios: sobreposição com n e ordem de chegada (CA-26.11)", () => {
+  const lista = M.entrePremios(LP, PS, "lista");
+  assert.deepEqual(lista.pessoas.map((p) => p.pessoa_id), ["a", "c"]); // a chegou antes (2016)
+  const a = lista.pessoas[0], c = lista.pessoas[1];
+  assert.deepEqual([a.premios, a.anos], [["jabuti", "oceanos"], [2016, 2016]]); // mesmo ano: ordem da base
+  assert.deepEqual([c.premios, c.anos], [["oceanos", "jabuti"], [2018, 2020]]); // chegou primeiro ao Oceanos
+  assert.deepEqual(lista.total, { jabuti: 3, oceanos: 3 });
+  const jo = lista.pares.find((x) => x.de === "jabuti" && x.para === "oceanos");
+  assert.deepEqual([jo.n, jo.total], [2, 3]);
+  const prem = M.entrePremios(LP, PS, "premiada");
+  assert.deepEqual(prem.pessoas.map((p) => p.pessoa_id), ["c"]); // a só foi indicada no Oceanos
+});
+
+test("edições sem lista pública por prêmio; marcos só dos prêmios do recorte (CA-26.4, CA-26.10)", () => {
+  const cats = [
+    { ano: 1990, nome_original: "Romance", categoria: "Romance", etapa_lista: "premiados" },
+    { ano: 1990, nome_original: "Livro do Ano", categoria: "Livro do Ano", etapa_lista: "premiados" },
+    { ano: 2016, nome_original: "Romance", categoria: "Romance", vagas_lista: 10, etapa_lista: "finalistas" },
+    { premio: "oceanos", ano: 2016, nome_original: "Geral", categoria: "Geral", etapa_lista: "premiados" },
+    { ano: 2017, nome_original: "Romance", categoria: "Romance" }, // dado antigo sem etapa_lista: cai em vagas_lista
+  ];
+  assert.deepEqual([...M.edicoesSemLista(cats, "jabuti")].sort(), ["jabuti|1990", "jabuti|2017", "oceanos|2016"]);
+  assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
+  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["jabuti", "oceanos"]); // null = todos (DA-4)
+});
+test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
+  const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
+    L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x4", pessoa_id: "g", genero: "homem", uf_nascimento: null })]);
+  assert.deepEqual(r.paises.map((x) => [x.pais, x.pessoas]), [["AO", 1], ["PT", 1], [null, 1]]);
+  assert.deepEqual([r.fora, r.semLocal], [3, 1]);
+  assert.equal(M.paisOuExterior("PT"), "Portugal");
+  assert.equal(M.paisOuExterior(null), "exterior");
+});
+
+test("juntar: partes de outros prêmios se somam ao dados.json (CA-26.14)", () => {
+  const D = { participacao: [{ a: 1 }], pessoas: [{ id: "a" }], obras: [], premios: [{ id: "jabuti" }] };
+  M.juntar(D, [{ premio: "oceanos", participacao: [{ a: 2 }], pessoas: [{ id: "b" }], obras: [{ id: "o" }] }]);
+  assert.deepEqual([D.participacao.length, D.pessoas.map((p) => p.id), D.obras.length, D.premios.length], [2, ["a", "b"], 1, 1]);
+  assert.equal(M.juntar(D, []), D);
+});
+
+test("marcos: 1ª edição dos outros prêmios vem dos dados (CA-26.10)", () => {
+  const base = [{ id: "jabuti", ano_inicio: 1959 }, { id: "oceanos", ano_inicio: 2003 }];
+  const mo = M.marcosDe(["oceanos"], base);
+  assert.ok(mo.every((m) => m.premio === "oceanos") && mo.some((m) => m.ano === 2003 && m.texto === "1ª edição") && mo.length > 1);
+  assert.ok(!M.marcosDe(["jabuti"], base).some((m) => m.texto === "1ª edição")); // o prêmio mais antigo já começa no eixo
+});
+
+test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no lugar de EX (CA-26.12)", () => {
+  const D = { premios: [{ id: "jabuti", nome: "Prêmio Jabuti" }, { id: "oceanos", nome: "Prêmio Oceanos" }], edicoes: [{ premio: "oceanos", ano: 2018, regime: "categoria única" }],
+    participacao: LP.map((l) => ({ ...l, nome: l.pessoa_id, titulo: l.obra_id })), pessoas: [{ id: "e", nome: "Eva Angolana", uf_nascimento: "EX", pais_nascimento: "AO" }],
+    obras: [], editoras: [], ufs: [], categorias: [], jurados: [], anos_coletados: [] };
+  const ix = M.indiceBusca(D);
+  const oc = ix.find((e) => e.tipo === "Edição" && e.rotulo === "Oceanos 2018");
+  assert.equal(oc.href, "?linha-do-tempo=2018-2018~p:oceanos#/grafico/linha-do-tempo");
+  assert.equal(oc.sub, "categoria única");
+  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "?linha-do-tempo=2016-2016~p:jabuti#/grafico/linha-do-tempo"); // sem ~p:, abriria todos
+  assert.ok(ix.find((e) => e.rotulo === "Eva Angolana").sub.startsWith("Angola"));
+  assert.ok(ix.some((e) => e.rotulo === "Entre prêmios"));
+});
+test("história com vários prêmios: edição é prêmio + ano; pessoa conta uma vez (CA-16.1, DA-4)", () => {
+  const ls = [L({ premio: "jabuti", ano: 2018, obra_id: "a1", pessoa_id: "p" }), L({ premio: "oceanos", ano: 2018, obra_id: "a2", pessoa_id: "p" })];
+  const h = M.historia(ls);
+  assert.deepEqual([h.edicoes, h.premios, h.pessoas, h.indicacoes], [2, 2, 1, 2]);
+  assert.ok(Object.keys(M.FORMATOS).every((p) => M.MARCOS.some((m) => m.premio === p))); // formato só de prêmio conhecido
 });

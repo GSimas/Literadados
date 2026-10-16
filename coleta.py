@@ -1,5 +1,5 @@
 """Ferramentas de coleta (PLANO_COLETA.md). Uso:
-  python coleta.py normalizar   # dados/coleta/lista_*.csv, jurados_*.csv, categorias_edicao.csv → dados/*.csv (preserva enriquecimentos)
+  python coleta.py normalizar   # dados/premio.csv + dados/coleta/<premio>/{edicoes,categorias_edicao,lista_*,jurados_*}.csv → dados/*.csv (preserva enriquecimentos)
   python coleta.py wikidata     # pré-preenche gênero/nascimento de pessoas sem QID; candidatos em dados/coleta/wikidata_candidatos.csv
   python coleta.py aplicar_pessoas  # incorpora dados/coleta/pessoas_*.csv (pesquisa de nascimento e raça)
   python coleta.py verificar    # confere se cada raca_trecho aparece na página de raca_fonte
@@ -26,13 +26,14 @@ UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
 
 CAMPOS = {
     "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "genero_evidencia", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",
-               "ano_nascimento", "municipio_nascimento", "uf_nascimento", "nascimento_fonte", "revisado_em"],
+               "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento", "nascimento_fonte", "revisado_em"],
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
-    "autoria": ["obra_id", "pessoa_id", "papel"],
-    "categoria_edicao": ["ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "fonte"],
-    "indicacao": ["ano", "nome_original", "obra_id", "lista_curta", "colocacao", "fonte"],
-    "jurado": ["ano", "nome_original", "pessoa_id", "fonte"],
+    "autoria": ["premio_id", "obra_id", "pessoa_id", "papel"],
+    "edicao": ["premio_id", "ano", "regime", "fonte"],
+    "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "etapa_lista", "fonte"],
+    "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
+    "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
     "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
 }
 
@@ -58,53 +59,203 @@ def nomes(campo: str) -> list[str]:
     return [n.strip() for n in (campo or "").split("|") if n.strip()]
 
 
+CAMPOS_REVISAR = ["nome", "pessoa_id", "motivo", "wikidata_base", "premios_base"]
+
+
 def normalizar():
     pessoas = {p["id"]: p for p in ler("pessoa")}
     editoras = {e["id"]: e for e in ler("editora")}
     obras, autoria, indicacoes, jurados = {}, set(), {}, {}
 
-    def pessoa(nome: str) -> str:
-        pid = slug(nome)
-        pessoas.setdefault(pid, {"id": pid, "nome": nome, "genero": "nao_identificado", "raca": "sem_declaracao"})
+    # Coedição: vale a 1ª editora. "A / B" e "A | B" sempre ("S/A" é sufixo: só " / " com espaços); "A e B", "A - B" e
+    # "A, B" só quando TODAS as partes já são editoras conhecidas, porque " e " também está em nomes ("Cultura e Barbárie").
+    conhecidas = set(editoras)
+    enr_arq0 = BRUTO / "editoras_enriquecidas.csv"
+    if enr_arq0.exists():
+        conhecidas |= {e["id"] for e in csv.DictReader(enr_arq0.open(encoding="utf-8"))}
+    sufixos = ("", "-pt", "-ao", "-mz", "-cv", "-gw", "-st", "-tl", "-sem-pais")  # a mesma editora, de outro país ou sem país
+    conhecida = lambda nome: any(slug(nome) + s in conhecidas or slug(nome) + s in editoras for s in sufixos)  # da base ou desta execução
+
+    def editora_principal(celula: str) -> str:
+        eds = [e.strip() for e in re.split(r"\|| +/ +", celula) if e.strip()]
+        if not eds:
+            return ""
+        partes = [p.strip() for p in re.split(r" e | - | – |, ", eds[0]) if p.strip()]
+        return partes[0] if len(partes) > 1 and all(conhecida(p) for p in partes) else eds[0]
+
+    # Um prêmio por pasta (dados/coleta/<premio>/), na ordem de premio.csv (coluna `ordem`; 1 = o padrão do painel, DA-4):
+    # o Jabuti vem primeiro, e os ids atuais (fotos, capas, links) não mudam quando entra outro prêmio (design D31).
+    premios = sorted(ler("premio"), key=lambda p: (int(p.get("ordem") or 99), p["id"]))
+    ordem = {pr["id"]: k for k, pr in enumerate(premios)}
+
+    # Casamento de pessoa entre prêmios (CA-26.5). dados/coleta/<premio>/casamentos.csv (nome, wikidata, pessoa_id):
+    # pessoa_id = decisão humana (um id da base, ou "nova" para homônimo); wikidata = QID conferido, que casa com quem
+    # já tem esse QID. Sem isso, o nome casa sozinho, mas o casamento com pessoa de um prêmio anterior na ordem vai para
+    # casamentos_revisar.csv do prêmio que chegou depois. Dentro do mesmo prêmio, o nome continua sendo a identidade.
+    casam = {}
+    for pr in premios:
+        arq = BRUTO / pr["id"] / "casamentos.csv"
+        casam[pr["id"]] = {c["nome"]: c for c in csv.DictReader(arq.open(encoding="utf-8"))} if arq.exists() else {}
+    if any((c.get("pessoa_id") or "").strip() == "nova" for c in casam.get(premios[0]["id"], {}).values()):
+        raise SystemExit(f"{premios[0]['id']}/casamentos.csv: 'nova' não vale no prêmio padrão (renomearia quem já está na base)")
+    por_qid = {p["wikidata"]: i for i, p in pessoas.items() if p.get("wikidata")}
+    revisar = {pr["id"]: {} for pr in premios}
+
+    def arquivos(pr: dict, padrao: str) -> list[Path]:
+        # Listas: 2010+ primeiro, para os ids de obra dessas edições não mudarem quando entra a série histórica (um título
+        # antigo igual recebe o sufixo -ano, não o contrário). Jurados: em ordem de nome.
+        fs = glob.glob(str(BRUTO / pr["id"] / padrao))
+        return [Path(f) for f in sorted(fs, key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f))]
+
+    # 1ª passada: em que prêmios cada nome aparece (listas e júri), para que a revisão independa da ordem de leitura.
+    premios_do_nome = {}
+    for pr in premios:
+        for arq in arquivos(pr, "lista_*.csv"):
+            for r in csv.DictReader(open(arq, encoding="utf-8")):
+                for n in nomes(r["autores"]) + nomes(r["ilustradores"]) + nomes(r.get("organizadores")):
+                    premios_do_nome.setdefault(slug(n), set()).add(pr["id"])
+        for arq in arquivos(pr, "jurados_*.csv"):
+            for r in csv.DictReader(open(arq, encoding="utf-8")):
+                premios_do_nome.setdefault(slug(r["nome"]), set()).add(pr["id"])
+
+    def pessoa(nome: str, premio_id: str) -> str:
+        c = casam[premio_id].get(nome, {})
+        decisao, qid = (c.get("pessoa_id") or "").strip(), (c.get("wikidata") or "").strip()
+        base = slug(nome)
+        if decisao == "nova":
+            pid = f"{base}-{premio_id}"
+        elif decisao:
+            if decisao not in pessoas:
+                raise SystemExit(f"{premio_id}/casamentos.csv: {nome} → pessoa_id {decisao} não existe")
+            pid = decisao
+        elif qid and qid in por_qid:
+            pid = por_qid[qid]
+        else:
+            pid = base
+            ja = pessoas.get(pid, {}).get("wikidata")
+            antes = {p for p in premios_do_nome.get(base, set()) if ordem[p] < ordem[premio_id]}
+            if qid and ja and ja != qid:  # mesmo nome, outra pessoa no Wikidata: homônimo
+                if ordem[premio_id] == 0:  # no prêmio padrão, isso tiraria as indicações de quem já está na base
+                    raise SystemExit(f"{premio_id}/casamentos.csv: {nome} com QID diferente ({qid} × {ja}) no prêmio padrão: corrija a base")
+                pid = f"{base}-{premio_id}"
+                revisar[premio_id][nome] = {"nome": nome, "pessoa_id": pid, "motivo": f"QID diferente ({qid} × {ja}): criada pessoa nova",
+                                            "wikidata_base": ja, "premios_base": ",".join(sorted(antes))}
+            elif qid and not ja and pid in pessoas:  # QID conferido para quem já está na base sem QID: grava e vale
+                pessoas[pid]["wikidata"], por_qid[qid] = qid, pid
+            elif antes:
+                revisar[premio_id][nome] = {"nome": nome, "pessoa_id": pid, "motivo": "casou só pelo nome com pessoa de outro prêmio",
+                                            "wikidata_base": ja or "", "premios_base": ",".join(sorted(antes))}
+        if pid not in pessoas:
+            pessoas[pid] = {"id": pid, "nome": nome, "genero": "nao_identificado", "raca": "sem_declaracao"}
+            if qid and qid not in por_qid:
+                pessoas[pid]["wikidata"], por_qid[qid] = qid, pid
         return pid
 
-    cats = list(csv.DictReader((BRUTO / "categorias_edicao.csv").open(encoding="utf-8")))
+    # Casamento de obra (CA-26.5): mesmo título e a MESMA PESSOA na autoria (na antologia sem autor, o organizador).
+    # Só o sobrenome em comum não junta (juntaria "Poesia reunida" de dois Silva): vira outra obra, com o ano no id, e as
+    # pessoas vão para revisão. Se forem a mesma pessoa, a decisão em casamentos.csv junta pessoa e, com ela, a obra.
+    por_titulo, por_chave = {}, {}
+    PALAVRAS_VAZIAS = {"de", "do", "da", "dos", "das", "o", "a", "os", "as", "e", "um", "uma"}
+
+    def chave_titulo(titulo: str) -> str:
+        """Título sem subtítulo (depois de ':', ' – ', ' - ' ou entre parênteses), sem artigos/preposições e sem espaços:
+        "Canalha! – Crônicas" = "Canalha!", "Tapete de silêncio" = "Tapete do silêncio", "AvóDezanove" = "Avó dezenove"."""
+        t = re.split(r":| – | - | \(", titulo)[0]
+        return "".join(p for p in slug(t).split("-") if p not in PALAVRAS_VAZIAS)
+
+    def juntar(o: dict, nomes_, pids, ed_id, premio_id):
+        o["_pids"] |= set(pids)
+        o["_sob"] |= {sobrenome(x) for x in nomes_} - {""}  # coautor novo também conta para o aviso de sobrenome
+        o["_premios"].add(premio_id)
+        o["editora_id"] = o["editora_id"] or ed_id  # 1ª editora não vazia, só para o perfil e o JSON compacto
+        return o["id"]
+
+    # Decisão humana para livro (como casamentos.csv para pessoa): dados/coleta/<premio>/obras_casamentos.csv
+    # (titulo, obra_id) junta um título da lista daquele prêmio a uma obra já existente, quando a grafia muda demais
+    # ("Avó dezenove" × "AvóDezanove", "Meridiano celeste & bestiário" × "Meridiano Celeste").
+    obra_decidida = {}
+    for pr in premios:
+        arq = BRUTO / pr["id"] / "obras_casamentos.csv"
+        if arq.exists():
+            obra_decidida.update({(pr["id"], c["titulo"]): c["obra_id"] for c in csv.DictReader(arq.open(encoding="utf-8"))})
+
+    def obra(titulo: str, nomes_: list[str], pids: list[str], ano: str, ed_id: str, premio_id: str) -> str:
+        if (premio_id, titulo) in obra_decidida:
+            oid = obra_decidida[(premio_id, titulo)]
+            if oid not in obras:
+                raise SystemExit(f"{premio_id}/obras_casamentos.csv: '{titulo}' → obra {oid} não existe (ainda)")
+            return juntar(obras[oid], nomes_, pids, ed_id, premio_id)
+        base = slug(titulo)
+        for oid in por_titulo.get(base, []):
+            o = obras[oid]
+            if o["_pids"] & set(pids) or not (o["_pids"] or pids):
+                return juntar(o, nomes_, pids, ed_id, premio_id)
+        # Entre prêmios, a grafia do título varia ("Tapete de/do silêncio"): com a MESMA pessoa na autoria, a chave
+        # tolerante junta. Dentro do mesmo prêmio, não (lá a grafia já é uma só, e "Poesia completa: vol. 2" é outra obra).
+        for oid in por_chave.get(chave_titulo(titulo), []):
+            o = obras[oid]
+            if o["_pids"] & set(pids) and premio_id not in o["_premios"]:
+                return juntar(o, nomes_, pids, ed_id, premio_id)
+        for oid in por_titulo.get(base, []):
+            for n, p in zip(nomes_, pids):
+                decidido = any((casam[premio_id].get(n, {}).get(k) or "").strip() for k in ("pessoa_id", "wikidata"))
+                if sobrenome(n) and sobrenome(n) in obras[oid]["_sob"] and not decidido:
+                    revisar[premio_id][n] = {"nome": n, "pessoa_id": p, "wikidata_base": "", "premios_base": "",
+                                             "motivo": f"'{titulo}' já existe como {oid} ({', '.join(sorted(obras[oid]['_pids']))}), com o mesmo sobrenome: "
+                                                       "se for a mesma pessoa, decida em casamentos.csv e a obra se junta"}
+        oid, n = (base if base not in obras else f"{base}-{ano}"), 2
+        while oid in obras:
+            oid, n = f"{base}-{ano}-{n}", n + 1
+        obras[oid] = {"id": oid, "titulo": titulo, "editora_id": ed_id, "_sob": {sobrenome(x) for x in nomes_} - {""}, "_pids": set(pids),
+                      "_premios": {premio_id}}
+        por_titulo.setdefault(base, []).append(oid)
+        por_chave.setdefault(chave_titulo(titulo), []).append(oid)
+        return oid
+    edicoes, cats = [], []
+    for pr in premios:
+        pasta = BRUTO / pr["id"]
+        edicoes += [{**e, "premio_id": pr["id"]} for e in csv.DictReader((pasta / "edicoes.csv").open(encoding="utf-8"))]
+        cats += [{**c, "premio_id": pr["id"]} for c in csv.DictReader((pasta / "categorias_edicao.csv").open(encoding="utf-8"))]
+    gravar("edicao", edicoes)
     gravar("categoria_edicao", cats)
 
-    # 2010+ primeiro: os ids de obra dessas edições não mudam quando entra a série histórica (um título antigo igual
-    # recebe o sufixo -ano, não o contrário).
-    for arq in sorted(glob.glob(str(BRUTO / "lista_*.csv")), key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f)):
+    # Um prêmio de cada vez, listas e depois júri: a revisão de um nome vai sempre para o prêmio que chegou depois.
+    for premio_id, arq, tipo in [(pr["id"], a, t) for pr in premios for t in ("lista", "jurados") for a in arquivos(pr, f"{t}_*.csv")]:
+        if tipo == "jurados":
+            for r in csv.DictReader(open(arq, encoding="utf-8")):
+                pid = pessoa(r["nome"], premio_id)
+                jurados[(premio_id, r["ano"], r["nome_original"], pid)] = {
+                    "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid, "fonte": r["fonte"]}
+            continue
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             autores = nomes(r["autores"])
-            ed_nome = nomes(r["editora"])[0] if nomes(r["editora"]) else ""
-            ed_id = slug(ed_nome) if ed_nome else ""
+            ed_nome = editora_principal(r["editora"] or "")
+            # Editora de outro país (coluna opcional editora_pais, ISO): outra editora, mesmo com o mesmo nome de uma
+            # brasileira (Companhia das Letras de Lisboa ≠ de São Paulo). Id e nome levam o país; sede no exterior.
+            # Num prêmio que tem a coluna, país VAZIO = não se sabe (coedição entre países, selo com casa nos dois):
+            # editora à parte, sem sede, em vez de herdar a sede da brasileira de mesmo nome.
+            ed_pais = (r.get("editora_pais") or "").strip().upper()
+            estrangeira = bool(ed_nome) and ed_pais not in ("", "BR")
+            sem_pais = bool(ed_nome) and "editora_pais" in r and not ed_pais
+            ed_id = (slug(f"{ed_nome} {ed_pais}") if estrangeira else slug(f"{ed_nome} sem pais") if sem_pais else slug(ed_nome)) if ed_nome else ""
             if ed_id:
-                editoras.setdefault(ed_id, {"id": ed_id, "nome": ed_nome})
-            oid = slug(r["titulo"])
-            # mesmo título com autores diferentes = obras diferentes
-            if oid in obras and obras[oid]["_autores"] != autores:
-                oid = f"{oid}-{r['ano']}"
-            obras.setdefault(oid, {"id": oid, "titulo": r["titulo"], "editora_id": ed_id, "_autores": autores})
-            for n in autores:
-                autoria.add((oid, pessoa(n), "autor"))
+                editoras.setdefault(ed_id, {"id": ed_id, "nome": f"{ed_nome} ({ed_pais})", "uf_sede": "EX"} if estrangeira
+                                    else {"id": ed_id, "nome": f"{ed_nome} (país não informado)"} if sem_pais else {"id": ed_id, "nome": ed_nome})
+            orgs = [n for n in nomes(r.get("organizadores")) if n not in autores]  # fora das contagens (design D14)
+            pa, po = [pessoa(n, premio_id) for n in autores], [pessoa(n, premio_id) for n in orgs]
+            oid = obra(r["titulo"], autores or orgs, pa or po, r["ano"], ed_id, premio_id)
+            autoria.update((premio_id, oid, p, "autor") for p in pa)  # crédito do próprio prêmio (RF-26)
+            autoria.update((premio_id, oid, p, "organizador") for p in po)
             for n in nomes(r["ilustradores"]):
                 if n not in autores:
-                    autoria.add((oid, pessoa(n), "ilustrador"))
-            for n in nomes(r.get("organizadores")):  # fora das contagens (design D14)
-                if n not in autores:
-                    autoria.add((oid, pessoa(n), "organizador"))
+                    autoria.add((premio_id, oid, pessoa(n, premio_id), "ilustrador"))
             fonte = " ; ".join(f for f in (r["fonte_1"], r["fonte_2"]) if f)
-            indicacoes[(r["ano"], r["nome_original"], oid)] = {
-                "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
-                "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte}
-
-    for arq in sorted(glob.glob(str(BRUTO / "jurados_*.csv"))):
-        for r in csv.DictReader(open(arq, encoding="utf-8")):
-            pid = pessoa(r["nome"])
-            jurados[(r["ano"], r["nome_original"], pid)] = {"ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid, "fonte": r["fonte"]}
+            indicacoes[(premio_id, r["ano"], r["nome_original"], oid)] = {
+                "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
+                "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte, "_ed": ed_id}
 
     # Editoras: sede/grupo levantados à parte; `canonico` unifica duplicatas (ex.: "record" → "editora-record").
-    enr_arq = BRUTO / "editoras_enriquecidas.csv"
+    enr_arq, alias = BRUTO / "editoras_enriquecidas.csv", {}
     if enr_arq.exists():
         enr = {e["id"]: e for e in csv.DictReader(enr_arq.open(encoding="utf-8"))}
         alias = {i: e["canonico"] for i, e in enr.items() if e.get("canonico") and e["canonico"] != i}
@@ -114,14 +265,36 @@ def normalizar():
                     for i, e in editoras.items() if i not in alias}
         for i in set(alias.values()) - set(editoras):
             editoras[i] = {k: enr[i][k] for k in ("id", "nome", "grupo", "municipio_sede", "uf_sede")} if i in enr else {"id": i, "nome": i}
+    # Editora por indicação (CA-26.6): a da própria linha ou, vazia, a de outra linha da MESMA edição (o Livro do Ano
+    # repete a obra da categoria sem editora). Nunca a de outro ano ou prêmio: editora sem fonte da época fica vazia.
+    da_edicao = {}
+    for i in indicacoes.values():
+        if i["_ed"]:
+            da_edicao.setdefault((i["premio_id"], i["ano"], i["obra_id"]), alias.get(i["_ed"], i["_ed"]))
+    for i in indicacoes.values():
+        i["editora_id"] = alias.get(i["_ed"], i["_ed"]) or da_edicao.get((i["premio_id"], i["ano"], i["obra_id"]), "")
 
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
-    gravar("editora", sorted(editoras.values(), key=lambda e: e["id"]))
+    # Só editoras usadas: grafias antigas e coedições que viraram canonico deixam de aparecer (a sede/grupo vive em
+    # editoras_enriquecidas.csv, então nada se perde).
+    usadas = {o["editora_id"] for o in obras.values()} | {i["editora_id"] for i in indicacoes.values()}
+    gravar("editora", sorted((e for e in editoras.values() if e["id"] in usadas), key=lambda e: e["id"]))
     gravar("obra", sorted(obras.values(), key=lambda o: o["id"]))
-    gravar("autoria", [{"obra_id": o, "pessoa_id": p, "papel": t} for o, p, t in sorted(autoria)])
-    gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["ano"], i["nome_original"], i["obra_id"])))
-    gravar("jurado", sorted(jurados.values(), key=lambda j: (j["ano"], j["nome_original"], j["pessoa_id"])))
-    print(f"{len(pessoas)} pessoas, {len(editoras)} editoras, {len(obras)} obras, {len(indicacoes)} indicações, {len(jurados)} jurados")
+    gravar("autoria", [{"premio_id": pr, "obra_id": o, "pessoa_id": p, "papel": t} for pr, o, p, t in sorted(autoria)])
+    gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))
+    gravar("jurado", sorted(jurados.values(), key=lambda j: (j["premio_id"], j["ano"], j["nome_original"], j["pessoa_id"])))
+    for premio_id, linhas in revisar.items():  # refeito a cada execução; sem pendência, o arquivo some
+        arq = BRUTO / premio_id / "casamentos_revisar.csv"
+        if linhas:
+            with arq.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=CAMPOS_REVISAR)
+                w.writeheader()
+                w.writerows(sorted(linhas.values(), key=lambda l: l["nome"]))
+        else:
+            arq.unlink(missing_ok=True)
+    pendentes = sum(map(len, revisar.values()))
+    print(f"{len(pessoas)} pessoas, {len(editoras)} editoras, {len(obras)} obras, {len(indicacoes)} indicações, {len(jurados)} jurados"
+          + (f"; {pendentes} casamentos de pessoa para revisar (dados/coleta/<premio>/casamentos_revisar.csv)" if pendentes else ""))
 
 
 GENERO = {"Q6581072": "mulher", "Q1052281": "mulher", "Q6581097": "homem", "Q2449503": "homem", "Q48270": "nao_binario"}
@@ -182,6 +355,28 @@ def uf_de(local: str, profundidade: int = 6) -> str:
     return ""
 
 
+def pais_de(local: str) -> str:
+    """País do local de nascimento (P17), como ISO 3166-1 alfa-2 do item do país (P297), para quem nasceu fora do Brasil
+    (DA-3). País histórico sem código ISO (ex.: Reino de Portugal) devolve vazio: confira à mão."""
+    ent = entidades([local]).get(local, {})
+    # Rank "preferred" primeiro e nada com data de fim (P582): Lviv ou Asmara têm países históricos listados antes.
+    validas = [c for c in ent.get("claims", {}).get("P17", []) if c.get("rank") != "deprecated" and "P582" not in c.get("qualifiers", {})]
+    validas.sort(key=lambda c: c.get("rank") != "preferred")
+    pais = next((c["mainsnak"]["datavalue"]["value"]["id"] for c in validas if c.get("mainsnak", {}).get("datavalue")), "")
+    if not pais:
+        return ""
+    return (_claim(entidades([pais]).get(pais, {}), "P297") or "").upper()
+
+
+def nascimento_de(local: str) -> dict:
+    """UF (Brasil) ou 'EX' + país (exterior) a partir do item do local de nascimento."""
+    uf = uf_de(local)
+    if uf:
+        return {"uf_nascimento": uf, "pais_nascimento": ""}
+    pais = pais_de(local)
+    return {"uf_nascimento": "EX", "pais_nascimento": pais} if pais and pais != "BR" else {"uf_nascimento": "", "pais_nascimento": ""}
+
+
 def wikidata():
     pessoas = ler("pessoa")
     alvo = [p for p in pessoas if not p.get("wikidata")]
@@ -198,11 +393,11 @@ def wikidata():
                            "descricao": (e.get("descriptions", {}).get("pt") or e.get("descriptions", {}).get("en") or {}).get("value", ""),
                            "genero": GENERO.get(gen, ""), "ano_nascimento": nasc[1:5] if nasc.startswith("+") else "",
                            "municipio_nascimento": _rotulo(entidades([local]).get(local, {})) if local else "",
-                           "uf_nascimento": uf_de(local) if local else ""})
+                           **(nascimento_de(local) if local else {"uf_nascimento": "", "pais_nascimento": ""})})
         if n % 20 == 0:
             print(f"  {n}/{len(alvo)}", flush=True)
     with (BRUTO / "wikidata_candidatos.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["pessoa_id", "nome", "qid", "rotulo", "n_candidatos", "descricao", "genero", "ano_nascimento", "municipio_nascimento", "uf_nascimento", "confirmado"])
+        w = csv.DictWriter(f, fieldnames=["pessoa_id", "nome", "qid", "rotulo", "n_candidatos", "descricao", "genero", "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento", "confirmado"])
         w.writeheader()
         w.writerows(linhas)
     com = {l["pessoa_id"] for l in linhas}
@@ -225,6 +420,8 @@ def aplicar_wikidata():
             p["genero"], p["genero_fonte"] = c["genero"], url
         if not p.get("uf_nascimento") and c["uf_nascimento"]:
             p["uf_nascimento"], p["municipio_nascimento"], p["nascimento_fonte"] = c["uf_nascimento"], c["municipio_nascimento"], url
+            if c["uf_nascimento"] == "EX":  # fora do Brasil: país ISO (DA-3); vazio se o Wikidata não deu código
+                p["pais_nascimento"] = c.get("pais_nascimento", "")
         if not p.get("ano_nascimento") and c["ano_nascimento"]:
             p["ano_nascimento"] = c["ano_nascimento"]
             p["nascimento_fonte"] = p.get("nascimento_fonte") or url

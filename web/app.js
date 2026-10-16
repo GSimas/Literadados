@@ -1,8 +1,8 @@
 // Painel Literadados: estado, navegação e ciclo de desenho. Agregações em metricas.js (testadas);
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
-import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking } from "./explorar.js";
+import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
+import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
@@ -14,37 +14,43 @@ import { htmlLugar } from "./lugares.js";
 import { montarExportacao } from "./exportar.js";
 
 // Sem dados não há painel: avisa no lugar dos números da abertura, com botão para tentar de novo, em vez de falhar em silêncio.
-const [D] = await Promise.all([fetch("dados.json").then((r) => { if (!r.ok) throw new Error(`dados.json: HTTP ${r.status}`); return r.json(); }), carregarMalha()])
+const [D] = await Promise.all([carregarDados(), carregarMalha()])
   .catch((e) => {
     $("#hero-numeros").innerHTML = `<p class="vazio" role="alert">Não foi possível carregar os dados (${esc(e.message)}). <button type="button" class="chip-link" onclick="location.reload()">Tentar de novo</button></p>`;
     throw e;
   });
 D.participacao = M.expandir(D); // JSON compacto → linhas de v_participacao (design D13)
+definirDados(D); // categorias presentes nos dados e prêmios da base (CA-26.3, CA-26.8)
+{ // rodapé: os prêmios da base, vindos dos dados (DA-5)
+  const ns = (D.premios ?? []).map((p) => p.nome);
+  if (ns.length) $$("[data-premios-texto]").forEach((el) => { el.textContent = ns.length > 1 ? `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}` : ns[0]; });
+}
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
 
 // ---------- filtros por parte e URL (RF-02, D22) ----------
 // Cada parte filtrável tem seu estado; a URL guarda ?<parte>=<texto> só para os filtros fora do padrão.
-const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
+const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios"];
 const PARTES = ["panorama", ...IDS_JANELAS, "autores"];
 // Toda parte abre na série completa (CA-25.2, D30); o filtro recorta dentro dela.
-const padrao = () => M.filtroDeTexto(null, D.anos, CATEGORIAS);
+// Padrão: todos os prêmios da base (DA-4); o filtro de cada parte recorta um ou vários.
+const premiosPadrao = () => [...PREMIOS];
+const padraoDe = (parte) => () => M.filtroDeTexto(null, D.anos, CATEGORIAS, PREMIOS, premiosPadrao(parte));
+const padrao = padraoDe("panorama");
 const filtros = (() => {
   const q = new URLSearchParams(location.search);
-  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS)]));
+  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS, PREMIOS, premiosPadrao(p))]));
 })();
 const PERIODO = `${D.anos[0]}–${D.anos[1]}`;
 document.documentElement.dataset.anos = PERIODO; // rodapé da exportação fora das partes filtráveis (história, perfis)
-// Edições sem lista pública de indicados (1959–1999): ali "lista" = só premiadas.
-const ANOS_SEM_LISTA = new Set(ANOS.filter((a) => {
-  const cs = D.categorias.filter((c) => c.ano === a && c.categoria !== "Livro do Ano");
-  return cs.length && cs.every((c) => c.vagas_lista == null);
-}));
+document.documentElement.dataset.premios = nomesPremios(); // rodapé da exportação fora das partes: todos os prêmios (DA-4)
+// Edições sem lista pública de indicados (no Jabuti, 1959–1999): ali "lista" = só premiadas. Chave "<prêmio>|<ano>" (CA-26.4).
+const SEM_LISTA = M.edicoesSemLista(D.categorias, PREMIOS[0]);
 const linhasDe = (parte) => M.filtrar(D.participacao, filtros[parte]);
 function gravarURL() {
   const q = new URLSearchParams(location.search);
   for (const p of PARTES) {
-    const t = M.filtroParaTexto(filtros[p], D.anos, CATEGORIAS);
+    const t = M.filtroParaTexto(filtros[p], D.anos, CATEGORIAS, PREMIOS, premiosPadrao(p));
     if (t) q.set(p, t); else q.delete(p);
   }
   for (const k of ["ini", "fim", "cat", "papel"]) q.delete(k); // formato antigo (filtro global)
@@ -56,7 +62,7 @@ function montarFiltros() {
     const el = $(`[data-filtro="${parte}"]`);
     if (!el) continue;
     resumos[parte] = montarFiltro(el, filtros[parte], {
-      anos: ANOS, padrao,
+      anos: ANOS, padrao: padraoDe(parte),
       aoMudar: () => { gravarURL(); renderParte(parte); },
       baixar: () => {
         const f = filtros[parte];
@@ -72,9 +78,21 @@ function montarFiltros() {
 montarTema(() => { renderTudo(); historia.redesenhar(); });
 
 // ---------- abertura (CA-15.1) ----------
+// "Jabuti 1959–2025 (67 edições) · Oceanos 2003–2025 (23 edições)": cada prêmio com o próprio período, sem somar edições.
+function periodosPremios(L) {
+  const anos = d3.rollup(L, (v) => new Set(v.map((l) => l.ano)), (l) => l.premio);
+  const um = PREMIOS.length === 1;
+  return PREMIOS.filter((p) => anos.has(p)).map((p) => {
+    const a = [...anos.get(p)].sort((x, y) => x - y);
+    const nome = um ? nomesPremios([p]) : nomesPremios([p]).replace(/^Prêmio\s+/, "");
+    return `${nome} ${a[0]}–${a.at(-1)} (${fmt(a.length)} edições)`;
+  }).join(" · ");
+}
 function renderAbertura() {
-  const H = M.historia(M.filtrar(D.participacao, padrao()));
-  $("#hero-periodo").textContent = `Prêmio Jabuti · ${PERIODO} · ${fmt(D.anos_coletados.length)} edições`;
+  const L0 = M.filtrar(D.participacao, padrao()), H = M.historia(L0);
+  // A abertura é de todos os prêmios da base (DA-4, DA-5): prêmios, períodos e edições vêm dos dados.
+  $("#hero-periodo").textContent = periodosPremios(L0);
+  $("#h-hero").textContent = "Quem chega aos prêmios literários?";
   // Números contam até o valor (CA-19.4); o texto final é o valor formatado exato.
   const nums = [
     [H.pessoas, fmt, "", `pessoas-autoras em ${fmt(H.indicacoes)} indicações`],
@@ -84,6 +102,7 @@ function renderAbertura() {
   $("#hero-numeros").innerHTML = nums.map(([, , extra, t]) => `<div class="hero-num"><b><span class="n"></span>${extra}</b><span>${t}</span></div>`).join("");
   $$("#hero-numeros .n").forEach((el, i) => contar(el, nums[i][0], (v) => nums[i][1](i === 0 && v != null ? Math.round(v) : v)));
   // Carrossel decorativo: fotos livres (vencedoras primeiro), em 3 faixas que correm em sentidos opostos. Nenhum dado codificado.
+  // Vencedoras de qualquer papel e de qualquer prêmio primeiro (ilustradoras incluídas).
   const vencedoras = new Set(D.participacao.filter((l) => l.vencedora).map((l) => l.pessoa_id));
   const fotos = D.pessoas.filter((p) => midiaPorId.get(p.id)?.imagem).sort((a, b) => vencedoras.has(b.id) - vencedoras.has(a.id)).slice(0, 60);
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
@@ -123,12 +142,13 @@ const PERFIL = /^#\/(pessoa|obra|uf|regiao)\/(.+)$/;
 let fundo = PERFIL.test(location.hash) ? "" : location.hash;
 addEventListener("hashchange", () => { if (!PERFIL.test(location.hash)) fundo = location.hash; });
 function abrirPerfil(id) { location.hash = `#/pessoa/${id}`; }
-const ctx = { D, ANOS, semLista: ANOS_SEM_LISTA, midiaPorId, abrirPerfil, renderPessoas: () => renderParte("autores") };
+const ctx = { D, ANOS, semLista: SEM_LISTA, midiaPorId, abrirPerfil, renderPessoas: () => renderParte("autores") };
 const ctxDe = (parte) => ({ ...ctx, estado: filtros[parte] });
 // Janelas de gráficos (RF-20, D19): id do <dialog> → funções de render. Só janela aberta é desenhada.
 const JANELAS = {
   "linha-do-tempo": [renderLinhaDoTempo], geografia: [renderMapa, renderSankey], evolucao: [renderEvolucao], funil: [renderFunil],
   segregacao: [renderSegregacao], idade: [renderIdade], editoras: [renderEditoras], ranking: [renderRanking], juri: [renderJuri],
+  "entre-premios": [renderEntrePremios],
 };
 // Desenha uma parte com o seu filtro e atualiza o resumo do recorte na barra dela.
 function renderParte(parte) {
@@ -141,7 +161,8 @@ function renderParte(parte) {
   avisarFalha(parte, falhou);
   const k = M.kpis(L), f = filtros[parte];
   $(`#${parte}`)?.setAttribute("data-anos", `${f.anoIni}–${f.anoFim}`); // rodapé da exportação (CA-14.2)
-  const semLista = ANOS.filter((a) => a >= f.anoIni && a <= f.anoFim && ANOS_SEM_LISTA.has(a)).length;
+  $(`#${parte}`)?.setAttribute("data-premios", nomesPremios(f.premios)); // idem, com os prêmios do recorte (CA-26.12)
+  const semLista = [...SEM_LISTA].filter((k) => { const [p, a] = k.split("|"); return +a >= f.anoIni && +a <= f.anoFim && (f.premios ?? PREMIOS).includes(p); }).length;
   resumos[parte]?.resumo(`${fmt(k.pessoas)} pessoas · ${fmt(k.indicacoes)} indicações${semLista ? ` · ${semLista} ediç${semLista > 1 ? "ões" : "ão"} só com premiados (sem lista pública)` : ""}`);
 }
 // Um gráfico que quebra (dado atípico) não derruba o resto: a parte mostra um aviso com "Tentar de novo".
@@ -213,8 +234,15 @@ $("#perfil-corpo").addEventListener("click", async (e) => {
 
 // ---------- rodapé e faixa de cobertura (método e referências ficam em metodo.html, D18) ----------
 function renderMetodologia() {
-  $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${D.anos_coletados.length} de ${ANOS.length} edições coletadas.`;
-  $("#faixa-cobertura").innerHTML = ANOS.map((a) => `<div role="listitem" class="${D.anos_coletados.includes(a) ? "ok" : ""}" title="${a}: ${D.anos_coletados.includes(a) ? "coletada" : "não coletada"}">${a}</div>`).join("");
+  // Edições por prêmio (CA-26.7): cada prêmio na própria linha, a partir da 1ª edição; nunca uma soma de anos de prêmios diferentes.
+  const cob = new Set(D.cobertura.map((c) => `${c.premio ?? PREMIOS[0]}|${c.ano}`));
+  const premios = D.premios?.length ? D.premios : [{ id: PREMIOS[0], nome: "" }];
+  $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${fmt(cob.size)} edições coletadas${premios.length > 1 ? ` em ${premios.length} prêmios` : ""}.`;
+  $("#faixa-cobertura").innerHTML = premios.map((p) => {
+    const anos = ANOS.filter((a) => a >= (p.ano_inicio ?? ANOS[0])), nome = esc(nomesPremios([p.id]));
+    const celulas = anos.map((a) => { const ok = cob.has(`${p.id}|${a}`); return `<div role="listitem" class="${ok ? "ok" : ""}" title="${nome} ${a}: ${ok ? "coletada" : "não coletada"}">${a}</div>`; }).join("");
+    return `${premios.length > 1 ? `<p class="faixa-premio">${nome} <span class="muted">${fmt(anos.filter((a) => cob.has(`${p.id}|${a}`)).length)} de ${fmt(anos.length)} edições</span></p>` : ""}<div class="faixa" role="list" aria-label="Edições ${esc(p.nome ?? "")}">${celulas}</div>`;
+  }).join("");
 }
 
 // Nota de rodapé do asterisco de gênero (CA-11.4): contagem na base inteira de pessoas-autoras.
@@ -240,6 +268,14 @@ $("#rank-medida").addEventListener("click", (e) => {
   renderParte("ranking");
 });
 $("#ranking").addEventListener("click", (e) => { const b = e.target.closest("button[data-pessoa]"); if (b) abrirPerfil(b.dataset.pessoa); });
+$("#entre-etapa").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-v]");
+  if (!b) return;
+  $$("#entre-etapa button").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+  renderParte("entre-premios");
+});
+// Entre prêmios só existe com dois prêmios ou mais na base (CA-26.11).
+$("[data-janela=\"entre-premios\"]").hidden = PREMIOS.length < 2;
 
 montarFiltros();
 $$("select").forEach(melhorarSelect);
@@ -250,7 +286,7 @@ renderAbertura();
 renderNotaGenero();
 renderMetodologia();
 renderTudo();
-const historia = montarHistoria({ D, abrirPerfil });
+const historia = montarHistoria({ D, abrirPerfil, semLista: SEM_LISTA });
 montarNavegacao();
 rota();
 revelarAoRolar();

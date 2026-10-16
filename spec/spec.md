@@ -5,20 +5,20 @@
 
 ## 1. Problema
 
-Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores do Prêmio Jabuti. Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
+Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores de prêmios literários (hoje, Prêmio Jabuti e Prêmio Oceanos; a plataforma recebe outros pelo mesmo modelo). Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
 
 ## 2. Escopo
 
 | Dentro | Fora (por enquanto) |
 |---|---|
-| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante) | Outros prêmios (Oceanos, São Paulo de Literatura…) |
+| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante), o padrão do painel; Prêmio Oceanos, 2003–2025 (todas as listas públicas, categorias Geral, Romance, Poesia, Contos, Prosa e o Grande Prêmio como Livro do Ano), RF-26 | Prêmio da Biblioteca Nacional, São Paulo de Literatura e outros (próximos, DA-1); prêmios pelo conjunto da obra (DA-2) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
 | Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência de raça por foto, sobrenome ou IA |
 | Gênero com fonte; sem fonte, **atribuído pelo primeiro nome e marcado** (D16) | Atribuição de gênero por apelido ambíguo ou iniciais |
 
-**Fase atual:** as 16 edições estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
+**Fase atual:** as 67 edições do Jabuti e as 23 do Oceanos estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
 
 ## 3. Públicos
 
@@ -32,7 +32,7 @@ Cada requisito tem critérios de aceitação (CA) verificáveis. Os marcados com
 
 ### RF-01 Base de dados
 Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando gera o banco e os dados do app.
-- **CA-01.1 🧪** `python build.py` cria `jabuti.duckdb` e `web/dados.json` a partir de `dados/*.csv`.
+- **CA-01.1 🧪** `python build.py` cria `literadados.duckdb` e `web/dados.json` (mais `web/dados-<prêmio>.json` com vários prêmios, CA-26.14) a partir de `dados/*.csv`.
 - **CA-01.2 🧪** O build **falha** (código ≠ 0, mensagem clara) se uma restrição do schema for violada: raça sem fonte, categoria fora do recorte, chave estrangeira inexistente.
 - **CA-01.3 🧪** O build **falha** se uma edição coletada tiver lista com tamanho diferente de `vagas_lista`, ou número de premiadas diferente de `vagas_premio`. Edições sem nenhuma indicação contam como "não coletadas" e não falham.
 - **CA-01.4 🧪** O build imprime a cobertura por edição (gênero, UF, raça, idade).
@@ -84,12 +84,12 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
 
 ### RF-15 Página, navegação e tema
-- **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo (pessoas, % mulheres, piso de % negras), calculados dos dados.
+- **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo de **todos os prêmios da base** (pessoas distintas, % mulheres, piso de % negras), calculados dos dados. Nem o título nem a descrição se referem a um prêmio só: os prêmios e períodos vêm dos dados (DA-5).
 - **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
 - **CA-15.3 👁** O cabeçalho não tem filtro: cada parte filtrável traz o seu (RF-02).
 
 ### RF-16 História guiada (scrollytelling)
-- **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento.
+- **CA-16.1 👁** Uma narrativa em passos, com um gráfico fixo de pontos (um ponto por pessoa-autora) que se reorganiza a cada passo: todas as pessoas; por gênero; da lista às vencedoras; piso racial; região de nascimento. Um seletor no topo escolhe o prêmio da história ("Todos os prêmios", padrão, ou um deles; DA-4); com todos, cada pessoa é um ponto só, e o passo da lista às vencedoras diz que junta prêmios de formatos diferentes. Os textos não citam um prêmio fixo.
 - **CA-16.2 🧪** Todos os números da narrativa vêm de uma função pura sobre os dados (nunca texto fixo) e mostram o n.
 - **CA-16.3 👁** A rolagem encaixa em cada passo (scroll-snap). Com `prefers-reduced-motion`, não há encaixe nem animação. Há um link para pular a história, e os passos funcionam com teclado.
 
@@ -105,7 +105,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-19.2 👁** Nenhum controle com aparência nativa do sistema: listas de opções (selects) viram menus próprios, operáveis por teclado (setas, Enter, Esc, Home/End) e com `role="listbox"`. Caixas de seleção, campos, diálogos, dicas dos gráficos e tabelas recolhíveis seguem o estilo do Literadados. As barras de rolagem são próprias e **grossas** (14 px).
 - **CA-19.3 👁** Nenhum link azul sublinhado: nomes de pessoas, fontes, links externos e referências aparecem como chips clicáveis. Links dentro de texto corrido usam a cor da marca, com sublinhado animado no hover.
 - **CA-19.4 👁** Abertura: o fundo é um carrossel contínuo de fotos livres em faixas que correm em sentidos opostos, com pontos e brilho animados de leve. Os números da abertura contam até o valor.
-- **CA-19.5 👁** Logotipo próprio (casco de jabuti feito de células de dados) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
+- **CA-19.5 👁** Logotipo próprio (um hexágono de sete células de dados, sem referência a um prêmio) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
 - **CA-19.6 👁** O tema é escolhido num botão de ícone de **tamanho fixo**, que abre um menu pequeno (Claro, Escuro, Automático), e o ícone mostra o tema ativo.
 - **CA-19.8 👁** Dicas (balões) dos gráficos entram e saem com fade, tanto as do Observable Plot quanto as dos gráficos feitos à mão (mapa, Sankey, história).
 - **CA-19.9 👁** Em todo gráfico, o elemento sob o mouse (barra, célula, ponto, UF, fluxo) fica em destaque e os demais do mesmo gráfico ficam mais transparentes. Ao sair do gráfico, tudo volta ao normal.
@@ -141,6 +141,38 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-25.3 👁** Onde a série mistura edições com e sem lista pública, o painel diz isso: a história (passo "Da lista ao 1º lugar"), o funil e a linha do tempo explicam que, antes de 2000, a "lista" é só a dos premiados. Marcos da linha do tempo e da evolução incluem 1993 (pódio de 1º a 3º) e 2000 (listas públicas na base). Eixos com dezenas de edições mostram rótulos de 5 em 5 ou de 10 em 10 anos, e as barras não somem no celular.
 - **CA-25.4 🧪👁** Indicações sem editora conhecida (série histórica sem fonte da época) não aparecem como uma "editora" no ranking de editoras: ficam fora da lista, e o gráfico informa quantas são.
 - **CA-25.5 🧪** Nenhum texto do painel fixa o período antigo: sobretítulo da abertura, história, perfil de lugar, rodapé da exportação e descrição da página vêm de `dados.json` (`anos`, `anos_coletados`) ou dizem 1959–2025. O `dados.json` não tem mais o campo `recorte`.
+
+### RF-26 Vários prêmios
+> Decisões DA-1 a DA-5 fechadas em 2026-10-16 (fim desta seção). A implementação começa pela etapa 0 (CA-26.2), que não muda o painel. Desenho: D31.
+
+O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra e editora são **um registro só**, compartilhado entre os prêmios: quem foi indicada ao Jabuti e ao Oceanos tem um perfil, com as duas trajetórias.
+
+**Base e build**
+- **CA-26.1 🧪** Há uma tabela `premio` (id, nome, organizador, ano de início, abrangência, fonte) e uma tabela `edicao` (prêmio, ano, regime, fonte). `categoria_edicao`, `indicacao` e `jurado` levam `premio_id` na chave. O build falha se o prêmio não existir, e as checagens de vagas (CA-01.3) valem por prêmio, ano e categoria.
+- **CA-26.2 🧪** **Etapa 0, só com o Jabuti:** depois da migração para `premio_id`, a base tem só `premio_id = 'jabuti'`, e `v_participacao` (mais a coluna `premio`), o `dados.json` remontado e todos os testes atuais dão os mesmos números de antes. Só então entra o primeiro prêmio novo.
+- **CA-26.3 🧪** Categorias: cada `categoria_edicao` mapeia o nome original para uma **taxonomia comum** (as categorias atuais mais as que os novos prêmios trouxerem, como Ensaio e Dramaturgia, se entrarem no recorte), e há a categoria **Geral** para prêmios de categoria única (prosa e poesia concorrendo juntas). O CHECK de categoria aceita só a taxonomia comum.
+- **CA-26.4 🧪** Etapas: o vocabulário canônico (lista, finalista, premiada, vencedora) vale para todos os prêmios. Cada prêmio e edição diz o que é a "lista" ali (por exemplo, semifinalistas) e se houve 2ª lista. O regime de cada edição é um dado por prêmio e ano, não uma regra escrita na view.
+- **CA-26.5 🧪** Identidade: a mesma pessoa em dois prêmios é um registro só. `coleta.py normalizar` casa primeiro pela decisão humana registrada, depois pelo QID do Wikidata, depois pelo nome, e o casamento só pelo nome entra numa lista para conferência humana. Obra casa por título **e** a mesma pessoa na autoria, nunca só pelo título; título e sobrenome iguais com pessoas diferentes viram obras diferentes e vão para a conferência. O resultado não muda entre execuções. O build informa quantas pessoas estão em mais de um prêmio e avisa quando há casamentos a conferir.
+- **CA-26.6 🧪** A editora é a de cada indicação (o mesmo livro concorre em edições diferentes, de países diferentes; editora homônima de outro país é outra editora). Indicação sem editora com fonte da época fica sem editora, nunca herda a de outro ano ou prêmio. O gráfico de editoras conta a editora da indicação.
+- **CA-26.7 🧪** Cobertura (CA-01.4, RF-13) por prêmio e edição.
+
+**Painel**
+- **CA-26.8 🧪👁** Todo filtro de parte (RF-02) ganha o **prêmio** (um, vários ou todos), guardado na URL junto com o resto do filtro. A ida e a volta da codificação são testadas. O padrão são todos os prêmios (DA-4), e o padrão não aparece na URL.
+- **CA-26.9 🧪👁** Nenhum percentual soma bases diferentes sem avisar. Com mais de um prêmio no recorte, a evolução, o funil, as categorias, o júri e a linha do tempo mostram **um prêmio por faceta** (ou por linha), cada um com o seu n. Os cartões do panorama contam pessoas distintas e dizem quantos prêmios entram no recorte.
+- **CA-26.10 👁** O perfil de pessoa mostra a trajetória em todos os prêmios, em ordem de ano, com o prêmio em cada item. O perfil de livro mostra todas as participações do livro, de qualquer prêmio. A linha do tempo tem os marcos de cada prêmio (criação, mudanças de formato).
+- **CA-26.11 🧪👁** Janela nova, **Entre prêmios**: pessoas premiadas em dois ou mais prêmios, sobreposição entre os pares de prêmios (com n) e a ordem em que cada pessoa chegou a cada um.
+- **CA-26.12 🧪** Nenhum texto fixa o Jabuti onde a parte cobre vários prêmios: abertura, busca ("Oceanos 2019" como edição), rodapé da exportação, Método e prompt da Diadorim leem os prêmios de `dados.json`.
+- **CA-26.13 🧪** Diadorim: `v_participacao` tem a coluna `premio`, e o prompt lista os prêmios, os formatos de cada um e a regra de não comparar taxas de prêmios diferentes sem dizer as bases.
+- **CA-26.14 🧪** RNF-06 continua valendo: cada arquivo de dados carregado na abertura tem menos de 1 MB. Com vários prêmios, um arquivo por prêmio (D31), e o painel remonta exatamente as linhas de `v_participacao`.
+
+- **CA-26.15 🧪👁** Plataforma, não um prêmio (DA-5): nenhum texto genérico do site (título da página, abertura, cabeçalhos, rodapés, placeholders, rótulos, prompt da Diadorim, README) se refere a um prêmio só. O nome de um prêmio só aparece junto de um dado ou de uma regra daquele prêmio (ex.: "no Jabuti, até 1999 só há premiados"). Um teste varre `web/` e falha com frases que fixam um prêmio.
+
+**Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
+- **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.
+- **DA-2 Conjunto da obra:** prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) ficam fora (ver §6).
+- **DA-3 Autores de fora do Brasil:** entram. A pessoa ganha país de nascimento (`BR` para quem tem UF), e a geografia ganha a dimensão "país"; o mapa continua sendo do Brasil. Raça segue o mesmo protocolo de autodeclaração, e o Método avisa que os termos seguem as categorias do IBGE.
+- **DA-4 Visão padrão** (revista em 2026-10-16): o painel abre com **todos os prêmios**; cada filtro tem o seletor de prêmio para recortar um ou vários. Com mais de um prêmio, os gráficos de taxa usam facetas por prêmio (CA-26.9). A História guiada e os perfis de lugar têm o mesmo padrão (todos), com seletor na história. A ordem dos prêmios (coluna `ordem`) só define a ordem de listas e facetas e a coleta, não um prêmio "principal".
+- **DA-5 Identidade** (revista em 2026-10-16): o Literadados é uma plataforma de prêmios literários, não de um prêmio. Título ("Quem chega aos prêmios literários?"), descrição, rodapés, placeholder da Diadorim, busca e textos dos gráficos falam de prêmios em geral; regra que é de um prêmio só (formatos, anos sem lista pública, júri divulgado) aparece com o nome do prêmio. O logotipo perde o jabuti e fica com as células de dados.
 
 ### RF-12 Diadorim, a IA do Literadados
 Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Sertão: Veredas*: firme, leal, de poucas palavras e fala com sabor de sertão, mas sempre clara. A personagem é inspirada no livro, sem reproduzir trechos dele.
@@ -189,4 +221,5 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 | Bar chart race (barras que se reordenam), rede júri ↔ premiados | Exige a série completa |
 | Tema das obras (hipótese do "tema obrigatório") | Exige sinopses e classificação revisada |
 | Efeito do prêmio nas visualizações da Wikipédia | Fase 2; exige coleta de séries de visualizações |
-| Outros prêmios | O Jabuti precisa estar sólido antes |
+| Outros prêmios | Saiu desta lista: virou o RF-26 |
+| Prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) | Não há livro concorrendo; misturá-los ao funil e às métricas por obra confunde (DA-2). Se entrarem, vão para uma tabela `distincao` à parte (D31) |

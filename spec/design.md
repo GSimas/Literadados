@@ -5,7 +5,7 @@
 ## 1. Arquitetura
 
 ```
-dados/*.csv ──► build.py ──► jabuti.duckdb ──► server.py ──► POST /api/chat ──► Claude (tool: consultar_sql)
+dados/*.csv ──► build.py ──► literadados.duckdb ──► server.py ──► POST /api/chat ──► Claude (tool: consultar_sql)
  (verdade)        │  checagens                     │
                   └──► web/dados.json ──► web/ (index.html + app.js + style.css) ──► navegador
 coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar trechos de raça
@@ -16,9 +16,9 @@ coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar 
 
 ## 2. Dados
 
-- **Schema:** [`schema.sql`](../schema.sql). Tabelas `uf`, `pessoa`, `editora`, `obra`, `autoria`, `categoria_edicao`, `indicacao`, `jurado`. Views `v_participacao` (uma linha por pessoa por indicação) e `v_cobertura`.
+- **Schema:** [`schema.sql`](../schema.sql). Tabelas `uf`, `premio`, `edicao`, `pessoa`, `editora`, `obra`, `autoria`, `categoria_edicao`, `indicacao`, `jurado` (as três últimas com `premio_id` na chave, D31). Views `v_participacao` (uma linha por pessoa por indicação) e `v_cobertura`.
 - **CSVs:** um por tabela, em `dados/<tabela>.csv`, com cabeçalho igual às colunas. A carga é `INSERT INTO t BY NAME SELECT * FROM read_csv(...)`, na ordem das dependências.
-- **Coleta bruta:** `dados/coleta/` guarda as saídas dos levantamentos (listas planas). `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug. As listas têm as colunas `autores`, `ilustradores` e `organizadores` (nomes separados por `|`), que viram `autoria.papel` = `autor`, `ilustrador` e `organizador`.
+- **Coleta bruta:** `dados/coleta/<premio>/` guarda as listas planas de cada prêmio (`edicoes.csv`, `categorias_edicao.csv`, `lista_AAAA.csv`, `jurados_AAAA.csv`); a pesquisa de pessoas (`pessoas_*.csv`) fica na raiz de `dados/coleta/`, porque pessoa é uma só. Os prêmios vêm de `dados/premio.csv`, editado à mão. `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug. As listas têm as colunas `autores`, `ilustradores` e `organizadores` (nomes separados por `|`), que viram `autoria.papel` = `autor`, `ilustrador` e `organizador`.
 
 ### Etapas e regimes (vocabulário canônico)
 
@@ -38,22 +38,28 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
   "gerado_em": "ISO-8601",
   "anos": [1959, 2025],
   "anos_coletados": [1959, 1960, ...],
-  "regimes": [ { "ano", "regime" } ],
-  "participacao": [ { "ano", "nome_original", "obra_id", "pessoa_id", "papel",
-                      "lista_curta", "colocacao", "premiada", "vencedora" } ],
-  "obras": [ { "id", "titulo", "ano_publicacao", "editora_id" } ],
-  "pessoas": [ { "id", "nome", "genero", "raca", "negra", "raca_evidencia", "raca_fonte", "raca_trecho",
-                 "raca_busca", "ano_nascimento", "municipio_nascimento", "uf_nascimento", "genero_fonte",
-                 "nascimento_fonte", "wikidata" } ],
-  "jurados": [ { "ano", "categoria", "pessoa_id" } ],
-  "categorias": [ /* linhas de categoria_edicao */ ],
+  "premios": [ { "id", "nome", "organizador", "ano_inicio", "abrangencia" } ],  // em premio.ordem; o 1º tem `premio` omitido nas linhas (só economia; o padrão do painel são todos, DA-4)
+  "edicoes": [ { "premio"?, "ano", "regime" } ],  // "premio" (aqui e em participacao, categorias, jurados, cobertura) só quando não é o padrão
+  "participacao": [ { "premio"?, "ano", "nome_original", "obra_id", "pessoa_id", "papel"?,
+                      "lista_curta"?, "colocacao"?, "editora_id"? } ],  // papel só se não for autor; premiada/vencedora vêm da colocação;
+                      // editora_id: ausente = a de obras[]; "" = nenhuma conhecida nesta indicação; outro = a edição que concorreu
+  "obras": [ { "id", "titulo", "ano_publicacao", "editora_id" } ],  // editora_id = 1ª editora conhecida (perfil do livro)
+  "pessoas": [ { "id", "nome", "genero", "genero_evidencia"?, "raca", "negra", "raca_evidencia", "raca_fonte", "raca_trecho",
+                 "raca_busca", "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento"?, "genero_fonte",
+                 "nascimento_fonte", "wikidata" } ],  // fonte igual à página do Wikidata da pessoa vira "wd"
+  "jurados": [ { "premio"?, "ano", "categoria", "pessoa_id" } ],
+  "categorias": [ /* linhas de categoria_edicao, com etapa_lista */ ],
   "editoras": [ { "id", "nome", "grupo", "municipio_sede", "uf_sede" } ],
   "ufs": [ { "uf", "nome", "regiao", "populacao_2022" } ],
-  "cobertura": [ /* linhas de v_cobertura */ ],
-  "midia": [ { "pessoa_id", "imagem"?, "imagem_autor"?, "imagem_licenca"?, "wikipedia_pt"? } ],  // só campos preenchidos
-  "fontes": [ { "dominio", "grupo", "registros", "exemplo" } ]
+  "cobertura": [ /* linhas de v_cobertura, por prêmio e ano */ ],
+  "midia": [ { "pessoa_id", "imagem"?, "imagem_autor"?, "imagem_licenca"?, "wikipedia_pt"?, "miniatura"? } ],  // só campos preenchidos
+  "capas": [ { "obra_id", "f", "i", "p"? } ],  // compacta (build._capa_compacta)
+  "fontes": [ { "dominio", "grupo", "registros", "exemplo" } ],
+  "pessoas_em_varios_premios": 0,
+  "partes": [ "dados-oceanos.json" ]  // só com mais de um prêmio (CA-26.14)
 }
 ```
+Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", "obras", "editoras", "midia", "capas" }` com o que ainda não veio em `dados.json` ou em parte anterior. `ui.carregarDados` busca as partes em paralelo, logo depois de `dados.json`, e `metricas.juntar` as soma antes de `expandir`. Todas carregam na abertura (cada arquivo < 1 MB): o carregamento sob demanda complicaria os filtros, que são síncronos, sem ganho real, porque o Netlify comprime e as partes são pequenas.
 
 - **Mídia (RF-11):** `dados/pessoa_midia.csv` → tabela `pessoa_midia` (FK `pessoa`). Gerado por `coleta.py midia`: para cada pessoa com QID, lê `P18` (imagem) e o verbete da pt.wikipedia no Wikidata, e a autoria e a licença do arquivo na API do Commons (`extmetadata`). Só entram licenças livres (CC BY, CC BY-SA, CC0, "Attribution" do Commons, domínio público); o CHECK exige autor e licença quando há imagem. O navegador carrega a miniatura por `commons.wikimedia.org/wiki/Special:FilePath/<arquivo>?width=…`.
 - **Fontes (RF-18):** agregadas no build a partir das URLs de `indicacao.fonte`, `categoria_edicao.fonte`, `jurado.fonte` e das fontes de atributo em `pessoa`, por domínio (`fontes`).
@@ -138,6 +144,17 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 | 18.1 | `test_build_exporta_fontes_por_dominio` |
 | 12.1 (P3) | `test_chat_real_perguntas_originais`, marcado `integracao`: com `ANTHROPIC_API_KEY`, o chat real responde às três perguntas originais citando os mesmos números do SQL de referência e consultando o banco; sem a chave é pulado (`pytest -q -rs` mostra o motivo) |
 | RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
+| 26.3, 26.4, 26.6, DA-3 | `test_taxonomia_e_etapa_lista`, `test_editora_da_indicacao`, `test_pais_de_nascimento`; `metricas.test.mjs` (`expandir`: país) |
+| 26.8, 26.9, 26.11 | `metricas.test.mjs` (filtro com prêmio, `facetar`, `entrePremios`, `edicoesSemLista`, `marcosDe`, Duncan sem Geral); conferência visual com prêmio fictício (👁) |
+| 26.5 | `test_coleta.py` (`test_casamento_*`), `test_vagas_conferidas_por_premio` (`pessoas_em_varios_premios`) |
+| 26.6 | `test_editora_da_indicacao`, `test_indicacao_sem_editora_nao_herda_da_obra`; `test_coleta.py` (`test_editora_de_outro_pais_e_outra_editora`, `test_editora_vazia_nao_herda_de_outro_premio`, `test_livro_do_ano_herda_editora_da_mesma_edicao`) |
+| 26.7, 26.13, RF-18 | `test_cobertura_e_prompt_por_premio` (cobertura separada, prompt com os dois prêmios e os formatos, grupo de fonte do prêmio) |
+| 26.12 | `metricas.test.mjs` (busca: edição filtrada, país no lugar de EX, Entre prêmios) |
+| 26.14 | `test_json_dividido_por_premio`, `test_json_real_menor_que_1mb` (cada arquivo); `metricas.test.mjs` (`juntar`) |
+| DA-3 | `test_pais_de_nascimento`; `metricas.test.mjs` (`porPais`, `paisOuExterior`) |
+| DA-4 | `test_premio_padrao_e_a_ordem_1` (ordem); `test_coleta.py` (`test_nova_no_premio_padrao_e_recusada`); `metricas.test.mjs` (filtro com todos os prêmios como padrão, história com vários prêmios, marcos `null` = todos) |
+| 26.15, DA-5 | `test_textos_de_plataforma` (varredura de `web/` e README), `test_textos_sem_periodo_antigo_fixo` (prompt sem prêmio padrão) |
+| 26.1, 26.2 | `test_etapa0_so_jabuti`, `test_build_falha_edicao_antes_do_premio`, `test_build_falha_premio_inexistente`, `test_vagas_conferidas_por_premio`; `metricas.test.mjs` (`expandir` com prêmio padrão) |
 
 ## 6. Decisões registradas
 
@@ -171,3 +188,47 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 - **D29** Ranking e perfil de livro (RF-23, RF-24). `metricas.ranking` é pura e testada; `renderRanking` usa o índice que o Plot liga a cada barra para o clique. Capas em `dados/obra_capa.csv` (tabela `obra_capa`): Google Books primeiro (cota anônima diária compartilhada; quando acaba, segue só com a Open Library e não marca "sem capa"), Open Library depois. Obras procuradas nas duas fontes sem resultado ficam em `dados/coleta/capas_sem_resultado.txt` e não são buscadas de novo. Capa é exibida da fonte, com `referrerpolicy="no-referrer"`, sem cópia no site.
 - **D10** As vagas variam por edição (empates criaram listas de 11 a 16 e pódios de 4; houve empate no Livro do Ano de 2016). Nenhum código assume 10/5/3; tudo vem de `categoria_edicao`.
 - **D30** Série completa por padrão (CA-25.2 a CA-25.5). O build deixa de exportar `recorte`; o padrão de toda parte é `D.anos` (1959–2025), e `metricas.filtrar` sem período não corta anos. `filtroDeTexto(texto, anos, cats)` perde o 4º parâmetro (padrão próprio por parte): o padrão é sempre a série. O conjunto de edições sem lista pública (`semLista`, calculado em `app.js` a partir de `vagas_lista`) vai no contexto das partes, para o resumo do filtro, a linha do tempo e o aviso do funil. Textos com período leem `D.anos`/`D.anos_coletados` (`#hero-periodo`, história, perfil de lugar) ou o filtro da parte (rodapé da exportação, via `data-anos` no elemento da parte). `metricas.editoras` ignora obra sem editora e `metricas.semEditora` conta essas indicações para a nota. Eixo de anos: `metricas.passoAnos(n, largura)` (1, 2, 5 ou 10; pura e testada) decide quais rótulos aparecem; a folga das barras da evolução é uma fração da banda, para nunca passar da largura da barra. Os rótulos dos marcos da evolução vão para a primeira linha livre (sem encostar no anterior) e, perto das bordas, alinham pela ponta. O resumo do funil só chama de queda uma diferença de pelo menos meio ponto (abaixo disso, os dois % arredondam iguais).
+- **D31** Vários prêmios (RF-26). Decisões DA-1 a DA-5 aprovadas em 2026-10-16, como estão abaixo. A implementação começa pela etapa 0.
+
+  **Schema.**
+  - `premio (id, nome, organizador, ano_inicio, abrangencia ∈ {nacional, lusofono}, fonte)`, com `'jabuti'` como primeira linha. Não há coluna de tipo: pela DA-2, todo prêmio da tabela premia livros.
+  - `edicao (premio_id, ano, regime, fonte)` substitui o `CASE` de regime de `v_participacao` (CA-26.4) e serve de âncora para os marcos da linha do tempo.
+  - `categoria_edicao` ganha `premio_id` na chave `(premio_id, ano, nome_original)` e `etapa_lista` (o que a "lista" é ali: `indicados`, `semifinalistas`, `finalistas` ou `premiados`; no Jabuti, `premiados` sem lista pública, `finalistas` até 2018 e `semifinalistas` de 2019 em diante). O CHECK de `ano` passa a ir do `ano_inicio` do prêmio até o ano corrente (verificado no build, já que o CHECK não lê outra tabela). O CHECK de `categoria` ganha `Geral` e o que a DA-1 trouxer.
+  - `autoria` ganha `premio_id` na chave: o crédito é de cada prêmio (a CBL credita ilustradores como autores em 2023; outro prêmio pode listar um coautor ou um tradutor), e `v_participacao` junta a autoria pelo prêmio da indicação. Sem isso, incluir um prêmio mudava os números do Jabuti (achado do gauntlet 2; `test_outro_premio_nao_muda_o_jabuti`).
+  - `indicacao` e `jurado` ganham `premio_id` (FK para `categoria_edicao`). `indicacao.editora_id` é opcional e, quando preenchida, vale no lugar de `obra.editora_id` (`COALESCE` na view; CA-26.6). O `normalizar` só a preenche quando a editora da linha difere da editora da obra, e a obra fica com a primeira editora não vazia: a linha do Livro do Ano, sem editora, não apaga mais a da categoria. Isso corrigiu quatro obras do Jabuti (Budapeste, Vozes do Deserto, Cinzas do Norte, Manual da Paixão Solitária), que estavam sem editora.
+  - `v_participacao` ganha `premio` e `premio_nome`; `v_cobertura` agrupa por `premio, ano`.
+  - `jabuti.duckdb` vira `literadados.duckdb` (build, testes, `.gitignore`, CLAUDE.md).
+
+  **Etapa 0 (CA-26.2).** A migração entra com só o Jabuti: `premio_id = 'jabuti'` em todos os CSVs, `edicao` gerada a partir do `CASE` atual, e os mesmos números. Os testes atuais passam sem mudança de valor. Na migração, `v_participacao` e `v_cobertura` (sem as colunas de prêmio) foram comparadas byte a byte com um retrato tirado antes, e deram iguais. Um retrato no repositório quebraria a cada dado novo, por isso o teste permanente `test_etapa0_so_jabuti` confere o que a migração mexeu: só há o Jabuti, o regime de cada edição é o do antigo `CASE`, e o prêmio padrão fica fora do JSON. A fonte de cada edição do Jabuti é a página oficial de premiados do ano.
+
+  **Coleta.**
+  - As listas brutas passam para `dados/coleta/<premio>/` (`lista_AAAA.csv`, `jurados_AAAA.csv`, `categorias_edicao.csv`). As do Jabuti são movidas com `git mv`. Os arquivos de pessoas (`pessoas_*.csv`) continuam na raiz de `dados/coleta/`, porque pessoa é uma só.
+  - `normalizar` processa o Jabuti primeiro, para os ids atuais não mudarem (fotos, capas e links dependem deles), e depois os outros prêmios na ordem de `premio`.
+  - **Casamento de pessoa:** `dados/coleta/<premio>/casamentos.csv` (`nome`, `wikidata`, `pessoa_id`) guarda o que foi conferido. A ordem é: decisão humana (`pessoa_id` = um id da base, ou `nova` para homônimo, que vira `<slug>-<premio>`); depois o QID, que casa com quem já tem esse `pessoa.wikidata` (pessoa nova herda o QID); por último o nome normalizado. O casamento só pelo nome com pessoa de outro prêmio, e o nome igual com QID diferente (que vira pessoa nova), vão para `casamentos_revisar.csv` na mesma pasta. Esse arquivo é refeito a cada `normalizar` e some quando não há pendência. Para resolver, copie a linha para `casamentos.csv` com a decisão. Dentro de um prêmio, o nome continua sendo a identidade.
+  - **Casamento de obra:** mesmo título normalizado e a MESMA pessoa na autoria (na antologia sem autor, o organizador). Só o sobrenome em comum não junta: vira outra obra (`<título>-<ano>`, `-2`… se colidir) e as pessoas vão para revisão. Entre prêmios diferentes, com a mesma pessoa, vale também uma chave tolerante (sem subtítulo depois de `:`/`–`/`(`, sem artigos e preposições, sem espaços). Grafia que diverge demais tem decisão humana em `<premio>/obras_casamentos.csv` (`titulo`, `obra_id`). No Jabuti, as regras dão exatamente os mesmos ids da regra antiga.
+  - **Editora na coleta:** a coluna opcional `editora_pais` separa editoras homônimas de outro país (`<nome> (PT)`, sede EX). Num prêmio que tem a coluna, país vazio vira `<nome> (país não informado)`, sem sede. Na coedição vale a 1ª editora: separa `A / B` e `A | B`; separa `A e B`, `A - B` e `A, B` só se todas as partes forem editoras conhecidas. `normalizar` grava só as editoras usadas, e as grafias são unificadas por `canonico`.
+  - **Avisos do build:** casamentos de pessoa a conferir e QID em mais de uma pessoa (duplicata por grafia ou pseudônimo).
+  - O build informa quantas pessoas estão em mais de um prêmio (`pessoas_em_varios_premios` no `dados.json`).
+
+  **`dados.json`.**
+  - Entram `premios` e `edicoes`, que substitui `regimes`.
+  - Na participação, o campo `premio` fica fora quando é `jabuti`, como já acontece com `papel = 'autor'` (D13, T21.6). Assim a base atual não cresce.
+  - Com mais de um prêmio, o build divide (`build.dividir`, CA-26.14): `dados.json` fica com o prêmio padrão e o que é comum, e cada outro prêmio ganha um `dados-<premio>.json` (ver o contrato na seção 2). Todas as partes carregam em paralelo na abertura, e `metricas.juntar` as soma antes de `expandir`.
+
+  **Painel.**
+  - O texto do filtro ganha o segmento `~p:jabuti,oceanos`, omitido no padrão (DA-4). `filtroDeTexto`/`filtroParaTexto` recebem a lista de prêmios da base e o padrão da parte: todos os prêmios em todas as partes (DA-4 revista). Sem a lista, o filtro não tem o campo `premios` e funciona como antes. O menu de prêmios (`ui.menuMarcavel`, o mesmo das categorias) só aparece quando a base tem mais de um prêmio. Desmarcar tudo volta a marcar todos (o recorte nunca fica vazio).
+  - `metricas.filtrar` recebe `premios`. `metricas.facetar(linhas, fn)` aplica a agregação a cada prêmio e marca o resultado com `premio`/`premio_nome`. Funil (um resumo de maior queda por prêmio), evolução (lacunas só a partir do `ano_inicio` do prêmio), categorias, júri e linha do tempo usam `fy` = prêmio quando há mais de um (CA-26.9); com um só, o gráfico é o de antes. O índice de Duncan é calculado dentro de cada prêmio, sem `Geral` e sem `Livro do Ano`. Os marcos (`MARCOS`) têm prêmio, e `marcosDe` mostra só os dos prêmios do recorte. Toda chave de indicação leva o prêmio (`premio|ano|nome_original|obra_id`).
+  - Edições sem lista pública por prêmio: `metricas.edicoesSemLista` devolve chaves `prêmio|ano` a partir de `etapa_lista`.
+  - `CATEGORIAS` (e `PREMIOS`, `NOME_PREMIO`) vêm dos dados por `ui.definirDados`, chamado logo depois de carregar. A busca gera "<Prêmio sem 'Prêmio'> AAAA" para cada edição com dados, e os livros dizem o prêmio quando há mais de um.
+  - Perfis: a trajetória junta todos os prêmios, com o selo do prêmio em cada item quando há mais de um; o resultado diz a etapa pelo nome (`etapa_lista`: semifinalista, finalista) em vez de "lista"; o nascimento fora do Brasil mostra o país (`Intl.DisplayNames`). A história guiada e os perfis de lugar ficam no prêmio padrão.
+  - Janela nova `entre-premios`, alimentada por `metricas.entrePremios(linhas, ordem, etapa)`, que é pura e testada (CA-26.11): sobreposição de cada par (n e base) em mapa de calor e a lista de quem passou por mais de um, em ordem de chegada. O cartão só aparece com dois prêmios ou mais.
+  - Textos: título e sobretítulo da abertura vêm do prêmio padrão; rodapés (`data-premios-texto`) e o rodapé da exportação (`data-premios` na parte) dizem os prêmios; o Método ganha "Vários prêmios", o quadro de prêmios com regimes e a cobertura por prêmio e edição.
+  - Diadorim: `build.prompt_sistema` descreve cada prêmio (período, edições, categorias), a regra de não somar prêmios e o padrão (todos os prêmios, comparados lado a lado), `pais_nascimento`, `etapa_lista`, `Geral` e a editora da edição. `validarSQL` não muda.
+  - O build agrupa as referências pelo domínio dos novos prêmios (RF-18).
+
+  **Decisões (aprovadas).**
+  - **DA-1:** o **Oceanos** é o piloto, porque tem listas públicas de semifinalistas e finalistas parecidas com as do Jabuti de 2019 em diante e testa logo a DA-3. Depois vem o **Prêmio Literário da Biblioteca Nacional**, cujas categorias por gênero mapeiam direto na taxonomia, mas que em geral só tem premiados públicos. Depois, o São Paulo de Literatura. As categorias ficam nos mesmos gêneros do recorte atual, mais `Geral`. Formatos e períodos de cada prêmio são conferidos na coleta, com fonte, como foi com o Jabuti.
+  - **DA-2:** prêmios pelo conjunto da obra ficam **fora** por enquanto. Não há livro, e misturá-los ao funil e às métricas por obra confunde. Se entrarem depois, ganham uma tabela `distincao (premio_id, ano, pessoa_id, fonte)`, que aparece só nos perfis e na janela Entre prêmios.
+  - **DA-3:** autores de fora do Brasil **entram**. Sem eles, o Oceanos perde parte do que premia. A tabela `pessoa` ganha `pais_nascimento` (ISO 3166-1 alfa-2), gravado só para quem nasceu fora do Brasil (CHECK: exige `uf_nascimento = 'EX'` e recusa `BR`). A view e `metricas.expandir` derivam `BR` de qualquer UF brasileira, sem repetir o dado em mil linhas. As pessoas que já estavam com `EX` receberam o país pelo município de nascimento já registrado (`pessoas_pais_1.csv`). O mapa continua sendo do Brasil, e a geografia ganha a dimensão "país". Raça segue o mesmo protocolo (autodeclaração literal com URL, nunca inferência), e o Método avisa que os termos seguem as categorias do IBGE.
+  - **DA-4** (revista em 2026-10-16, a pedido do mantenedor: "plataforma que agrega diversos prêmios"): o padrão de toda parte são **todos os prêmios**. `filtroDeTexto`/`filtroParaTexto` recebem a lista de prêmios como padrão; o texto `~p:` só vai para a URL quando o recorte não é "todos". Link antigo sem `~p:` passa a abrir com todos. A História guiada ganha um seletor (Todos / cada prêmio), que redesenha os pontos e os textos (`metricas.historia` sobre o recorte escolhido). Perfis de lugar contam todos os prêmios. `premio.ordem` só ordena listas, facetas e a coleta; no JSON, `premio` continua omitido para o 1º da ordem, por economia, sem significado de "principal".
+  - **DA-5** (revista em 2026-10-16): título "Quem chega aos prêmios literários?", com o sobretítulo listando os prêmios e períodos vindos dos dados; descrição, rodapés, placeholder da Diadorim, rótulos e o prompt falam de prêmios. Regra de um prêmio só (marcos, anos sem lista pública, júri divulgado, formatos de pódio) aparece com o nome do prêmio. O logotipo vira um hexágono com as sete células de dados (sem cabeça, patas e cauda), mantendo a animação das células. CA-26.15 tem teste de varredura de frases que fixam um prêmio.

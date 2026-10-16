@@ -1,4 +1,4 @@
-"""CSVs de dados/ → jabuti.duckdb + web/dados.json, com checagens (spec RF-01)."""
+"""CSVs de dados/ → literadados.duckdb + web/dados.json, com checagens (spec RF-01)."""
 import json
 import os
 import re
@@ -10,7 +10,8 @@ from pathlib import Path
 import duckdb
 
 RAIZ = Path(__file__).parent
-TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+TABELAS = ["premio", "edicao", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
+           "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -47,13 +48,17 @@ def carregar(con, dados: Path):
 def checar(con):
     """Erros de consistência das edições coletadas (CA-01.3). Edição sem indicação = não coletada."""
     erros = []
+    # Edição fora da vida do prêmio (antes da 1ª edição ou no futuro): o CHECK não lê outra tabela, então fica aqui (D31).
+    for r in _linhas(con, """SELECT e.premio_id, e.ano FROM edicao e JOIN premio p ON p.id = e.premio_id
+                              WHERE e.ano < p.ano_inicio OR e.ano > ? ORDER BY ALL""", [datetime.now().year]):
+        erros.append(f"{r['premio_id']} {r['ano']}: edição fora do período do prêmio")
     for r in _linhas(con, """
-        SELECT c.ano, c.nome_original, c.vagas_lista, c.vagas_curta, c.vagas_premio,
+        SELECT c.premio_id, c.ano, c.nome_original, c.vagas_lista, c.vagas_curta, c.vagas_premio,
                COUNT(i.obra_id) AS n, SUM(i.lista_curta) AS n_curta, COUNT(i.colocacao) AS n_premio
-        FROM categoria_edicao c LEFT JOIN indicacao i USING (ano, nome_original)
-        WHERE c.ano IN (SELECT DISTINCT ano FROM indicacao)
-        GROUP BY ALL ORDER BY c.ano, c.nome_original"""):
-        rotulo = f"{r['ano']} {r['nome_original']}"
+        FROM categoria_edicao c LEFT JOIN indicacao i USING (premio_id, ano, nome_original)
+        WHERE (c.premio_id, c.ano) IN (SELECT DISTINCT premio_id, ano FROM indicacao)
+        GROUP BY ALL ORDER BY c.premio_id, c.ano, c.nome_original"""):
+        rotulo = f"{r['premio_id']} {r['ano']} {r['nome_original']}"
         if r["vagas_lista"] is not None and r["n"] != r["vagas_lista"]:
             erros.append(f"{rotulo}: lista tem {r['n']} obras, esperado {r['vagas_lista']}")
         if r["vagas_curta"] is not None and (r["n_curta"] or 0) != r["vagas_curta"]:
@@ -88,10 +93,16 @@ GRUPOS_FONTE = [  # (regex do domínio, grupo) — a primeira que casar vale (RF
 def fontes(con) -> list[dict]:
     """URLs de todas as fontes da base, contadas por domínio e agrupadas (RF-18)."""
     urls = []
-    for sql in ["SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
+    for sql in ["SELECT fonte FROM premio", "SELECT fonte FROM edicao",
+                "SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
                 "SELECT genero_fonte FROM pessoa", "SELECT raca_fonte FROM pessoa", "SELECT nascimento_fonte FROM pessoa"]:
         for (v,) in con.execute(sql).fetchall():
             urls += [u.strip() for u in (v or "").split(" ; ") if u.strip().startswith("http")]
+    # Domínio do site de cada prêmio vira o grupo do próprio prêmio (RF-18, D31), antes das regras fixas; o prêmio cujo
+    # domínio já tem grupo fixo (premiojabuti.com.br → "Prêmio Jabuti e CBL") fica com ele.
+    dominio = lambda u: (urlsplit(u).hostname or "").removeprefix("www.")
+    grupos = [(rf"(^|\.){re.escape(dominio(f))}$", n) for n, f in con.execute("SELECT nome, fonte FROM premio ORDER BY ordem").fetchall()
+              if dominio(f) and not any(re.search(rx, dominio(f)) for rx, _ in GRUPOS_FONTE)] + GRUPOS_FONTE
     por = {}
     for u in urls:
         dom = urlsplit(u).hostname or ""
@@ -101,7 +112,7 @@ def fontes(con) -> list[dict]:
         r = por.setdefault(dom, {"dominio": dom, "registros": 0, "exemplo": u})
         r["registros"] += 1
     for r in por.values():
-        r["grupo"] = next((g for rx, g in GRUPOS_FONTE if re.search(rx, r["dominio"])), "Outros")
+        r["grupo"] = next((g for rx, g in grupos if re.search(rx, r["dominio"])), "Outros")
     return sorted(por.values(), key=lambda r: (-r["registros"], r["dominio"]))
 
 
@@ -135,28 +146,39 @@ def _tem_miniatura(pessoa_id: str) -> bool:
 
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
+    premios = _linhas(con, "SELECT * EXCLUDE (fonte, ordem) FROM premio ORDER BY ordem")
+    padrao = [premios[0]["id"]] if premios else [None]  # 1º da ordem: no JSON, `premio` só aparece quando é outro (economia; o painel abre com todos, DA-4)
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
         "anos_coletados": anos_coletados,
+        "premios": premios,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
-        "regimes": _linhas(con, "SELECT DISTINCT ano, regime FROM v_participacao ORDER BY ano"),
-        "participacao": _sem_nulos(_linhas(con, """SELECT ano, nome_original, obra_id, pessoa_id, NULLIF(papel, 'autor') AS papel,
-                                               lista_curta, colocacao FROM v_participacao
-                                        ORDER BY ano, categoria, obra_id, v_participacao.papel, pessoa_id""")),
+        "edicoes": _sem_nulos(_linhas(con, "SELECT NULLIF(premio_id, ?) AS premio, ano, regime FROM edicao ORDER BY premio_id, ano", padrao)),
+        # Editora da indicação (CA-26.6), compacta: ausente = a mesma de obras[].editora_id; "" = sem editora conhecida
+        # nesta indicação, embora a obra tenha uma; outro valor = a edição que concorreu.
+        "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(v.premio, ?) AS premio, v.ano, v.nome_original, v.obra_id, v.pessoa_id,
+                                               NULLIF(v.papel, 'autor') AS papel, v.lista_curta, v.colocacao,
+                                               CASE WHEN i.editora_id IS NOT DISTINCT FROM o.editora_id THEN NULL
+                                                    WHEN i.editora_id IS NULL THEN '' ELSE i.editora_id END AS editora_id
+                                        FROM v_participacao v JOIN indicacao i
+                                          ON i.premio_id = v.premio AND i.ano = v.ano AND i.nome_original = v.nome_original AND i.obra_id = v.obra_id
+                                        JOIN obra o ON o.id = v.obra_id
+                                        ORDER BY v.premio, v.ano, v.categoria, v.obra_id, v.papel, v.pessoa_id""", padrao)),
         "obras": _sem_nulos(_linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
                                  WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id""")),
         "pessoas": _fontes_wd(_sem_nulos(_linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
-                                          nascimento_fonte FROM pessoa ORDER BY nome"""))),
-        "jurados": _linhas(con, """SELECT j.ano, c.categoria, j.pessoa_id FROM jurado j
-                                   JOIN categoria_edicao c USING (ano, nome_original) ORDER BY ALL"""),
-        "categorias": _sem_nulos(_linhas(con, "SELECT * EXCLUDE (fonte) FROM categoria_edicao ORDER BY ano, categoria, nome_original")),
+                                          pais_nascimento, nascimento_fonte FROM pessoa ORDER BY nome"""))),
+        "jurados": _sem_nulos(_linhas(con, """SELECT NULLIF(j.premio_id, ?) AS premio, j.ano, c.categoria, j.pessoa_id FROM jurado j
+                                   JOIN categoria_edicao c USING (premio_id, ano, nome_original) ORDER BY j.premio_id, j.ano, c.categoria, j.pessoa_id""", padrao)),
+        "categorias": _sem_nulos(_linhas(con, """SELECT NULLIF(premio_id, ?) AS premio, * EXCLUDE (premio_id, fonte) FROM categoria_edicao
+                                                 ORDER BY premio_id, ano, categoria, nome_original""", padrao)),
         "editoras": _linhas(con, "SELECT * FROM editora ORDER BY nome"),
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
-        "cobertura": _linhas(con, "SELECT * FROM v_cobertura ORDER BY ano"),
+        "cobertura": _sem_nulos(_linhas(con, "SELECT NULLIF(premio, ?) AS premio, * EXCLUDE (premio) FROM v_cobertura ORDER BY v_cobertura.premio, ano", padrao)),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
         # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
         "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
@@ -164,16 +186,47 @@ def exportar(con) -> dict:
                   SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
         "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
+        "pessoas_em_varios_premios": varios_premios(con),
+        # Fica fora do dados.json (só aviso do build): QID → pessoas que o compartilham.
+        "qids_repetidos": {q: ids.split(",") for q, ids in con.execute(
+            "SELECT wikidata, string_agg(id, ',' ORDER BY id) FROM pessoa WHERE wikidata IS NOT NULL GROUP BY 1 HAVING COUNT(*) > 1 ORDER BY 1").fetchall()},
     }
+
+
+def varios_premios(con) -> int:
+    """Pessoas (autoria de qualquer papel ou júri) em mais de um prêmio (CA-26.5)."""
+    return con.execute("""WITH x AS (SELECT DISTINCT pessoa_id, premio FROM v_participacao
+                                    UNION SELECT DISTINCT pessoa_id, premio_id FROM jurado)
+                          SELECT COUNT(*) FROM (SELECT pessoa_id FROM x GROUP BY pessoa_id HAVING COUNT(*) > 1)""").fetchone()[0]
 
 
 # ---------- banco no navegador (Diadorim, design D26) ----------
 # Regras de análise + DDL que a IA recebe como prompt de sistema (antes montado no server.py).
 def prompt_sistema(con) -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
-    anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
-    cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
-    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
+    premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, MIN(i.ano) AS de, MAX(i.ano) AS ate,
+                                     COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
+                              FROM premio p JOIN indicacao i ON i.premio_id = p.id
+                              JOIN categoria_edicao c USING (premio_id, ano, nome_original)
+                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ordem ORDER BY p.ordem""")
+    varios = len(premios) > 1
+    nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"
+    # Formatos de cada prêmio (CA-26.13): os regimes da tabela edicao, com os anos em que valeram.
+    regimes = {}
+    periodo = lambda de, ate: str(de) if de == ate else f"{de}–{ate}"
+    for r in _linhas(con, "SELECT premio_id, regime, MIN(ano) AS de, MAX(ano) AS ate FROM edicao GROUP BY ALL ORDER BY premio_id, de"):
+        regimes.setdefault(r["premio_id"], []).append(f"{r['regime']} ({periodo(r['de'], r['ate'])})")
+    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}): "
+                        f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}. Formatos: {'; '.join(regimes.get(p['id'], []))}."
+                        for p in premios)
+    # DA-4/DA-5 (revistas): a plataforma é de prêmios, sem prêmio padrão; sem prêmio na pergunta, todos, lado a lado.
+    regra_premios = ("""- Vários prêmios: se a pergunta não citar prêmio, responda sobre todos os prêmios da base, como o painel, e diga isso.
+  Mostre cada prêmio com o próprio n e % (GROUP BY premio): nunca some ou faça média de percentuais de prêmios diferentes
+  (formatos, vagas e períodos diferem). Contagem de pessoas na base toda pode vir junto, dita como tal: a mesma pessoa pode
+  estar em mais de um prêmio (pessoa_id é o mesmo), e "pessoas distintas" na base toda é COUNT(DISTINCT pessoa_id) sobre todos.
+""" if varios else "")
+    return f"""Você responde sobre o Literadados, plataforma de dados sobre o perfil de quem chega a prêmios literários.
+Prêmios na base: {nomes}.
 Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
 Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
 comparar com o total do recorte (n e %) e fechar com uma frase de leitura. Para isso, além da contagem, consulte as linhas
@@ -181,14 +234,22 @@ por trás do número (pessoa_id, nome, uf_nascimento, ano, categoria, titulo, co
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
 Regras de análise:
-- Recorte da base: Prêmio Jabuti 1959–2025 (série histórica), categorias {", ".join(c[0] for c in cats)}.
-- Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
+- Recorte da base, por prêmio (coluna premio de v_participacao; regime de cada edição em edicao):
+{recorte}
+{regra_premios}- Se a pergunta envolver edições fora desses períodos, diga que ainda não foram coletadas.
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
-- "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
-- Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
-- Período padrão: a série completa, 1959–2025, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
-- De 1959 a 1999 não houve lista pública de indicados (categoria_edicao.vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
-  Ao comparar a lista com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
+- "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento. Quem nasceu fora do Brasil tem
+  uf_nascimento = 'EX', regiao_nascimento = 'Exterior' e pais_nascimento com o código ISO 3166-1 (PT, AO, MZ…); pais_nascimento = 'BR' para quem tem UF.
+- Etapas: lista (toda linha de indicacao/v_participacao; o que ela é em cada edição está em categoria_edicao.etapa_lista: indicados,
+  semifinalistas, finalistas ou premiados), finalista (lista_curta = 1, só onde houve 2ª lista; no Jabuti, de 2019 em diante),
+  premiada (premiada = true; no Jabuti: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
+- Categoria 'Geral' = prêmio de categoria única (prosa e poesia concorrendo juntas).
+- Editora: v_participacao.editora = indicacao.editora_id, a edição que concorreu; vazia = sem editora conhecida da época
+  (comum antes de 2000). Nunca use obra.editora_id para contar editoras: é só a 1ª editora conhecida do livro.
+- Autoria: o crédito é de cada prêmio (autoria.premio_id); v_participacao já junta pelo prêmio da indicação.
+- Período padrão: a série completa de cada prêmio (os períodos do recorte acima), como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
+- No Jabuti, de 1959 a 1999 não houve lista pública de indicados (etapa_lista = 'premiados', vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
+  Ao comparar a lista do Jabuti com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
   Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
   Perguntas sobre "pretos" devem mostrar também o agrupamento negros, porque muitos autores dizem só "negro".
@@ -197,7 +258,7 @@ Regras de análise:
 - Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
 - genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
   informe quantas pessoas do recorte têm gênero atribuído.
-- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Jabuti.
+- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Literadados (prêmios literários: {nomes}).
 Não repita o SQL no texto (ele é mostrado à parte).
 
 Esquema (DuckDB):
@@ -215,7 +276,44 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
-def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
+PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "capas", "jurados", "categorias", "edicoes", "cobertura"]  # = metricas.CHAVES_PARTES
+
+
+def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
+    """Um arquivo por prêmio (CA-26.14, RNF-06): dados.json fica com o prêmio padrão e o que é comum (prêmios, edições,
+    categorias, júri, cobertura, fontes); cada outro prêmio vai para dados-<id>.json, com a participação dele e as pessoas,
+    obras, editoras, mídias e capas que ainda não estavam em arquivo anterior. O navegador junta tudo (metricas.juntar).
+    Com um prêmio só, nada muda. Devolve (base, {nome do arquivo: parte})."""
+    if len(payload.get("premios", [])) < 2:
+        return payload, {}
+    vistos = {k: set() for k in ("pessoas", "obras", "editoras")}
+    obra_ed = {o["id"]: o.get("editora_id") for o in payload["obras"]}
+
+    def recorte(linhas, jurados=()):
+        ps = {l["pessoa_id"] for l in linhas} | {j["pessoa_id"] for j in jurados}
+        os_ = {l["obra_id"] for l in linhas}
+        eds = {e for l in linhas for e in (l.get("editora_id") or None, obra_ed.get(l["obra_id"])) if e}
+        novos = {"pessoas": ps - vistos["pessoas"], "obras": os_ - vistos["obras"], "editoras": eds - vistos["editoras"]}
+        for k, v in novos.items():
+            vistos[k] |= v
+        return {"participacao": linhas,
+                "pessoas": [p for p in payload["pessoas"] if p["id"] in novos["pessoas"]],
+                "obras": [o for o in payload["obras"] if o["id"] in novos["obras"]],
+                "editoras": [e for e in payload["editoras"] if e["id"] in novos["editoras"]],
+                "midia": [m for m in payload["midia"] if m["pessoa_id"] in novos["pessoas"]],
+                "capas": [c for c in payload["capas"] if c["obra_id"] in novos["obras"]]}
+
+    outros = [p["id"] for p in payload["premios"][1:]]
+    # Júri, categorias, edições e cobertura de cada prêmio também vão para a parte dele (e as pessoas do júri junto).
+    do = lambda chave, p: [x for x in payload[chave] if x.get("premio") == p]
+    por_premio = lambda p: {k: do(k, p) for k in ("jurados", "categorias", "edicoes", "cobertura")}
+    base = {**payload, **por_premio(None), **recorte([l for l in payload["participacao"] if "premio" not in l], do("jurados", None))}
+    partes = {f"{prefixo}-{p}.json": {"premio": p, **por_premio(p), **recorte([l for l in payload["participacao"] if l.get("premio") == p], do("jurados", p))}
+              for p in outros}
+    return {**base, "partes": list(partes)}, partes
+
+
+def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
     tmp = db.with_suffix(".tmp")
     tmp.unlink(missing_ok=True)
     con = duckdb.connect(str(tmp))
@@ -231,7 +329,14 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida
     con.close()
     os.replace(tmp, db)  # troca atômica: o servidor nunca vê banco pela metade
     saida.parent.mkdir(exist_ok=True)
-    saida.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+    base, partes = dividir({k: v for k, v in payload.items() if k != "qids_repetidos"}, saida.stem)  # aviso do build, não do painel
+    escrever = lambda arq, obj: arq.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+    escrever(saida, base)
+    for velho in saida.parent.glob(f"{saida.stem}-*.json"):  # parte de prêmio que saiu da base
+        if velho.name not in partes:
+            velho.unlink()
+    for nome, parte in partes.items():
+        escrever(saida.parent / nome, parte)
     return payload
 
 
@@ -242,10 +347,19 @@ def main():
         print(f"ERRO: {e}", file=sys.stderr)
         sys.exit(1)
     print(f"ok: {len(p['participacao'])} participações, {len(p['pessoas'])} pessoas, edições coletadas {p['anos_coletados']}")
-    print("cobertura (% das pessoas-autoras por edição):")
-    print(f"  {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
+    print(f"prêmios: {', '.join(x['nome'] for x in p['premios'])}; pessoas em mais de um prêmio: {p['pessoas_em_varios_premios']}")
+    padrao = p["premios"][0]["id"] if p["premios"] else ""
+    print("cobertura (% das pessoas-autoras por prêmio e edição):")
+    print(f"  {'prêmio':<10} {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
     for c in p["cobertura"]:
-        print(f"  {c['ano']:>4} {c['pessoas']:>7} {c['pct_genero']:>7} {c['pct_uf']:>6} {c['pct_raca']:>6} {c['pct_busca_raca']:>20} {c['pct_idade']:>6}")
+        print(f"  {c.get('premio', padrao):<10} {c['ano']:>4} {c['pessoas']:>7} {c['pct_genero']:>7} {c['pct_uf']:>6} {c['pct_raca']:>6} {c['pct_busca_raca']:>20} {c['pct_idade']:>6}")
+    # Mesmo QID em mais de uma pessoa = provável duplicata por grafia (ou pseudônimo): decida em <premio>/casamentos.csv.
+    for qid, ids in p["qids_repetidos"].items():
+        print(f"ATENÇÃO: {qid} está em mais de uma pessoa ({', '.join(ids)}): duplicata ou pseudônimo? Decida em casamentos.csv")
+    # Casamentos de pessoa só pelo nome ainda sem decisão (coleta.py normalizar, CA-26.5): valem, mas pedem conferência.
+    for arq in sorted((RAIZ / "dados" / "coleta").glob("*/casamentos_revisar.csv")):
+        n = sum(1 for _ in arq.open(encoding="utf-8")) - 1
+        print(f"ATENÇÃO: {n} casamento(s) de pessoa para conferir em {arq.relative_to(RAIZ)} (decida em casamentos.csv)")
 
 
 if __name__ == "__main__":

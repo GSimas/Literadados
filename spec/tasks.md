@@ -174,3 +174,16 @@
 - [x] T22.4 Editoras: indicações sem editora fora do ranking, com contagem 🧪👁
 - [x] T22.5 Eixos com muitas edições (rótulos de 5/10 anos; barras que cabem no celular) 👁
 - [x] T22.6 Diadorim: prompt com a série completa como padrão e o aviso das edições sem lista 🧪
+
+## T23 Vários prêmios (RF-26, D31)
+- [x] T23.0 Decisões DA-1 a DA-5 fechadas (spec RF-26, D31)
+- [x] T23.1 Etapa 0: tabelas `premio` e `edicao`, `premio_id` em `categoria_edicao`, `indicacao` e `jurado`, listas do Jabuti em `dados/coleta/jabuti/`, `literadados.duckdb`; mesmos números de antes (CA-26.1, CA-26.2) 🧪
+- [x] T23.2 `normalizar` com vários prêmios: casamento de pessoa por QID e nome (com `casamentos_revisar.csv`), de obra por título e sobrenome (CA-26.5) 🧪
+- [x] T23.3 Editora por indicação, taxonomia comum com `Geral`, `etapa_lista` (CA-26.3, CA-26.4, CA-26.6) 🧪
+- [x] T23.4 Coleta do prêmio piloto (DA-1), com fontes e checagem de vagas; pessoas novas pelo protocolo (gênero, UF/país, raça)
+- [x] T23.5 Filtro de prêmio por parte e facetas por prêmio (CA-26.8, CA-26.9); `dados.json` dividido se passar de 1 MB (CA-26.14) 🧪👁
+- [x] T23.6 Perfis, linha do tempo, busca e textos com vários prêmios (CA-26.10, CA-26.12) 🧪👁
+- [x] T23.7 Janela Entre prêmios (`metricas.entrePremios`, CA-26.11) 🧪👁
+- [x] T23.8 Diadorim, Método e Referências com vários prêmios; cobertura por prêmio (CA-26.7, CA-26.13) 🧪👁
+- [x] T23.9 Gauntlet 1 (revisão adversarial + auditoria do RF-26): obra só casa pela mesma pessoa, editora sem herança, ordem explícita do prêmio, `dados.json` dividido, avisos/facetas em todos os gráficos, país via Wikidata, busca e textos 🧪👁
+- [x] T23.10 Plataforma de prêmios (DA-4/DA-5 revistas, CA-26.15): padrão = todos os prêmios, história com seletor, textos e logotipo sem prêmio fixo, teste de varredura 🧪👁

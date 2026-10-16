@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="web/logo.svg" width="112" alt="Logotipo do Literadados: um jabuti visto de cima, com o casco feito de células hexagonais de dados">
+  <img src="web/logo.svg" width="112" alt="Logotipo do Literadados: um hexágono com sete células hexagonais de dados">
 </p>
 
 <h1 align="center">Literadados</h1>
 
-<p align="center"><b>Quem chega ao Prêmio Jabuti?</b><br>
-Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras indicadas ao principal prêmio do livro no Brasil, de 1959 a 2025: painel interativo, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
+<p align="center"><b>Quem chega aos prêmios literários?</b><br>
+Plataforma de dados sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem o Prêmio Jabuti (1959–2025) e o Prêmio Oceanos (2003–2025): painel interativo com filtro e comparação por prêmio, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
 
 ---
 
@@ -13,22 +13,20 @@ Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras in
 
 | | |
 |---|---|
-| Edições coletadas | **67 de 67** (1959–2025): listas públicas de 2000 em diante; de 1959 a 1999, só os premiados |
-| Indicações | 1.675, em 1.640 obras |
-| Pessoas na base | 1.228, entre elas **1.023 pessoas-autoras**, 124 ilustradoras, 24 organizadoras e 111 juradas (há quem tenha mais de um papel) |
-| Editoras | 307, 278 com sede conhecida |
-| Gênero (autoras) | 814 com fonte, **194 atribuídos pelo primeiro nome** (marcados com \*), 15 não identificados |
-| UF de nascimento (autoras) | 680 de 1.023 |
-| Raça declarada (autoras) | 35 autodeclarações públicas, 24 pessoas negras (piso). Busca do protocolo completa para 1.022 de 1.023 |
-| Perfis | 714 QIDs do Wikidata, 656 verbetes da Wikipédia, 300 fotos com licença livre |
-| Fontes citadas | 180 domínios, agrupados na seção Referências |
+| Prêmios | **Prêmio Jabuti**: 67 edições (1959–2025; listas públicas de 2000 em diante, antes só os premiados), 1.675 indicações, 1.021 pessoas-autoras. **Prêmio Oceanos**: 23 edições (2003–2025), 1.088 indicações, 642 pessoas-autoras |
+| Base toda | 2.763 indicações em 2.498 obras; **1.411 pessoas-autoras** distintas (252 passaram pelos dois prêmios), 124 ilustradoras, 24 organizadoras e 225 juradas (há quem tenha mais de um papel); 430 editoras |
+| Gênero (autoras) | 986 com fonte, **394 atribuídos pelo primeiro nome** (marcados com \*), 31 não identificados |
+| Nascimento (autoras) | 732 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
+| Raça declarada (autoras) | 42 autodeclarações públicas, 29 pessoas negras (piso). Busca do protocolo completa para 1.083 de 1.411 |
+| Perfis | 813 QIDs do Wikidata, 379 fotos com licença livre |
+| Fontes citadas | 187 domínios, agrupados na seção Referências |
 
-Categorias no recorte: Romance (Romance Literário a partir de 2020), Contos (e Crônicas, até 2017), Crônica (desde 2018), Poesia, Infantil, Juvenil, Infantil e Juvenil (2018 e edições antigas) e Livro do Ano. O painel abre na série completa; cada parte tem filtro de período.
+Categorias no recorte: Romance, Contos, Crônica, Poesia, Infantil, Juvenil, Infantil e Juvenil e Livro do Ano (no Jabuti), e a categoria única, Romance, Poesia, Conto/Crônica, Prosa e o Grande Prêmio (no Oceanos); detalhes por ano no Método. O painel abre com todos os prêmios na série completa de cada um; cada parte tem filtro de prêmio, período e categoria, e os gráficos de taxa mostram um painel por prêmio.
 
 ## O que o painel mostra
 
 - **Abertura:** a pergunta central e três números do recorte completo, com um carrossel de fotos livres ao fundo.
-- **História guiada:** um ponto por pessoa-autora, que se reorganiza a cada passo: gênero, da lista ao 1º lugar, piso racial e região de nascimento.
+- **História guiada:** um ponto por pessoa-autora, que se reorganiza a cada passo: gênero, da lista ao 1º lugar, piso racial e região de nascimento. Um seletor escolhe todos os prêmios (padrão) ou um deles.
 - **Panorama:** cartões com n, cobertura e edições coletadas.
 - **Gráficos:** uma grade de cartões. Cada cartão abre uma janela com endereço próprio (`#/grafico/<id>`): linha do tempo (composição de cada edição e vencedoras), mapa por UF de nascimento (absoluto ou por milhão de habitantes) com Sankey região → editora → resultado, evolução por edição, funil (lista → finalistas → premiadas → vencedoras), categorias (índice de Duncan), idade no ano do prêmio, editoras e júri. No hover, o elemento sob o mouse fica em destaque e os demais esmaecem.
 - **Autores:** um anel de retratos ao redor de um centro vazio e circular, com 100 por página e setas laterais. No hover, o retrato brilha e o centro mostra o resumo da pessoa; o clique abre o perfil completo, com link próprio (`#/pessoa/<id>`) e a fonte de cada atributo. Há também a vista em tabela, com busca e ordenação.
@@ -54,7 +52,7 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
-.venv/bin/python build.py      # CSVs → jabuti.duckdb + web/dados.json (falha se o dado for inconsistente)
+.venv/bin/python build.py      # CSVs → literadados.duckdb + web/dados.json (falha se o dado for inconsistente)
 .venv/bin/python server.py     # http://localhost:8000 (servidor estático só para desenvolvimento)
 ```
 
@@ -81,7 +79,7 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `schema.sql` | Modelo de dados (DuckDB) com CHECKs que barram raça sem fonte, gênero atribuído com fonte etc. |
 | `dados/*.csv` | Fonte da verdade, uma tabela por arquivo |
 | `dados/coleta/` | Levantamentos brutos (listas por edição, pesquisas de pessoas, protocolo em `PROTOCOLO_PESSOAS.md`) |
-| `build.py` | CSVs → `jabuti.duckdb` + `web/dados.json`, com checagens de consistência |
+| `build.py` | CSVs → `literadados.duckdb` + `web/dados.json`, com checagens de consistência |
 | `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `malha` (UFs) |
 | `server.py` | Servidor estático para desenvolvimento local (o site publicado não precisa dele) |
 | `netlify.toml` | Publicação de `web/` no Netlify |
@@ -89,11 +87,11 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `tests/` | `pytest` (backend) e `node --test` (métricas e contraste) |
 | `PLANO_COLETA.md` | Protocolo de coleta das edições |
 
-Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `coleta.py aplicar_pessoas` e depois `build.py`. Nunca edite `jabuti.duckdb` ou `web/dados.json` à mão.
+Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `coleta.py aplicar_pessoas` e depois `build.py`. Nunca edite `literadados.duckdb` ou `web/dados.json` à mão.
 
 ## Sistema visual
 
-- **Logotipo:** um jabuti visto de cima com o casco feito de células hexagonais de dados (`web/logo.svg`). No cabeçalho, as células acendem em sequência no hover.
+- **Logotipo:** um hexágono com sete células hexagonais de dados (`web/logo.svg`), sem referência a um prêmio. No cabeçalho, as células acendem em sequência no hover.
 - **Componentes próprios:** menus de opções, caixas de seleção, diálogos, dicas dos gráficos e barras de rolagem grossas seguem a identidade do Literadados, sem a aparência nativa do sistema.
 - **Links como chips:** nomes de pessoas, fontes e referências são chips clicáveis.
 - **Motion:** transições sutis em botões, seções, perfis, menus e no carrossel da abertura. Tudo se desliga com `prefers-reduced-motion`.

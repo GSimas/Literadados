@@ -1,26 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Literadados">
   <title>Literadados</title>
   <style>
-    .lt-membro { fill: #0b5a42; }
-    .lt-casco { fill: #0f6b4f; }
+    .lt-casco { fill: #0f6b4f; stroke: #0f6b4f; stroke-width: 4; stroke-linejoin: round; }
     .lt-celula { fill: #eafff5; animation: lt-acende 4.2s ease-in-out infinite; animation-delay: calc(var(--i) * .6s); }
     @keyframes lt-acende { 0%, 70%, 100% { fill: #eafff5; } 80% { fill: #ffd76a; fill-opacity: 1; } }
     @media (prefers-reduced-motion: reduce) { .lt-celula { animation: none; } }
   </style>
   <g class="lt-marca">
-    <circle class="lt-membro" cx="32" cy="7.5" r="5"/>
-    <ellipse class="lt-membro" cx="12" cy="18" rx="5" ry="4" transform="rotate(-35 12 18)"/>
-    <ellipse class="lt-membro" cx="52" cy="18" rx="5" ry="4" transform="rotate(35 52 18)"/>
-    <ellipse class="lt-membro" cx="12" cy="50" rx="5" ry="4" transform="rotate(35 12 50)"/>
-    <ellipse class="lt-membro" cx="52" cy="50" rx="5" ry="4" transform="rotate(-35 52 50)"/>
-    <path class="lt-membro" d="M29 58 L32 63 L35 58 Z"/>
-    <ellipse class="lt-casco" cx="32" cy="34" rx="22" ry="24"/>
-    <path class="lt-celula" style="--i:0" d="M32.00 27.60 L37.54 30.80 L37.54 37.20 L32.00 40.40 L26.46 37.20 L26.46 30.80 Z" fill-opacity="1"/>
-    <path class="lt-celula" style="--i:1" d="M19.60 27.60 L25.14 30.80 L25.14 37.20 L19.60 40.40 L14.06 37.20 L14.06 30.80 Z" fill-opacity="0.55"/>
-    <path class="lt-celula" style="--i:2" d="M25.80 16.86 L31.34 20.06 L31.34 26.46 L25.80 29.66 L20.26 26.46 L20.26 20.06 Z" fill-opacity="0.8"/>
-    <path class="lt-celula" style="--i:3" d="M38.20 16.86 L43.74 20.06 L43.74 26.46 L38.20 29.66 L32.66 26.46 L32.66 20.06 Z" fill-opacity="0.4"/>
-    <path class="lt-celula" style="--i:4" d="M44.40 27.60 L49.94 30.80 L49.94 37.20 L44.40 40.40 L38.86 37.20 L38.86 30.80 Z" fill-opacity="0.9"/>
-    <path class="lt-celula" style="--i:5" d="M38.20 38.34 L43.74 41.54 L43.74 47.94 L38.20 51.14 L32.66 47.94 L32.66 41.54 Z" fill-opacity="0.5"/>
-    <path class="lt-celula" style="--i:6" d="M25.80 38.34 L31.34 41.54 L31.34 47.94 L25.80 51.14 L20.26 47.94 L20.26 41.54 Z" fill-opacity="0.7"/>
+    <path class="lt-casco" d="M32 3.5 L56.68 17.75 L56.68 46.25 L32 60.5 L7.32 46.25 L7.32 17.75 Z"/>
+    <path class="lt-celula" style="--i:0" d="M32.00 24.64 L38.37 28.32 L38.37 35.68 L32.00 39.36 L25.63 35.68 L25.63 28.32 Z" fill-opacity="1"/>
+    <path class="lt-celula" style="--i:1" d="M17.74 24.64 L24.11 28.32 L24.11 35.68 L17.74 39.36 L11.37 35.68 L11.37 28.32 Z" fill-opacity="0.55"/>
+    <path class="lt-celula" style="--i:2" d="M24.87 12.29 L31.24 15.97 L31.24 23.33 L24.87 27.01 L18.50 23.33 L18.50 15.97 Z" fill-opacity="0.8"/>
+    <path class="lt-celula" style="--i:3" d="M39.13 12.29 L45.50 15.97 L45.50 23.33 L39.13 27.01 L32.76 23.33 L32.76 15.97 Z" fill-opacity="0.4"/>
+    <path class="lt-celula" style="--i:4" d="M46.26 24.64 L52.63 28.32 L52.63 35.68 L46.26 39.36 L39.89 35.68 L39.89 28.32 Z" fill-opacity="0.9"/>
+    <path class="lt-celula" style="--i:5" d="M39.13 36.99 L45.50 40.67 L45.50 48.03 L39.13 51.71 L32.76 48.03 L32.76 40.67 Z" fill-opacity="0.5"/>
+    <path class="lt-celula" style="--i:6" d="M24.87 36.99 L31.24 40.67 L31.24 48.03 L24.87 51.71 L18.50 48.03 L18.50 40.67 Z" fill-opacity="0.7"/>
   </g>
 </svg>
