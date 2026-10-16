@@ -156,11 +156,13 @@ export function htmlPerfil(id, { D, midiaPorId }) {
       </section>
       <section aria-label="Participações no Jabuti">
         <h3>No Prêmio Jabuti</h3>
-        <ol class="cronologia">${ls.map((l, i) => `<li class="${l.premiada ? "premio" : ""}" style="--i:${i}"><span class="ano">${l.ano}</span> · ${esc(l.categoria)}<br>
+        <ol class="cronologia">${[ // indicação, júri e organização numa só ordem por ano (no mesmo ano, nessa ordem)
+          ...ls.map((l) => [l.ano, 0, `<li class="${l.premiada ? "premio" : ""}" style="--i:IDX"><span class="ano">${l.ano}</span> · ${esc(l.categoria)}<br>
           <i>${esc(l.titulo)}</i>${l.editora ? ` <span class="muted">(${esc(l.editora)})</span>` : ""}<br>
-          <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}${l.papel !== "autor" ? ` · ${esc(l.papel)}` : ""}</span></li>`).join("")}
-          ${jur.map((j) => `<li><span class="ano">${j.ano}</span> · jurado(a) de ${esc(j.categoria)}</li>`).join("")}
-          ${org.map((l) => `<li><span class="ano">${l.ano}</span> · organizou <i>${esc(l.titulo)}</i> <span class="muted pequeno">(fora das contagens)</span></li>`).join("")}</ol>
+          <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}${l.papel !== "autor" ? ` · ${esc(l.papel)}` : ""}</span></li>`]),
+          ...jur.map((j) => [j.ano, 1, `<li style="--i:IDX"><span class="ano">${j.ano}</span> · jurado(a) de ${esc(j.categoria)}</li>`]),
+          ...org.map((l) => [l.ano, 2, `<li style="--i:IDX"><span class="ano">${l.ano}</span> · organizou <i>${esc(l.titulo)}</i> <span class="muted pequeno">(fora das contagens)</span></li>`]),
+        ].sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(([, , h], i) => h.replace("--i:IDX", `--i:${i}`)).join("")}</ol>
       </section>
     </div></article>`;
 }

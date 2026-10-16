@@ -38,7 +38,7 @@ export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
   const escala = d3.scaleThreshold().domain(limites).range(rampa);
   const cor = (v) => (v > 0 ? escala(v) : css("--grade"));
 
-  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "img")
+  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "group")
     .attr("aria-label", `Mapa do Brasil por UF de nascimento: ${medida === "pessoas" ? "pessoas" : "pessoas por milhão de habitantes"}`);
   svg.append("g").selectAll("path").data(malha.features).join("path")
     .attr("class", (f) => `uf${f.properties.uf === ufSel ? " sel" : ""}`).attr("d", caminho)
@@ -51,7 +51,7 @@ export function renderMapa(L, { D, midiaPorId, abrirPerfil }) {
     .on("click", (ev, f) => selecionar(f.properties.uf))
     .on("keydown", (ev, f) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); selecionar(f.properties.uf); } });
   // Rótulo de valor no centroide das UFs grandes o bastante para caber o texto.
-  svg.append("g").selectAll("text").data(malha.features.filter((f) => caminho.area(f) > 900)).join("text")
+  svg.append("g").attr("aria-hidden", "true").selectAll("text").data(malha.features.filter((f) => caminho.area(f) > 900)).join("text")
     .attr("transform", (f) => `translate(${caminho.centroid(f)})`).attr("text-anchor", "middle").attr("dy", "0.35em")
     .attr("fill", (f) => { const v = valor(porUF.get(f.properties.uf)); return v > 0 ? textoSobre((rampa.indexOf(escala(v)) + 0.5) / 5) : css("--tinta-2"); })
     .text((f) => `${f.properties.uf} ${fmt(valor(porUF.get(f.properties.uf)), casas)}`);

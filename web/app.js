@@ -13,7 +13,12 @@ import { montarBusca } from "./busca.js";
 import { htmlLugar } from "./lugares.js";
 import { montarExportacao } from "./exportar.js";
 
-const [D] = await Promise.all([fetch("dados.json").then((r) => r.json()), carregarMalha()]);
+// Sem dados não há painel: avisa no lugar dos números da abertura, com botão para tentar de novo, em vez de falhar em silêncio.
+const [D] = await Promise.all([fetch("dados.json").then((r) => { if (!r.ok) throw new Error(`dados.json: HTTP ${r.status}`); return r.json(); }), carregarMalha()])
+  .catch((e) => {
+    $("#hero-numeros").innerHTML = `<p class="vazio" role="alert">Não foi possível carregar os dados (${esc(e.message)}). <button type="button" class="chip-link" onclick="location.reload()">Tentar de novo</button></p>`;
+    throw e;
+  });
 D.participacao = M.expandir(D); // JSON compacto → linhas de v_participacao (design D13)
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
@@ -120,11 +125,25 @@ const JANELAS = {
 function renderParte(parte) {
   const L = linhasDe(parte), c = ctxDe(parte);
   const fs = parte === "panorama" ? [renderPanorama] : parte === "autores" ? [renderPessoas] : JANELAS[parte];
+  let falhou = false;
   for (const f of fs) {
-    try { f(L, c); } catch (e) { console.error(f.name, e); }
+    try { f(L, c); } catch (e) { console.error(f.name, e); falhou = true; }
   }
+  avisarFalha(parte, falhou);
   const k = M.kpis(L);
   resumos[parte]?.resumo(`${fmt(k.pessoas)} pessoas · ${fmt(k.indicacoes)} indicações`);
+}
+// Um gráfico que quebra (dado atípico) não derruba o resto: a parte mostra um aviso com "Tentar de novo".
+function avisarFalha(parte, falhou) {
+  const raiz = $(`#${parte}`)?.querySelector(":scope > .janela-corpo") ?? $(`#${parte}`);
+  let aviso = raiz?.querySelector(":scope > .falha-parte");
+  if (!falhou) { aviso?.remove(); return; }
+  if (!raiz || aviso) return;
+  aviso = Object.assign(document.createElement("p"), { className: "vazio falha-parte" });
+  aviso.setAttribute("role", "alert");
+  aviso.innerHTML = `Não foi possível desenhar esta parte com o recorte atual. <button type="button" class="chip-link">Tentar de novo</button>`;
+  aviso.querySelector("button").addEventListener("click", () => renderParte(parte));
+  (raiz.querySelector(":scope > .secao-cab") ?? raiz.firstElementChild).after(aviso);
 }
 const renderJanela = (id) => renderParte(id);
 const janelasAbertas = () => Object.keys(JANELAS).filter((id) => $(`#${id}`).open);

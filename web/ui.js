@@ -52,7 +52,10 @@ export const botaoExportarGrafico = () => {
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg>';
   return b;
 };
-export const desenhar = (el, no) => { el.replaceChildren(no, botaoExportarGrafico()); realcarNoHover(no); suavizarDicas(no); };
+export const desenhar = (el, no) => {
+  no.querySelectorAll("g[aria-label]").forEach((g) => g.setAttribute("aria-hidden", "true")); // marcas do Plot: o <svg> leva o rótulo e há tabela equivalente
+  el.replaceChildren(no, botaoExportarGrafico()); realcarNoHover(no); suavizarDicas(no);
+};
 export const vazio = (el, msg = "Sem dados no recorte selecionado.") => { el.innerHTML = `<p class="vazio">${msg}</p>`; };
 
 // Dica flutuante única para os gráficos desenhados à mão (mapa, Sankey, história).
@@ -81,7 +84,7 @@ export const dica = {
 export const urlFoto = (arquivo, w = 320) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(arquivo)}?width=${w}`;
 export const paginaArquivo = (arquivo) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(arquivo.replace(/ /g, "_"))}`;
 export function foto(p, midia, { w = 320, classe = "foto" } = {}) {
-  const avatar = `<span class="avatar" style="--h:${M.corAvatar(p.id)}">${esc(M.iniciais(p.nome))}</span>`;
+  const avatar = `<span class="avatar" aria-hidden="true" data-iniciais="${esc(M.iniciais(p.nome))}" style="--h:${M.corAvatar(p.id)}"></span>`;
   if (!midia?.imagem) return `<span class="${classe}">${avatar}</span>`;
   // O avatar fica por baixo: se a foto não carregar, ela some e as iniciais aparecem.
   return `<span class="${classe}">${avatar}<img src="${esc(urlFoto(midia.imagem, w))}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>`;

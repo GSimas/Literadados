@@ -192,7 +192,8 @@ input[type="checkbox"]:checked::after { transform: translateY(-1px) rotate(-45de
 .hero-lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--tinta-2); margin: 1.25rem 0 2rem; }
 .hero-numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 2rem; max-width: 720px; }
 .hero-num { border-left: 3px solid var(--marca); padding: .1rem 0 .1rem 1rem; }
-.hero-num b { display: block; font-family: var(--fonte-titulo); font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.hero-num b { display: block; min-height: 1em; font-family: var(--fonte-titulo); font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.hero-num.esqueleto { visibility: hidden; } /* reserva de espaço até os dados chegarem (CLS) */
 .hero-num > span { font-size: .88rem; color: var(--tinta-2); }
 .hero-acoes { display: flex; flex-wrap: wrap; gap: .75rem; }
 @media (max-width: 560px) { .hero-numeros { grid-template-columns: 1fr; } }
@@ -325,6 +326,7 @@ details[open] > :not(summary) { animation: desdobra var(--dur-3) var(--curva); }
 .selo { display: inline-flex; align-items: center; gap: .25rem; font-size: .72rem; font-weight: 600; border-radius: 999px; padding: .05rem .5rem; background: var(--marca-suave); color: var(--tinta); width: fit-content; }
 .foto { position: relative; display: block; overflow: hidden; background: var(--superficie-2); }
 .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
+.avatar::before { content: attr(data-iniciais); } /* iniciais por CSS: não entram no nome acessível dos botões (WCAG 2.5.3) */
 .avatar { display: grid; place-items: center; width: 100%; height: 100%; font-family: var(--fonte-titulo); font-weight: 700; color: #fff;
   font-size: 2.4rem; background: hsl(var(--h) 40% 32%); }
 :root[data-theme="dark"] .avatar { background: hsl(var(--h) 30% 30%); }

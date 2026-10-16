@@ -141,3 +141,11 @@
 - [x] T18.2 `web/banco.js` (DuckDB-WASM) e Diadorim sem `/api`; `validarSQL` testado no Node 🧪
 - [x] T18.3 `server.py` só estático; testes ajustados 🧪
 - [x] T18.4 `netlify.toml`, deploy e domínio `literadados.gustavosimas.com` (Netlify DNS) 👁
+
+## T19 Auditoria de desempenho, acessibilidade e resiliência (out/2026, RNF-05, RNF-08)
+- [x] T19.1 Cronologia do perfil em ordem de ano, com júri e organização intercalados (CA-11.2) 🧪
+- [x] T19.2 d3, Plot e d3-sankey com `defer`; tema salvo aplicado por script inline no `<head>` 👁
+- [x] T19.3 Abertura reserva o espaço dos números (esqueleto invisível); CLS da carga 0,09 → 0 👁
+- [x] T19.4 axe-core sem violações: marcas do Plot fora da árvore de acessibilidade (o `<svg>` tem rótulo e há tabela), mapa como `group`, iniciais do avatar ocultas, cabeçalho da Diadorim sem landmark duplicado 👁
+- [x] T19.5 Aviso com "Tentar de novo" quando os dados não carregam ou uma parte falha ao desenhar 👁
+- [x] T19.6 `X-Frame-Options: DENY` no `netlify.toml`; cache segue revalidado (arquivos sem hash) 👁
