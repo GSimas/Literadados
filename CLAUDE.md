@@ -1,6 +1,6 @@
 # CLAUDE.md — Literadados
 
-Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nascimento) de autores do Prêmio Jabuti 1959–2025 (série completa por padrão; listas públicas de 2000 em diante, antes só premiados).
+Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF ou país de nascimento) de autores de prêmios literários: Prêmio Jabuti 1959–2025 (o padrão do painel; série completa; listas públicas de 2000 em diante, antes só premiados) e Prêmio Oceanos 2003–2025 (RF-26, D31; dados brutos em `dados/coleta/<premio>/`).
 
 ## Como trabalhar aqui (SDD)
 1. Mudança de comportamento → primeiro `spec/spec.md` (requisito + critério de aceitação), depois `spec/design.md`, depois `spec/tasks.md`, só então código.

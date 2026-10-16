@@ -1,7 +1,7 @@
 id,nome,wikidata,genero,genero_fonte,genero_evidencia,raca,raca_evidencia,raca_fonte,raca_trecho,raca_busca,ano_nascimento,municipio_nascimento,uf_nascimento,pais_nascimento,nascimento_fonte,revisado_em
 a-b-mendes-cadaxa,A. B. Mendes Cadaxa,Q130923436,homem,https://www.wikidata.org/wiki/Q130923436,,sem_declaracao,,,,completa,1917,São Paulo,SP,,https://pt.wikipedia.org/wiki/A._B._Mendes_Cadaxa,2026-10-15
 a-m-pires-cabral,A. M. Pires Cabral,Q9619665,homem,https://www.wikidata.org/wiki/Q9619665,,sem_declaracao,,,,,1941,Chacim,EX,PT,https://www.wikidata.org/wiki/Q9619665,2026-10-16
-abel-barros-baptista,Abel Barros Baptista,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+abel-barros-baptista,Abel Barros Baptista,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 abel-neves,Abel Neves,Q9560514,homem,https://www.wikidata.org/wiki/Q9560514,,sem_declaracao,,,,,1956,Montalegre,EX,PT,https://www.wikidata.org/wiki/Q9560514,2026-10-16
 adams-carvalho,Adams Carvalho,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 adelaide-ivanova,Adelaide Ivánova,Q57178855,mulher,https://www.wikidata.org/wiki/Q57178855,,sem_declaracao,,,,completa,1982,Recife,PE,,https://pt.wikipedia.org/wiki/Adelaide_Iv%C3%A1nova,2026-10-14
@@ -27,7 +27,7 @@ afonso-cruz,Afonso Cruz,Q383408,homem,https://www.wikidata.org/wiki/Q383408,,sem
 afonso-henriques-neto,Afonso Henriques Neto,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 afonso-reis-cabral,Afonso Reis Cabral,Q18809804,homem,https://www.wikidata.org/wiki/Q18809804,,sem_declaracao,,,,,1990,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q18809804,2026-10-16
 age-de-carvalho,Age de Carvalho,Q56346910,homem,https://www.wikidata.org/wiki/Q56346910,,sem_declaracao,,,,completa,1958,Belém,PA,,https://www.wikidata.org/wiki/Q56346910,2026-10-15
-airton-souza,Airton Souza,Q111370620,homem,https://www.wikidata.org/wiki/Q111370620,,sem_declaracao,,,,,1982,Marabá,PA,,https://www.wikidata.org/wiki/Q111370620,2026-10-16
+airton-souza,Airton Souza,Q111370620,homem,https://www.wikidata.org/wiki/Q111370620,,sem_declaracao,,,,completa,1982,Marabá,PA,,https://www.wikidata.org/wiki/Q111370620,2026-10-16
 alan-oliveira,Alan Oliveira,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 alberto-da-costa-e-silva,Alberto da Costa e Silva,Q2639446,homem,https://www.wikidata.org/wiki/Q2639446,,sem_declaracao,,,,completa,1931,São Paulo,SP,,https://www.wikidata.org/wiki/Q2639446,2026-10-15
 alberto-da-cunha-melo,Alberto da Cunha Melo,Q16486925,homem,https://www.wikidata.org/wiki/Q16486925,,sem_declaracao,,,,,1942,Jaboatão dos Guararapes,PE,,https://www.wikidata.org/wiki/Q16486925,2026-10-16
@@ -37,7 +37,7 @@ alberto-mussa,Alberto Mussa,Q2831805,homem,https://www.wikidata.org/wiki/Q283180
 alberto-pucheu,Alberto Pucheu,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 alberto-xavier,Alberto Xavier,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 alcides-buss,Alcides Buss,Q9600120,homem,https://www.wikidata.org/wiki/Q9600120,,sem_declaracao,,,,completa,1948,Salete,SC,,https://www.wikidata.org/wiki/Q9600120,2026-10-16
-alcides-villaca,Alcides Villaça,Q71713477,homem,https://www.wikidata.org/wiki/Q71713477,,sem_declaracao,,,,,1946,Atibaia,SP,,https://www.wikidata.org/wiki/Q71713477,2026-10-16
+alcides-villaca,Alcides Villaça,Q71713477,homem,https://www.wikidata.org/wiki/Q71713477,,sem_declaracao,,,,completa,1946,Atibaia,SP,,https://www.wikidata.org/wiki/Q71713477,2026-10-16
 alcione-araujo,Alcione Araújo,Q9600249,homem,https://www.wikidata.org/wiki/Q9600249,,sem_declaracao,,,,completa,1945,Januária,MG,,https://www.wikidata.org/wiki/Q9600249,2026-10-15
 aldri-anunciacao,Aldri Anunciação,Q9600706,homem,https://www.wikidata.org/wiki/Q9600706,,sem_declaracao,,,,completa,1977,Salvador,BA,,https://www.wikidata.org/wiki/Q9600706,2026-10-15
 aldyr-garcia-schlee,Aldyr Garcia Schlee,Q2640577,homem,https://www.wikidata.org/wiki/Q2640577,,sem_declaracao,,,,completa,1934,Jaguarão,RS,,https://www.wikidata.org/wiki/Q2640577,2026-10-15
@@ -49,7 +49,7 @@ alessandro-garcia,Alessandro Garcia,,homem,https://diariodocomercio.com.br/negoc
 alex-andrade,Alex Andrade,,nao_identificado,,,sem_declaracao,,,,,,,,,,
 alex-sens,Alex Sens,,nao_identificado,,,sem_declaracao,,,,,,,,,,
 alexandra-lopes-da-cunha,Alexandra Lopes da Cunha,,mulher,https://periodicos.ufrn.br/odisseia/article/download/25308/15765/97851,,sem_declaracao,,,,completa,1970,Brasília,DF,,https://periodicos.ufrn.br/odisseia/article/download/25308/15765/97851,2026-10-14
-alexandra-lucas-coelho,Alexandra Lucas Coelho,Q16487989,mulher,https://www.wikidata.org/wiki/Q16487989,,sem_declaracao,,,,,1967,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q16487989,2026-10-16
+alexandra-lucas-coelho,Alexandra Lucas Coelho,Q16487989,mulher,https://www.wikidata.org/wiki/Q16487989,,sem_declaracao,,,,completa,1967,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q16487989,2026-10-16
 alexandre-andrade,Alexandre Andrade,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 alexandre-arbex,Alexandre Arbex,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 alexandre-brito,Alexandre Brito,,homem,https://www.brasildefato.com.br/2022/04/08/coletivo-seis-1-lanca-o-livro-e-fiquem-bem-na-associacao-chico-lisboa-em-porto-alegre/,,sem_declaracao,,,,completa,,,,,,2026-10-14
@@ -86,7 +86,7 @@ alvaro-filho,Álvaro Filho,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 alvaro-laborinho-lucio,Álvaro Laborinho Lúcio,Q10395809,homem,https://www.wikidata.org/wiki/Q10395809,,sem_declaracao,,,,,1941,Nazaré,EX,PT,https://www.wikidata.org/wiki/Q10395809,2026-10-16
 alvaro-miranda,Álvaro Miranda,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 alvaro-seica,Álvaro Seiça,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-alvaro-taruma,Álvaro Taruma,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+alvaro-taruma,Álvaro Taruma,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 amara-moira,Amara Moira,Q62108315,mulher,https://www.wikidata.org/wiki/Q62108315,,sem_declaracao,,,,parcial,1985,Campinas,SP,,https://www.wikidata.org/wiki/Q62108315,2026-10-14
 amilcar-bettega,Amilcar Bettega,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 amilcar-bettega-barbosa,Amilcar Bettega Barbosa,Q16489792,homem,https://pt.wikipedia.org/wiki/Am%C3%ADlcar_Bettega_Barbosa,,sem_declaracao,,,,completa,1964,São Gabriel,RS,,https://www.martinsfontespaulista.com.br/prosa-pequena-891410/p,2026-10-15
@@ -101,14 +101,14 @@ ana-johann,Ana Johann,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 ana-kiffer,Ana Kiffer,Q139969828,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 ana-laura-alvarenga,Ana Laura Alvarenga,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 ana-leticia-leal,Ana Letícia Leal,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-ana-luisa-amaral,Ana Luísa Amaral,Q4063960,mulher,https://www.wikidata.org/wiki/Q4063960,,sem_declaracao,,,,,1956,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q4063960,2026-10-16
+ana-luisa-amaral,Ana Luísa Amaral,Q4063960,mulher,https://www.wikidata.org/wiki/Q4063960,,branca,autodeclaracao,https://www.dn.pt/cultura/ana-luis-amaral-1956-2022-mulher-de-palavra-e-causas-15075674.html,"Como mulher branca, eu não posso sentir totalmente o que têm vivido os negros, mas posso (e devo) ser empática e solidária.",completa,1956,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q4063960,2026-10-16
 ana-luisa-escorel,Ana Luisa Escorel,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 ana-mafalda-leite,Ana Mafalda Leite,Q27312658,mulher,https://www.wikidata.org/wiki/Q27312658,,sem_declaracao,,,,,1956,Aveiro,EX,PT,https://www.wikidata.org/wiki/Q27312658,2026-10-16
 ana-marcia-diogenes,Ana Márcia Diógenes,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-ana-margarida-de-carvalho,Ana Margarida de Carvalho,Q61000417,mulher,https://www.wikidata.org/wiki/Q61000417,,sem_declaracao,,,,,1969,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q61000417,2026-10-16
+ana-margarida-de-carvalho,Ana Margarida de Carvalho,Q61000417,mulher,https://www.wikidata.org/wiki/Q61000417,,sem_declaracao,,,,completa,1969,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q61000417,2026-10-16
 ana-maria-goncalves,Ana Maria Gonçalves,Q16489985,mulher,https://www.wikidata.org/wiki/Q16489985,,negra,fonte_curada,https://www.letras.ufmg.br/literafro/autoras/443-ana-maria-goncalves,"Ana Maria Gonçalves nasceu em 1970 em Ibiá, Minas Gerais.",completa,1970,Ibiá,MG,,https://www.wikidata.org/wiki/Q16489985,2026-10-16
 ana-maria-machado,Ana Maria Machado,Q263552,mulher,https://www.wikidata.org/wiki/Q263552,,sem_declaracao,,,,completa,1941,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q263552,2026-10-15
-ana-maria-vasconcelos,Ana Maria Vasconcelos,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+ana-maria-vasconcelos,Ana Maria Vasconcelos,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 ana-martins-marques,Ana Martins Marques,Q9612424,mulher,https://pt.wikipedia.org/wiki/Ana_Martins_Marques,,sem_declaracao,,,,completa,1977,Belo Horizonte,MG,,https://pt.wikipedia.org/wiki/Ana_Martins_Marques,2026-10-14
 ana-miranda,Ana Miranda,Q4295529,mulher,https://www.wikidata.org/wiki/Q4295529,,sem_declaracao,,,,completa,1951,Fortaleza,CE,,https://www.wikidata.org/wiki/Q4295529,2026-10-15
 ana-paula-maia,Ana Paula Maia,Q9612519,mulher,https://www.wikidata.org/wiki/Q9612519,,sem_declaracao,,,,completa,1977,Nova Iguaçu,RJ,,https://www.wikidata.org/wiki/Q9612519,2026-10-15
@@ -119,7 +119,7 @@ ana-rapha-nunes,Ana Rapha Nunes,,mulher,https://www.pontofrio.com.br/o-galo-que-
 ana-rosa-costa,Ana Rosa Costa,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 ana-suy,Ana Suy,,mulher,https://www.audible.com/author/Ana-Suy/B0DCN2J1ZX,,sem_declaracao,,,,completa,,,,,,2026-10-15
 ana-teresa-gaviao,Ana Teresa Gavião,,mulher,https://terrasdecabral.com.br/jurados-65o-premio-jabuti/,,sem_declaracao,,,,completa,,,,,,2026-10-14
-ana-teresa-pereira,Ana Teresa Pereira,Q16192873,mulher,https://www.wikidata.org/wiki/Q16192873,,sem_declaracao,,,,,1958,Funchal,EX,PT,https://www.wikidata.org/wiki/Q16192873,2026-10-16
+ana-teresa-pereira,Ana Teresa Pereira,Q16192873,mulher,https://www.wikidata.org/wiki/Q16192873,,sem_declaracao,,,,completa,1958,Funchal,EX,PT,https://www.wikidata.org/wiki/Q16192873,2026-10-16
 ana-vargas,Ana Vargas,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 anderson-braga-horta,Anderson Braga Horta,Q9613637,homem,https://www.wikidata.org/wiki/Q9613637,,sem_declaracao,,,,completa,1934,Carangola,MG,,https://www.wikidata.org/wiki/Q9613637,2026-10-15
 anderson-franca,Anderson França,,homem,https://www.dn.pt/arquivo/diario-de-noticias/anderson-franca-fugiu-do-brasil-de-bolsonaro-pelo-menos-estamos-vivos-10660564.html,,sem_declaracao,,,,completa,,,,,,2026-10-15
@@ -135,9 +135,9 @@ andre-luiz-pinto-da-rocha,André Luiz Pinto da Rocha,,homem,,atribuicao,sem_decl
 andre-neves,André Neves,,homem,https://prefeitura.sp.gov.br/web/cultura/w/bibliotecas/noticias/22328,,sem_declaracao,,,,completa,1973,Recife,PE,,https://prefeitura.sp.gov.br/web/cultura/w/bibliotecas/noticias/22328,2026-10-15
 andre-nicolitt,André Nicolitt,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 andre-osorio,André Osório,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-andre-sant-anna,André Sant'Anna,Q16490381,homem,https://www.wikidata.org/wiki/Q16490381,,sem_declaracao,,,,,1964,Belo Horizonte,MG,,https://www.wikidata.org/wiki/Q16490381,2026-10-16
+andre-sant-anna,André Sant'Anna,Q16490381,homem,https://www.wikidata.org/wiki/Q16490381,,sem_declaracao,,,,completa,1964,Belo Horizonte,MG,,https://www.wikidata.org/wiki/Q16490381,2026-10-16
 andre-seffrin,André Seffrin,Q100795609,homem,https://www.wikidata.org/wiki/Q100795609,,sem_declaracao,,,,completa,1965,Júlio de Castilhos,RS,,https://www.wikidata.org/wiki/Q100795609,2026-10-15
-andre-vallias,André Vallias,Q48877376,homem,https://www.wikidata.org/wiki/Q48877376,,sem_declaracao,,,,,1963,São Paulo,SP,,https://www.wikidata.org/wiki/Q48877376,2026-10-16
+andre-vallias,André Vallias,Q48877376,homem,https://www.wikidata.org/wiki/Q48877376,,sem_declaracao,,,,completa,1963,São Paulo,SP,,https://www.wikidata.org/wiki/Q48877376,2026-10-16
 andrea-del-fuego,Andréa del Fuego,Q10296185,mulher,https://www.wikidata.org/wiki/Q10296185,,sem_declaracao,,,,completa,1975,São Paulo,SP,,https://www.wikidata.org/wiki/Q10296185,2026-10-15
 andrea-ebert,Andrea Ebert,Q135111888,mulher,https://www.wikidata.org/wiki/Q135111888,,sem_declaracao,,,,completa,1970,São Paulo,SP,,https://pt.wikipedia.org/wiki/Andrea_Ebert,2026-10-15
 andrea-honaiser,Andrea Honaiser,,mulher,https://acontecendoaqui.com.br/?p=220564,,sem_declaracao,,,,completa,,,,,,2026-10-14
@@ -172,7 +172,7 @@ antonio-geraldo-figueiredo-ferreira,Antonio Geraldo Figueiredo Ferreira,,homem,,
 antonio-guerreiro,António Guerreiro,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 antonio-jorge-goncalves,António Jorge Gonçalves,Q16491764,homem,https://www.wikidata.org/wiki/Q16491764,,sem_declaracao,,,,completa,1964,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q16491764,2026-10-16
 antonio-lino,Antonio Lino,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-antonio-lobo-antunes,António Lobo Antunes,Q333849,homem,https://www.wikidata.org/wiki/Q333849,,sem_declaracao,,,,,1942,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q333849,2026-10-16
+antonio-lobo-antunes,António Lobo Antunes,Q333849,homem,https://www.wikidata.org/wiki/Q333849,,sem_declaracao,,,,completa,1942,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q333849,2026-10-16
 antonio-oliveira-e-castro,António Oliveira e Castro,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 antonio-osorio,António Osório,Q14173405,homem,https://www.wikidata.org/wiki/Q14173405,,sem_declaracao,,,,,1933,Setúbal,EX,PT,https://www.wikidata.org/wiki/Q14173405,2026-10-16
 antonio-prata,Antonio Prata,Q9618219,homem,https://pt.wikipedia.org/wiki/Antonio_Prata,,sem_declaracao,,,,completa,1977,São Paulo,SP,,https://pt.wikipedia.org/wiki/Antonio_Prata,2026-10-14
@@ -188,7 +188,7 @@ armindo-trevisan,Armindo Trevisan,Q16493882,homem,https://www.wikidata.org/wiki/
 arnaldo-antunes,Arnaldo Antunes,Q690238,homem,https://pt.wikipedia.org/wiki/Arnaldo_Antunes,,sem_declaracao,,,,completa,1960,São Paulo,SP,,https://pt.wikipedia.org/wiki/Arnaldo_Antunes,2026-10-14
 arnaldo-magalhaes-de-giacomo,Arnaldo Magalhães de Giacomo,,homem,https://prefeitura.sp.gov.br/web/cultura/w/bibliotecas/bibliotecas_bairro/bibliotecas_m_z/arnaldogiacomo/5442,,sem_declaracao,,,,completa,1928,Ribeirão Preto,SP,,https://prefeitura.sp.gov.br/web/cultura/w/bibliotecas/bibliotecas_bairro/bibliotecas_m_z/arnaldogiacomo/5442,2026-10-15
 arquimino-dos-santos,Arquimino dos Santos,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-arthur-dapieve,Arthur Dapieve,Q9631309,homem,https://www.wikidata.org/wiki/Q9631309,,sem_declaracao,,,,,1963,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q9631309,2026-10-16
+arthur-dapieve,Arthur Dapieve,Q9631309,homem,https://www.wikidata.org/wiki/Q9631309,,sem_declaracao,,,,completa,1963,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q9631309,2026-10-16
 arthur-nestrovski,Arthur Nestrovski,Q16501347,homem,https://www.wikidata.org/wiki/Q16501347,,sem_declaracao,,,,completa,1959,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q16501347,2026-10-15
 arthur-warren,Arthur Warren,,homem,https://grandesnomesdapropaganda.com.br/produtora/boutique-filmes-anuncia-a-producao-de-nova-animacao-nacional/,,sem_declaracao,,,,completa,,,,,,2026-10-15
 artur-bernardo-minzo,Artur Bernardo Minzo,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -241,7 +241,7 @@ bruno-de-castro,Bruno de Castro,,homem,,atribuicao,sem_declaracao,,,,completa,,,
 bruno-mestriner,Bruno Mestriner,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 bruno-palma,Bruno Palma,,homem,https://www.scielo.br/j/ea/a/fZCtxDb5XZnp4kRsDYhMvkR/?lang=en,,sem_declaracao,,,,completa,,,,,,2026-10-15
 bruno-tolentino,Bruno Tolentino,Q4979417,homem,https://www.wikidata.org/wiki/Q4979417,,sem_declaracao,,,,completa,1940,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q4979417,2026-10-15
-bruno-vieira-amaral,Bruno Vieira Amaral,Q18707867,homem,https://www.wikidata.org/wiki/Q18707867,,sem_declaracao,,,,,1978,Barreiro,EX,PT,https://www.wikidata.org/wiki/Q18707867,2026-10-16
+bruno-vieira-amaral,Bruno Vieira Amaral,Q18707867,homem,https://www.wikidata.org/wiki/Q18707867,,sem_declaracao,,,,completa,1978,Barreiro,EX,PT,https://www.wikidata.org/wiki/Q18707867,2026-10-16
 caco-barcellos,Caco Barcellos,Q16337019,homem,https://www.wikidata.org/wiki/Q16337019,,sem_declaracao,,,,completa,1950,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q16337019,2026-10-15
 caetano-galindo,Caetano Galindo,Q16337023,homem,https://www.wikidata.org/wiki/Q16337023,,sem_declaracao,,,,,1973,Curitiba,PR,,https://www.wikidata.org/wiki/Q16337023,2026-10-16
 caetano-romao,Caetano Romão,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -411,10 +411,10 @@ diogo-droschi,Diogo Droschi,Q133650127,homem,https://www.wikidata.org/wiki/Q1336
 diogo-mainardi,Diogo Mainardi,Q1791598,homem,https://www.wikidata.org/wiki/Q1791598,,sem_declaracao,,,,completa,1962,São Paulo,SP,,https://www.wikidata.org/wiki/Q1791598,2026-10-16
 dionisio-jacob,Dionísio Jacob,,homem,https://www.martinsfontespaulista.com.br/o-hipnotico-berlioz-e-o-misterioso-rebulico-em-pirambeiras-931139/p,,sem_declaracao,,,,completa,1951,São Paulo,SP,,https://www.martinsfontespaulista.com.br/o-hipnotico-berlioz-e-o-misterioso-rebulico-em-pirambeiras-931139/p,2026-10-15
 divanize-carbonieri,Divanize Carbonieri,,mulher,https://www.al.mt.gov.br/storage/webdisco/cp/20251104115439944000.pdf,,sem_declaracao,,,,completa,,,,,,2026-10-15
-djaimilia-pereira-de-almeida,Djaimilia Pereira de Almeida,Q64019705,mulher,https://www.wikidata.org/wiki/Q64019705,,sem_declaracao,,,,,1982,Luanda,EX,AO,https://www.wikidata.org/wiki/Q64019705,2026-10-16
+djaimilia-pereira-de-almeida,Djaimilia Pereira de Almeida,Q64019705,mulher,https://www.wikidata.org/wiki/Q64019705,,negra,autodeclaracao,https://www.penguinlivros.pt/wp-content/uploads/2023/10/SerEscritoraNegra-EXCERTO.pdf,O meu pai sempre tratou o facto de eu ser negra como um segredo que ele escondia de mim.,completa,1982,Luanda,EX,AO,https://www.wikidata.org/wiki/Q64019705,2026-10-16
 domingos-carvalho-da-silva,Domingos Carvalho da Silva,Q10268039,homem,https://www.wikidata.org/wiki/Q10268039,,sem_declaracao,,,,completa,1915,"Fornos, Portugal",EX,PT,https://www.wikidata.org/wiki/Q10268039,2026-10-16
 domingos-pellegrini,Domingos Pellegrini,Q10268101,homem,https://www.wikidata.org/wiki/Q10268101,,sem_declaracao,,,,completa,1949,Londrina,PR,,https://www.wikidata.org/wiki/Q10268101,2026-10-15
-donizete-galvao,Donizete Galvão,Q10268293,homem,https://www.wikidata.org/wiki/Q10268293,,sem_declaracao,,,,,1955,Borda da Mata,MG,,https://www.wikidata.org/wiki/Q10268293,2026-10-16
+donizete-galvao,Donizete Galvão,Q10268293,homem,https://www.wikidata.org/wiki/Q10268293,,sem_declaracao,,,,completa,1955,Borda da Mata,MG,,https://www.wikidata.org/wiki/Q10268293,2026-10-16
 dora-ferreira-da-silva,Dora Ferreira da Silva,Q10268346,mulher,https://www.wikidata.org/wiki/Q10268346,,sem_declaracao,,,,completa,1918,Conchas,SP,,https://www.wikidata.org/wiki/Q10268346,2026-10-15
 dora-kramer,Dora Kramer,Q10268347,mulher,https://www.wikidata.org/wiki/Q10268347,,sem_declaracao,,,,parcial,1955,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q10268347,2026-10-14
 dora-ribeiro,Dora Ribeiro,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -422,7 +422,7 @@ douglas-rodrigues-barros,Douglas Rodrigues Barros,,homem,https://www.martinsfont
 drauzio-varella,Drauzio Varella,Q1255930,homem,https://www.wikidata.org/wiki/Q1255930,,sem_declaracao,,,,completa,1943,São Paulo,SP,,https://www.wikidata.org/wiki/Q1255930,2026-10-15
 duda-porto-de-souza,Duda Porto de Souza,,nao_identificado,,,sem_declaracao,,,,completa,,,,,,2026-10-15
 dulce-horta,Dulce Horta,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-dulce-maria-cardoso,Dulce Maria Cardoso,Q1264729,mulher,https://www.wikidata.org/wiki/Q1264729,,sem_declaracao,,,,,1964,Fonte Longa,EX,PT,https://www.wikidata.org/wiki/Q1264729,2026-10-16
+dulce-maria-cardoso,Dulce Maria Cardoso,Q1264729,mulher,https://www.wikidata.org/wiki/Q1264729,,sem_declaracao,,,,completa,1964,Fonte Longa,EX,PT,https://www.wikidata.org/wiki/Q1264729,2026-10-16
 dyonelio-machado,Dyonélio Machado,Q10269193,homem,https://www.wikidata.org/wiki/Q10269193,,sem_declaracao,,,,completa,1895,Quaraí,RS,,https://www.wikidata.org/wiki/Q10269193,2026-10-16
 edgar-cezar-nolasco,Edgar Cézar Nolasco,Q124520033,homem,https://www.martinsfontespaulista.com.br/revolta---um-romance-desbiografico-1124754/p,,sem_declaracao,,,,completa,1965,,,,https://www.wikidata.org/wiki/Q124520033,2026-10-15
 edgar-vasques,Edgar Vasques,Q10270178,homem,https://www.wikidata.org/wiki/Q10270178,,sem_declaracao,,,,completa,1949,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q10270178,2026-10-15
@@ -500,7 +500,7 @@ eva-dayane-goes,Eva Dayane Góes,,mulher,,atribuicao,sem_declaracao,,,,completa,
 eva-furnari,Eva Furnari,Q10278389,mulher,https://www.wikidata.org/wiki/Q10278389,,sem_declaracao,,,,completa,1948,Roma,EX,IT,https://www.wikidata.org/wiki/Q10278389,2026-10-16
 eva-potiguara,Eva Potiguara,Q125896509,mulher,https://pt.wikipedia.org/wiki/Eva_Potiguara,,indigena,autodeclaracao,https://saibamais.jor.br/2023/11/indigena-do-rn-eva-potiguara-e-semifinalista-do-premio-jabuti/,"Eu não sou apenas comedora de camarão como disse Câmara Cascudo, sou uma mulher indígena",completa,1966,Natal,RN,,https://pt.wikipedia.org/wiki/Eva_Potiguara,2026-10-14
 evaldo-cabral-de-mello,Evaldo Cabral de Mello,Q2226041,homem,https://www.wikidata.org/wiki/Q2226041,,sem_declaracao,,,,,1936,Recife,PE,,https://www.wikidata.org/wiki/Q2226041,2026-10-16
-evando-nascimento,Evando Nascimento,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+evando-nascimento,Evando Nascimento,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 evandro-affonso-ferreira,Evandro Affonso Ferreira,Q18246914,homem,https://www.wikidata.org/wiki/Q18246914,,sem_declaracao,,,,completa,1945,Araxá,MG,,https://www.wikidata.org/wiki/Q18246914,2026-10-15
 evandro-camperom,Evandro Camperom,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 everardo-noroes,Everardo Norões,Q21290236,homem,https://www.wikidata.org/wiki/Q21290236,,sem_declaracao,,,,completa,1944,Crato,CE,,https://www.wikidata.org/wiki/Q21290236,2026-10-15
@@ -573,7 +573,7 @@ francisco-bosco,Francisco Bosco,Q48856862,homem,https://www.wikidata.org/wiki/Q4
 francisco-de-barros-junior,Francisco de Barros Júnior,Q10285335,homem,https://www.wikidata.org/wiki/Q10285335,,sem_declaracao,,,,completa,1883,Campinas,SP,,https://www.wikidata.org/wiki/Q10285335,2026-10-16
 francisco-de-morais-mendes,Francisco de Morais Mendes,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 francisco-foot-hardman,Francisco Foot Hardman,,homem,https://revistas.usp.br/revusp/en/article/view/29842,,sem_declaracao,,,,completa,,,,,,2026-10-15
-francisco-guita-jr,Francisco Guita Jr.,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+francisco-guita-jr,Francisco Guita Jr.,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 francisco-j-c-dantas,Francisco J. C. Dantas,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 francisco-jose-viegas,Francisco José Viegas,Q10284869,homem,https://www.wikidata.org/wiki/Q10284869,,sem_declaracao,,,,,1962,Pocinho,EX,PT,https://www.wikidata.org/wiki/Q10284869,2026-10-16
 francisco-marins,Francisco Marins,Q5483656,homem,https://www.wikidata.org/wiki/Q5483656,,sem_declaracao,,,,completa,1922,São Manuel,SP,,https://www.wikidata.org/wiki/Q5483656,2026-10-16
@@ -599,7 +599,7 @@ gabriela-mayer,Gabriela Mayer,,mulher,,atribuicao,sem_declaracao,,,,parcial,,,,,
 gabriela-romeu,Gabriela Romeu,,mulher,https://www.nsctotal.com.br/?p=7922763,,sem_declaracao,,,,completa,,São Paulo,SP,,https://www.companhiadasletras.com.br/colaborador/03563/gabriela-romeu,2026-10-15
 gael-rodrigues,Gael Rodrigues,,nao_identificado,,,sem_declaracao,,,,,,,,,,
 ganymedes-jose,Ganymédes José,Q10288269,homem,https://www.wikidata.org/wiki/Q10288269,,sem_declaracao,,,,completa,1936,Casa Branca,SP,,https://www.wikidata.org/wiki/Q10288269,2026-10-16
-gastao-cruz,Gastão Cruz,Q1495693,homem,https://www.wikidata.org/wiki/Q1495693,,sem_declaracao,,,,,1941,Faro,EX,PT,https://www.wikidata.org/wiki/Q1495693,2026-10-16
+gastao-cruz,Gastão Cruz,Q1495693,homem,https://www.wikidata.org/wiki/Q1495693,,sem_declaracao,,,,completa,1941,Faro,EX,PT,https://www.wikidata.org/wiki/Q1495693,2026-10-16
 geny-vilas-novas,Geny Vilas-Novas,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 geovani-martins,Geovani Martins,Q51882320,homem,https://pt.wikipedia.org/wiki/Geovani_Martins,,negra,autodeclaracao,https://postal.pt/opiniao/leitura-da-semana-o-sol-na-cabeca-de-geovani-martins/,Sou um negro de pele clara.,completa,1991,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Geovani_Martins,2026-10-14
 geovany-hercules,Geovany Hércules,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
@@ -610,7 +610,7 @@ geraldo-pinto-rodrigues,Geraldo Pinto Rodrigues,Q48862509,homem,https://www.wiki
 geraldo-valerio,Geraldo Valério,,homem,https://www.augusthouse.com/geraldo-valerio,,sem_declaracao,,,,completa,,,MG,,https://www.martinsfontespaulista.com.br/dois-periquitos-1072691/p,2026-10-15
 gerardo-mello-mourao,Gerardo Mello Mourão,Q10289138,homem,https://www.wikidata.org/wiki/Q10289138,,sem_declaracao,,,,completa,1917,Ipueiras,CE,,https://www.wikidata.org/wiki/Q10289138,2026-10-16
 gerardo-melo-mourao,Gerardo Melo Mourão,Q10289138,homem,https://www.wikidata.org/wiki/Q10289138,,sem_declaracao,,,,completa,1917,Ipueiras,CE,,https://www.wikidata.org/wiki/Q10289138,2026-10-15
-germano-almeida,Germano Almeida,Q580332,homem,https://www.wikidata.org/wiki/Q580332,,sem_declaracao,,,,,1945,Ilha da Boa Vista,EX,CV,https://www.wikidata.org/wiki/Q580332,2026-10-16
+germano-almeida,Germano Almeida,Q580332,homem,https://www.wikidata.org/wiki/Q580332,,sem_declaracao,,,,completa,1945,Ilha da Boa Vista,EX,CV,https://www.wikidata.org/wiki/Q580332,2026-10-16
 gilberto-dimenstein,Gilberto Dimenstein,Q1979166,homem,https://www.wikidata.org/wiki/Q1979166,,sem_declaracao,,,,completa,1956,São Paulo,SP,,https://www.wikidata.org/wiki/Q1979166,2026-10-16
 gilberto-mendonca-teles,Gilberto Mendonça Teles,Q5561381,homem,https://www.wikidata.org/wiki/Q5561381,,sem_declaracao,,,,completa,1931,Bela Vista de Goiás,GO,,https://www.wikidata.org/wiki/Q5561381,2026-10-15
 giovana-madalosso,Giovana Madalosso,Q51882414,mulher,https://www.wikidata.org/wiki/Q51882414,,sem_declaracao,,,,completa,1975,Curitiba,PR,,https://www.wikidata.org/wiki/Q51882414,2026-10-15
@@ -625,7 +625,7 @@ glauco-mattoso,Glauco Mattoso,Q3108573,homem,https://www.wikidata.org/wiki/Q3108
 godofredo-de-oliveira-neto,Godofredo de Oliveira Neto,Q16940051,homem,https://www.wikidata.org/wiki/Q16940051,,sem_declaracao,,,,completa,1951,Blumenau,SC,,https://www.wikidata.org/wiki/Q16940051,2026-10-15
 golgona-anghel,Golgona Anghel,Q25510158,mulher,https://www.wikidata.org/wiki/Q25510158,,sem_declaracao,,,,,1979,Roménia,EX,RO,https://www.wikidata.org/wiki/Q25510158,2026-10-16
 goncalo-fernandes,Gonçalo Fernandes,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-goncalo-m-tavares,Gonçalo M. Tavares,Q972346,homem,https://www.wikidata.org/wiki/Q972346,,sem_declaracao,,,,,1970,Luanda,EX,AO,https://www.wikidata.org/wiki/Q972346,2026-10-16
+goncalo-m-tavares,Gonçalo M. Tavares,Q972346,homem,https://www.wikidata.org/wiki/Q972346,,sem_declaracao,,,,completa,1970,Luanda,EX,AO,https://www.wikidata.org/wiki/Q972346,2026-10-16
 graca-lima,Graça Lima,Q62564768,mulher,https://www.wikidata.org/wiki/Q62564768,,sem_declaracao,,,,completa,1958,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q62564768,2026-10-15
 graciliano-ramos,Graciliano Ramos,Q1392121,homem,https://www.wikidata.org/wiki/Q1392121,,sem_declaracao,,,,completa,1892,Quebrangulo,AL,,https://www.wikidata.org/wiki/Q1392121,2026-10-15
 graziela-bozano-hetzel,Graziela Bozano Hetzel,Q133742166,mulher,https://www.wikidata.org/wiki/Q133742166,,sem_declaracao,,,,completa,1945,,,,https://www.wikidata.org/wiki/Q133742166,2026-10-15
@@ -643,7 +643,7 @@ gustavo-pacheco,Gustavo Pacheco,Q59109549,homem,https://www.wikidata.org/wiki/Q5
 gustavo-piqueira,Gustavo Piqueira,Q110953203,homem,https://www.wikidata.org/wiki/Q110953203,,sem_declaracao,,,,completa,1972,São Paulo,SP,,https://www.wikidata.org/wiki/Q110953203,2026-10-14
 gustavo-rossetti-viana,Gustavo Rossetti Viana,,homem,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
 guto-nobre,Guto Nobre,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-h-g-cancela,H. G. Cancela,Q60999993,homem,https://www.wikidata.org/wiki/Q60999993,,sem_declaracao,,,,,1967,Valongo do Vouga,EX,PT,https://www.wikidata.org/wiki/Q60999993,2026-10-16
+h-g-cancela,H. G. Cancela,Q60999993,homem,https://www.wikidata.org/wiki/Q60999993,,sem_declaracao,,,,completa,1967,Valongo do Vouga,EX,PT,https://www.wikidata.org/wiki/Q60999993,2026-10-16
 hada-maller,Hada Maller,,nao_identificado,,,sem_declaracao,,,,completa,,,,,,2026-10-15
 halina-grynberg,Halina Grynberg,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 harley-farias-dolzane,Harley Farias Dolzane,,nao_identificado,,,sem_declaracao,,,,,,,,,,
@@ -651,13 +651,13 @@ haroldo-bruno,Haroldo Bruno,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2
 haroldo-de-campos,Haroldo de Campos,Q2028390,homem,https://www.wikidata.org/wiki/Q2028390,,sem_declaracao,,,,completa,1929,São Paulo,SP,,https://www.wikidata.org/wiki/Q2028390,2026-10-15
 heitor-ferraz-mello,Heitor Ferraz Mello,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 helder-macedo,Helder Macedo,Q3867164,homem,https://www.wikidata.org/wiki/Q3867164,,sem_declaracao,,,,,1935,Krugersdorp,EX,ZA,https://www.wikidata.org/wiki/Q3867164,2026-10-16
-helder-moura-pereira,Helder Moura Pereira,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+helder-moura-pereira,Helder Moura Pereira,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 helder-muteia,Hélder Muteia,Q65160367,homem,https://www.wikidata.org/wiki/Q65160367,,sem_declaracao,,,,,1960,Quelimane,EX,MZ,https://www.wikidata.org/wiki/Q65160367,2026-10-16
 helena-buescu,Helena Buescu,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 helena-gomes,Helena Gomes,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 helena-silvestre,Helena Silvestre,Q109790600,mulher,https://diplomatique.org.br/guilhotina/guilhotina-54-helena-silvestre/,,sem_declaracao,,,,completa,1984,Mauá,SP,,https://www.wikidata.org/wiki/Q109790600,2026-10-15
 helena-vasconcelos,Helena Vasconcelos,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-helia-correia,Hélia Correia,Q5964177,mulher,https://www.wikidata.org/wiki/Q5964177,,sem_declaracao,,,,,1949,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q5964177,2026-10-16
+helia-correia,Hélia Correia,Q5964177,mulher,https://www.wikidata.org/wiki/Q5964177,,sem_declaracao,,,,completa,1949,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q5964177,2026-10-16
 helio-polvora,Hélio Pólvora,Q30930543,homem,https://www.wikidata.org/wiki/Q30930543,,sem_declaracao,,,,,1928,Itabuna,BA,,https://www.wikidata.org/wiki/Q30930543,2026-10-16
 heloisa-buarque-de-hollanda,Heloisa Buarque de Hollanda,,mulher,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
 heloisa-jahn,Heloisa Jahn,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -694,7 +694,7 @@ ilo-krugli,Ilo Krugli,Q10301361,homem,https://www.wikidata.org/wiki/Q10301361,,s
 indigo,Índigo,Q10396452,mulher,https://pt.wikipedia.org/wiki/%C3%8Dndigo_(escritora),,sem_declaracao,,,,completa,1971,Campinas,SP,,https://pt.wikipedia.org/wiki/%C3%8Dndigo_(escritora),2026-10-15
 ines-lourenco,Inês Lourenço,Q10303389,mulher,https://www.wikidata.org/wiki/Q10303389,,sem_declaracao,,,,,1942,Porto,EX,PT,https://www.wikidata.org/wiki/Q10303389,2026-10-16
 ines-oseki-depre,Inês Oseki-Depré,,mulher,https://periodicos.unb.br/index.php/traduzires/article/download/20794/24179/59406,,sem_declaracao,,,,completa,,São Paulo,SP,,https://periodicos.unb.br/index.php/traduzires/article/download/20794/24179/59406,2026-10-15
-ines-pedrosa,Inês Pedrosa,Q254884,mulher,https://www.wikidata.org/wiki/Q254884,,sem_declaracao,,,,,1962,Coimbra,EX,PT,https://www.wikidata.org/wiki/Q254884,2026-10-16
+ines-pedrosa,Inês Pedrosa,Q254884,mulher,https://www.wikidata.org/wiki/Q254884,,sem_declaracao,,,,completa,1962,Coimbra,EX,PT,https://www.wikidata.org/wiki/Q254884,2026-10-16
 ingrid-osternack-barros-neves,Ingrid Osternack Barros Neves,,mulher,https://www.bandab.com.br/?p=1197006,,sem_declaracao,,,,completa,,Curitiba,PR,,https://www.bandab.com.br/?p=1197006,2026-10-14
 inocencia-mata,Inocência Mata,Q96180359,mulher,https://www.wikidata.org/wiki/Q96180359,,sem_declaracao,,,,,1957,São Tomé e Príncipe,EX,ST,https://www.wikidata.org/wiki/Q96180359,2026-10-16
 ionit-zilberman,Ionit Zilberman,Q112500713,mulher,https://www.wikidata.org/wiki/Q112500713,,sem_declaracao,,,,completa,1972,Israel,EX,IL,https://www.companhiadasletras.com.br/blogDaLetrinhas/Post/3974/ionit-zilberman-invento-de-ilustrar-com-o-que-nao-sei-dai-aprendo,2026-10-16
@@ -753,7 +753,7 @@ jessica-m-andrade-tolentino,Jéssica M. Andrade Tolentino,,mulher,,atribuicao,se
 jim-anotsu,Jim Anotsu,Q59362643,homem,https://www.wikidata.org/wiki/Q59362643,,sem_declaracao,,,,completa,1988,Minas Gerais,MG,,https://www.wikidata.org/wiki/Q59362643,2026-10-15
 jo-freitas,Jô Freitas,,mulher,https://almapreta.com.br/sessao/literatura/autora-baiana-jo-de-freitas-lanca-seu-primeiro-livro-goela-seca/,,negra,autodeclaracao,https://brasildefato.com.br/2024/03/12/sendo-mulher-negra-da-periferia-sei-como-cena-literaria-ainda-e-branca-e-burguesa-diz-jo-freitas,"Sendo mulher negra da periferia, sei como cena literária ainda é branca e burguesa",completa,,,BA,,https://almapreta.com.br/sessao/literatura/autora-baiana-jo-de-freitas-lanca-seu-primeiro-livro-goela-seca/,2026-10-14
 jo-oliveira,Jô Oliveira,Q10313336,homem,https://www.wikidata.org/wiki/Q10313336,,sem_declaracao,,,,completa,1944,Ilha de Itamaracá,PE,,https://www.wikidata.org/wiki/Q10313336,2026-10-15
-joana-bertholo,Joana Bértholo,Q21290311,mulher,https://www.wikidata.org/wiki/Q21290311,,sem_declaracao,,,,,1982,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q21290311,2026-10-16
+joana-bertholo,Joana Bértholo,Q21290311,mulher,https://www.wikidata.org/wiki/Q21290311,,sem_declaracao,,,,completa,1982,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q21290311,2026-10-16
 joana-matos-frias,Joana Matos Frias,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 joao-alexandre-barbosa,João Alexandre Barbosa,Q57242874,homem,https://www.wikidata.org/wiki/Q57242874,,sem_declaracao,,,,,1937,Recife,PE,,https://www.wikidata.org/wiki/Q57242874,2026-10-16
 joao-almino,João Almino,Q2468229,homem,https://pt.wikipedia.org/wiki/Jo%C3%A3o_Almino,,sem_declaracao,,,,completa,1950,Mossoró,RN,,https://pt.wikipedia.org/wiki/Jo%C3%A3o_Almino,2026-10-14
@@ -775,7 +775,7 @@ joao-luiz-guimaraes,João Luiz Guimarães,Q109748912,homem,https://www.wikidata.
 joao-meirelles-filho,João Meirelles Filho,Q16940372,homem,https://www.wikidata.org/wiki/Q16940372,,sem_declaracao,,,,completa,1960,São Paulo,SP,,https://www.wikidata.org/wiki/Q16940372,2026-10-15
 joao-melo,João Melo,Q3810723,homem,https://www.wikidata.org/wiki/Q3810723,,sem_declaracao,,,,,1955,Luanda,EX,AO,https://www.wikidata.org/wiki/Q3810723,2026-10-16
 joao-mostazo,João Mostazo,Q97585581,homem,https://www.wikidata.org/wiki/Q97585581,,sem_declaracao,,,,,,,,,,2026-10-16
-joao-paulo-borges-coelho,João Paulo Borges Coelho,Q3810727,homem,https://www.wikidata.org/wiki/Q3810727,,sem_declaracao,,,,,1955,Porto,EX,PT,https://www.wikidata.org/wiki/Q3810727,2026-10-16
+joao-paulo-borges-coelho,João Paulo Borges Coelho,Q3810727,homem,https://www.wikidata.org/wiki/Q3810727,,sem_declaracao,,,,completa,1955,Porto,EX,PT,https://www.wikidata.org/wiki/Q3810727,2026-10-16
 joao-paulo-capobianco,João Paulo Capobianco,Q10311976,homem,https://www.wikidata.org/wiki/Q10311976,,sem_declaracao,,,,completa,1957,São Paulo,SP,,https://www.wikidata.org/wiki/Q10311976,2026-10-15
 joao-paulo-cuenca,João Paulo Cuenca,Q1710183,homem,https://www.wikidata.org/wiki/Q1710183,,sem_declaracao,,,,,1978,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q1710183,2026-10-16
 joao-paulo-oliveira-e-costa,João Paulo Oliveira e Costa,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -785,10 +785,10 @@ joao-rasteiro,João Rasteiro,Q10312117,homem,https://www.wikidata.org/wiki/Q1031
 joao-reis,João Reis,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 joao-ricardo-pedro,João Ricardo Pedro,Q16337642,homem,https://www.wikidata.org/wiki/Q16337642,,sem_declaracao,,,,,1973,Reboleira,EX,PT,https://www.wikidata.org/wiki/Q16337642,2026-10-16
 joao-silverio-trevisan,João Silvério Trevisan,Q6298382,homem,https://pt.wikipedia.org/wiki/Jo%C3%A3o_Silv%C3%A9rio_Trevisan,,sem_declaracao,,,,completa,1944,Ribeirão Bonito,SP,,https://pt.wikipedia.org/wiki/Jo%C3%A3o_Silv%C3%A9rio_Trevisan,2026-10-14
-joao-tordo,João Tordo,Q1710208,homem,https://www.wikidata.org/wiki/Q1710208,,sem_declaracao,,,,,1975,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q1710208,2026-10-16
+joao-tordo,João Tordo,Q1710208,homem,https://www.wikidata.org/wiki/Q1710208,,sem_declaracao,,,,completa,1975,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q1710208,2026-10-16
 joao-ubaldo-ribeiro,João Ubaldo Ribeiro,Q1140743,homem,https://www.wikidata.org/wiki/Q1140743,,sem_declaracao,,,,completa,1941,Itaparica,BA,,https://www.wikidata.org/wiki/Q1140743,2026-10-15
 joao-vereza,João Vereza,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-joaquim-arena,Joaquim Arena,Q126127338,homem,https://www.wikidata.org/wiki/Q126127338,,sem_declaracao,,,,,1964,Ilha de São Vicente,EX,CV,https://www.wikidata.org/wiki/Q126127338,2026-10-16
+joaquim-arena,Joaquim Arena,Q126127338,homem,https://www.wikidata.org/wiki/Q126127338,,sem_declaracao,,,,completa,1964,Ilha de São Vicente,EX,CV,https://www.wikidata.org/wiki/Q126127338,2026-10-16
 joaquim-brasil-fontes,Joaquim Brasil Fontes,Q65600682,homem,https://www.wikidata.org/wiki/Q65600682,,sem_declaracao,,,,completa,1939,Formiga,MG,,https://www.wikidata.org/wiki/Q65600682,2026-10-15
 joaquim-de-almeida,Joaquim de Almeida,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 joca-reiners-terron,Joca Reiners Terron,Q16940141,homem,https://www.wikidata.org/wiki/Q16940141,,sem_declaracao,,,,completa,1968,Cuiabá,MT,,https://www.wikidata.org/wiki/Q16940141,2026-10-15
@@ -817,17 +817,17 @@ jose-castello,José Castello,Q6583135,homem,https://www.wikidata.org/wiki/Q65831
 jose-clemente-pozenato,José Clemente Pozenato,Q10309189,homem,https://www.wikidata.org/wiki/Q10309189,,sem_declaracao,,,,completa,1938,São Francisco de Paula,RS,,https://www.wikidata.org/wiki/Q10309189,2026-10-16
 jose-de-jesus-barreto,José de Jesus Barreto,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 jose-de-souza-martins,José de Souza Martins,Q10310858,homem,https://www.wikidata.org/wiki/Q10310858,,sem_declaracao,,,,completa,1938,São Caetano do Sul,SP,,https://www.wikidata.org/wiki/Q10310858,2026-10-15
-jose-eduardo-agualusa,José Eduardo Agualusa,Q363927,homem,https://www.wikidata.org/wiki/Q363927,,sem_declaracao,,,,,1960,Huambo,EX,AO,https://www.wikidata.org/wiki/Q363927,2026-10-16
+jose-eduardo-agualusa,José Eduardo Agualusa,Q363927,homem,https://www.wikidata.org/wiki/Q363927,,sem_declaracao,,,,completa,1960,Huambo,EX,AO,https://www.wikidata.org/wiki/Q363927,2026-10-16
 jose-eduardo-degrazia,José Eduardo Degrazia,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 jose-falero,José Falero,Q116221244,homem,https://www.wikidata.org/wiki/Q116221244,,sem_declaracao,,,,completa,1987,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q116221244,2026-10-14
 jose-francisco-botelho,José Francisco Botelho,Q112286557,homem,https://www.wikidata.org/wiki/Q112286557,,sem_declaracao,,,,parcial,,,,,,2026-10-14
-jose-gardeazabal,José Gardeazabal,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+jose-gardeazabal,José Gardeazabal,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 jose-helder-pinheiro-alves,José Helder Pinheiro Alves,,homem,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
 jose-j-veiga,José J. Veiga,Q9013943,homem,https://www.wikidata.org/wiki/Q9013943,,sem_declaracao,,,,completa,1915,Corumbá de Goiás,GO,,https://www.wikidata.org/wiki/Q9013943,2026-10-16
 jose-luis-jobim,José Luís Jobim,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-jose-luis-peixoto,José Luís Peixoto,Q314474,homem,https://www.wikidata.org/wiki/Q314474,,sem_declaracao,,,,,1974,Ponte de Sor,EX,PT,https://www.wikidata.org/wiki/Q314474,2026-10-16
+jose-luis-peixoto,José Luís Peixoto,Q314474,homem,https://www.wikidata.org/wiki/Q314474,,sem_declaracao,,,,completa,1974,Ponte de Sor,EX,PT,https://www.wikidata.org/wiki/Q314474,2026-10-16
 jose-luiz-passos,José Luiz Passos,Q23893108,homem,https://www.wikidata.org/wiki/Q23893108,,sem_declaracao,,,,completa,1971,Catende,PE,,https://www.wikidata.org/wiki/Q23893108,2026-10-15
-jose-luiz-tavares,José Luiz Tavares,Q65162559,homem,https://www.wikidata.org/wiki/Q65162559,,sem_declaracao,,,,,1967,Chão Bom,EX,CV,https://www.wikidata.org/wiki/Q65162559,2026-10-16
+jose-luiz-tavares,José Luiz Tavares,Q65162559,homem,https://www.wikidata.org/wiki/Q65162559,,sem_declaracao,,,,completa,1967,Chão Bom,EX,CV,https://www.wikidata.org/wiki/Q65162559,2026-10-16
 jose-manoel-ribeiro,José Manoel Ribeiro,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 jose-mauro-de-vasconcelos,José Mauro de Vasconcelos,Q1395866,homem,https://www.wikidata.org/wiki/Q1395866,,sem_declaracao,,,,completa,1920,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q1395866,2026-10-16
 jose-mindlin,José Mindlin,Q1791369,homem,https://www.wikidata.org/wiki/Q1791369,,sem_declaracao,,,,,1914,São Paulo,SP,,https://www.wikidata.org/wiki/Q1791369,2026-10-16
@@ -838,7 +838,7 @@ jose-paulo-paes,José Paulo Paes,Q10310268,homem,https://www.wikidata.org/wiki/Q
 jose-rezende-jr,José Rezende Jr.,,homem,https://opopular.com.br/magazine/escritor-jose-rezende-jr-lanca-livro-fabula-urbana-em-evento-em-goiania-1.2404996,,sem_declaracao,,,,completa,,,,,,2026-10-15
 jose-roberto-torero,José Roberto Torero,Q1704125,homem,https://www.wikidata.org/wiki/Q1704125,,sem_declaracao,,,,completa,1963,Santos,SP,,https://pt.wikipedia.org/wiki/Jos%C3%A9_Roberto_Torero,2026-10-14
 jose-santos,José Santos,,homem,https://www.martinsfontespaulista.com.br/a-divina-jogada-1206488/p,,sem_declaracao,,,,completa,,,,,,2026-10-14
-jose-saramago,José Saramago,Q37060,homem,https://www.wikidata.org/wiki/Q37060,,sem_declaracao,,,,,1922,Azinhaga,EX,PT,https://www.wikidata.org/wiki/Q37060,2026-10-16
+jose-saramago,José Saramago,Q37060,homem,https://www.wikidata.org/wiki/Q37060,,sem_declaracao,,,,completa,1922,Azinhaga,EX,PT,https://www.wikidata.org/wiki/Q37060,2026-10-16
 jose-tolentino-mendonca,José Tolentino Mendonça,Q4459693,homem,https://www.wikidata.org/wiki/Q4459693,,sem_declaracao,,,,,1965,Machico,EX,PT,https://www.wikidata.org/wiki/Q4459693,2026-10-16
 joselia-aguiar,Joselia Aguiar,Q100323953,mulher,https://www.wikidata.org/wiki/Q100323953,,sem_declaracao,,,,,1978,Salvador,BA,,https://www.wikidata.org/wiki/Q100323953,2026-10-16
 josely-vianna-baptista,Josely Vianna Baptista,,mulher,https://sites.uem.br/cedoc-lafep_antigo/indice-de-escritoras/letra-j/josely-vianna-baptista/sobre-a-autora,,sem_declaracao,,,,completa,1957,Curitiba,PR,,https://sites.uem.br/cedoc-lafep_antigo/indice-de-escritoras/letra-j/josely-vianna-baptista/sobre-a-autora,2026-10-15
@@ -852,7 +852,7 @@ judite-canha-fernandes,Judite Canha Fernandes,Q105078728,mulher,https://www.wiki
 judith-nogueira,Judith Nogueira,Q139593009,mulher,https://www3.santoandre.sp.gov.br/cultura/acervosculturais/personalidades/judith-nogueira/,,sem_declaracao,,,,completa,,Santo André,SP,,https://www3.santoandre.sp.gov.br/cultura/acervosculturais/personalidades/judith-nogueira/,2026-10-14
 julia-dantas,Julia Dantas,Q48872753,mulher,https://www.wikidata.org/wiki/Q48872753,,sem_declaracao,,,,,1985,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q48872753,2026-10-16
 julia-de-carvalho-hansen,Júlia de Carvalho Hansen,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-julia-de-souza,Julia de Souza,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+julia-de-souza,Julia de Souza,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 julia-medeiros,Júlia Medeiros,Q100573724,mulher,https://www.wikidata.org/wiki/Q100573724,,sem_declaracao,,,,completa,,São João del-Rei,MG,,https://www.wikidata.org/wiki/Q100573724,2026-10-15
 julia-peccini,Julia Peccini,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 julia-souto-guimaraes-araujo,Julia Souto Guimarães Araujo,,mulher,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
@@ -860,7 +860,7 @@ julia-spadaccini,Júlia Spadaccini,Q139568523,mulher,https://www.wikidata.org/wi
 julia-studart,Júlia Studart,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 julia-wahmann,Julia Wähmann,Q30932296,mulher,https://www.wikidata.org/wiki/Q30932296,,sem_declaracao,,,,completa,1982,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q30932296,2026-10-15
 julian-fuks,Julián Fuks,Q10312919,homem,https://pt.wikipedia.org/wiki/Juli%C3%A1n_Fuks,,sem_declaracao,,,,completa,1981,São Paulo,SP,,https://pt.wikipedia.org/wiki/Juli%C3%A1n_Fuks,2026-10-14
-juliana-krapp,Juliana Krapp,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+juliana-krapp,Juliana Krapp,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 juliana-leite,Juliana Leite,Q59104188,mulher,https://www.wikidata.org/wiki/Q59104188,,sem_declaracao,,,,completa,1983,Petrópolis,RJ,,https://www.wikidata.org/wiki/Q59104188,2026-10-15
 juliana-monteiro-carrascoza,Juliana Monteiro Carrascoza,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 juliana-w-slatiner,Juliana W. Slatiner,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -929,7 +929,7 @@ lia-neiva,Lia Neiva,Q20048690,mulher,https://www.wikidata.org/wiki/Q20048690,,se
 lia-zatz,Lia Zatz,,mulher,,atribuicao,sem_declaracao,,,,completa,1952,,SP,,https://journals.usp.br/literartes/article/download/119108/118810/227943,2026-10-15
 lica-sebastiao,Lica Sebastião,,nao_identificado,,,sem_declaracao,,,,,,,,,,
 lidia-izecson,Lidia Izecson,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-lidia-jorge,Lídia Jorge,Q450913,mulher,https://www.wikidata.org/wiki/Q450913,,sem_declaracao,,,,,1946,Boliqueime,EX,PT,https://www.wikidata.org/wiki/Q450913,2026-10-16
+lidia-jorge,Lídia Jorge,Q450913,mulher,https://www.wikidata.org/wiki/Q450913,,sem_declaracao,,,,completa,1946,Boliqueime,EX,PT,https://www.wikidata.org/wiki/Q450913,2026-10-16
 liege-santos,Liège Santos,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 lila-maia,Lila Maia,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 lilia-moritz-schwarcz,Lilia Moritz Schwarcz,Q10318324,mulher,https://www.wikidata.org/wiki/Q10318324,,sem_declaracao,,,,completa,1957,São Paulo,SP,,https://pt.wikipedia.org/wiki/Lilia_Schwarcz,2026-10-14
@@ -981,8 +981,8 @@ lucilia-junqueira-de-almeida-prado,Lucília Junqueira de Almeida Prado,Q13957360
 lucrecia-zappi,Lucrecia Zappi,Q43193569,mulher,https://www.wikidata.org/wiki/Q43193569,,sem_declaracao,,,,completa,1972,Buenos Aires,EX,AR,https://www.wikidata.org/wiki/Q43193569,2026-10-16
 luis-a-fernandes,Luís A. Fernandes,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 luis-alberto-brandao,Luis Alberto Brandão,,homem,https://www.martinsfontespaulista.com.br/sujeito--tempo-e-espaco-ficcionais-899736/p,,sem_declaracao,,,,completa,,,,,,2026-10-15
-luis-cardoso,Luís Cardoso,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-luis-carlos-patraquim,Luís Carlos Patraquim,Q534319,homem,https://www.wikidata.org/wiki/Q534319,,sem_declaracao,,,,,1953,Maputo,EX,MZ,https://www.wikidata.org/wiki/Q534319,2026-10-16
+luis-cardoso,Luís Cardoso,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
+luis-carlos-patraquim,Luís Carlos Patraquim,Q534319,homem,https://www.wikidata.org/wiki/Q534319,,sem_declaracao,,,,completa,1953,Maputo,EX,MZ,https://www.wikidata.org/wiki/Q534319,2026-10-16
 luis-carmelo,Luís Carmelo,Q10321355,homem,https://www.wikidata.org/wiki/Q10321355,,sem_declaracao,,,,,1954,Évora,EX,PT,https://www.wikidata.org/wiki/Q10321355,2026-10-16
 luis-cosme-pinto,Luis Cosme Pinto,,homem,https://www.brasil247.com/?p=805249,,sem_declaracao,,,,completa,,,,,,2026-10-14
 luis-dill,Luís Dill,Q10321391,homem,https://www.wikidata.org/wiki/Q10321391,,sem_declaracao,,,,completa,1965,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q10321391,2026-10-15
@@ -996,7 +996,7 @@ luis-martins,Luis Martins,Q10320551,homem,https://www.wikidata.org/wiki/Q1032055
 luis-nassif,Luis Nassif,Q10321578,homem,https://www.wikidata.org/wiki/Q10321578,,sem_declaracao,,,,completa,1950,Poços de Caldas,MG,,https://www.wikidata.org/wiki/Q10321578,2026-10-15
 luis-osorio,Luís Osório,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 luis-pimentel,Luís Pimentel,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
-luis-quintais,Luís Quintais,Q1876512,homem,https://www.wikidata.org/wiki/Q1876512,,sem_declaracao,,,,,1968,Angola,EX,AO,https://www.wikidata.org/wiki/Q1876512,2026-10-16
+luis-quintais,Luís Quintais,Q1876512,homem,https://www.wikidata.org/wiki/Q1876512,,sem_declaracao,,,,completa,1968,Angola,EX,AO,https://www.wikidata.org/wiki/Q1876512,2026-10-16
 luis-s-krausz,Luis S. Krausz,Q15436506,homem,https://www.wikidata.org/wiki/Q15436506,,sem_declaracao,,,,completa,1961,São Paulo,SP,,https://www.wikidata.org/wiki/Q15436506,2026-10-14
 luis-silva,Luis Silva,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 luisa-costa-gomes,Luísa Costa Gomes,Q10321803,mulher,https://www.wikidata.org/wiki/Q10321803,,sem_declaracao,,,,,1954,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q10321803,2026-10-16
@@ -1144,7 +1144,7 @@ maria-pilla,Maria Pilla,Q23893165,mulher,https://pt.wikipedia.org/wiki/Maria_Pil
 maria-rita-kehl,Maria Rita Kehl,Q10326064,mulher,https://www.wikidata.org/wiki/Q10326064,,sem_declaracao,,,,completa,1951,Campinas,SP,,https://www.wikidata.org/wiki/Q10326064,2026-10-15
 maria-rita-valadao-carelli,Maria Rita Valadão Carelli,,mulher,https://en.wikipedia.org/wiki/Rita_Carelli,,sem_declaracao,,,,completa,1984,,,,https://en.wikipedia.org/wiki/Rita_Carelli,2026-10-15
 maria-teresa-hellmeister-fornaciari,Maria Teresa Hellmeister Fornaciari,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-maria-teresa-horta,Maria Teresa Horta,Q2624628,mulher,https://www.wikidata.org/wiki/Q2624628,,sem_declaracao,,,,,1937,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q2624628,2026-10-16
+maria-teresa-horta,Maria Teresa Horta,Q2624628,mulher,https://www.wikidata.org/wiki/Q2624628,,sem_declaracao,,,,completa,1937,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q2624628,2026-10-16
 maria-tereza-louro,Maria Tereza Louro,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 maria-thereza-cunha-de-giacomo,Maria Thereza Cunha de Giacomo,,mulher,https://prefeitura.sp.gov.br/web/cultura/w/bibliotecas/bibliotecas_bairro/bibliotecas_m_z/arnaldogiacomo/5442,,sem_declaracao,,,,completa,,,,,,2026-10-15
 maria-valentina,Maria Valentina,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
@@ -1173,7 +1173,7 @@ mario-claudio,Mário Cláudio,Q1149355,homem,https://www.wikidata.org/wiki/Q1149
 mario-da-silva-brito,Mário da Silva Brito,Q105772502,homem,https://www.wikidata.org/wiki/Q105772502,,sem_declaracao,,,,completa,1916,Dois Córregos,SP,,https://www.wikidata.org/wiki/Q105772502,2026-10-16
 mario-de-carvalho,Mário de Carvalho,Q3331979,homem,https://www.wikidata.org/wiki/Q3331979,,sem_declaracao,,,,,1944,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q3331979,2026-10-16
 mario-donato,Mário Donato,Q10334420,homem,https://www.wikidata.org/wiki/Q10334420,,sem_declaracao,,,,completa,1915,Campinas,SP,,https://www.wikidata.org/wiki/Q10334420,2026-10-16
-mario-lucio-sousa,Mário Lúcio Sousa,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+mario-lucio-sousa,Mário Lúcio Sousa,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 mario-medeiros,Mário Medeiros,Q138661986,homem,https://www.letras.ufmg.br/literafro/autores/1322-mario-medeiros,,negra,fonte_curada,https://www.letras.ufmg.br/literafro/autores/1322-mario-medeiros,"Nascido em São Paulo, Mário Augusto Medeiros da Silva transita entre o mundo da literatura e da produção acadêmica.",completa,,,,,,2026-10-14
 mario-pontes,Mario Pontes,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 mario-prata,Mario Prata,Q10334516,homem,https://pt.wikipedia.org/wiki/M%C3%A1rio_Prata,,sem_declaracao,,,,completa,1946,Uberaba,MG,,https://pt.wikipedia.org/wiki/M%C3%A1rio_Prata,2026-10-14
@@ -1198,7 +1198,7 @@ mateus-rios,Mateus Rios,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-
 matilde-campilho,Matilde Campilho,Q20049143,mulher,https://www.wikidata.org/wiki/Q20049143,,sem_declaracao,,,,,1982,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q20049143,2026-10-16
 mauricio-gomyde,Maurício Gomyde,Q23892725,homem,https://www.wikidata.org/wiki/Q23892725,,sem_declaracao,,,,completa,1971,São Paulo,SP,,https://www.wikidata.org/wiki/Q23892725,2026-10-14
 mauricio-goulart,Maurício Goulart,Q10327641,homem,https://www.wikidata.org/wiki/Q10327641,,sem_declaracao,,,,completa,1908,Petrópolis,RJ,,https://www.wikidata.org/wiki/Q10327641,2026-10-16
-mauricio-lyrio,Mauricio Lyrio,Q16940768,homem,https://www.wikidata.org/wiki/Q16940768,,sem_declaracao,,,,,1967,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q16940768,2026-10-16
+mauricio-lyrio,Mauricio Lyrio,Q16940768,homem,https://www.wikidata.org/wiki/Q16940768,,sem_declaracao,,,,completa,1967,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q16940768,2026-10-16
 mauricio-meirelles,Mauricio Meirelles,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 mauricio-negro,Mauricio Negro,Q23892736,homem,https://www.wikidata.org/wiki/Q23892736,,sem_declaracao,,,,completa,1968,São Paulo,SP,,https://www.wikidata.org/wiki/Q23892736,2026-10-15
 mauro-cesar-silva-viana,Mauro César Silva Viana,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
@@ -1206,16 +1206,16 @@ mauro-mota,Mauro Mota,Q10327584,homem,https://www.wikidata.org/wiki/Q10327584,,s
 max-mallmann,Max Mallmann,Q55825789,homem,https://www.wikidata.org/wiki/Q55825789,,sem_declaracao,,,,completa,1968,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q55825789,2026-10-16
 max-martins,Max Martins,Q10327757,homem,https://www.wikidata.org/wiki/Q10327757,,sem_declaracao,,,,completa,1926,Belém,PA,,https://www.wikidata.org/wiki/Q10327757,2026-10-15
 mayara-floss,Mayara Floss,Q98160006,mulher,https://pt.wikipedia.org/wiki/Mayara_Floss,,sem_declaracao,,,,completa,1990,Chapecó,SC,,https://pt.wikipedia.org/wiki/Mayara_Floss,2026-10-14
-mbate-pedro,Mbate Pedro,,nao_identificado,,,sem_declaracao,,,,,,,,,,
+mbate-pedro,Mbate Pedro,,nao_identificado,,,sem_declaracao,,,,completa,,,,,,2026-10-16
 menalton-braff,Menalton Braff,Q10328617,homem,https://www.wikidata.org/wiki/Q10328617,,sem_declaracao,,,,completa,1938,Taquara,RS,,https://pt.wikipedia.org/wiki/Menalton_Braff,2026-10-14
-mia-couto,Mia Couto,Q382101,homem,https://www.wikidata.org/wiki/Q382101,,sem_declaracao,,,,,1955,Beira,EX,MZ,https://www.wikidata.org/wiki/Q382101,2026-10-16
+mia-couto,Mia Couto,Q382101,homem,https://www.wikidata.org/wiki/Q382101,,branca,autodeclaracao,https://www.monitor.co.ug/uganda/lifestyle/entertainment/poet-who-caught-the-eye-of-mozambique-s-freedom-fighters-4737470,I only remember that I'm a white person when I'm outside Mozambique,completa,1955,Beira,EX,MZ,https://www.wikidata.org/wiki/Q382101,2026-10-16
 michel-laub,Michel Laub,Q10329489,homem,https://www.wikidata.org/wiki/Q10329489,,sem_declaracao,,,,completa,1973,Porto Alegre,RS,,https://www.wikidata.org/wiki/Q10329489,2026-10-15
 michel-thiollent,Michel Thiollent,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 michele-flores,Michele Flores,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 micheliny-verunschk,Micheliny Verunschk,Q10329507,mulher,https://www.wikidata.org/wiki/Q10329507,,sem_declaracao,,,,completa,1972,Recife,PE,,https://www.wikidata.org/wiki/Q10329507,2026-10-15
 miguel-arcanjo-prado,Miguel Arcanjo Prado,Q10329715,homem,https://www.wikidata.org/wiki/Q10329715,,sem_declaracao,,,,parcial,1981,Belo Horizonte,MG,,https://www.wikidata.org/wiki/Q10329715,2026-10-14
 miguel-gullander,Miguel Gullander,Q5776289,homem,https://www.wikidata.org/wiki/Q5776289,,sem_declaracao,,,,,1975,,,,https://www.wikidata.org/wiki/Q5776289,2026-10-16
-miguel-sanches-neto,Miguel Sanches Neto,Q10329854,homem,https://www.wikidata.org/wiki/Q10329854,,sem_declaracao,,,,parcial,1965,Bela Vista do Paraíso,PR,,https://www.wikidata.org/wiki/Q10329854,2026-10-14
+miguel-sanches-neto,Miguel Sanches Neto,Q10329854,homem,https://www.wikidata.org/wiki/Q10329854,,sem_declaracao,,,,completa,1965,Bela Vista do Paraíso,PR,,https://www.wikidata.org/wiki/Q10329854,2026-10-16
 miguel-sousa-tavares,Miguel Sousa Tavares,Q1567582,homem,https://www.wikidata.org/wiki/Q1567582,,sem_declaracao,,,,,1952,Porto,EX,PT,https://www.wikidata.org/wiki/Q1567582,2026-10-16
 miguel-tanco,Miguel Tanco,,homem,https://www.penguinrandomhouse.com/authors/2141383,,sem_declaracao,,,,completa,,,,,,2026-10-15
 milena-martins-moura,Milena Martins Moura,Q131299848,mulher,https://pt.wikipedia.org/wiki/Milena_Martins_Moura,,sem_declaracao,,,,completa,1986,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Milena_Martins_Moura,2026-10-14
@@ -1264,7 +1264,7 @@ nelson-rodrigues,Nelson Rodrigues,Q2411958,homem,https://www.wikidata.org/wiki/Q
 nelson-saute,Nelson Saúte,Q923175,homem,https://www.wikidata.org/wiki/Q923175,,sem_declaracao,,,,,1967,Maputo,EX,MZ,https://www.wikidata.org/wiki/Q923175,2026-10-16
 neto-machado,Neto Machado,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 newton-moreno,Newton Moreno,Q18278647,homem,https://pt.wikipedia.org/wiki/Newton_Moreno,,sem_declaracao,,,,completa,1968,Recife,PE,,https://pt.wikipedia.org/wiki/Newton_Moreno,2026-10-14
-nicolas-behr,Nicolas Behr,Q10336752,homem,https://www.wikidata.org/wiki/Q10336752,,sem_declaracao,,,,,1958,Cuiabá,MT,,https://www.wikidata.org/wiki/Q10336752,2026-10-16
+nicolas-behr,Nicolas Behr,Q10336752,homem,https://www.wikidata.org/wiki/Q10336752,,sem_declaracao,,,,completa,1958,Cuiabá,MT,,https://www.wikidata.org/wiki/Q10336752,2026-10-16
 nilma-lacerda,Nilma Lacerda,,mulher,https://sou.ucs.br/etc/revistas/index.php/antares/article/download/11296/5658,,sem_declaracao,,,,completa,,,RJ,,https://quindim.com.br/selecoes/escritores/nilma-lacerda,2026-10-15
 nilson,Nilson,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 nilson-jose-machado,Nilson José Machado,Q102439685,homem,https://terrasdecabral.com.br/jurados-65o-premio-jabuti/,,sem_declaracao,,,,completa,,Olinda,PE,,https://terrasdecabral.com.br/jurados-65o-premio-jabuti/,2026-10-14
@@ -1275,7 +1275,7 @@ noemi-jaffe,Noemi Jaffe,Q10337203,mulher,https://www.wikidata.org/wiki/Q10337203
 norberto-morais,Norberto Morais,Q106546961,homem,https://www.wikidata.org/wiki/Q106546961,,sem_declaracao,,,,,,,,,,2026-10-16
 nuno-camarneiro,Nuno Camarneiro,Q16940377,homem,https://www.wikidata.org/wiki/Q16940377,,sem_declaracao,,,,,1977,Sé Nova,EX,PT,https://www.wikidata.org/wiki/Q16940377,2026-10-16
 nuno-felix,Nuno Félix,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-nuno-judice,Nuno Júdice,Q2005131,homem,https://www.wikidata.org/wiki/Q2005131,,sem_declaracao,,,,,1949,Mexilhoeira Grande,EX,PT,https://www.wikidata.org/wiki/Q2005131,2026-10-16
+nuno-judice,Nuno Júdice,Q2005131,homem,https://www.wikidata.org/wiki/Q2005131,,sem_declaracao,,,,completa,1949,Mexilhoeira Grande,EX,PT,https://www.wikidata.org/wiki/Q2005131,2026-10-16
 nuno-ramos,Nuno Ramos,Q16940381,homem,https://pt.wikipedia.org/wiki/Nuno_Ramos,,sem_declaracao,,,,completa,1960,São Paulo,SP,,https://pt.wikipedia.org/wiki/Nuno_Ramos,2026-10-14
 nuno-rau,Nuno Rau,Q106577544,homem,https://www.wikidata.org/wiki/Q106577544,,sem_declaracao,,,,completa,1963,,,,https://www.wikidata.org/wiki/Q106577544,2026-10-15
 nuno-virgilio-neto,Nuno Virgílio Neto,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -1343,20 +1343,20 @@ pedro-almeida,Pedro Almeida,,homem,,atribuicao,sem_declaracao,,,,parcial,,,,,,20
 pedro-bandeira,Pedro Bandeira,Q10347333,homem,https://www.wikidata.org/wiki/Q10347333,,sem_declaracao,,,,completa,1942,Santos,SP,,https://www.wikidata.org/wiki/Q10347333,2026-10-16
 pedro-cesarino,Pedro Cesarino,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 pedro-costa,Pedro Costa,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-pedro-eiras,Pedro Eiras,Q10347434,homem,https://www.wikidata.org/wiki/Q10347434,,sem_declaracao,,,,,1975,Porto,EX,PT,https://www.wikidata.org/wiki/Q10347434,2026-10-16
+pedro-eiras,Pedro Eiras,Q10347434,homem,https://www.wikidata.org/wiki/Q10347434,,sem_declaracao,,,,completa,1975,Porto,EX,PT,https://www.wikidata.org/wiki/Q10347434,2026-10-16
 pedro-fernandes-gale,Pedro Fernandes Galé,,homem,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
 pedro-franz,Pedro Franz,Q18279759,homem,https://www.wikidata.org/wiki/Q18279759,,sem_declaracao,,,,completa,,,SC,,https://pt.wikipedia.org/wiki/Pedro_Franz,2026-10-15
 pedro-h-g-ferreira-de-souza,Pedro H. G. Ferreira de Souza,Q100499010,homem,https://www.wikidata.org/wiki/Q100499010,,sem_declaracao,,,,completa,,,,,,2026-10-15
 pedro-luz,Pedro Luz,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 pedro-mexia,Pedro Mexia,Q10347612,homem,https://www.wikidata.org/wiki/Q10347612,,sem_declaracao,,,,,1972,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q10347612,2026-10-16
 pedro-mohallen,Pedro Mohallen,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-pedro-pereira-lopes,Pedro Pereira Lopes,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+pedro-pereira-lopes,Pedro Pereira Lopes,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 pedro-salgueiro,Pedro Salgueiro,Q136914483,homem,https://www.wikidata.org/wiki/Q136914483,,sem_declaracao,,,,completa,,,,,,2026-10-16
 pedro-tavares,Pedro Tavares,,homem,https://www.martinsfontespaulista.com.br/o-pedaco-da-coxa-de-um-anjo--aventura-em-istambul-1155211/p,,sem_declaracao,,,,completa,1991,São Paulo,SP,,https://www.martinsfontespaulista.com.br/o-pedaco-da-coxa-de-um-anjo--aventura-em-istambul-1155211/p,2026-10-14
 pedro-veludo,Pedro Veludo,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
 pedro-vicente-costa-sobrinho,Pedro Vicente Costa Sobrinho,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 penelope-martins,Penélope Martins,Q112893175,mulher,https://pt.wikipedia.org/wiki/Pen%C3%A9lope_Martins,,sem_declaracao,,,,completa,1973,Mogi das Cruzes,SP,,https://pt.wikipedia.org/wiki/Pen%C3%A9lope_Martins,2026-10-14
-pepetela,Pepetela,Q736858,homem,https://www.wikidata.org/wiki/Q736858,,sem_declaracao,,,,,1941,Benguela,EX,AO,https://www.wikidata.org/wiki/Q736858,2026-10-16
+pepetela,Pepetela,Q736858,homem,https://www.wikidata.org/wiki/Q736858,,sem_declaracao,,,,completa,1941,Benguela,EX,AO,https://www.wikidata.org/wiki/Q736858,2026-10-16
 per-johns,Per Johns,Q10348474,homem,https://www.wikidata.org/wiki/Q10348474,,sem_declaracao,,,,completa,1933,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q10348474,2026-10-15
 peter-o-sagae,Peter O'Sagae,,homem,,atribuicao,sem_declaracao,,,,parcial,,,,,,2026-10-15
 piero-eyben,Piero Eyben,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -1414,7 +1414,7 @@ ricardo-corona,Ricardo Corona,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,
 ricardo-da-cunha-lima,Ricardo da Cunha Lima,,homem,https://www.companhiadasletras.com.br/blogDaLetrinhas/Post/6331/ricardo-da-cunha-lima-voz-potente-da-poesia-para-criancas-esta-de-volta,,sem_declaracao,,,,completa,,,,,,2026-10-15
 ricardo-domeneck,Ricardo Domeneck,Q7322615,homem,https://pt.wikipedia.org/wiki/Ricardo_Domeneck,,sem_declaracao,,,,completa,1977,Bebedouro,SP,,https://pt.wikipedia.org/wiki/Ricardo_Domeneck,2026-10-14
 ricardo-fonseca-mota,Ricardo Fonseca Mota,Q112115588,homem,https://www.wikidata.org/wiki/Q112115588,,sem_declaracao,,,,,1987,Sintra,EX,PT,https://www.wikidata.org/wiki/Q112115588,2026-10-16
-ricardo-gil-soeiro,Ricardo Gil Soeiro,Q10361140,homem,https://www.wikidata.org/wiki/Q10361140,,sem_declaracao,,,,,1981,Paredes da Beira,EX,PT,https://www.wikidata.org/wiki/Q10361140,2026-10-16
+ricardo-gil-soeiro,Ricardo Gil Soeiro,Q10361140,homem,https://www.wikidata.org/wiki/Q10361140,,sem_declaracao,,,,completa,1981,Paredes da Beira,EX,PT,https://www.wikidata.org/wiki/Q10361140,2026-10-16
 ricardo-hofstetter,Ricardo Hofstetter,Q48873339,homem,https://www.wikidata.org/wiki/Q48873339,,sem_declaracao,,,,completa,,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q48873339,2026-10-15
 ricardo-lisias,Ricardo Lísias,Q16940938,homem,https://www.wikidata.org/wiki/Q16940938,,sem_declaracao,,,,completa,1975,São Paulo,SP,,https://www.wikidata.org/wiki/Q16940938,2026-10-15
 ricardo-prado,Ricardo Prado,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
@@ -1485,7 +1485,7 @@ rubens-figueiredo,Rubens Figueiredo,Q10365092,homem,https://www.wikidata.org/wik
 rubens-matuck,Rubens Matuck,Q10365105,homem,https://www.wikidata.org/wiki/Q10365105,,sem_declaracao,,,,completa,1952,São Paulo,SP,,https://www.wikidata.org/wiki/Q10365105,2026-10-15
 rubens-rodrigues-torres-filho,Rubens Rodrigues Torres Filho,Q105837051,homem,https://www.wikidata.org/wiki/Q105837051,,sem_declaracao,,,,completa,1942,Botucatu,SP,,https://pt.wikipedia.org/wiki/Rubens_Rodrigues_Torres_Filho,2026-10-15
 rubens-teixeira-scavone,Rubens Teixeira Scavone,Q10365121,homem,https://www.wikidata.org/wiki/Q10365121,,sem_declaracao,,,,completa,1925,Itatiba,SP,,https://www.wikidata.org/wiki/Q10365121,2026-10-16
-rui-cardoso-martins,Rui Cardoso Martins,Q7378697,homem,https://www.wikidata.org/wiki/Q7378697,,sem_declaracao,,,,,1967,Portalegre,EX,PT,https://www.wikidata.org/wiki/Q7378697,2026-10-16
+rui-cardoso-martins,Rui Cardoso Martins,Q7378697,homem,https://www.wikidata.org/wiki/Q7378697,,sem_declaracao,,,,completa,1967,Portalegre,EX,PT,https://www.wikidata.org/wiki/Q7378697,2026-10-16
 rui-conceicao-silva,Rui Conceição Silva,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 rui-de-oliveira,Rui de Oliveira,,homem,https://www.companhiadasletras.com.br/livro/9786581776459/chapeuzinho-vermelho-e-outros-contos-por-imagem-nova-edicao,,sem_declaracao,,,,completa,,Rio de Janeiro,RJ,,https://www.martinsfontespaulista.com.br/contos-de-fadas-e-historias-classicas-933100/p,2026-10-15
 rui-lage,Rui Lage,Q123335062,homem,https://www.wikidata.org/wiki/Q123335062,,sem_declaracao,,,,,1975,,,,https://www.wikidata.org/wiki/Q123335062,2026-10-16
@@ -1591,10 +1591,10 @@ teixeira-coelho,Teixeira Coelho,Q93794835,homem,https://www.wikidata.org/wiki/Q9
 telma-scherer,Telma Scherer,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 tercia-montenegro,Tércia Montenegro,Q10385913,mulher,https://www.wikidata.org/wiki/Q10385913,,sem_declaracao,,,,completa,1976,Ceará,CE,,https://www.wikidata.org/wiki/Q10385913,2026-10-15
 teresa-berlinck,Teresa Berlinck,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-teresa-noronha,Teresa Noronha,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
-teresa-veiga,Teresa Veiga,Q10380537,mulher,https://www.wikidata.org/wiki/Q10380537,,sem_declaracao,,,,,1945,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q10380537,2026-10-16
+teresa-noronha,Teresa Noronha,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
+teresa-veiga,Teresa Veiga,Q10380537,mulher,https://www.wikidata.org/wiki/Q10380537,,sem_declaracao,,,,completa,1945,Lisboa,EX,PT,https://www.wikidata.org/wiki/Q10380537,2026-10-16
 thais-beltrame,Thais Beltrame,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-thais-lancman,Thais Lancman,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+thais-lancman,Thais Lancman,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 thais-linhares,Thais Linhares,Q130215758,mulher,https://www.wikidata.org/wiki/Q130215758,,sem_declaracao,,,,completa,1970,Rio de Janeiro,RJ,,https://www.wikidata.org/wiki/Q130215758,2026-10-15
 thales-de-andrade,Thales de Andrade,Q10381077,homem,https://www.wikidata.org/wiki/Q10381077,,sem_declaracao,,,,completa,1890,Piracicaba,SP,,https://www.wikidata.org/wiki/Q10381077,2026-10-16
 thalita-reboucas,Thalita Rebouças,Q10381086,mulher,https://pt.wikipedia.org/wiki/Thalita_Rebou%C3%A7as,,sem_declaracao,,,,completa,1974,Rio de Janeiro,RJ,,https://pt.wikipedia.org/wiki/Thalita_Rebou%C3%A7as,2026-10-14
@@ -1603,7 +1603,7 @@ thiago-de-mello,Thiago de Mello,Q555309,homem,https://www.wikidata.org/wiki/Q555
 thiago-lopes,Thiago Lopes,,homem,https://www.iluminuras.com.br/menina-de-papel,,sem_declaracao,,,,completa,1987,São Paulo,SP,,https://www.iluminuras.com.br/menina-de-papel,2026-10-15
 thiago-mattos,Thiago Mattos,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 thiago-ponce-de-moraes,Thiago Ponce de Moraes,,homem,https://revistas.usp.br/clt/en/article/view/193481,,sem_declaracao,,,,completa,1986,Rio de Janeiro,RJ,,https://revistas.usp.br/clt/en/article/view/193481,2026-10-15
-tiago-d-oliveira,Tiago D. Oliveira,,homem,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
+tiago-d-oliveira,Tiago D. Oliveira,,homem,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-16
 tiago-de-melo-andrade,Tiago de Melo Andrade,Q106548086,homem,https://www.wikidata.org/wiki/Q106548086,,sem_declaracao,,,,completa,1977,São José do Rio Preto,SP,,https://www.wikidata.org/wiki/Q106548086,2026-10-15
 tiago-feijo,Tiago Feijó,,homem,https://www.barlavento.pt/brasileiro-tiago-feijo-vence-premio-literario-manuel-teixeira-gomes/,,sem_declaracao,,,,completa,1983,Fortaleza,CE,,https://www.barlavento.pt/brasileiro-tiago-feijo-vence-premio-literario-manuel-teixeira-gomes/,2026-10-15
 tiago-ferro,Tiago Ferro,Q100573307,homem,https://www.wikidata.org/wiki/Q100573307,,sem_declaracao,,,,completa,1976,São Paulo,SP,,https://www.wikidata.org/wiki/Q100573307,2026-10-15
@@ -1622,7 +1622,7 @@ ubiratan-muarrek,Ubiratan Muarrek,,homem,,atribuicao,sem_declaracao,,,,,,,,,,202
 valencio-xavier,Valêncio Xavier,Q10389016,homem,https://www.wikidata.org/wiki/Q10389016,,sem_declaracao,,,,completa,1933,São Paulo,SP,,https://www.wikidata.org/wiki/Q10389016,2026-10-16
 valentina-silva-ferreira,Valentina Silva Ferreira,,mulher,,atribuicao,sem_declaracao,,,,,,,,,,2026-10-16
 valeria-villela,Valéria Villela,,mulher,,atribuicao,sem_declaracao,,,,completa,,,,,,2026-10-15
-valter-hugo-mae,Valter Hugo Mãe,Q2509574,homem,https://www.wikidata.org/wiki/Q2509574,,sem_declaracao,,,,,1971,Saurimo,EX,AO,https://www.wikidata.org/wiki/Q2509574,2026-10-16
+valter-hugo-mae,Valter Hugo Mãe,Q2509574,homem,https://www.wikidata.org/wiki/Q2509574,,sem_declaracao,,,,completa,1971,Saurimo,EX,AO,https://www.wikidata.org/wiki/Q2509574,2026-10-16
 vanessa-barbara,Vanessa Barbara,Q10389060,mulher,https://www.wikidata.org/wiki/Q10389060,,sem_declaracao,,,,completa,1982,São Paulo,SP,,https://www.wikidata.org/wiki/Q10389060,2026-10-15
 vanessa-molnar,Vanessa Molnar,Q135911092,mulher,https://www.wikidata.org/wiki/Q135911092,,sem_declaracao,,,,,,,,,,2026-10-16
 vanessa-oliveira,Vanessa Oliveira,,mulher,https://www.mackenzie.br/noticias/artigo-2/n/a/i/professora-de-jornalismo-do-mackenzie-e-anunciada-como-uma-das-cinco-finalistas-do-premio-jabuti,,sem_declaracao,,,,completa,,,,,,2026-10-15

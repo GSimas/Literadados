@@ -5,7 +5,7 @@
 <h1 align="center">Literadados</h1>
 
 <p align="center"><b>Quem chega ao Prêmio Jabuti?</b><br>
-Gênero, raça autodeclarada e estado de nascimento de quem escreveu as obras indicadas ao principal prêmio do livro no Brasil, de 1959 a 2025: painel interativo, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
+Gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas ao Prêmio Jabuti (1959–2025), o principal prêmio do livro no Brasil, e ao Prêmio Oceanos (2003–2025), de literatura em língua portuguesa: painel interativo com filtro e comparação por prêmio, história guiada e uma IA que responde perguntas com SQL sobre a base.</p>
 
 ---
 

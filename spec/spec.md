@@ -11,14 +11,14 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 
 | Dentro | Fora (por enquanto) |
 |---|---|
-| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante) | Outros prêmios (Oceanos, Biblioteca Nacional…): em implementação (RF-26), fora do painel até a coleta do piloto (T23.4) |
+| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante), o padrão do painel; Prêmio Oceanos, 2003–2025 (todas as listas públicas, categorias Geral, Romance, Poesia, Contos, Prosa e o Grande Prêmio como Livro do Ano), RF-26 | Prêmio da Biblioteca Nacional, São Paulo de Literatura e outros (próximos, DA-1); prêmios pelo conjunto da obra (DA-2) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
 | Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência de raça por foto, sobrenome ou IA |
 | Gênero com fonte; sem fonte, **atribuído pelo primeiro nome e marcado** (D16) | Atribuição de gênero por apelido ambíguo ou iniciais |
 
-**Fase atual:** as 16 edições estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
+**Fase atual:** as 67 edições do Jabuti e as 23 do Oceanos estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
 
 ## 3. Públicos
 
