@@ -149,3 +149,10 @@
 - [x] T19.4 axe-core sem violações: marcas do Plot fora da árvore de acessibilidade (o `<svg>` tem rótulo e há tabela), mapa como `group`, iniciais do avatar ocultas, cabeçalho da Diadorim sem landmark duplicado 👁
 - [x] T19.5 Aviso com "Tentar de novo" quando os dados não carregam ou uma parte falha ao desenhar 👁
 - [x] T19.6 `X-Frame-Options: DENY` no `netlify.toml`; cache segue revalidado (arquivos sem hash) 👁
+
+## T20 Diadorim com contexto, toque, desempenho, ranking e livros (out/2026)
+- [x] T20.1 Resposta nunca seca: prompt, insistência automática e bloco "Quem são" montado do banco (CA-12.12) 🧪
+- [x] T20.2 Alvos de toque de 44 px em `pointer: coarse`; anel com `capacidadeAnel` (CA-11.7) 🧪👁
+- [x] T20.3 Fontes locais com fallback ajustado; Plot e d3-sankey sob demanda; miniaturas WebP (RNF-08, D27) 👁
+- [x] T20.4 Janela de ranking (RF-23) 🧪👁
+- [x] T20.5 Perfil de livro `#/obra/<id>` e coleta de capas (RF-24) 🧪👁

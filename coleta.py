@@ -33,6 +33,7 @@ CAMPOS = {
     "categoria_edicao": ["ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "fonte"],
     "indicacao": ["ano", "nome_original", "obra_id", "lista_curta", "colocacao", "fonte"],
     "jurado": ["ano", "nome_original", "pessoa_id", "fonte"],
+    "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
 }
 
 
@@ -380,6 +381,134 @@ def malha():
     print(f"{len(feats)} UFs em {saida.name} ({saida.stat().st_size // 1024} KB)")
 
 
+FOTOS = RAIZ / "web" / "fotos"
+LARGURAS_FOTO = (160, 480)  # anel e abertura (até 128 px na tela, 2x) · perfil (220 px na tela, 2x)
+
+
+def _baixar(url: str) -> bytes:
+    """GET binário via curl, com nova tentativa em 429/503 (mesma política de _json)."""
+    for tentativa in range(5):
+        r = subprocess.run(["curl", "-sL", "--max-time", "90", "-A", UA, "-w", "\n%{http_code}", url], capture_output=True)
+        corpo, _, codigo = r.stdout.rpartition(b"\n")
+        if r.returncode == 0 and codigo.startswith(b"2"):
+            return corpo
+        if codigo not in (b"429", b"503") or tentativa == 4:
+            raise RuntimeError(f"GET {url[:80]}: curl {r.returncode}, http {codigo.decode() or '?'}")
+        time.sleep(15)
+
+
+def miniaturas():
+    """Fotos livres do Commons → web/fotos/<pessoa_id>-<largura>.webp (RNF-08): o site serve as próprias miniaturas,
+    sem cookies de terceiros. Só baixa o que falta; o build marca quem tem miniatura (midia.miniatura)."""
+    import io
+    from PIL import Image  # só esta coleta usa o Pillow
+    FOTOS.mkdir(exist_ok=True)
+    novas = falhas = 0
+    for m in ler("pessoa_midia"):
+        alvos = {w: FOTOS / f"{m['pessoa_id']}-{w}.webp" for w in LARGURAS_FOTO}
+        if not m.get("imagem") or all(a.exists() for a in alvos.values()):
+            continue
+        try:
+            im = Image.open(io.BytesIO(_baixar("https://commons.wikimedia.org/wiki/Special:FilePath/"
+                                               + urllib.parse.quote(m["imagem"]) + f"?width={max(LARGURAS_FOTO)}")))
+            im = im.convert("RGBA" if im.mode in ("RGBA", "LA", "P") else "RGB")
+            for w, alvo in alvos.items():
+                c = im.copy()
+                c.thumbnail((w, w * 3), Image.LANCZOS)
+                c.save(alvo, "WEBP", quality=72, method=6)
+            novas += 1
+        except Exception as e:  # uma foto ruim não para as outras; fica sem miniatura e o site usa o Commons
+            falhas += 1
+            print(f"  {m['pessoa_id']}: {e}")
+        time.sleep(0.3)
+    total = sum(f.stat().st_size for f in FOTOS.glob("*.webp"))
+    print(f"{novas} pessoas com miniaturas novas, {falhas} falhas; web/fotos com {total // 1024} KB")
+
+
+# ---------- capas das obras (RF-24) ----------
+SEM_CAPA = DADOS / "coleta" / "capas_sem_resultado.txt"  # obras já procuradas sem capa que bata (não repete a busca)
+
+
+def sobrenome(nome: str) -> str:
+    """Último nome que identifica (pula Júnior, Filho, Neto…): "Itamar Vieira Junior" → "vieira"."""
+    partes = [p for p in _norm(re.sub(r"\(.*?\)", "", nome)).split(" ") if p not in {"junior", "jr", "filho", "neto", "sobrinho", "segundo"}]
+    return partes[-1] if partes else ""
+
+
+def casa_capa(titulo: str, sobrenomes: list[str], cand_titulo: str, cand_autores: list[str]) -> bool:
+    """Aceita a capa só se o título bate (igual, ou um é o outro mais subtítulo) e um sobrenome de autor aparece no candidato."""
+    t, c = _norm(titulo), _norm(cand_titulo)
+    if not t or not c or not (t == c or c.startswith(t + " ") or t.startswith(c + " ")):
+        return False
+    autores = " " + _norm(" ".join(cand_autores)) + " "
+    return any(f" {s} " in autores for s in sobrenomes if s)
+
+
+def _capa_google(titulo: str, sobrenomes: list[str]):
+    q = urllib.parse.quote(f'intitle:"{titulo}"' + (f" inauthor:{sobrenomes[0]}" if sobrenomes else ""))
+    r = _json(f"https://www.googleapis.com/books/v1/volumes?q={q}&maxResults=10&printType=books&langRestrict=pt")
+    for it in r.get("items", []):
+        v = it.get("volumeInfo", {})
+        img = (v.get("imageLinks") or {}).get("thumbnail")
+        cand = " ".join(filter(None, [v.get("title"), v.get("subtitle")]))
+        if img and casa_capa(titulo, sobrenomes, cand, v.get("authors", [])):
+            img = img.replace("http://", "https://").replace("&edge=curl", "")
+            return {"capa_url": img, "fonte": "google_books", "pagina": (v.get("canonicalVolumeLink") or v.get("infoLink") or "").replace("http://", "https://") or None}
+    return None
+
+
+def _capa_openlibrary(titulo: str, sobrenomes: list[str]):
+    q = urllib.parse.urlencode({"title": titulo, "author": sobrenomes[0] if sobrenomes else "", "fields": "key,title,author_name,cover_i", "limit": 10})
+    for d in _json(f"https://openlibrary.org/search.json?{q}").get("docs", []):
+        if not casa_capa(titulo, sobrenomes, d.get("title", ""), d.get("author_name", [])):
+            continue
+        # A capa da obra (cover_i) pode ser de uma tradução: vale só a de uma edição em português.
+        for ed in _json(f"https://openlibrary.org{d['key']}/editions.json?limit=100").get("entries", []):
+            if ed.get("covers") and ed["covers"][0] > 0 and any(l.get("key") == "/languages/por" for l in ed.get("languages", [])):
+                return {"capa_url": f"https://covers.openlibrary.org/b/id/{ed['covers'][0]}-M.jpg", "fonte": "open_library", "pagina": f"https://openlibrary.org{ed['key']}"}
+    return None
+
+
+def capas():
+    """Capa de cada obra indicada: Google Books e, se não achar (ou a cota acabar), Open Library. Só grava o que bate
+    título + sobrenome de autor. Retoma de onde parou: pula quem já tem capa e quem está em capas_sem_resultado.txt."""
+    pessoa = {p["id"]: p["nome"] for p in ler("pessoa")}
+    autores: dict[str, list[str]] = {}
+    for a in ler("autoria"):
+        if a["papel"] == "autor":
+            autores.setdefault(a["obra_id"], []).append(sobrenome(pessoa.get(a["pessoa_id"], "")))
+    obras = {o["id"]: o for o in ler("obra")}
+    feitas = {c["obra_id"]: c for c in ler("obra_capa")}
+    sem = set(SEM_CAPA.read_text(encoding="utf-8").split()) if SEM_CAPA.exists() else set()
+    fila = sorted({i["obra_id"] for i in ler("indicacao")} - set(feitas) - sem)
+    google = True
+    print(f"{len(fila)} obras a procurar")
+    for k, oid in enumerate(fila, 1):
+        o, sob = obras[oid], autores.get(oid, [])
+        achou = None
+        if google:
+            try:
+                achou = _capa_google(o["titulo"], sob)
+            except RuntimeError as e:
+                print(f"  Google Books parou ({e}); seguindo só com a Open Library")
+                google = False
+        if not achou:
+            try:
+                achou = _capa_openlibrary(o["titulo"], sob)
+            except RuntimeError as e:
+                print(f"  {oid}: {e}")
+                continue  # erro de rede: tenta de novo na próxima execução
+        if achou:
+            feitas[oid] = {"obra_id": oid, **achou}
+        elif google:  # só marca "sem capa" se as duas fontes responderam; sem a cota do Google, tenta de novo outro dia
+            sem.add(oid)
+        if k % 25 == 0 or k == len(fila):  # grava aos poucos: dá para interromper e retomar
+            gravar("obra_capa", sorted(feitas.values(), key=lambda c: c["obra_id"]))
+            SEM_CAPA.write_text("\n".join(sorted(sem)) + "\n", encoding="utf-8")
+            print(f"  {k}/{len(fila)}: {len(feitas)} com capa, {len(sem)} sem")
+        time.sleep(0.5)
+
+
 if __name__ == "__main__":
     {"normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
-     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha}[sys.argv[1]]()
+     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas}[sys.argv[1]]()

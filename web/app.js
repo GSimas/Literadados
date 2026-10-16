@@ -1,12 +1,12 @@
 // Painel Literadados: estado, navegação e ciclo de desenho. Agregações em metricas.js (testadas);
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, urlFoto, CATEGORIAS, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro } from "./ui.js";
-import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri } from "./explorar.js";
+import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
+import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
-import { montarPessoas, renderPessoas, htmlPerfil } from "./pessoas.js";
+import { montarPessoas, renderPessoas, htmlPerfil, htmlObra } from "./pessoas.js";
 import { montarTema } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
@@ -25,7 +25,7 @@ const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
 
 // ---------- filtros por parte e URL (RF-02, D22) ----------
 // Cada parte filtrável tem seu estado; a URL guarda ?<parte>=<texto> só para os filtros fora do padrão.
-const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "juri"];
+const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
 const PARTES = ["panorama", ...IDS_JANELAS, "autores"];
 const padrao = () => M.filtroDeTexto(null, D.anos, CATEGORIAS);
 const filtros = (() => {
@@ -78,7 +78,7 @@ function renderAbertura() {
   const vencedoras = new Set(D.participacao.filter((l) => l.vencedora).map((l) => l.pessoa_id));
   const fotos = D.pessoas.filter((p) => midiaPorId.get(p.id)?.imagem).sort((a, b) => vencedoras.has(b.id) - vencedoras.has(a.id)).slice(0, 60);
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
-  const span = (p) => `<span style="background-image:url('${urlFoto(midiaPorId.get(p.id).imagem, 160).replace(/'/g, "%27")}')"></span>`;
+  const span = (p) => `<span style="background-image:url('${srcFoto(p.id, midiaPorId.get(p.id), 160).replace(/'/g, "%27")}')"></span>`;
   $("#hero-mosaico").innerHTML = faixas.map((f, i) => `<div class="hero-faixa" style="--dur:${110 + i * 30}s"${i % 2 ? " data-rev" : ""}>${[...f, ...f].map(span).join("")}</div>`).join("");
   // Pontos que flutuam devagar, nas cores das séries (eco de "cada ponto é uma pessoa").
   $("#hero-pontos").innerHTML = d3.range(22).map((i) => {
@@ -110,7 +110,7 @@ function montarNavegacao() {
 
 // ---------- perfis com rota por hash (CA-11.2, RF-22) ----------
 // Perfis (pessoa, UF, região) abrem por cima do que estiver aberto; fechar volta ao último endereço que não era perfil.
-const PERFIL = /^#\/(pessoa|uf|regiao)\/(.+)$/;
+const PERFIL = /^#\/(pessoa|obra|uf|regiao)\/(.+)$/;
 let fundo = PERFIL.test(location.hash) ? "" : location.hash;
 addEventListener("hashchange", () => { if (!PERFIL.test(location.hash)) fundo = location.hash; });
 function abrirPerfil(id) { location.hash = `#/pessoa/${id}`; }
@@ -119,7 +119,7 @@ const ctxDe = (parte) => ({ ...ctx, estado: filtros[parte] });
 // Janelas de gráficos (RF-20, D19): id do <dialog> → funções de render. Só janela aberta é desenhada.
 const JANELAS = {
   "linha-do-tempo": [renderLinhaDoTempo], geografia: [renderMapa, renderSankey], evolucao: [renderEvolucao], funil: [renderFunil],
-  segregacao: [renderSegregacao], idade: [renderIdade], editoras: [renderEditoras], juri: [renderJuri],
+  segregacao: [renderSegregacao], idade: [renderIdade], editoras: [renderEditoras], ranking: [renderRanking], juri: [renderJuri],
 };
 // Desenha uma parte com o seu filtro e atualiza o resumo do recorte na barra dela.
 function renderParte(parte) {
@@ -154,7 +154,7 @@ function fecharJanela(dlg) {
 
 // Rota única por hash: #/grafico/<id> abre a janela; #/pessoa|uf|regiao/<id> abre o perfil por cima (a janela fica);
 // outro hash fecha os dois.
-function rota() {
+async function rota() {
   const perfil = location.hash.match(PERFIL), graf = location.hash.match(/^#\/grafico\/([\w-]+)$/);
   const dlg = $("#perfil");
   if (!perfil) {
@@ -164,17 +164,19 @@ function rota() {
   if (graf && JANELAS[graf[1]]) {
     const j = $(`#${graf[1]}`);
     if (!j.open) { j.showModal(); j.querySelector(".janela-corpo").scrollTop = 0; }
+    await carregarGraficos().catch((e) => console.error(e)); // sem a biblioteca, a parte mostra o aviso de falha
     renderJanela(graf[1]);
   }
   if (!perfil) return;
   const [, tipo, chave] = perfil;
   const r = tipo === "pessoa" ? { html: htmlPerfil(decodeURIComponent(chave), ctx) }
+    : tipo === "obra" ? { html: htmlObra(decodeURIComponent(chave), ctx) }
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });
   if (!r?.html) return;
   $("#perfil-corpo").innerHTML = r.html;
   if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
-  r.desenhar?.(); // gráficos do perfil de lugar: depois de abrir, com a largura conhecida
+  if (r.desenhar) { await carregarGraficos().catch((e) => console.error(e)); r.desenhar(); } // gráficos do perfil de lugar: depois de abrir, com a largura conhecida
 }
 addEventListener("hashchange", rota);
 // Janelas: ×, Esc e clique fora fecham com animação e limpam o endereço (CA-20.2).
@@ -220,6 +222,13 @@ function renderTudo() {
 }
 for (const id of ["#evo-dim", "#evo-etapa"]) $(id).addEventListener("change", () => renderEvolucao(linhasDe("evolucao"), ctxDe("evolucao")));
 $("#funil-dim").addEventListener("change", () => renderFunil(linhasDe("funil")));
+$("#rank-medida").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-v]");
+  if (!b) return;
+  $$("#rank-medida button").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+  renderParte("ranking");
+});
+$("#ranking").addEventListener("click", (e) => { const b = e.target.closest("button[data-pessoa]"); if (b) abrirPerfil(b.dataset.pessoa); });
 
 montarFiltros();
 $$("select").forEach(melhorarSelect);
@@ -238,6 +247,8 @@ montarDiadorim();
 montarBusca(D);
 montarExportacao();
 luzNosBlocos();
+// Pré-carrega as bibliotecas dos gráficos quando a página fica ociosa: a primeira janela já abre pronta.
+(window.requestIdleCallback ?? ((f) => setTimeout(f, 2500)))(() => carregarGraficos().catch(() => {}));
 
 // Revelação ao rolar (CA-19.1): só com IntersectionObserver e movimento permitido; sem isso, tudo já aparece.
 function revelarAoRolar() {

@@ -69,6 +69,14 @@ CREATE TABLE obra (
   ano_publicacao  INTEGER
 );
 
+-- Capa de cada obra (RF-24): imagem exibida a partir da fonte (não guardamos cópia), com link para a página dela.
+CREATE TABLE obra_capa (
+  obra_id   TEXT PRIMARY KEY REFERENCES obra(id),
+  capa_url  TEXT NOT NULL CHECK (capa_url LIKE 'https://%'),
+  fonte     TEXT NOT NULL CHECK (fonte IN ('google_books', 'open_library')),
+  pagina    TEXT CHECK (pagina IS NULL OR pagina LIKE 'https://%')
+);
+
 CREATE TABLE autoria (
   obra_id    TEXT NOT NULL REFERENCES obra(id),
   pessoa_id  TEXT NOT NULL REFERENCES pessoa(id),

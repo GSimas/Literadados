@@ -8,13 +8,10 @@
 <meta name="color-scheme" content="light dark">
 <script>/* tema salvo antes do primeiro quadro (sem piscar o tema errado); tema.js cuida do resto */try{var t=localStorage.getItem("tema");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fontes/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 <script type="module" src="app.js"></script>
 </head>
 <body>
@@ -165,6 +162,13 @@
         
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
+      <a class="cartao-grafico" href="#/grafico/ranking" data-janela="ranking">
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V13h5v8M9.5 21V8h5v13M15 21v-6h5v6M3 21h18"/><path d="M12 3.2l.8 1.6 1.7.2-1.3 1.2.3 1.7-1.5-.8-1.5.8.3-1.7-1.3-1.2 1.7-.2z"/></svg>
+        <span class="cg-sobre">Ranking</span>
+        <span class="cg-titulo">Mais premiados e mais indicados</span>
+        <span class="cg-desc">As pessoas que mais subiram ao pódio, mais venceram e mais chegaram à lista.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
       <a class="cartao-grafico" href="#/grafico/juri" data-janela="juri">
         <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0M10.5 20a5.5 5.5 0 0 1 11 0"/></svg>
         <span class="cg-sobre">Análises · Júri</span>
@@ -302,6 +306,22 @@
       <figure class="cartao"><h3>Editoras com mais indicações</h3><div id="g-editoras" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-editoras"></div></details></figure>
       <figure class="cartao"><h3>Grupos editoriais e independentes</h3><div id="g-grupos" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-grupos"></div></details></figure>
     </div>
+  </div>
+</dialog>
+<dialog id="ranking" class="janela" aria-labelledby="h-ranking">
+  <div class="janela-topo"><div data-filtro="ranking"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
+    <header class="secao-cab"><p class="sobretitulo">Ranking</p><h2 id="h-ranking">Mais premiados e mais indicados</h2>
+      <p class="lead">As 20 primeiras posições no recorte do filtro (com empates, podem ser mais). Prêmios contam o pódio (1º a 3º até 2017, só o 1º depois); indicações contam cada vez na lista. Clique numa barra ou num nome para abrir o perfil.</p></header>
+    <div class="controles" role="group" aria-label="Medida do ranking">
+      <div class="segmentado" id="rank-medida" role="radiogroup" aria-label="Medida">
+        <button type="button" role="radio" aria-checked="true" data-v="premios">Prêmios</button>
+        <button type="button" role="radio" aria-checked="false" data-v="vitorias">1º lugar</button>
+        <button type="button" role="radio" aria-checked="false" data-v="participacoes">Indicações</button>
+      </div>
+    </div>
+    <figure class="cartao"><div id="g-ranking" class="grafico"></div><figcaption>Cor: gênero. Passe o mouse para ver UF, prêmios, 1º lugares e indicações.</figcaption>
+      <details><summary>Ver dados em tabela</summary><div id="t-ranking"></div></details></figure>
   </div>
 </dialog>
 <dialog id="juri" class="janela" aria-labelledby="h-juri">

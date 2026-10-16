@@ -1,2 +1,3 @@
 duckdb==1.5.1
 pytest==9.0.3
+pillow==12.3.0  # só coleta.py miniaturas/capas

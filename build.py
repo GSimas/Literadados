@@ -10,7 +10,7 @@ from pathlib import Path
 import duckdb
 
 RAIZ = Path(__file__).parent
-TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -100,6 +100,10 @@ def fontes(con) -> list[dict]:
     return sorted(por.values(), key=lambda r: (-r["registros"], r["dominio"]))
 
 
+def _tem_miniatura(pessoa_id: str) -> bool:
+    return all((RAIZ / "web" / "fotos" / f"{pessoa_id}-{w}.webp").exists() for w in (160, 480))
+
+
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
     return {
@@ -125,8 +129,11 @@ def exportar(con) -> dict:
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
         "cobertura": _linhas(con, "SELECT * FROM v_cobertura ORDER BY ano"),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
-        "midia": [{k: v for k, v in m.items() if v is not None} for m in _linhas(con, """
+        # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
+        "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
+                  for m in _linhas(con, """
                   SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
+        "capas": _linhas(con, "SELECT obra_id, capa_url AS url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id"),
         "fontes": fontes(con),
     }
 
@@ -138,7 +145,10 @@ def prompt_sistema(con) -> str:
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
     return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
-Responda sempre em português do Brasil, de forma direta, começando pelo número pedido.
+Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
+Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
+comparar com o total do recorte (n e %) e fechar com uma frase de leitura. Para isso, além da contagem, consulte as linhas
+por trás do número (pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao).
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
 Regras de análise:

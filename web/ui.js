@@ -52,6 +52,14 @@ export const botaoExportarGrafico = () => {
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg>';
   return b;
 };
+// Plot e d3-sankey (dependem do d3 global) só carregam quando um gráfico de janela ou de perfil de lugar vai ser desenhado (RNF-08).
+const BIBLIOTECAS = ["https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/dist/plot.umd.min.js", "https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"];
+let carregando = null;
+export function carregarGraficos() {
+  carregando ??= Promise.all(BIBLIOTECAS.map((src) => new Promise((ok, erro) => document.head.append(Object.assign(document.createElement("script"),
+    { src, onload: ok, onerror: () => { carregando = null; erro(new Error(`não carregou ${src}`)); } })))));
+  return carregando;
+}
 export const desenhar = (el, no) => {
   no.querySelectorAll("g[aria-label]").forEach((g) => g.setAttribute("aria-hidden", "true")); // marcas do Plot: o <svg> leva o rótulo e há tabela equivalente
   el.replaceChildren(no, botaoExportarGrafico()); realcarNoHover(no); suavizarDicas(no);
@@ -82,12 +90,14 @@ export const dica = {
 
 // Foto do Commons (licença livre, CA-11.3) ou avatar de iniciais com matiz neutro derivado do id.
 export const urlFoto = (arquivo, w = 320) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(arquivo)}?width=${w}`;
+// Miniatura WebP servida pelo site (coleta.py miniaturas, RNF-08) quando existe; senão, o Commons.
+export const srcFoto = (id, m, w) => (m.miniatura ? `fotos/${id}-${w <= 160 ? 160 : 480}.webp` : urlFoto(m.imagem, w));
 export const paginaArquivo = (arquivo) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(arquivo.replace(/ /g, "_"))}`;
 export function foto(p, midia, { w = 320, classe = "foto" } = {}) {
   const avatar = `<span class="avatar" aria-hidden="true" data-iniciais="${esc(M.iniciais(p.nome))}" style="--h:${M.corAvatar(p.id)}"></span>`;
   if (!midia?.imagem) return `<span class="${classe}">${avatar}</span>`;
   // O avatar fica por baixo: se a foto não carregar, ela some e as iniciais aparecem.
-  return `<span class="${classe}">${avatar}<img src="${esc(urlFoto(midia.imagem, w))}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>`;
+  return `<span class="${classe}">${avatar}<img src="${esc(srcFoto(p.id, midia, w))}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>`;
 }
 export const credito = (m) => (m?.imagem
   ? `Foto: ${esc(m.imagem_autor)} · <a href="${esc(paginaArquivo(m.imagem))}" target="_blank" rel="noopener noreferrer">${esc(m.imagem_licenca)}, Wikimedia Commons</a>`

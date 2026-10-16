@@ -290,6 +290,19 @@ export function resumoPessoas(linhas, pessoas) {
   });
 }
 
+// Ranking de pessoas (RF-23): por prêmios (pódio), 1º lugares ou indicações. Empate na medida desempata pelas outras e pelo
+// nome; a posição é de competição (1, 2, 2, 4) e só olha a medida escolhida.
+export const MEDIDAS_RANKING = { premios: ["premios", "vitorias", "participacoes"], vitorias: ["vitorias", "premios", "participacoes"],
+  participacoes: ["participacoes", "premios", "vitorias"] };
+export function ranking(linhas, pessoas, medida = "premios", n = 20) {
+  const ordem = MEDIDAS_RANKING[medida];
+  const lista = resumoPessoas(linhas, pessoas).filter((p) => p[medida] > 0)
+    .sort((a, b) => ordem.reduce((r, k) => r || b[k] - a[k], 0) || a.nome.localeCompare(b.nome, "pt-BR"));
+  let pos = 0;
+  return lista.map(({ linhas: _, ...p }, i) => ({ ...p, posicao: i && lista[i - 1][medida] === p[medida] ? pos : (pos = i + 1) }))
+    .filter((p) => p.posicao <= n);
+}
+
 function groupBy(arr, chave) {
   const m = new Map();
   for (const x of arr) { const k = chave(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); }
@@ -420,11 +433,18 @@ export function anel(n, largura) {
     }
     return { d, miolo, raio: (n ? r - passo : miolo) + d / 2, pos };
   };
-  for (let d = Math.min(68, W / 8); d > 18; d -= 1) {
+  for (let d = Math.min(68, W / 5); d > 18; d -= 1) { // poucos retratos numa tela estreita: até W/5 (alvo de toque, CA-11.7)
     const a = montar(d);
     if (a.raio * 2 <= W) return a;
   }
   return montar(18);
+}
+
+// Quantas pessoas cabem no anel com retratos de pelo menos dMin px (alvo de toque, CA-11.7). anel(n).d só cai quando n cresce.
+export function capacidadeAnel(largura, dMin = 44, max = 100) {
+  let lo = 1, hi = max;
+  while (lo < hi) { const m = Math.ceil((lo + hi) / 2); if (anel(m, largura).d >= dMin) lo = m; else hi = m - 1; }
+  return lo;
 }
 
 // Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
@@ -479,7 +499,7 @@ export function indiceBusca(D) {
     if (!ol) continue;
     const autores = [...new Set(ol.filter((l) => l.papel === "autor").map((l) => l.nome))];
     const edicoes = [...new Set(ol.map((l) => `${l.categoria} ${l.ano}`))];
-    add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/pessoa/${(ol.find((l) => l.papel === "autor") ?? ol[0]).pessoa_id}`, autores.join(" "));
+    add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/obra/${o.id}`, autores.join(" "));
   }
   const ufs = D.ufs.filter((u) => u.uf !== "EX");
   for (const u of ufs) add("Estado", u.nome, `${u.uf} · ${u.regiao}`, `#/uf/${u.uf}`, u.uf);

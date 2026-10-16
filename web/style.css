@@ -1,3 +1,12 @@
+/* Fontes auto-hospedadas (RNF-08): Inter e Fraunces (OFL), variáveis, subconjuntos latin e latin-ext do Google Fonts.
+   Fallbacks com métricas ajustadas (size-adjust/ascent/descent, calculados com fontTools sobre Arial e Georgia): a troca de fonte quase não mexe no layout. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("fontes/inter-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("fontes/inter-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 500 700; font-display: swap; src: url("fontes/fraunces-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 500 700; font-display: swap; src: url("fontes/fraunces-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Inter fallback"; src: local("Arial"), local("ArialMT"), local("Helvetica"); size-adjust: 105.73%; ascent-override: 91.62%; descent-override: 22.81%; line-gap-override: 0%; }
+@font-face { font-family: "Fraunces fallback"; src: local("Georgia"); size-adjust: 112.40%; ascent-override: 87.01%; descent-override: 22.69%; line-gap-override: 0%; }
+
 /* Literadados — tokens.
    Séries categóricas: paleta de referência validada (skill dataviz, palette.md), escuro selecionado, não invertido.
    Marca e superfícies: tom de papel no claro, grafite no escuro. */
@@ -28,8 +37,8 @@
   --seq-0: #e3eefb; --seq-1: #0d366b;
   --raio: 14px;
   --raio-p: 8px;
-  --fonte: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --fonte-titulo: "Fraunces", Georgia, "Times New Roman", serif;
+  --fonte: "Inter", "Inter fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fonte-titulo: "Fraunces", "Fraunces fallback", Georgia, "Times New Roman", serif;
   --barra-h: 3.5rem;
   font-family: var(--fonte);
 }
@@ -822,3 +831,34 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
 .dd-cab:hover p { color: var(--tinta); }
 /* Cobertura por edição: 16 linhas, mostradas inteiras (uma rolagem só, a lateral, se a tela for estreita) */
 #t-cobertura .rolagem { max-height: none; }
+
+/* Contexto automático da Diadorim (CA-12.12) */
+.dd-contexto { margin-top: .55rem; padding-top: .5rem; border-top: 1px dashed var(--borda); }
+.dd-contexto ul { padding-left: 1.1rem; }
+
+/* ---------- alvos de toque (CA-11.7, RNF-05): em tela de toque, controles com pelo menos 44 × 44 px ----------
+   Links dentro de texto corrido (fonte, crédito) ficam com 24 px (WCAG 2.2, 2.5.8), para não quebrar a leitura. */
+@media (pointer: coarse) {
+  .botao, .botao-fantasma, .botao-icone, .sel-botao, .segmentado button, .chip, .chip-link, .link-pessoa, .links-externos a, .ref-grupo li a,
+  .pular-historia, summary, .nav a, input[type="search"], .dd-sugestoes button, .sel-lista li, .menu button, .busca-resultados li, .marca,
+  .exportar-botao, .dd-icone, .fechar, .tempo-seta, .pag-seta, .botao-icone.so-icone { min-height: 44px; }
+  .botao-icone.so-icone, .dd-icone, .fechar, .tempo-seta, .exportar-botao, .marca { min-width: 44px; }
+  .botao-icone.so-icone, .dd-icone, .fechar, .tempo-seta { width: 44px; height: 44px; }
+  .exportar-botao { opacity: .85; }
+  .busca-global { flex-basis: 44px; }
+  .segmentado { padding: 2px; }
+  .segmentado button, .nav a, .sel-botao { display: inline-flex; align-items: center; }
+  .chips, .links-externos, .dd-conferir { gap: .5rem; }
+  .fonte-link, .credito a { min-height: 24px; }
+}
+
+/* ---------- perfil de livro (RF-24) ---------- */
+.obra-cab { grid-template-columns: 180px 1fr; }
+.capa { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; border-radius: 6px 10px 10px 6px; overflow: hidden;
+  background: hsl(var(--h, 150) 32% 28%); box-shadow: inset 6px 0 10px -6px rgba(0, 0, 0, .45), var(--sombra), 0 12px 28px rgba(0, 0, 0, .18); }
+.capa img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.capa-tip { position: absolute; inset: 0; display: grid; align-content: space-between; gap: .5rem; padding: 1rem .85rem 1rem 1.1rem; color: #fff;
+  font-family: var(--fonte-titulo); font-weight: 700; font-size: 1.1rem; line-height: 1.15; overflow-wrap: anywhere; overflow: hidden; }
+.capa-tip small { font-family: var(--fonte); font-weight: 500; font-size: .74rem; opacity: .85; }
+.obras-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; font-size: .9rem; }
+@media (max-width: 720px) { .obra-cab .capa { width: 140px; } }

@@ -7,7 +7,7 @@ const OPENROUTER = "https://openrouter.ai";
 const MODELO = "openrouter/free";
 const RODADAS = 6;
 const CHAVE = "or_chave";
-const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "juri"];
+const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
 export const SUGESTOES = [
   "Quantos autores pretos nascidos em São Paulo chegaram à lista do Jabuti em Contos?",
   "Quantas mulheres nascidas no Nordeste foram premiadas?",
@@ -21,14 +21,53 @@ const PERSONA = `Você é Diadorim, a assistente de inteligência artificial do 
 Sua personagem é inspirada na Diadorim de "Grande Sertão: Veredas", de Guimarães Rosa: firme, leal, corajosa e reservada,
 de frases curtas e certeiras, com um leve sabor do falar sertanejo (travessia, vereda, sertão, jagunçagem de dados), sem
 exagero e sem nunca prejudicar a clareza. Não cite nem parafraseie trechos do livro. Você é uma IA: se perguntarem, diga
-isso, e nunca finja ser gente. Responda sempre em português do Brasil, começando pelo número ou pela resposta pedida.`;
+isso, e nunca finja ser gente. Responda sempre em português do Brasil, começando pelo número ou pela resposta pedida
+e, em seguida, com contexto: quem são, de onde, quando, e quanto isso pesa no total. Frase curta não é resposta seca.`;
+
+// Resposta seca (CA-12.12): pergunta sobre os dados respondida só com o número. Insiste uma vez com o modelo; se continuar
+// seca, o próprio Literadados consulta as linhas por trás do número e monta o contexto (vale para qualquer modelo).
+const INSISTIR = `Sua resposta ficou curta demais: só o número não basta. Consulte as linhas por trás dele em v_participacao
+(pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao) e reescreva: comece pelo número, diga quem são
+(nome com link para o perfil, estado, ano, categoria e obra; até 10, e quantos faltam), compare com o total do recorte
+(n e %) e feche com uma frase de leitura. As regras de antes continuam valendo.`;
+const MIN_PALAVRAS = 25;
+export function respostaSeca(texto) {
+  const corpo = String(texto ?? "").replace(/\n\s*(?:[#*_]*\s*)?(?:fontes|referências|referencias|onde conferir)\s*[*_]*\s*:[\s\S]*$/i, "");
+  return (corpo.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").match(/[\p{L}\p{N}]+/gu) ?? []).length < MIN_PALAVRAS;
+}
+// SELECT agregado simples sobre v_participacao → as linhas que ele contou. ponytail: só o caso sem GROUP BY/WITH/UNION;
+// outros formatos devolvem null e ficam sem o bloco automático.
+export function consultaDeDetalhe(sql) {
+  const s = String(sql).replace(/;\s*$/, "").trim();
+  if (/\b(group\s+by|union|having|with|join)\b/i.test(s)) return null;
+  const m = s.match(/^select\s+([\s\S]+?)\s+from\s+(v_participacao\b[\s\S]*)$/i);
+  if (!m || !/\b(count|sum|avg)\s*\(/i.test(m[1])) return null;
+  return `SELECT pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao FROM ${m[2].replace(/\s+(order\s+by|limit)\b[\s\S]*$/i, "")} ORDER BY nome, ano LIMIT 200`;
+}
+// Bloco "Quem são" em Markdown, a partir de uma consulta com pessoa_id e nome (uma linha por participação).
+export function blocoContexto(c) {
+  const col = (n) => c.colunas.indexOf(n), [iP, iN, iU, iA, iC, iT, iL] = ["pessoa_id", "nome", "uf_nascimento", "ano", "categoria", "titulo", "colocacao"].map(col);
+  if (iP < 0 || iN < 0 || !c.linhas.length) return "";
+  const pessoas = new Map();
+  for (const l of c.linhas) {
+    const p = pessoas.get(l[iP]) ?? pessoas.set(l[iP], { nome: l[iN], uf: iU >= 0 ? l[iU] : null, obras: [] }).get(l[iP]);
+    const lugar = iL >= 0 && l[iL] != null ? `, ${l[iL]}º lugar` : "";
+    if (iA >= 0) p.obras.push(`${l[iA]}${iC >= 0 ? ` · ${l[iC]}` : ""}${iT >= 0 ? ` · *${l[iT]}*` : ""}${lugar}`);
+  }
+  const lista = [...pessoas].slice(0, 10).map(([id, p]) => `- [${p.nome}](#/pessoa/${id})${p.uf ? ` (${p.uf === "EX" ? "nascida fora do Brasil" : p.uf})` : ""}${p.obras.length ? `: ${p.obras.join("; ")}` : ""}`);
+  const resto = pessoas.size - lista.length;
+  const ufs = d3Contagem([...pessoas.values()].map((p) => p.uf ?? "sem dado"));
+  return `**Quem são** (${pessoas.size} pessoa${pessoas.size === 1 ? "" : "s"}${c.truncado ? ", nas primeiras 200 linhas" : ""}):\n${lista.join("\n")}${resto > 0 ? `\n- … e mais ${resto}.` : ""}`
+    + (iU >= 0 ? `\n\n**Por estado de nascimento:** ${ufs.map(([u, n]) => `${u} ${n}`).join(" · ")}.` : "");
+}
+const d3Contagem = (xs) => [...xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map())].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
 
 const REGRAS_LINK = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
-- Pessoas: [Nome](#/pessoa/<pessoa_id>), com o pessoa_id exato vindo de uma consulta.
+- Pessoas: [Nome](#/pessoa/<pessoa_id>), com o pessoa_id exato vindo de uma consulta. Livros: [Título](#/obra/<obra_id>).
 - Gráficos do painel: [Linha do tempo](#/grafico/linha-do-tempo) (composição de cada edição e vencedoras), [Mapa](#/grafico/geografia)
   (UF de nascimento e fluxo região → editora → resultado), [Evolução](#/grafico/evolucao) (composição por edição),
   [Funil](#/grafico/funil) (lista → finalistas → premiadas → vencedoras), [Categorias](#/grafico/segregacao) (índice de Duncan),
-  [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Júri](#/grafico/juri).
+  [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Ranking](#/grafico/ranking) (mais premiados e indicados), [Júri](#/grafico/juri).
 - Seções: [Panorama](#panorama), [Autores](#autores), [Método](metodo.html#metodologia), [Referências](metodo.html#referencias).
 - Fontes externas: URLs das colunas fonte, genero_fonte, raca_fonte e nascimento_fonte, quando sustentarem a resposta.
 Nunca invente URL nem pessoa_id: use só o que vier das consultas. Mostre o n junto de todo percentual.
@@ -58,9 +97,10 @@ export function referencias(texto, consultas = []) {
   }
   for (const c of consultas) {
     const col = (nome) => c.colunas.indexOf(nome);
-    const [iP, iN, iU, iR] = [col("pessoa_id"), col("nome"), col("uf_nascimento"), col("regiao_nascimento")];
+    const [iP, iN, iU, iR, iO, iT] = [col("pessoa_id"), col("nome"), col("uf_nascimento"), col("regiao_nascimento"), col("obra_id"), col("titulo")];
     for (const l of c.linhas.slice(0, 8)) {
       if (iP >= 0 && l[iP]) add(`#/pessoa/${l[iP]}`, iN >= 0 && l[iN] ? String(l[iN]) : String(l[iP]));
+      if (iO >= 0 && l[iO]) add(`#/obra/${l[iO]}`, iT >= 0 && l[iT] ? String(l[iT]) : String(l[iO]));
       if (iU >= 0 && l[iU] && l[iU] !== "EX") add(`#/uf/${l[iU]}`, String(l[iU]));
       if (iR >= 0 && l[iR] && l[iR] !== "Exterior") add(`#/regiao/${encodeURIComponent(l[iR])}`, String(l[iR]));
       for (const v of l) if (typeof v === "string" && v.startsWith("https://")) add(v.split(" ; ")[0], new URL(v.split(" ; ")[0]).hostname.replace(/^www\./, ""));
@@ -76,14 +116,14 @@ const FERRAMENTAS = [{
   function: {
     name: "consultar_sql",
     description: "Executa uma consulta SQL somente leitura (DuckDB) no banco do Literadados e devolve colunas e linhas (até 200).",
-    parameters: { type: "object", properties: { sql: { type: "string", description: "Um único SELECT ou WITH. Prefira a view v_participacao." } }, required: ["sql"] },
+    parameters: { type: "object", properties: { sql: { type: "string", description: "Um único SELECT ou WITH. Prefira a view v_participacao. Além da contagem, traga as linhas (pessoa_id, nome, uf_nascimento, ano, categoria, titulo) para dar contexto." } }, required: ["sql"] },
   },
 }];
 
 // ---------- Markdown mínimo e seguro (texto escapado; links só para o painel, metodo.html ou https) ----------
 export function hrefSeguro(u) {
   const h = String(u).trim();
-  if (/^#\/pessoa\/[\w-]+$/.test(h)) return h;
+  if (/^#\/(pessoa|obra)\/[\w-]+$/.test(h)) return h;
   if (/^#\/uf\/[A-Z]{2}$/.test(h) || /^#\/regiao\/(Norte|Nordeste|Sudeste|Sul|Centro-Oeste)$/.test(h)) return h;
   if (/^#\/grafico\/([\w-]+)$/.test(h)) return JANELAS.includes(h.split("/")[2]) ? h : null;
   if (/^#[\w-]+$/.test(h) || /^metodo\.html(#[\w-]+)?$/.test(h)) return h;
@@ -200,11 +240,25 @@ async function consultarBanco(sql, consultas, aoPasso) {
   }
 }
 
+// Contexto sem depender do modelo: usa uma consulta que já traga pessoas ou detalha a última contagem simples.
+async function contextoDoBanco(consultas, consultar, aoPasso) {
+  const comPessoas = consultas.findLast((c) => c.colunas.includes("pessoa_id") && c.colunas.includes("nome") && c.linhas.length);
+  if (comPessoas) return blocoContexto(comPessoas);
+  const sql = consultas.map((c) => consultaDeDetalhe(c.sql)).findLast(Boolean);
+  if (!sql) return "";
+  aoPasso({ tipo: "sql", texto: `Consultando o banco: ${sql.slice(0, 140)}${sql.length > 140 ? "…" : ""}` });
+  const res = await consultar(sql, consultas, aoPasso);
+  if (res.erro) return "";
+  consultas.at(-1).auto = true; // marcada na interface como consulta do Literadados
+  return blocoContexto({ ...res, sql });
+}
+
 // Laço de ferramentas. aoPasso({tipo, texto}) narra cada etapa para a interface (CA-12.9).
 export async function responder(pergunta, historico, chave, { modelo = MODELO, aoPasso = () => {}, consultar = consultarBanco } = {}) {
   aoPasso({ tipo: "contexto", texto: "Lendo as regras e o esquema do Literadados" });
   const mensagens = [{ role: "system", content: await prompt() }, ...historico.slice(-12), { role: "user", content: pergunta }];
   const consultas = [];
+  let insistiu = false;
   for (let i = 0; i < RODADAS; i++) {
     const ultima = i === RODADAS - 1;
     aoPasso({ tipo: "rodada", texto: i === 0 ? `Pensando com ${modelo}` : ultima ? "Fechando a resposta" : `Pensando de novo com o que o banco devolveu (rodada ${i + 1})` });
@@ -222,8 +276,21 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
     if (!msg) throw new Error("O modelo não respondeu. Tente de novo.");
     mensagens.push(msg);
     if (!msg.tool_calls?.length) {
+      const texto = msg.content ?? "";
+      if (consultas.length && respostaSeca(texto)) {
+        if (!insistiu && i < RODADAS - 2) {
+          insistiu = true;
+          aoPasso({ tipo: "rodada", texto: "Resposta seca demais: pedindo contexto ao modelo" });
+          mensagens.push({ role: "user", content: INSISTIR });
+          continue;
+        }
+        aoPasso({ tipo: "contexto", texto: "Buscando no banco quem está por trás do número" });
+        const contexto = await contextoDoBanco(consultas, consultar, aoPasso);
+        aoPasso({ tipo: "escrita", texto: "Escrevendo a resposta" });
+        return { texto, contexto, consultas, modelo: corpo.model ?? modelo };
+      }
       aoPasso({ tipo: "escrita", texto: "Escrevendo a resposta" });
-      return { texto: msg.content ?? "", consultas, modelo: corpo.model ?? modelo };
+      return { texto, consultas, modelo: corpo.model ?? modelo };
     }
     for (const tc of msg.tool_calls) {
       let args = {};
@@ -325,17 +392,17 @@ export function montarDiadorim() {
     try {
       const r = await responder(texto, historico, chave, { modelo, aoPasso });
       passos.lastElementChild?.classList.add("feito");
-      historico.push({ role: "user", content: texto }, { role: "assistant", content: r.texto });
+      historico.push({ role: "user", content: texto }, { role: "assistant", content: r.contexto ? `${r.texto}\n\n${r.contexto}` : r.texto });
       const ref = referencias(r.texto, r.consultas);
       const ondeConferir = `<div class="dd-conferir"><span>Onde conferir</span>${ref.links.map((l) => {
         const ext = l.href.startsWith("https:");
         return `<a class="${ext ? "chip-link" : "link-interno"}" href="${esc(l.href)}"${ext ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(l.rotulo)}</a>`;
       }).join("")}</div>`;
-      const sqls = r.consultas.map((c, i) => `<details><summary>Consulta ${i + 1}${c.truncado ? " (primeiras 200 linhas)" : ""}</summary><pre>${esc(c.sql)}</pre>
+      const sqls = r.consultas.map((c, i) => `<details><summary>Consulta ${i + 1}${c.auto ? " (do Literadados, para dar contexto)" : ""}${c.truncado ? " (primeiras 200 linhas)" : ""}</summary><pre>${esc(c.sql)}</pre>
         <div class="tabela-exportavel">${BOTAO_TABELA}<div class="rolagem"><table class="tabela"><thead><tr>${c.colunas.map((x) => `<th>${esc(x)}</th>`).join("")}</tr></thead>
         <tbody>${c.linhas.slice(0, 30).map((l) => `<tr>${l.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div></details>`).join("");
       pend.classList.remove("pensando");
-      pend.innerHTML = md(ref.texto) + ondeConferir + sqls
+      pend.innerHTML = md(ref.texto) + (r.contexto ? `<div class="dd-contexto">${md(r.contexto)}<p class="dd-meta">Contexto montado pelo Literadados a partir do banco, porque a resposta do modelo veio só com o número.</p></div>` : "") + ondeConferir + sqls
         + `<details class="dd-passos-fim"><summary>Passos (${passos.children.length})</summary>${passos.outerHTML}</details>`
         + rodape(`modelo: <b>${esc(r.modelo ?? modelo)}</b> · ${r.consultas.length} consulta${r.consultas.length === 1 ? "" : "s"} ao banco`);
     } catch (e) {

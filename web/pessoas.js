@@ -67,6 +67,8 @@ const htmlCentro = (p) => `<div class="centro-pessoa">
   ${p.vitorias ? `<span class="selo">★ ${vezes(p.vitorias)} 1º lugar</span>` : p.premios ? `<span class="selo">${p.premios} prêmio${p.premios > 1 ? "s" : ""}</span>` : ""}
   <span class="centro-dica">clique para abrir o perfil</span></div>`;
 
+const larguraAnel = () => Math.min($("#galeria").parentElement.clientWidth || 700, 980, Math.max(340, innerHeight - 70));
+
 export function renderPessoas(L, { D, midiaPorId }) {
   const termo = semAcento($("#busca").value.trim());
   const ordem = $("#ordem").value;
@@ -79,9 +81,11 @@ export function renderPessoas(L, { D, midiaPorId }) {
   const tabelaVis = vista === "tabela";
   $("#galeria").hidden = tabelaVis;
   $("#tabela-pessoas-wrap").hidden = !tabelaVis;
-  nPag = Math.max(1, Math.ceil(lista.length / PAGINA));
+  // Tela de toque: menos pessoas por página, para cada retrato ter ao menos 44 px (CA-11.7).
+  const porPagina = !tabelaVis && matchMedia("(pointer: coarse)").matches ? M.capacidadeAnel(larguraAnel(), 44, PAGINA) : PAGINA;
+  nPag = Math.max(1, Math.ceil(lista.length / porPagina));
   pagina = Math.min(pagina, nPag);
-  const ini = (pagina - 1) * PAGINA, pag = lista.slice(ini, ini + PAGINA);
+  const ini = (pagina - 1) * porPagina, pag = lista.slice(ini, ini + porPagina);
   $("#pag-ant").disabled = pagina === 1;
   $("#pag-prox").disabled = pagina === nPag;
   $(".anel-palco").classList.toggle("so-uma", nPag === 1);
@@ -98,7 +102,7 @@ export function renderPessoas(L, { D, midiaPorId }) {
   if (!pag.length) { g.style.cssText = ""; g.innerHTML = `<p class="vazio">Ninguém encontrado.</p>`; return; }
   resumoPorId = new Map(pag.map((p) => [p.id, p]));
   // Cabe na largura e na altura da tela (o anel inteiro à vista, com os controles).
-  const a = M.anel(pag.length, Math.min(g.parentElement.clientWidth || 700, 980, Math.max(340, innerHeight - 70)));
+  const a = M.anel(pag.length, larguraAnel());
   const lado = Math.ceil(a.raio * 2);
   g.style.cssText = `width:${lado}px;height:${lado}px;--d:${a.d}px;--miolo:${a.miolo * 2}px`;
   const padrao = `<div class="centro-pessoa centro-padrao"><b class="centro-nome">${fmt(lista.length)} pessoas</b>
@@ -158,11 +162,67 @@ export function htmlPerfil(id, { D, midiaPorId }) {
         <h3>No Prêmio Jabuti</h3>
         <ol class="cronologia">${[ // indicação, júri e organização numa só ordem por ano (no mesmo ano, nessa ordem)
           ...ls.map((l) => [l.ano, 0, `<li class="${l.premiada ? "premio" : ""}" style="--i:IDX"><span class="ano">${l.ano}</span> · ${esc(l.categoria)}<br>
-          <i>${esc(l.titulo)}</i>${l.editora ? ` <span class="muted">(${esc(l.editora)})</span>` : ""}<br>
+          <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a>${l.editora ? ` <span class="muted">(${esc(l.editora)})</span>` : ""}<br>
           <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}${l.papel !== "autor" ? ` · ${esc(l.papel)}` : ""}</span></li>`]),
           ...jur.map((j) => [j.ano, 1, `<li style="--i:IDX"><span class="ano">${j.ano}</span> · jurado(a) de ${esc(j.categoria)}</li>`]),
-          ...org.map((l) => [l.ano, 2, `<li style="--i:IDX"><span class="ano">${l.ano}</span> · organizou <i>${esc(l.titulo)}</i> <span class="muted pequeno">(fora das contagens)</span></li>`]),
+          ...org.map((l) => [l.ano, 2, `<li style="--i:IDX"><span class="ano">${l.ano}</span> · organizou <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a> <span class="muted pequeno">(fora das contagens)</span></li>`]),
         ].sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(([, , h], i) => h.replace("--i:IDX", `--i:${i}`)).join("")}</ol>
+      </section>
+    </div></article>`;
+}
+
+// Perfil de livro (RF-24): #/obra/<id>. Capa vinda da fonte (Google Books ou Open Library) quando a coleta achou uma que
+// bate título e autor; por baixo dela, sempre, uma capa tipográfica (aparece se não houver imagem ou se ela não carregar).
+const FONTE_CAPA = { google_books: "Google Books", open_library: "Open Library" };
+export function htmlObra(id, { D }) {
+  const o = D.obras.find((x) => x.id === id), ls = D.participacao.filter((l) => l.obra_id === id);
+  if (!o || !ls.length) return null;
+  const capa = (D.capas ?? []).find((c) => c.obra_id === id), ed = D.editoras.find((e) => e.id === o.editora_id);
+  const papel = (p) => [...new Map(ls.filter((l) => l.papel === p).map((l) => [l.pessoa_id, l])).values()];
+  const [autores, ilus, orgs] = ["autor", "ilustrador", "organizador"].map(papel);
+  const chips = (xs) => xs.map((l) => `<button type="button" class="link-pessoa" data-pessoa="${esc(l.pessoa_id)}">${esc(l.nome)}</button>`).join("");
+  const edicoes = [...new Map(ls.map((l) => [`${l.ano}|${l.nome_original}`, l])).values()].sort((a, b) => a.ano - b.ano || a.categoria.localeCompare(b.categoria));
+  const vit = edicoes.filter((l) => l.vencedora).length, prem = edicoes.filter((l) => l.premiada).length;
+  const cats = [...new Set(edicoes.map((l) => l.categoria))];
+  // Outras obras de quem escreveu, no recorte (contexto para quem chega pelo livro).
+  const ids = new Set(autores.map((l) => l.pessoa_id));
+  const outras = [...new Map(D.participacao.filter((l) => ids.has(l.pessoa_id) && l.obra_id !== id && l.papel === "autor").map((l) => [l.obra_id, l])).values()]
+    .sort((a, b) => a.ano - b.ano).slice(0, 12);
+  const nomesAutores = autores.map((l) => l.nome).join(", ");
+  const tipografica = `<span class="capa-tip"><span>${esc(o.titulo)}</span><small>${esc(nomesAutores)}</small></span>`;
+  const imgCapa = capa ? `<img src="${esc(capa.url)}" alt="Capa de ${esc(o.titulo)}" width="128" height="192" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
+  const links = [
+    capa?.pagina && `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte]}</a>`,
+    `<a href="#/obra/${esc(id)}" data-copiar>Link deste perfil</a>`,
+  ].filter(Boolean).join("");
+  return `<article>
+    <header class="perfil-cab obra-cab">
+      <div><span class="capa" style="--h:${M.corAvatar(id)}">${tipografica}${imgCapa}</span>
+        ${capa ? `<p class="credito">Capa: ${capa.pagina ? `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte]}</a>` : FONTE_CAPA[capa.fonte]}</p>` : `<p class="credito">Sem imagem de capa encontrada.</p>`}</div>
+      <div>
+        <p class="sobretitulo">Livro · ${cats.map(esc).join(" · ")}</p>
+        <h2 id="perfil-nome">${esc(o.titulo)}</h2>
+        <p>${edicoes.length} indicaç${edicoes.length === 1 ? "ão" : "ões"} · ${prem ? `${prem} prêmio${prem > 1 ? "s" : ""}` : "sem prêmio"}${vit ? ` · <b>${vezes(vit)} 1º lugar</b>` : ""}</p>
+        <div class="links-externos">${links}</div>
+      </div>
+    </header>
+    <div class="perfil-corpo">
+      <section aria-label="Autoria e edição">
+        <h3>Autoria e edição</h3>
+        <dl class="atributos">
+          ${autores.length ? `<dt>Autoria</dt><dd><span class="chips">${chips(autores)}</span></dd>` : ""}
+          ${ilus.length ? `<dt>Ilustração</dt><dd><span class="chips">${chips(ilus)}</span></dd>` : ""}
+          ${orgs.length ? `<dt>Organização</dt><dd><span class="chips">${chips(orgs)}</span></dd>` : ""}
+          <dt>Editora</dt><dd>${ed ? `${esc(ed.nome)}<br><span class="muted pequeno">${ed.grupo ? `grupo ${esc(ed.grupo)}` : "independente"}${ed.municipio_sede ? ` · sede: ${esc(ed.municipio_sede)}${ed.uf_sede ? `/${esc(ed.uf_sede)}` : ""}` : ""}</span>` : "–"}</dd>
+          <dt>Publicação</dt><dd>${o.ano_publicacao ? esc(o.ano_publicacao) : "–"}</dd>
+        </dl>
+        ${outras.length ? `<h3 style="margin-top:1.2rem">Outras obras de ${autores.length > 1 ? "quem escreveu" : esc(autores[0].nome)} no Jabuti</h3>
+          <ul class="obras-lista">${outras.map((l) => `<li><a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a> <span class="muted pequeno">${l.ano} · ${esc(l.categoria)}</span></li>`).join("")}</ul>` : ""}
+      </section>
+      <section aria-label="Participações no Jabuti">
+        <h3>No Prêmio Jabuti</h3>
+        <ol class="cronologia">${edicoes.map((l, i) => `<li class="${l.premiada ? "premio" : ""}" style="--i:${i}"><span class="ano">${l.ano}</span> · ${esc(l.categoria)}${l.nome_original !== l.categoria ? ` <span class="muted pequeno">(${esc(l.nome_original)})</span>` : ""}<br>
+          <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}</span></li>`).join("")}</ol>
       </section>
     </div></article>`;
 }

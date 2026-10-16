@@ -54,7 +54,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado }) {
     return `<li><div class="tempo-ano"><b>${ano}</b><span class="tempo-regime">${esc(ROT_REGIME[regime.get(ano)] ?? "")}</span></div>
       ${m.map((mm) => `<div class="tempo-marco">${esc(mm.texto)}</div>`).join("")}
       ${x ? `<div class="mini-barras">${INDICADORES.map((i) => barra(x, i)).join("")}<span class="muted pequeno">${fmt(x.total)} participações na lista</span></div>` : `<p class="muted">Sem dados no recorte.</p>`}
-      ${vs.length ? `<ul class="vencedoras">${vs.map((o) => `<li><span class="cat">${esc(o.categoria)}</span><span class="titulo">${esc(o.titulo)}</span><br>
+      ${vs.length ? `<ul class="vencedoras">${vs.map((o) => `<li><span class="cat">${esc(o.categoria)}</span><a class="titulo" href="#/obra/${esc(o.obra_id)}">${esc(o.titulo)}</a><br>
         <span class="chips">${o.pessoas.map((p) => `<button type="button" class="link-pessoa" data-pessoa="${esc(p.id)}">${esc(p.nome)}</button>`).join("")}</span>
         ${o.editora ? `<span class="muted"> · ${esc(o.editora)}</span>` : ""}</li>`).join("")}</ul>` : ""}</li>`;
   }).join("");
