@@ -41,7 +41,7 @@ $$("[data-premios-texto]").forEach((el) => { el.textContent = lista; });
 if (multi && $("#metodo-premios")) {
   const regimes = d3.rollups(D.edicoes ?? [], (v) => ({ de: d3.min(v, (x) => x.ano), ate: d3.max(v, (x) => x.ano) }), (x) => x.premio ?? padrao, (x) => x.regime);
   const porP = new Map(regimes);
-  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; livros em português de qualquer país" : ""}):
+  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; prêmio de literatura em língua portuguesa (quem pode concorrer mudou com os anos)" : ""}):
     ${(porP.get(p.id) ?? []).map(([r, x]) => `${esc(r)} (${x.de === x.ate ? x.de : `${x.de}–${x.ate}`})`).join("; ")}.</li>`).join("")}</ul>`;
 }
 

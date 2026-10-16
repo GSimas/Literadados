@@ -187,6 +187,9 @@ def exportar(con) -> dict:
         "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
         "pessoas_em_varios_premios": varios_premios(con),
+        # Fica fora do dados.json (só aviso do build): QID → pessoas que o compartilham.
+        "qids_repetidos": {q: ids.split(",") for q, ids in con.execute(
+            "SELECT wikidata, string_agg(id, ',' ORDER BY id) FROM pessoa WHERE wikidata IS NOT NULL GROUP BY 1 HAVING COUNT(*) > 1 ORDER BY 1").fetchall()},
     }
 
 
@@ -325,7 +328,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
     con.close()
     os.replace(tmp, db)  # troca atômica: o servidor nunca vê banco pela metade
     saida.parent.mkdir(exist_ok=True)
-    base, partes = dividir(payload, saida.stem)
+    base, partes = dividir({k: v for k, v in payload.items() if k != "qids_repetidos"}, saida.stem)  # aviso do build, não do painel
     escrever = lambda arq, obj: arq.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
     escrever(saida, base)
     for velho in saida.parent.glob(f"{saida.stem}-*.json"):  # parte de prêmio que saiu da base
@@ -349,6 +352,9 @@ def main():
     print(f"  {'prêmio':<10} {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
     for c in p["cobertura"]:
         print(f"  {c.get('premio', padrao):<10} {c['ano']:>4} {c['pessoas']:>7} {c['pct_genero']:>7} {c['pct_uf']:>6} {c['pct_raca']:>6} {c['pct_busca_raca']:>20} {c['pct_idade']:>6}")
+    # Mesmo QID em mais de uma pessoa = provável duplicata por grafia (ou pseudônimo): decida em <premio>/casamentos.csv.
+    for qid, ids in p["qids_repetidos"].items():
+        print(f"ATENÇÃO: {qid} está em mais de uma pessoa ({', '.join(ids)}): duplicata ou pseudônimo? Decida em casamentos.csv")
     # Casamentos de pessoa só pelo nome ainda sem decisão (coleta.py normalizar, CA-26.5): valem, mas pedem conferência.
     for arq in sorted((RAIZ / "dados" / "coleta").glob("*/casamentos_revisar.csv")):
         n = sum(1 for _ in arq.open(encoding="utf-8")) - 1

@@ -308,6 +308,16 @@ def M_kpis(payload):
     return json.loads(r.stdout)
 
 
+def test_build_avisa_qid_repetido(mini, tmp_path):  # gauntlet 3: mesma pessoa com duas grafias (Lygia Bojunga / Lygia Bojunga Nunes)
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    for l in linhas:
+        l["wikidata"] = "Q1"
+    _csv(mini / "pessoa.csv", linhas)
+    p = build.build(mini, tmp_path / "q.duckdb", tmp_path / "q.json")
+    assert p["qids_repetidos"] == {"Q1": ["a", "b"]}
+    assert "qids_repetidos" not in json.loads((tmp_path / "q.json").read_text(encoding="utf-8"))
+
+
 def test_cobertura_e_prompt_por_premio(mini, tmp_path):  # CA-26.7, CA-26.13
     _dois_premios(mini)
     p = build.build(mini, tmp_path / "c.duckdb", tmp_path / "c.json")
