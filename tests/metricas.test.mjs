@@ -311,3 +311,34 @@ test("ranking: medida, desempate e posição de competição (RF-23)", () => {
   assert.deepEqual(M.ranking(L, pessoas, "participacoes", 1).map((p) => p.id), ["b"]);
   assert.ok(!("linhas" in r[0]));
 });
+
+test("filtro com série histórica: anos válidos 1959–2025, padrão 2010–2025 (RF-25)", () => {
+  const SERIE = [1959, 2025], RECORTE = [2010, 2025], CATS = ["Romance", "Poesia"];
+  const p = M.filtroDeTexto(null, SERIE, CATS, RECORTE);
+  assert.deepEqual([p.anoIni, p.anoFim], [2010, 2025]);
+  assert.equal(M.filtroParaTexto(p, RECORTE, CATS), ""); // padrão não vai para a URL
+  const h = M.filtroDeTexto("1959-1990", SERIE, CATS, RECORTE);
+  assert.deepEqual([h.anoIni, h.anoFim], [1959, 1990]); // anos antigos valem na URL
+  assert.equal(M.filtroParaTexto(h, RECORTE, CATS), "1959-1990");
+  assert.deepEqual([M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoIni, M.filtroDeTexto("1800-3000", SERIE, CATS, RECORTE).anoFim], [2010, 2025]);
+  assert.deepEqual([M.filtroDeTexto(null, SERIE, CATS).anoIni], [1959]); // sem padrão próprio, a série toda (ranking)
+});
+
+test("urlsCapa remonta as URLs da capa compacta (RF-24, RNF-06)", async () => {
+  const { urlsCapa } = await import("../web/pessoas.js");
+  assert.deepEqual(urlsCapa({ obra_id: "x", f: "ol", i: "12369845", p: "OL35664121M" }),
+    { url: "https://covers.openlibrary.org/b/id/12369845-M.jpg", pagina: "https://openlibrary.org/books/OL35664121M", fonte: "open_library" });
+  assert.equal(urlsCapa({ obra_id: "x", f: "gb", i: "abc-D_1" }).pagina, "https://books.google.com/books?id=abc-D_1");
+  assert.equal(urlsCapa(undefined), null);
+  assert.equal(urlsCapa({ obra_id: "x", url: "https://a/b.jpg", fonte: "open_library", pagina: null }).url, "https://a/b.jpg");
+});
+
+test("expandir remonta fonte 'wd' como a página do Wikidata da pessoa (RNF-06)", () => {
+  const D = { regimes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
+    editoras: [], ufs: [], pessoas: [{ id: "a", nome: "A", wikidata: "Q1", genero: "mulher", genero_fonte: "wd", nascimento_fonte: "https://x", raca: "sem_declaracao" }],
+    participacao: [{ ano: 2020, nome_original: "Poesia", obra_id: "o", pessoa_id: "a", colocacao: 1 }] };
+  const [l] = M.expandir(D);
+  assert.equal(D.pessoas[0].genero_fonte, "https://www.wikidata.org/wiki/Q1");
+  assert.equal(D.pessoas[0].nascimento_fonte, "https://x");
+  assert.deepEqual([l.papel, l.premiada, l.vencedora, l.lista_curta], ["autor", true, true, null]);
+});

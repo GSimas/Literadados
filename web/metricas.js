@@ -38,6 +38,8 @@ const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 // Remonta as linhas de v_participacao a partir do dados.json compacto (design D13).
 // Só junções: as regras (regime, negra, premiada, vencedora) já vêm do SQL. A ordem das chaves é a da view.
 export function expandir(D) {
+  // Fonte "wd" no dados.json = página do Wikidata da própria pessoa (build._fontes_wd, RNF-06).
+  for (const p of D.pessoas) for (const k of ["genero_fonte", "nascimento_fonte", "raca_fonte"]) if (p[k] === "wd") p[k] = `https://www.wikidata.org/wiki/${p.wikidata}`;
   const por = (arr, chave) => new Map(arr.map((x) => [chave(x), x]));
   const regime = por(D.regimes, (r) => r.ano);
   const categoria = por(D.categorias, (c) => `${c.ano}|${c.nome_original}`);
@@ -56,25 +58,25 @@ export function expandir(D) {
       nome_original: l.nome_original,
       obra_id: l.obra_id,
       titulo: o.titulo,
-      ano_publicacao: o.ano_publicacao,
+      ano_publicacao: o.ano_publicacao ?? null,
       editora: e?.nome ?? null,
       grupo_editorial: e?.grupo ?? null,
       uf_editora: e?.uf_sede ?? null,
       pessoa_id: l.pessoa_id,
       nome: p.nome,
-      papel: l.papel,
+      papel: l.papel ?? "autor", // JSON omite "autor" e deriva premiada/vencedora da colocação (RNF-06)
       genero: p.genero,
       genero_atribuido: p.genero_evidencia === "atribuicao",
       raca: p.raca,
-      raca_busca: p.raca_busca,
+      raca_busca: p.raca_busca ?? null,
       negra: p.negra,
-      uf_nascimento: p.uf_nascimento,
+      uf_nascimento: p.uf_nascimento ?? null,
       regiao_nascimento: uf.get(p.uf_nascimento)?.regiao ?? null,
       idade_no_premio: p.ano_nascimento == null ? null : l.ano - p.ano_nascimento,
-      lista_curta: l.lista_curta,
-      colocacao: l.colocacao,
-      premiada: l.premiada,
-      vencedora: l.vencedora,
+      lista_curta: l.lista_curta ?? null,
+      colocacao: l.colocacao ?? null,
+      premiada: l.colocacao != null,
+      vencedora: l.colocacao === 1,
     };
   });
 }
@@ -449,14 +451,16 @@ export function capacidadeAnel(largura, dMin = 44, max = 100) {
 
 // Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
 // Texto vazio = padrão; valores fora do recorte voltam ao padrão.
-export function filtroDeTexto(texto, [a0, a1], cats) {
+// [a0, a1]: anos válidos (a série toda); [p0, p1]: anos do padrão da parte (RF-25: 2010–2025, ou a série no ranking).
+export function filtroDeTexto(texto, [a0, a1], cats, [p0, p1] = [a0, a1]) {
   const [anos = "", ...resto] = String(texto ?? "").split("~");
   const [i, f] = anos.split("-").map(Number);
-  const anoIni = i >= a0 && i <= a1 ? i : a0;
-  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : a1);
+  const anoIni = i >= a0 && i <= a1 ? i : p0;
+  const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : p1);
   const lista = resto.find((r) => r && r !== "todos")?.split(",").filter((c) => cats.includes(c));
   return { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
 }
+// [a0, a1]: anos do padrão da parte (o que não muda o padrão não vai para a URL).
 export function filtroParaTexto(f, [a0, a1], cats) {
   const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
   if (padraoAnos && todasCats && f.papel !== "todos") return "";
@@ -510,7 +514,7 @@ export function indiceBusca(D) {
     if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
   }
   for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
-  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
+  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 1992 ? "um vencedor por categoria" : a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   return e;
 }

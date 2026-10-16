@@ -174,10 +174,17 @@ export function htmlPerfil(id, { D, midiaPorId }) {
 // Perfil de livro (RF-24): #/obra/<id>. Capa vinda da fonte (Google Books ou Open Library) quando a coleta achou uma que
 // bate título e autor; por baixo dela, sempre, uma capa tipográfica (aparece se não houver imagem ou se ela não carregar).
 const FONTE_CAPA = { google_books: "Google Books", open_library: "Open Library" };
+// Capa compacta do dados.json (build._capa_compacta) → URLs da imagem e da página na fonte.
+export function urlsCapa(c) {
+  if (!c) return null;
+  if (c.f === "ol") return { url: `https://covers.openlibrary.org/b/id/${c.i}-M.jpg`, pagina: `https://openlibrary.org/${c.p.endsWith("W") ? "works" : "books"}/${c.p}`, fonte: "open_library" };
+  if (c.f === "gb") return { url: `https://books.google.com/books/content?id=${c.i}&printsec=frontcover&img=1&zoom=1`, pagina: `https://books.google.com/books?id=${c.i}`, fonte: "google_books" };
+  return c;
+}
 export function htmlObra(id, { D }) {
   const o = D.obras.find((x) => x.id === id), ls = D.participacao.filter((l) => l.obra_id === id);
   if (!o || !ls.length) return null;
-  const capa = (D.capas ?? []).find((c) => c.obra_id === id), ed = D.editoras.find((e) => e.id === o.editora_id);
+  const capa = urlsCapa((D.capas ?? []).find((c) => c.obra_id === id)), ed = D.editoras.find((e) => e.id === o.editora_id);
   const papel = (p) => [...new Map(ls.filter((l) => l.papel === p).map((l) => [l.pessoa_id, l])).values()];
   const [autores, ilus, orgs] = ["autor", "ilustrador", "organizador"].map(papel);
   const chips = (xs) => xs.map((l) => `<button type="button" class="link-pessoa" data-pessoa="${esc(l.pessoa_id)}">${esc(l.nome)}</button>`).join("");

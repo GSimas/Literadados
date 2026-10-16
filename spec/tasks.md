@@ -156,3 +156,12 @@
 - [x] T20.3 Fontes locais com fallback ajustado; Plot e d3-sankey sob demanda; miniaturas WebP (RNF-08, D27) 👁
 - [x] T20.4 Janela de ranking (RF-23) 🧪👁
 - [x] T20.5 Perfil de livro `#/obra/<id>` e coleta de capas (RF-24) 🧪👁
+
+## T21 Série histórica 1959–2009 (out/2026, RF-25)
+- [x] T21.1 Premiados 1959–2009 das categorias do recorte: site oficial × "Edições anteriores" da CBL (Wayback) × Wikipédia por edição; colocações e divergências resolvidas com fonte (`dados/coleta/historico/`) 🧪
+- [x] T21.2 Listas públicas completas de 2000–2009 (CBL arquivada, Folha, DGABC), com editora da época; 1991–1999 sem lista completa achada 🧪
+- [x] T21.3 Mapeamento de categorias antigas; `colocacao` até 5 (1993); regimes "1959–1992 vencedor por categoria" e "1993–2009 pódio" 🧪
+- [x] T21.4 Filtros com série 1959–2025 e padrão 2010–2025 (ranking na série toda); aviso de edições sem lista pública (CA-25.2) 🧪👁
+- [x] T21.5 Pessoas novas: Wikipédia + Wikidata em lote (ofício e ano conferidos), 3 lotes de pesquisa pelo protocolo; restante com `raca_busca = parcial` 
+- [x] T21.6 `dados.json` < 1 MB: chaves nulas fora, `premiada`/`vencedora` derivadas da colocação, `papel` só quando não é autor (RNF-06) 🧪
+- [ ] T21.7 Pendências: capas pelo Google Books (cota diária), busca de raça das pessoas com `parcial`, sede/grupo das editoras novas, revisão humana dos casos em `revisao_raca.csv`

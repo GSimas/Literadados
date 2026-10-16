@@ -27,16 +27,25 @@ const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
 // Cada parte filtrável tem seu estado; a URL guarda ?<parte>=<texto> só para os filtros fora do padrão.
 const IDS_JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
 const PARTES = ["panorama", ...IDS_JANELAS, "autores"];
-const padrao = () => M.filtroDeTexto(null, D.anos, CATEGORIAS);
+// Série 1959–2025 nos filtros; cada parte abre no recorte comparável (D.recorte, 2010–2025), e o ranking na série toda (RF-25).
+const ANOS_PADRAO = { ranking: D.anos };
+const anosPadrao = (parte) => ANOS_PADRAO[parte] ?? D.recorte ?? D.anos;
+const padraoDe = (parte) => M.filtroDeTexto(null, D.anos, CATEGORIAS, anosPadrao(parte));
+const padrao = () => padraoDe("panorama");
 const filtros = (() => {
   const q = new URLSearchParams(location.search);
-  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS)]));
+  return Object.fromEntries(PARTES.map((p) => [p, M.filtroDeTexto(q.get(p), D.anos, CATEGORIAS, anosPadrao(p))]));
 })();
+// Edições sem lista pública de indicados (antes dos anos 2000, em geral): ali "lista" = só premiadas.
+const ANOS_SEM_LISTA = new Set(ANOS.filter((a) => {
+  const cs = D.categorias.filter((c) => c.ano === a && c.categoria !== "Livro do Ano");
+  return cs.length && cs.every((c) => c.vagas_lista == null);
+}));
 const linhasDe = (parte) => M.filtrar(D.participacao, filtros[parte]);
 function gravarURL() {
   const q = new URLSearchParams(location.search);
   for (const p of PARTES) {
-    const t = M.filtroParaTexto(filtros[p], D.anos, CATEGORIAS);
+    const t = M.filtroParaTexto(filtros[p], anosPadrao(p), CATEGORIAS);
     if (t) q.set(p, t); else q.delete(p);
   }
   for (const k of ["ini", "fim", "cat", "papel"]) q.delete(k); // formato antigo (filtro global)
@@ -48,7 +57,7 @@ function montarFiltros() {
     const el = $(`[data-filtro="${parte}"]`);
     if (!el) continue;
     resumos[parte] = montarFiltro(el, filtros[parte], {
-      anos: ANOS, padrao,
+      anos: ANOS, padrao: () => padraoDe(parte),
       aoMudar: () => { gravarURL(); renderParte(parte); },
       baixar: () => {
         const f = filtros[parte];
@@ -130,8 +139,9 @@ function renderParte(parte) {
     try { f(L, c); } catch (e) { console.error(f.name, e); falhou = true; }
   }
   avisarFalha(parte, falhou);
-  const k = M.kpis(L);
-  resumos[parte]?.resumo(`${fmt(k.pessoas)} pessoas · ${fmt(k.indicacoes)} indicações`);
+  const k = M.kpis(L), f = filtros[parte];
+  const semLista = ANOS.filter((a) => a >= f.anoIni && a <= f.anoFim && ANOS_SEM_LISTA.has(a)).length;
+  resumos[parte]?.resumo(`${fmt(k.pessoas)} pessoas · ${fmt(k.indicacoes)} indicações${semLista ? ` · ${semLista} ediç${semLista > 1 ? "ões" : "ão"} só com premiados (sem lista pública)` : ""}`);
 }
 // Um gráfico que quebra (dado atípico) não derruba o resto: a parte mostra um aviso com "Tentar de novo".
 function avisarFalha(parte, falhou) {

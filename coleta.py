@@ -71,7 +71,9 @@ def normalizar():
     cats = list(csv.DictReader((BRUTO / "categorias_edicao.csv").open(encoding="utf-8")))
     gravar("categoria_edicao", cats)
 
-    for arq in sorted(glob.glob(str(BRUTO / "lista_*.csv"))):
+    # 2010+ primeiro: os ids de obra dessas edições não mudam quando entra a série histórica (um título antigo igual
+    # recebe o sufixo -ano, não o contrário).
+    for arq in sorted(glob.glob(str(BRUTO / "lista_*.csv")), key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f)):
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             autores = nomes(r["autores"])
             ed_nome = nomes(r["editora"])[0] if nomes(r["editora"]) else ""

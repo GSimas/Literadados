@@ -1,7 +1,7 @@
 -- Literadados — modelo de dados (DuckDB; também roda no SQLite)
 -- Carga: uma aba da planilha → um CSV → INSERT INTO <tabela> BY NAME SELECT * FROM read_csv('<tabela>.csv');
 -- (DuckDB lê célula vazia como NULL; o .import do SQLite grava '' e burlaria os CHECKs.)
--- Recorte: Prêmio Jabuti 2010–2025 · Romance, Contos, Poesia, Crônica, Infantil, Juvenil, Livro do Ano
+-- Recorte: Prêmio Jabuti 1959–2025 (painel abre em 2010–2025) · Romance, Contos, Poesia, Crônica, Infantil, Juvenil, Livro do Ano
 --
 -- IDs são slugs legíveis ('conceicao-evaristo', 'olhos-dagua') para que cada aba da
 -- planilha de coleta vire uma tabela direto, sem script de conversão.
@@ -87,7 +87,7 @@ CREATE TABLE autoria (
 -- Uma linha por categoria por edição: traduz o nome oficial para a categoria padronizada
 -- e guarda o número de vagas, para que as séries temporais usem taxas e não contagens.
 CREATE TABLE categoria_edicao (
-  ano            INTEGER NOT NULL CHECK (ano BETWEEN 2010 AND 2025),
+  ano            INTEGER NOT NULL CHECK (ano BETWEEN 1959 AND 2025),
   nome_original  TEXT NOT NULL,               -- ex. 'Contos e Crônicas', 'Romance Literário'
   categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano')),
   vagas_lista    INTEGER,                     -- tamanho da 1ª lista pública (≈10 nos dois regimes)
@@ -104,7 +104,7 @@ CREATE TABLE indicacao (
   nome_original  TEXT NOT NULL,
   obra_id        TEXT NOT NULL REFERENCES obra(id),
   lista_curta    INTEGER CHECK (lista_curta IN (0,1)),  -- NULL quando a edição não teve 2ª lista
-  colocacao      INTEGER CHECK (colocacao IN (1,2,3)),  -- NULL = não premiada
+  colocacao      INTEGER CHECK (colocacao BETWEEN 1 AND 5),  -- NULL = não premiada; 4 e 5 só em 1993 (premiados sem pódio, ordem da Wikipédia)
   fonte          TEXT NOT NULL,
   PRIMARY KEY (ano, nome_original, obra_id),
   FOREIGN KEY (ano, nome_original) REFERENCES categoria_edicao(ano, nome_original)
@@ -123,7 +123,9 @@ CREATE TABLE jurado (
 CREATE VIEW v_participacao AS
 SELECT
   i.ano,
-  CASE WHEN i.ano <= 2017 THEN '2010–2017 pódio'
+  CASE WHEN i.ano <= 1992 THEN '1959–1992 vencedor por categoria'
+       WHEN i.ano <= 2009 THEN '1993–2009 pódio'
+       WHEN i.ano <= 2017 THEN '2010–2017 pódio'
        WHEN i.ano = 2018  THEN '2018 transição'
        ELSE '2019–2025 vencedor único' END              AS regime,
   c.categoria, c.nome_original,
