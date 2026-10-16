@@ -5,17 +5,17 @@ Painel e IA sobre perfil demográfico (gênero, raça autodeclarada, UF de nasci
 ## Como trabalhar aqui (SDD)
 1. Mudança de comportamento → primeiro `spec/spec.md` (requisito + critério de aceitação), depois `spec/design.md`, depois `spec/tasks.md`, só então código.
 2. Critério 🧪 precisa de teste em `tests/`; critério 👁 é conferido no navegador.
-3. Dado novo entra por `dados/*.csv` (fonte da verdade) e `python build.py`. Nunca editar `jabuti.duckdb` ou `web/dados.json` à mão.
+3. Dado novo entra por `dados/*.csv` (fonte da verdade) e `python build.py`. Nunca editar `literadados.duckdb` ou `web/dados.json` à mão.
 
 ## Comandos
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
-.venv/bin/python build.py            # CSVs → jabuti.duckdb + web/dados.json (falha se dado inconsistente)
+.venv/bin/python build.py            # CSVs → literadados.duckdb + web/dados.json (falha se dado inconsistente)
 .venv/bin/python server.py           # http://localhost:8000 (só estático; a Diadorim usa OpenRouter + DuckDB-WASM no navegador)
 git push origin main                 # deploy automático (Netlify ligado ao GitHub) em literadados.gustavosimas.com; rode build.py e commite antes. PR ganha prévia de deploy
 .venv/bin/python -m pytest -q        # testes Python
 node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24 não aceita pasta)
-.venv/bin/python coleta.py normalizar          # dados/coleta/* (listas brutas) → dados/*.csv, preservando enriquecimentos
+.venv/bin/python coleta.py normalizar          # dados/premio.csv + dados/coleta/<premio>/* (listas brutas) → dados/*.csv, preservando enriquecimentos
 .venv/bin/python coleta.py wikidata            # candidatos de QID → confirmar → coleta.py aplicar_wikidata
 .venv/bin/python coleta.py verificar           # confere trechos de raça contra as páginas-fonte
 ```
@@ -106,3 +106,4 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-10-16 — Série completa por padrão (D30): o painel abre em 1959–2025 (1.023 pessoas-autoras, 1.665 indicações, 67 edições), sem `recorte` no `dados.json`. Mistura de regimes: até 1999 só há premiados, então lista × vencedoras se inverte (2010–2025: 38,6% de mulheres na lista e 39,8% entre vencedoras; série toda: 35,9% e 33,6%). Toda comparação lista × pódio tem de avisar disso. 314 indicações antigas não têm editora: sem `semEditora`, "Editora não informada" virava a 1ª barra. Com 67 edições, rótulos de marcos se sobrepõem e são cortados na borda no celular: posicione por largura medida, não por índice par/ímpar. No Windows, `execFileSync` do Python devolve `
 `: separe por `/?
 /`.
+- 2026-10-16 — Etapa 0 do multi-prêmio (D31): `premio_id` na chave de `categoria_edicao`, `indicacao` e `jurado`; regime saiu do `CASE` da view para a tabela `edicao`; listas do Jabuti em `dados/coleta/jabuti/`; banco renomeado para `literadados.duckdb`. No JSON, `premio` só aparece quando não é o padrão (1º de `premios` por `ano_inicio`), como `papel = 'autor'`. Armadilha do DuckDB: `JOIN ... USING (premio_id, ...)` depois de outros JOINs que também têm `premio_id` dá "Ambiguous reference": use `ON` explícito. Para conferir migração, compare `v_participacao` antes/depois (`COPY ... ORDER BY ALL` e hash), não um retrato commitado, que quebraria com dado novo.

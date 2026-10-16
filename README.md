@@ -54,7 +54,7 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
-.venv/bin/python build.py      # CSVs → jabuti.duckdb + web/dados.json (falha se o dado for inconsistente)
+.venv/bin/python build.py      # CSVs → literadados.duckdb + web/dados.json (falha se o dado for inconsistente)
 .venv/bin/python server.py     # http://localhost:8000 (servidor estático só para desenvolvimento)
 ```
 
@@ -81,7 +81,7 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `schema.sql` | Modelo de dados (DuckDB) com CHECKs que barram raça sem fonte, gênero atribuído com fonte etc. |
 | `dados/*.csv` | Fonte da verdade, uma tabela por arquivo |
 | `dados/coleta/` | Levantamentos brutos (listas por edição, pesquisas de pessoas, protocolo em `PROTOCOLO_PESSOAS.md`) |
-| `build.py` | CSVs → `jabuti.duckdb` + `web/dados.json`, com checagens de consistência |
+| `build.py` | CSVs → `literadados.duckdb` + `web/dados.json`, com checagens de consistência |
 | `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `malha` (UFs) |
 | `server.py` | Servidor estático para desenvolvimento local (o site publicado não precisa dele) |
 | `netlify.toml` | Publicação de `web/` no Netlify |
@@ -89,7 +89,7 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `tests/` | `pytest` (backend) e `node --test` (métricas e contraste) |
 | `PLANO_COLETA.md` | Protocolo de coleta das edições |
 
-Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `coleta.py aplicar_pessoas` e depois `build.py`. Nunca edite `jabuti.duckdb` ou `web/dados.json` à mão.
+Para acrescentar dados, edite `dados/coleta/*` e rode `coleta.py normalizar` / `coleta.py aplicar_pessoas` e depois `build.py`. Nunca edite `literadados.duckdb` ou `web/dados.json` à mão.
 
 ## Sistema visual
 

@@ -1,4 +1,4 @@
-"""CSVs de dados/ → jabuti.duckdb + web/dados.json, com checagens (spec RF-01)."""
+"""CSVs de dados/ → literadados.duckdb + web/dados.json, com checagens (spec RF-01)."""
 import json
 import os
 import re
@@ -10,7 +10,8 @@ from pathlib import Path
 import duckdb
 
 RAIZ = Path(__file__).parent
-TABELAS = ["editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria", "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+TABELAS = ["premio", "edicao", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
+           "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -47,13 +48,17 @@ def carregar(con, dados: Path):
 def checar(con):
     """Erros de consistência das edições coletadas (CA-01.3). Edição sem indicação = não coletada."""
     erros = []
+    # Edição fora da vida do prêmio (antes da 1ª edição ou no futuro): o CHECK não lê outra tabela, então fica aqui (D31).
+    for r in _linhas(con, """SELECT e.premio_id, e.ano FROM edicao e JOIN premio p ON p.id = e.premio_id
+                              WHERE e.ano < p.ano_inicio OR e.ano > ? ORDER BY ALL""", [datetime.now().year]):
+        erros.append(f"{r['premio_id']} {r['ano']}: edição fora do período do prêmio")
     for r in _linhas(con, """
-        SELECT c.ano, c.nome_original, c.vagas_lista, c.vagas_curta, c.vagas_premio,
+        SELECT c.premio_id, c.ano, c.nome_original, c.vagas_lista, c.vagas_curta, c.vagas_premio,
                COUNT(i.obra_id) AS n, SUM(i.lista_curta) AS n_curta, COUNT(i.colocacao) AS n_premio
-        FROM categoria_edicao c LEFT JOIN indicacao i USING (ano, nome_original)
-        WHERE c.ano IN (SELECT DISTINCT ano FROM indicacao)
-        GROUP BY ALL ORDER BY c.ano, c.nome_original"""):
-        rotulo = f"{r['ano']} {r['nome_original']}"
+        FROM categoria_edicao c LEFT JOIN indicacao i USING (premio_id, ano, nome_original)
+        WHERE (c.premio_id, c.ano) IN (SELECT DISTINCT premio_id, ano FROM indicacao)
+        GROUP BY ALL ORDER BY c.premio_id, c.ano, c.nome_original"""):
+        rotulo = f"{r['premio_id']} {r['ano']} {r['nome_original']}"
         if r["vagas_lista"] is not None and r["n"] != r["vagas_lista"]:
             erros.append(f"{rotulo}: lista tem {r['n']} obras, esperado {r['vagas_lista']}")
         if r["vagas_curta"] is not None and (r["n_curta"] or 0) != r["vagas_curta"]:
@@ -88,7 +93,8 @@ GRUPOS_FONTE = [  # (regex do domínio, grupo) — a primeira que casar vale (RF
 def fontes(con) -> list[dict]:
     """URLs de todas as fontes da base, contadas por domínio e agrupadas (RF-18)."""
     urls = []
-    for sql in ["SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
+    for sql in ["SELECT fonte FROM premio", "SELECT fonte FROM edicao",
+                "SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
                 "SELECT genero_fonte FROM pessoa", "SELECT raca_fonte FROM pessoa", "SELECT nascimento_fonte FROM pessoa"]:
         for (v,) in con.execute(sql).fetchall():
             urls += [u.strip() for u in (v or "").split(" ; ") if u.strip().startswith("http")]
@@ -135,28 +141,32 @@ def _tem_miniatura(pessoa_id: str) -> bool:
 
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
+    premios = _linhas(con, "SELECT * EXCLUDE (fonte) FROM premio ORDER BY ano_inicio, id")
+    padrao = [premios[0]["id"]] if premios else [None]  # 1º prêmio = padrão do painel (DA-4); no JSON, `premio` só aparece quando é outro
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
         "anos_coletados": anos_coletados,
+        "premios": premios,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
-        "regimes": _linhas(con, "SELECT DISTINCT ano, regime FROM v_participacao ORDER BY ano"),
-        "participacao": _sem_nulos(_linhas(con, """SELECT ano, nome_original, obra_id, pessoa_id, NULLIF(papel, 'autor') AS papel,
-                                               lista_curta, colocacao FROM v_participacao
-                                        ORDER BY ano, categoria, obra_id, v_participacao.papel, pessoa_id""")),
+        "edicoes": _sem_nulos(_linhas(con, "SELECT NULLIF(premio_id, ?) AS premio, ano, regime FROM edicao ORDER BY premio_id, ano", padrao)),
+        "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(premio, ?) AS premio, ano, nome_original, obra_id, pessoa_id,
+                                               NULLIF(papel, 'autor') AS papel, lista_curta, colocacao FROM v_participacao
+                                        ORDER BY v_participacao.premio, ano, categoria, obra_id, v_participacao.papel, pessoa_id""", padrao)),
         "obras": _sem_nulos(_linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
                                  WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id""")),
         "pessoas": _fontes_wd(_sem_nulos(_linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
                                           nascimento_fonte FROM pessoa ORDER BY nome"""))),
-        "jurados": _linhas(con, """SELECT j.ano, c.categoria, j.pessoa_id FROM jurado j
-                                   JOIN categoria_edicao c USING (ano, nome_original) ORDER BY ALL"""),
-        "categorias": _sem_nulos(_linhas(con, "SELECT * EXCLUDE (fonte) FROM categoria_edicao ORDER BY ano, categoria, nome_original")),
+        "jurados": _sem_nulos(_linhas(con, """SELECT NULLIF(j.premio_id, ?) AS premio, j.ano, c.categoria, j.pessoa_id FROM jurado j
+                                   JOIN categoria_edicao c USING (premio_id, ano, nome_original) ORDER BY j.premio_id, j.ano, c.categoria, j.pessoa_id""", padrao)),
+        "categorias": _sem_nulos(_linhas(con, """SELECT NULLIF(premio_id, ?) AS premio, * EXCLUDE (premio_id, fonte) FROM categoria_edicao
+                                                 ORDER BY premio_id, ano, categoria, nome_original""", padrao)),
         "editoras": _linhas(con, "SELECT * FROM editora ORDER BY nome"),
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
-        "cobertura": _linhas(con, "SELECT * FROM v_cobertura ORDER BY ano"),
+        "cobertura": _sem_nulos(_linhas(con, "SELECT NULLIF(premio, ?) AS premio, * EXCLUDE (premio) FROM v_cobertura ORDER BY v_cobertura.premio, ano", padrao)),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
         # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
         "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
@@ -173,6 +183,7 @@ def prompt_sistema(con) -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
     anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
     cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
+    premios = con.execute("SELECT nome, id FROM premio ORDER BY ano_inicio, id").fetchall()
     return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
 Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
 Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
@@ -182,6 +193,7 @@ por trás do número (pessoa_id, nome, uf_nascimento, ano, categoria, titulo, co
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
 Regras de análise:
 - Recorte da base: Prêmio Jabuti 1959–2025 (série histórica), categorias {", ".join(c[0] for c in cats)}.
+- Prêmios na base (coluna premio de v_participacao): {", ".join(f"{n} (premio = '{i}')" for n, i in premios)}. O regime de cada edição está em edicao.
 - Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
 - "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
@@ -215,7 +227,7 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
-def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "jabuti.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
+def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
     tmp = db.with_suffix(".tmp")
     tmp.unlink(missing_ok=True)
     con = duckdb.connect(str(tmp))

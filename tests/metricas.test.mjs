@@ -121,7 +121,8 @@ test("mediana e sankey", () => {
 
 test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA-RNF-06.2)", () => {
   const D = {
-    regimes: [{ ano: 2016, regime: "2010–2017 pódio" }],
+    premios: [{ id: "jabuti", nome: "Prêmio Jabuti" }],
+    edicoes: [{ ano: 2016, regime: "2010–2017 pódio" }],
     categorias: [{ ano: 2016, nome_original: "Contos e Crônicas", categoria: "Contos" }],
     obras: [{ id: "o1", titulo: "O1", ano_publicacao: 2015, editora_id: "ed" }, { id: "o2", titulo: "O2", ano_publicacao: null, editora_id: null }],
     editoras: [{ id: "ed", nome: "Ed", grupo: "G", uf_sede: "SP" }],
@@ -136,10 +137,11 @@ test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA
     ],
   };
   const [a, b] = M.expandir(D);
-  assert.deepEqual(Object.keys(a), ["ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
+  assert.deepEqual(Object.keys(a), ["premio", "premio_nome", "ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
     "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "genero_atribuido", "raca", "raca_busca", "negra", "uf_nascimento",
     "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
   assert.equal(a.categoria, "Contos");
+  assert.deepEqual([a.premio, a.premio_nome], ["jabuti", "Prêmio Jabuti"]); // premio ausente no JSON = 1º de D.premios (D31)
   assert.equal(a.editora, "Ed");
   assert.equal(a.regiao_nascimento, "Nordeste");
   assert.equal(a.idade_no_premio, 56);
@@ -355,7 +357,7 @@ test("urlsCapa remonta as URLs da capa compacta (RF-24, RNF-06)", async () => {
 });
 
 test("expandir remonta fonte 'wd' como a página do Wikidata da pessoa (RNF-06)", () => {
-  const D = { regimes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
+  const D = { edicoes: [{ ano: 2020, regime: "r" }], categorias: [{ ano: 2020, nome_original: "Poesia", categoria: "Poesia" }], obras: [{ id: "o", titulo: "T" }],
     editoras: [], ufs: [], pessoas: [{ id: "a", nome: "A", wikidata: "Q1", genero: "mulher", genero_fonte: "wd", nascimento_fonte: "https://x", raca: "sem_declaracao" }],
     participacao: [{ ano: 2020, nome_original: "Poesia", obra_id: "o", pessoa_id: "a", colocacao: 1 }] };
   const [l] = M.expandir(D);

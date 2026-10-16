@@ -5,7 +5,7 @@
 ## 1. Arquitetura
 
 ```
-dados/*.csv ──► build.py ──► jabuti.duckdb ──► server.py ──► POST /api/chat ──► Claude (tool: consultar_sql)
+dados/*.csv ──► build.py ──► literadados.duckdb ──► server.py ──► POST /api/chat ──► Claude (tool: consultar_sql)
  (verdade)        │  checagens                     │
                   └──► web/dados.json ──► web/ (index.html + app.js + style.css) ──► navegador
 coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar trechos de raça
@@ -16,9 +16,9 @@ coleta.py: normalizar listas brutas · pré-preencher via Wikidata · verificar 
 
 ## 2. Dados
 
-- **Schema:** [`schema.sql`](../schema.sql). Tabelas `uf`, `pessoa`, `editora`, `obra`, `autoria`, `categoria_edicao`, `indicacao`, `jurado`. Views `v_participacao` (uma linha por pessoa por indicação) e `v_cobertura`.
+- **Schema:** [`schema.sql`](../schema.sql). Tabelas `uf`, `premio`, `edicao`, `pessoa`, `editora`, `obra`, `autoria`, `categoria_edicao`, `indicacao`, `jurado` (as três últimas com `premio_id` na chave, D31). Views `v_participacao` (uma linha por pessoa por indicação) e `v_cobertura`.
 - **CSVs:** um por tabela, em `dados/<tabela>.csv`, com cabeçalho igual às colunas. A carga é `INSERT INTO t BY NAME SELECT * FROM read_csv(...)`, na ordem das dependências.
-- **Coleta bruta:** `dados/coleta/` guarda as saídas dos levantamentos (listas planas). `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug. As listas têm as colunas `autores`, `ilustradores` e `organizadores` (nomes separados por `|`), que viram `autoria.papel` = `autor`, `ilustrador` e `organizador`.
+- **Coleta bruta:** `dados/coleta/<premio>/` guarda as listas planas de cada prêmio (`edicoes.csv`, `categorias_edicao.csv`, `lista_AAAA.csv`, `jurados_AAAA.csv`); a pesquisa de pessoas (`pessoas_*.csv`) fica na raiz de `dados/coleta/`, porque pessoa é uma só. Os prêmios vêm de `dados/premio.csv`, editado à mão. `coleta.py normalizar` gera os CSVs normalizados, com IDs em slug. As listas têm as colunas `autores`, `ilustradores` e `organizadores` (nomes separados por `|`), que viram `autoria.papel` = `autor`, `ilustrador` e `organizador`.
 
 ### Etapas e regimes (vocabulário canônico)
 
@@ -38,7 +38,8 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
   "gerado_em": "ISO-8601",
   "anos": [1959, 2025],
   "anos_coletados": [1959, 1960, ...],
-  "regimes": [ { "ano", "regime" } ],
+  "premios": [ { "id", "nome", "organizador", "ano_inicio", "abrangencia" } ],  // o 1º é o padrão (DA-4)
+  "edicoes": [ { "premio"?, "ano", "regime" } ],  // "premio" (aqui e em participacao, categorias, jurados, cobertura) só quando não é o padrão
   "participacao": [ { "ano", "nome_original", "obra_id", "pessoa_id", "papel",
                       "lista_curta", "colocacao", "premiada", "vencedora" } ],
   "obras": [ { "id", "titulo", "ano_publicacao", "editora_id" } ],
@@ -138,6 +139,7 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 | 18.1 | `test_build_exporta_fontes_por_dominio` |
 | 12.1 (P3) | `test_chat_real_perguntas_originais`, marcado `integracao`: com `ANTHROPIC_API_KEY`, o chat real responde às três perguntas originais citando os mesmos números do SQL de referência e consultando o banco; sem a chave é pulado (`pytest -q -rs` mostra o motivo) |
 | RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
+| 26.1, 26.2 | `test_etapa0_so_jabuti`, `test_build_falha_edicao_antes_do_premio`, `test_build_falha_premio_inexistente`, `test_vagas_conferidas_por_premio`; `metricas.test.mjs` (`expandir` com prêmio padrão) |
 
 ## 6. Decisões registradas
 
@@ -174,14 +176,14 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 - **D31** Vários prêmios (RF-26). Decisões DA-1 a DA-5 aprovadas em 2026-10-16, como estão abaixo. A implementação começa pela etapa 0.
 
   **Schema.**
-  - `premio (id, nome, organizador, ano_inicio, abrangencia ∈ {nacional, lusofono}, tipo ∈ {obra, conjunto}, fonte)`, com `'jabuti'` como primeira linha.
+  - `premio (id, nome, organizador, ano_inicio, abrangencia ∈ {nacional, lusofono}, fonte)`, com `'jabuti'` como primeira linha. Não há coluna de tipo: pela DA-2, todo prêmio da tabela premia livros.
   - `edicao (premio_id, ano, regime, fonte)` substitui o `CASE` de regime de `v_participacao` (CA-26.4) e serve de âncora para os marcos da linha do tempo.
   - `categoria_edicao` ganha `premio_id` na chave `(premio_id, ano, nome_original)` e `etapa_lista` (o que a "lista" é ali: `indicados`, `semifinalistas`, `finalistas` ou `premiados`). O CHECK de `ano` passa a ir do `ano_inicio` do prêmio até o ano corrente (verificado no build, já que o CHECK não lê outra tabela). O CHECK de `categoria` ganha `Geral` e o que a DA-1 trouxer.
   - `indicacao` e `jurado` ganham `premio_id` (FK para `categoria_edicao`). `indicacao.editora_id` é opcional e, quando preenchida, vale no lugar de `obra.editora_id` (`COALESCE` na view; CA-26.6).
   - `v_participacao` ganha `premio` e `premio_nome`; `v_cobertura` agrupa por `premio, ano`.
-  - `jabuti.duckdb` vira `literadados.duckdb` (build, testes, `.gitignore`, CLAUDE.md).
+  - `literadados.duckdb` vira `literadados.duckdb` (build, testes, `.gitignore`, CLAUDE.md).
 
-  **Etapa 0 (CA-26.2).** A migração entra com só o Jabuti: `premio_id = 'jabuti'` em todos os CSVs, `edicao` gerada a partir do `CASE` atual, e os mesmos números. Os testes atuais passam sem mudança de valor. O teste novo `test_etapa0_so_jabuti` confere que `v_participacao` sem a coluna `premio` é igual à de antes da migração, a partir de um retrato guardado em `tests/`.
+  **Etapa 0 (CA-26.2).** A migração entra com só o Jabuti: `premio_id = 'jabuti'` em todos os CSVs, `edicao` gerada a partir do `CASE` atual, e os mesmos números. Os testes atuais passam sem mudança de valor. Na migração, `v_participacao` e `v_cobertura` (sem as colunas de prêmio) foram comparadas byte a byte com um retrato tirado antes, e deram iguais. Um retrato no repositório quebraria a cada dado novo, por isso o teste permanente `test_etapa0_so_jabuti` confere o que a migração mexeu: só há o Jabuti, o regime de cada edição é o do antigo `CASE`, e o prêmio padrão fica fora do JSON. A fonte de cada edição do Jabuti é a página oficial de premiados do ano.
 
   **Coleta.**
   - As listas brutas passam para `dados/coleta/<premio>/` (`lista_AAAA.csv`, `jurados_AAAA.csv`, `categorias_edicao.csv`). As do Jabuti são movidas com `git mv`. Os arquivos de pessoas (`pessoas_*.csv`) continuam na raiz de `dados/coleta/`, porque pessoa é uma só.

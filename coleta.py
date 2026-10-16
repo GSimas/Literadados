@@ -1,5 +1,5 @@
 """Ferramentas de coleta (PLANO_COLETA.md). Uso:
-  python coleta.py normalizar   # dados/coleta/lista_*.csv, jurados_*.csv, categorias_edicao.csv → dados/*.csv (preserva enriquecimentos)
+  python coleta.py normalizar   # dados/premio.csv + dados/coleta/<premio>/{edicoes,categorias_edicao,lista_*,jurados_*}.csv → dados/*.csv (preserva enriquecimentos)
   python coleta.py wikidata     # pré-preenche gênero/nascimento de pessoas sem QID; candidatos em dados/coleta/wikidata_candidatos.csv
   python coleta.py aplicar_pessoas  # incorpora dados/coleta/pessoas_*.csv (pesquisa de nascimento e raça)
   python coleta.py verificar    # confere se cada raca_trecho aparece na página de raca_fonte
@@ -30,9 +30,10 @@ CAMPOS = {
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
     "autoria": ["obra_id", "pessoa_id", "papel"],
-    "categoria_edicao": ["ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "fonte"],
-    "indicacao": ["ano", "nome_original", "obra_id", "lista_curta", "colocacao", "fonte"],
-    "jurado": ["ano", "nome_original", "pessoa_id", "fonte"],
+    "edicao": ["premio_id", "ano", "regime", "fonte"],
+    "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "fonte"],
+    "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "fonte"],
+    "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
     "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
 }
 
@@ -68,12 +69,22 @@ def normalizar():
         pessoas.setdefault(pid, {"id": pid, "nome": nome, "genero": "nao_identificado", "raca": "sem_declaracao"})
         return pid
 
-    cats = list(csv.DictReader((BRUTO / "categorias_edicao.csv").open(encoding="utf-8")))
+    # Um prêmio por pasta (dados/coleta/<premio>/), na ordem de premio.csv por (ano_inicio, id): o Jabuti vem primeiro,
+    # e os ids atuais (fotos, capas, links) não mudam quando entra outro prêmio (design D31).
+    premios = sorted(ler("premio"), key=lambda p: (int(p["ano_inicio"]), p["id"]))
+    edicoes, cats, listas, juris = [], [], [], []
+    for pr in premios:
+        pasta = BRUTO / pr["id"]
+        edicoes += [{**e, "premio_id": pr["id"]} for e in csv.DictReader((pasta / "edicoes.csv").open(encoding="utf-8"))]
+        cats += [{**c, "premio_id": pr["id"]} for c in csv.DictReader((pasta / "categorias_edicao.csv").open(encoding="utf-8"))]
+        # 2010+ primeiro: os ids de obra dessas edições não mudam quando entra a série histórica (um título antigo igual
+        # recebe o sufixo -ano, não o contrário).
+        listas += [(pr["id"], a) for a in sorted(glob.glob(str(pasta / "lista_*.csv")), key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f))]
+        juris += [(pr["id"], a) for a in sorted(glob.glob(str(pasta / "jurados_*.csv")))]
+    gravar("edicao", edicoes)
     gravar("categoria_edicao", cats)
 
-    # 2010+ primeiro: os ids de obra dessas edições não mudam quando entra a série histórica (um título antigo igual
-    # recebe o sufixo -ano, não o contrário).
-    for arq in sorted(glob.glob(str(BRUTO / "lista_*.csv")), key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f)):
+    for premio_id, arq in listas:
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             autores = nomes(r["autores"])
             ed_nome = nomes(r["editora"])[0] if nomes(r["editora"]) else ""
@@ -94,14 +105,15 @@ def normalizar():
                 if n not in autores:
                     autoria.add((oid, pessoa(n), "organizador"))
             fonte = " ; ".join(f for f in (r["fonte_1"], r["fonte_2"]) if f)
-            indicacoes[(r["ano"], r["nome_original"], oid)] = {
-                "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
+            indicacoes[(premio_id, r["ano"], r["nome_original"], oid)] = {
+                "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
                 "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte}
 
-    for arq in sorted(glob.glob(str(BRUTO / "jurados_*.csv"))):
+    for premio_id, arq in juris:
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             pid = pessoa(r["nome"])
-            jurados[(r["ano"], r["nome_original"], pid)] = {"ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid, "fonte": r["fonte"]}
+            jurados[(premio_id, r["ano"], r["nome_original"], pid)] = {
+                "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid, "fonte": r["fonte"]}
 
     # Editoras: sede/grupo levantados à parte; `canonico` unifica duplicatas (ex.: "record" → "editora-record").
     enr_arq = BRUTO / "editoras_enriquecidas.csv"
@@ -119,8 +131,8 @@ def normalizar():
     gravar("editora", sorted(editoras.values(), key=lambda e: e["id"]))
     gravar("obra", sorted(obras.values(), key=lambda o: o["id"]))
     gravar("autoria", [{"obra_id": o, "pessoa_id": p, "papel": t} for o, p, t in sorted(autoria)])
-    gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["ano"], i["nome_original"], i["obra_id"])))
-    gravar("jurado", sorted(jurados.values(), key=lambda j: (j["ano"], j["nome_original"], j["pessoa_id"])))
+    gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))
+    gravar("jurado", sorted(jurados.values(), key=lambda j: (j["premio_id"], j["ano"], j["nome_original"], j["pessoa_id"])))
     print(f"{len(pessoas)} pessoas, {len(editoras)} editoras, {len(obras)} obras, {len(indicacoes)} indicações, {len(jurados)} jurados")
 
 

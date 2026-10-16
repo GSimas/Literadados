@@ -31,6 +31,9 @@ def mini(tmp_path):
     """Base mínima válida: 1 edição, 1 categoria com 2 vagas, 1 premiada."""
     d = tmp_path / "dados"
     d.mkdir()
+    _csv(d / "premio.csv", [{"id": "jabuti", "nome": "Prêmio Jabuti", "organizador": "CBL", "ano_inicio": "1959", "abrangencia": "nacional", "fonte": "http://x"}])
+    _csv(d / "edicao.csv", [{"premio_id": "jabuti", "ano": "2016", "regime": "2010–2017 pódio", "fonte": "http://x"},
+                            {"premio_id": "jabuti", "ano": "2017", "regime": "2010–2017 pódio", "fonte": "http://x"}])
     _csv(d / "editora.csv", [{"id": "ed", "nome": "Ed", "grupo": "", "municipio_sede": "São Paulo", "uf_sede": "SP"}])
     _csv(d / "pessoa.csv", [
         {"id": "a", "nome": "A", "genero": "mulher", "raca": "preta", "raca_evidencia": "autodeclaracao", "raca_fonte": "http://x", "raca_trecho": "sou preta", "ano_nascimento": "1960", "uf_nascimento": "SP"},
@@ -40,12 +43,12 @@ def mini(tmp_path):
                           {"id": "o2", "titulo": "O2", "editora_id": "ed", "ano_publicacao": "2015"}])
     _csv(d / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "autor"}])
     _csv(d / "categoria_edicao.csv", [
-        {"ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "2", "vagas_curta": "", "vagas_premio": "1", "fonte": "http://x"},
-        {"ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "2", "vagas_curta": "", "vagas_premio": "1", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "fonte": "http://x"},
     ])
     _csv(d / "indicacao.csv", [
-        {"ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"},
-        {"ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o2", "lista_curta": "", "colocacao": "", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o2", "lista_curta": "", "colocacao": "", "fonte": "http://x"},
     ])
     return d
 
@@ -70,7 +73,7 @@ def test_build_gera_banco_e_json(mini):  # CA-01.1, CA-01.4
 
 # ---------- RNF-06 ----------
 
-COMPACTA = {"ano", "nome_original", "obra_id", "pessoa_id", "papel", "lista_curta", "colocacao", "premiada", "vencedora"}
+COMPACTA = {"premio", "ano", "nome_original", "obra_id", "pessoa_id", "papel", "lista_curta", "colocacao", "premiada", "vencedora"}
 
 
 def _expandir_no_node(json_path: Path) -> list[dict]:
@@ -93,7 +96,7 @@ def test_json_compacto_reconstroi_v_participacao(base, mini, tmp_path):  # CA-RN
     j = json.loads(saida.read_text(encoding="utf-8"))
     assert all(set(l) <= COMPACTA for l in j["participacao"]), "participação deve ser compacta"  # campos nulos saem do JSON (RNF-06)
     con = duckdb.connect(str(db), read_only=True)
-    esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY ano, categoria, obra_id, papel, pessoa_id"), default=str))
+    esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY premio, ano, categoria, obra_id, papel, pessoa_id"), default=str))
     con.close()
     obtido = _expandir_no_node(saida)
     assert len(obtido) == len(esperado)
@@ -202,6 +205,54 @@ def test_dados_reais_passam_no_build(tmp_path):
     p = build.build(RAIZ / "dados", tmp_path / "r.duckdb", tmp_path / "r.json")
     assert p["anos_coletados"], "nenhuma edição coletada"
     assert len(p["pessoas"]) > 0
+
+
+# ---------- RF-26 ----------
+
+def _regime_antigo(ano: int) -> str:
+    """A regra que era um CASE em v_participacao antes da etapa 0 (D31)."""
+    return ("1959–1992 vencedor por categoria" if ano <= 1992 else "1993–2009 pódio" if ano <= 2009
+            else "2010–2017 pódio" if ano <= 2017 else "2018 transição" if ano == 2018 else "2019–2025 vencedor único")
+
+
+def test_etapa0_so_jabuti(tmp_path):  # CA-26.1, CA-26.2: a migração para premio_id não muda o Jabuti
+    p = build.build(RAIZ / "dados", tmp_path / "e.duckdb", tmp_path / "e.json")
+    con = duckdb.connect(str(tmp_path / "e.duckdb"), read_only=True)
+    assert con.execute("SELECT DISTINCT premio, premio_nome FROM v_participacao").fetchall() == [("jabuti", "Prêmio Jabuti")]
+    anos = dict(con.execute("SELECT ano, regime FROM edicao WHERE premio_id = 'jabuti'").fetchall())
+    assert set(anos) == set(range(1959, 2026)) and all(r == _regime_antigo(a) for a, r in anos.items())
+    assert [x["id"] for x in p["premios"]] == ["jabuti"]
+    assert all("premio" not in l for l in p["participacao"] + p["edicoes"] + p["categorias"] + p["jurados"])  # padrão fica fora do JSON
+
+
+def test_build_falha_edicao_antes_do_premio(mini):  # CA-26.1
+    linhas = list(csv.DictReader((mini / "edicao.csv").open(encoding="utf-8")))
+    _csv(mini / "edicao.csv", linhas + [{**linhas[0], "ano": "1950"}])
+    with pytest.raises(build.BuildError, match="jabuti 1950: edição fora do período do prêmio"):
+        _build(mini)
+
+
+def test_build_falha_premio_inexistente(mini):  # CA-26.1
+    linhas = list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
+    linhas[0]["premio_id"] = "fantasma"
+    _csv(mini / "indicacao.csv", linhas)
+    with pytest.raises(build.BuildError, match="indicacao.csv"):
+        _build(mini)
+
+
+def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categoria em outro prêmio não se misturam
+    _csv(mini / "premio.csv", list(csv.DictReader((mini / "premio.csv").open(encoding="utf-8")))
+         + [{"id": "outro", "nome": "Outro", "organizador": "X", "ano_inicio": "2000", "abrangencia": "lusofono", "fonte": "http://x"}])
+    _csv(mini / "edicao.csv", list(csv.DictReader((mini / "edicao.csv").open(encoding="utf-8")))
+         + [{"premio_id": "outro", "ano": "2016", "regime": "único", "fonte": "http://x"}])
+    _csv(mini / "categoria_edicao.csv", list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
+         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "1", "vagas_curta": "", "vagas_premio": "1", "fonte": "http://x"}])
+    _csv(mini / "indicacao.csv", list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
+         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"}])
+    p = _build(mini)
+    assert [l.get("premio") for l in p["participacao"]].count("outro") == 1  # só o prêmio não padrão aparece no JSON
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT premio, COUNT(*) FROM v_participacao GROUP BY ALL ORDER BY 1").fetchall() == [("jabuti", 2), ("outro", 1)]
 
 
 # ---------- RF-12 ----------
@@ -316,7 +367,7 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     # toda edição antiga tem premiado em ao menos 3 categorias do recorte, e o Livro do Ano só tem vencedores
     por_ano = dict(con.execute("SELECT ano, COUNT(DISTINCT categoria) FROM v_participacao WHERE ano < 2010 AND premiada GROUP BY ano").fetchall())
     assert set(por_ano) == set(range(1959, 2010)) and min(por_ano.values()) >= 3
-    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN categoria_edicao c USING (ano, nome_original) WHERE c.categoria = 'Livro do Ano' AND i.colocacao IS DISTINCT FROM 1").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN categoria_edicao c USING (premio_id, ano, nome_original) WHERE c.categoria = 'Livro do Ano' AND i.colocacao IS DISTINCT FROM 1").fetchone()[0] == 0
     # editora antiga só com fonte da época: o site oficial atual dá a editora de hoje (Companhia das Letras, fundada em 1986, em 1959)
     assert con.execute("""SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id JOIN editora e ON e.id = o.editora_id
                           WHERE i.ano < 1986 AND e.nome ILIKE '%companhia das letras%'""").fetchone()[0] == 0

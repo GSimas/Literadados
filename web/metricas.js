@@ -43,8 +43,11 @@ export function expandir(D) {
   // Fonte "wd" no dados.json = página do Wikidata da própria pessoa (build._fontes_wd, RNF-06).
   for (const p of D.pessoas) for (const k of ["genero_fonte", "nascimento_fonte", "raca_fonte"]) if (p[k] === "wd") p[k] = `https://www.wikidata.org/wiki/${p.wikidata}`;
   const por = (arr, chave) => new Map(arr.map((x) => [chave(x), x]));
-  const regime = por(D.regimes, (r) => r.ano);
-  const categoria = por(D.categorias, (c) => `${c.ano}|${c.nome_original}`);
+  // `premio` fica fora do JSON quando é o prêmio padrão, o 1º de D.premios (design D31).
+  const padrao = D.premios?.[0]?.id ?? null, pr = (x) => x.premio ?? padrao;
+  const premio = por(D.premios ?? [], (p) => p.id);
+  const edicao = por(D.edicoes, (e) => `${pr(e)}|${e.ano}`);
+  const categoria = por(D.categorias, (c) => `${pr(c)}|${c.ano}|${c.nome_original}`);
   const obra = por(D.obras, (o) => o.id);
   const editora = por(D.editoras, (e) => e.id);
   const pessoa = por(D.pessoas, (p) => p.id);
@@ -53,10 +56,13 @@ export function expandir(D) {
     const o = obra.get(l.obra_id);
     const e = editora.get(o.editora_id);
     const p = pessoa.get(l.pessoa_id);
+    const p_ = pr(l);
     return {
+      premio: p_,
+      premio_nome: premio.get(p_)?.nome ?? null,
       ano: l.ano,
-      regime: regime.get(l.ano).regime,
-      categoria: categoria.get(`${l.ano}|${l.nome_original}`).categoria,
+      regime: edicao.get(`${p_}|${l.ano}`).regime,
+      categoria: categoria.get(`${p_}|${l.ano}|${l.nome_original}`).categoria,
       nome_original: l.nome_original,
       obra_id: l.obra_id,
       titulo: o.titulo,

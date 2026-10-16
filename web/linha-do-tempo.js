@@ -43,7 +43,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: ANOS_SEM_LIST
 
   const porAno = new Map(e.map((x) => [x.ano, x]));
   const venc = M.vencedorasPorAno(L, CATEGORIAS);
-  const regime = new Map(D.regimes.map((r) => [r.ano, r.regime]));
+  const regime = new Map(D.edicoes.filter((r) => !r.premio).map((r) => [r.ano, r.regime])); // edições do prêmio padrão (D31)
   const barra = (x, i) => {
     const v = x[i.k];
     return `<div class="mini-barra" title="${esc(i.rot)}: ${x[i.n]} de ${x[i.t]}"><span>${esc(i.rot)}</span>
