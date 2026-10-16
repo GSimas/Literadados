@@ -6,6 +6,23 @@
 <title>Literadados — Quem chega aos prêmios literários?</title>
 <meta name="description" content="Gênero, raça autodeclarada e local de nascimento de quem chega aos prêmios literários de língua portuguesa: história guiada, mapa, linha do tempo, perfis, comparação entre prêmios e dados com fonte.">
 <meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://literadados.gustavosimas.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Gustavo Simas">
+<meta name="theme-color" content="#0f6b4f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Literadados">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Literadados — Quem chega aos prêmios literários?">
+<meta property="og:description" content="Gênero, raça autodeclarada e local de nascimento de quem chega aos prêmios literários de língua portuguesa: história guiada, mapa, linha do tempo, perfis, comparação entre prêmios e dados com fonte.">
+<meta property="og:url" content="https://literadados.gustavosimas.com/">
+<meta property="og:image" content="https://literadados.gustavosimas.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Literadados: quem chega aos prêmios literários?">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="Resumo para modelos de linguagem">
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"Literadados","alternateName":"Literadados — Quem chega aos prêmios literários?","url":"https://literadados.gustavosimas.com/","inLanguage":"pt-BR","description":"Gênero, raça autodeclarada e local de nascimento de quem chega aos prêmios literários de língua portuguesa: história guiada, mapa, linha do tempo, perfis, comparação entre prêmios e dados com fonte.","publisher":{"@type":"Person","name":"Gustavo Simas","url":"https://gustavosimas.com"},"creator":{"@type":"Person","name":"Gustavo Simas","url":"https://gustavosimas.com"}},{"@context":"https://schema.org","@type":"WebPage","name":"Quem chega aos prêmios literários?","url":"https://literadados.gustavosimas.com/","inLanguage":"pt-BR","isPartOf":{"@type":"WebSite","url":"https://literadados.gustavosimas.com/"},"about":["prêmios literários","diversidade na literatura","literatura de língua portuguesa"],"hasPart":[{"@type":"WebPage","url":"https://literadados.gustavosimas.com/premios/"},{"@type":"WebPage","url":"https://literadados.gustavosimas.com/pessoas/"},{"@type":"WebPage","url":"https://literadados.gustavosimas.com/editoras/"},{"@type":"WebPage","url":"https://literadados.gustavosimas.com/estados/"},{"@type":"WebPage","url":"https://literadados.gustavosimas.com/perguntas/"},{"@type":"WebPage","url":"https://literadados.gustavosimas.com/dados-abertos/"}]}]</script>
 <script>/* tema salvo antes do primeiro quadro (sem piscar o tema errado); tema.js cuida do resto */try{var t=localStorage.getItem("tema");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -66,10 +83,13 @@
       <h1 id="h-hero">Quem chega aos prêmios literários?</h1>
       <p class="hero-lead">Gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários, lado a lado. Cada número tem fonte; cada pessoa, um perfil.</p>
       <div class="hero-numeros" id="hero-numeros">
-        <!-- Reserva o espaço dos números até os dados chegarem (sem layout shift); app.js substitui. -->
-        <div class="hero-num esqueleto" aria-hidden="true"><b>0</b><span>pessoas-autoras em 0.000 indicações</span></div>
-        <div class="hero-num esqueleto" aria-hidden="true"><b>0</b><span>são mulheres (000)</span></div>
-        <div class="hero-num esqueleto" aria-hidden="true"><b>0</b><span>se declararam negras (piso: 00)</span></div>
+        <!-- Reserva o espaço dos números até os dados chegarem (sem layout shift); app.js substitui. Os números reais
+             entre os marcadores são gravados pelo build (seo.py, CA-27.6), para quem lê a página sem JavaScript. -->
+        <!-- build:numeros -->
+        <div class="hero-num esqueleto" aria-hidden="true"><b>1.411</b><span>pessoas-autoras em 2.753 indicações</span></div>
+        <div class="hero-num esqueleto" aria-hidden="true"><b>36%</b><span>são mulheres (504)</span></div>
+        <div class="hero-num esqueleto" aria-hidden="true"><b>≥ 2,1%</b><span>se declararam negras (piso: 29)</span></div>
+        <!-- /build:numeros -->
       </div>
       <div class="hero-acoes">
         <a class="botao" href="#historia">Começar a história <span aria-hidden="true">↓</span></a>
@@ -220,6 +240,7 @@
 <footer class="rodape">
   <p id="nota-genero" class="nota-genero"></p>
   <p><b>Literadados</b> · dados abertos sobre prêmios literários (<span data-premios-texto>Prêmio Jabuti e Prêmio Oceanos</span>). <a href="metodo.html">Método e referências</a>. Fotos: Wikimedia Commons (créditos nos perfis). Malha: IBGE.</p>
+  <nav class="rodape-links" aria-label="Páginas de consulta"><a href="/premios/">Prêmios e edições</a> · <a href="/pessoas/">Pessoas de A a Z</a> · <a href="/editoras/">Editoras</a> · <a href="/estados/">Estados</a> · <a href="/perguntas/">Perguntas frequentes</a> · <a href="/dados-abertos/">Dados abertos</a></nav>
   <p id="gerado-em" class="muted"></p>
 </footer>
 

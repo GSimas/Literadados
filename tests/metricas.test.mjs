@@ -458,15 +458,15 @@ test("marcos: 1ª edição dos outros prêmios vem dos dados (CA-26.10)", () => 
   assert.ok(!M.marcosDe(["jabuti"], base).some((m) => m.texto === "1ª edição")); // o prêmio mais antigo já começa no eixo
 });
 
-test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no lugar de EX (CA-26.12)", () => {
+test("busca: edição abre o perfil da edição; país no lugar de EX (CA-26.12, CA-28.1)", () => {
   const D = { premios: [{ id: "jabuti", nome: "Prêmio Jabuti" }, { id: "oceanos", nome: "Prêmio Oceanos" }], edicoes: [{ premio: "oceanos", ano: 2018, regime: "categoria única" }],
     participacao: LP.map((l) => ({ ...l, nome: l.pessoa_id, titulo: l.obra_id })), pessoas: [{ id: "e", nome: "Eva Angolana", uf_nascimento: "EX", pais_nascimento: "AO" }],
     obras: [], editoras: [], ufs: [], categorias: [], jurados: [], anos_coletados: [] };
   const ix = M.indiceBusca(D);
   const oc = ix.find((e) => e.tipo === "Edição" && e.rotulo === "Oceanos 2018");
-  assert.equal(oc.href, "?linha-do-tempo=2018-2018~p:oceanos#/grafico/linha-do-tempo");
+  assert.equal(oc.href, "#/edicao/oceanos/2018"); // perfil da edição (CA-28.1)
   assert.equal(oc.sub, "categoria única");
-  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "?linha-do-tempo=2016-2016~p:jabuti#/grafico/linha-do-tempo"); // sem ~p:, abriria todos
+  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "#/edicao/jabuti/2016");
   assert.ok(ix.find((e) => e.rotulo === "Eva Angolana").sub.startsWith("Angola"));
   assert.ok(ix.some((e) => e.rotulo === "Entre prêmios"));
 });
@@ -475,4 +475,38 @@ test("história com vários prêmios: edição é prêmio + ano; pessoa conta um
   const h = M.historia(ls);
   assert.deepEqual([h.edicoes, h.premios, h.pessoas, h.indicacoes], [2, 2, 1, 2]);
   assert.ok(Object.keys(M.FORMATOS).every((p) => M.MARCOS.some((m) => m.premio === p))); // formato só de prêmio conhecido
+});
+
+test("perfilEdicao: números com n, edição vizinha, categorias em ordem de resultado (CA-28.2)", () => {
+  const ls = linhas.map((l) => ({ ...l, premio: "jabuti", premio_nome: "Prêmio Jabuti", regime: "r", nome: l.pessoa_id, titulo: l.obra_id,
+    colocacao: l.vencedora ? 1 : l.premiada ? 2 : null }));
+  assert.equal(M.perfilEdicao(ls, "jabuti", 2019), null);
+  const p = M.perfilEdicao(ls, "jabuti", 2016);
+  assert.equal(p.pessoas, 3); assert.equal(p.mulheres, 2); assert.equal(p.negras, 1); // piso: só autodeclaração
+  assert.equal(p.comUF, 3); assert.equal(p.sudeste, 2);
+  assert.equal(p.anterior, null); assert.equal(p.seguinte, 2023);
+  assert.deepEqual(p.categorias.map((c) => c.categoria), ["Poesia", "Romance"]);
+  assert.deepEqual(p.categorias[1].obras.map((o) => o.obra_id), ["o2", "o1"]); // 1º lugar antes da lista
+  const q = M.perfilEdicao(ls, "jabuti", 2023);
+  assert.equal(q.pessoas, 2); // ilustrador fora dos números…
+  assert.deepEqual(q.categorias[0].obras.find((o) => o.obra_id === "o4").ilustradores.map((x) => x.id), ["i"]); // …mas na ficha da obra
+  assert.equal(q.comUF, 1); // nascido fora do Brasil não entra na base do Sudeste
+  assert.equal(q.antes.pessoas, 3);
+  const premiadas = q.composicao.filter((c) => c.etapa === "premiada" && c.dim === "genero");
+  assert.deepEqual(premiadas.map((c) => [c.grupo, c.n, c.total]), [["mulher", 1, 1]]);
+});
+
+test("perfilEditora: indicações como no gráfico de editoras, posição e pessoas (CA-29.1)", () => {
+  const ls = linhas.map((l) => ({ ...l, premio: "jabuti", premio_nome: "Prêmio Jabuti", nome: l.pessoa_id, titulo: l.obra_id }));
+  assert.equal(M.perfilEditora(ls, "Ed Z"), null);
+  const a = M.perfilEditora(ls, "Ed A");
+  assert.equal(a.indicacoes, 4); // o1, o3, o4 e o5 (o4 tem ilustrador, conta uma vez)
+  assert.equal(a.premiadas, 2); assert.equal(a.vencedoras, 1);
+  assert.equal(a.posicao, 1); assert.equal(a.editorasNaBase, 2);
+  assert.equal(a.pessoas, 3); assert.equal(a.negras, 1); // c, a, d; ilustrador fora
+  assert.deepEqual(a.obras.map((o) => o.obra_id), ["o3", "o1", "o4", "o5"]); // ano, depois categoria
+  assert.deepEqual(a.porAno.map((d) => [d.ano, d.premiadas, d.outras]), [[2016, 1, 1], [2023, 1, 1]]);
+  assert.equal(a.maisPublicados[0].id, "a");
+  const b = M.perfilEditora(ls, "Ed B");
+  assert.equal(b.posicao, 2); assert.equal(b.indicacoes, 1);
 });

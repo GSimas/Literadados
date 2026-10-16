@@ -223,7 +223,7 @@ export function renderIdade(L) {
   ]);
 }
 
-export function renderEditoras(L) {
+export function renderEditoras(L, { D } = {}) {
   const el = $("#g-editoras"), el2 = $("#g-grupos");
   avisoPremios(el, L);
   const e = M.editoras(L), sem = M.semEditora(L);
@@ -241,6 +241,10 @@ export function renderEditoras(L) {
       Plot.ruleX([0], { stroke: css("--eixo") }),
     ],
   }));
+  // Barra abre o perfil da editora (CA-29.2), pelo índice que o Plot liga a cada barra (como no ranking).
+  const idEd = new Map((D?.editoras ?? []).map((x) => [x.nome, x.id])), svgEd = el.querySelector("svg");
+  svgEd?.querySelectorAll("g[aria-label='bar'] > *").forEach((b) => { b.style.cursor = "pointer"; });
+  svgEd?.addEventListener("click", (ev) => { const i = ev.target.closest("g[aria-label='bar'] > *")?.__data__; const id = Number.isInteger(i) && idEd.get(longo[i].editora); if (id) location.hash = `#/editora/${id}`; });
   tabela($("#t-editoras"), e, [{ rot: "Editora", k: "editora" }, { rot: "Grupo", f: (d) => d.grupo ?? "independente" },
     { rot: "Indicações", k: "total", num: true }, { rot: "Premiadas", k: "premiadas", num: true }]);
   // Percentual de grupos editoriais: um painel por prêmio (CA-26.9), nunca a soma das bases.
