@@ -192,10 +192,22 @@ def varios_premios(con) -> int:
 # Regras de análise + DDL que a IA recebe como prompt de sistema (antes montado no server.py).
 def prompt_sistema(con) -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
-    anos = [r[0] for r in con.execute("SELECT DISTINCT ano FROM indicacao ORDER BY ano").fetchall()]
-    cats = con.execute("SELECT DISTINCT categoria FROM categoria_edicao ORDER BY 1").fetchall()
-    premios = con.execute("SELECT nome, id FROM premio ORDER BY ano_inicio, id").fetchall()
-    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do Prêmio Jabuti.
+    premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, MIN(i.ano) AS de, MAX(i.ano) AS ate,
+                                     COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
+                              FROM premio p JOIN indicacao i ON i.premio_id = p.id
+                              JOIN categoria_edicao c USING (premio_id, ano, nome_original)
+                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ano_inicio ORDER BY p.ano_inicio, p.id""")
+    padrao = premios[0] if premios else {"id": "jabuti", "nome": "Prêmio Jabuti"}
+    varios = len(premios) > 1
+    nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"
+    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}): "
+                        f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}." for p in premios)
+    regra_premios = (f"""- Vários prêmios: se a pergunta não citar prêmio, responda sobre o {padrao['nome']} (premio = '{padrao['id']}'), o padrão do painel,
+  e diga isso; cite os outros só se perguntarem. Ao comparar prêmios, mostre cada um com o próprio n e %: nunca some ou
+  faça média de percentuais de prêmios diferentes (formatos, vagas e períodos diferem). A mesma pessoa pode estar em mais
+  de um prêmio (pessoa_id é o mesmo): "pessoas distintas" na base toda é COUNT(DISTINCT pessoa_id) sobre todos os prêmios.
+""" if varios else "")
+    return f"""Você responde sobre o Literadados, base sobre o perfil dos autores do {nomes}.
 Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
 Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
 comparar com o total do recorte (n e %) e fechar com uma frase de leitura. Para isso, além da contagem, consulte as linhas
@@ -203,14 +215,19 @@ por trás do número (pessoa_id, nome, uf_nascimento, ano, categoria, titulo, co
 
 Use a ferramenta consultar_sql para obter qualquer número; nunca responda números de memória.
 Regras de análise:
-- Recorte da base: Prêmio Jabuti 1959–2025 (série histórica), categorias {", ".join(c[0] for c in cats)}.
-- Prêmios na base (coluna premio de v_participacao): {", ".join(f"{n} (premio = '{i}')" for n, i in premios)}. O regime de cada edição está em edicao.
-- Edições com listas coletadas até agora: {anos}. Se a pergunta envolver outras edições, diga que ainda não foram coletadas.
+- Recorte da base, por prêmio (coluna premio de v_participacao; regime de cada edição em edicao):
+{recorte}
+{regra_premios}- Se a pergunta envolver edições fora desses períodos, diga que ainda não foram coletadas.
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
-- "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento.
-- Etapas: lista (toda linha de indicacao/v_participacao), finalista (lista_curta = 1, só existe de 2019 em diante), premiada (premiada = true: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
-- Período padrão: a série completa, 1959–2025, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
-- De 1959 a 1999 não houve lista pública de indicados (categoria_edicao.vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
+- "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento. Quem nasceu fora do Brasil tem
+  uf_nascimento = 'EX', regiao_nascimento = 'Exterior' e pais_nascimento com o código ISO 3166-1 (PT, AO, MZ…); pais_nascimento = 'BR' para quem tem UF.
+- Etapas: lista (toda linha de indicacao/v_participacao; o que ela é em cada edição está em categoria_edicao.etapa_lista: indicados,
+  semifinalistas, finalistas ou premiados), finalista (lista_curta = 1, só onde houve 2ª lista; no Jabuti, de 2019 em diante),
+  premiada (premiada = true; no Jabuti: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
+- Categoria 'Geral' = prêmio de categoria única (prosa e poesia concorrendo juntas).
+- Editora: v_participacao.editora é a da edição que concorreu (indicacao.editora_id, quando difere de obra.editora_id).
+- Período padrão: a série completa, {padrao.get('de', 1959)}–{padrao.get('ate', 2025)}, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
+- No Jabuti, de 1959 a 1999 não houve lista pública de indicados (etapa_lista = 'premiados', vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
   Ao comparar a lista com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.
 - Raça só existe por autodeclaração pública. 'sem_declaracao' NÃO significa branca. A coluna negra agrupa preta, parda e negra (sem especificar).
   Sempre trate contagens de pessoas negras como piso ("pelo menos") e informe quantas pessoas do recorte não têm declaração.
@@ -220,7 +237,7 @@ Regras de análise:
 - Nunca deduza raça, gênero ou origem de nomes; use apenas o que está no banco.
 - genero_atribuido = true: o gênero foi atribuído pelo primeiro nome, sem fonte (pode estar errado). Em respostas sobre gênero,
   informe quantas pessoas do recorte têm gênero atribuído.
-- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Jabuti.
+- Se a pergunta não for sobre estes dados, diga educadamente que só responde sobre a base do Literadados ({nomes}).
 Não repita o SQL no texto (ele é mostrado à parte).
 
 Esquema (DuckDB):

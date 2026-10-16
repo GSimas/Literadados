@@ -21,13 +21,16 @@ export const ETAPAS = [
   { id: "vencedora", rotulo: "Vencedoras", teste: (l) => !!l.vencedora },
 ];
 
+// Marcos de cada prêmio (CA-04.3, CA-26.10): só aparecem os dos prêmios do recorte (marcosDe).
 export const MARCOS = [
-  { ano: 1993, texto: "Pódio de 1º a 3º" },
-  { ano: 2000, texto: "Listas públicas" },
-  { ano: 2018, texto: "Reforma: só o 1º lugar" },
-  { ano: 2020, texto: "Romance Literário" },
-  { ano: 2021, texto: "CBL coleta raça" },
+  { premio: "jabuti", ano: 1993, texto: "Pódio de 1º a 3º" },
+  { premio: "jabuti", ano: 2000, texto: "Listas públicas" },
+  { premio: "jabuti", ano: 2018, texto: "Reforma: só o 1º lugar" },
+  { premio: "jabuti", ano: 2020, texto: "Romance Literário" },
+  { premio: "jabuti", ano: 2021, texto: "CBL coleta raça" },
 ];
+// premios = null: só os do prêmio padrão (o 1º da lista), como antes de haver vários prêmios.
+export const marcosDe = (premios, padrao = "jabuti") => MARCOS.filter((m) => (premios ?? [padrao]).includes(m.premio));
 
 const pct = (n, d) => (d ? (100 * n) / d : null);
 const contar = (arr, chave) => {
@@ -97,10 +100,11 @@ export function grupo(l, dim) {
 }
 
 // Sem período, não corta anos: o padrão do painel é a série completa (CA-25.2, D30).
-export function filtrar(linhas, { anoIni = -Infinity, anoFim = Infinity, categorias = null, papel = "autor" } = {}) {
+export function filtrar(linhas, { anoIni = -Infinity, anoFim = Infinity, categorias = null, papel = "autor", premios = null } = {}) {
   return linhas.filter(
     (l) =>
       l.ano >= anoIni && l.ano <= anoFim &&
+      (!premios || premios.includes(l.premio)) && // CA-26.8
       (!categorias || categorias.includes(l.categoria)) &&
       (papel === "todos" ? l.papel === "autor" || l.papel === "ilustrador" : l.papel === papel) // organizadores nunca (D14)
   );
@@ -118,7 +122,7 @@ export function kpis(linhas) {
   const buscaParcial = pessoas.filter((p) => p.raca_busca !== "completa").length;
   const generoAtribuido = pessoas.filter((p) => p.genero_atribuido).length;
   return {
-    indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
+    indicacoes: distintos(linhas, (l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`),
     pessoas: n,
     obras: distintos(linhas, (l) => l.obra_id),
     mulheres, pctMulheres: pct(mulheres, n), generoAtribuido,
@@ -126,7 +130,11 @@ export function kpis(linhas) {
     comRaca, pctCoberturaRaca: pct(comRaca, n),
     buscaParcial, pctBuscaCompleta: pct(n - buscaParcial, n),
     ufs: new Set(pessoas.map((p) => p.uf_nascimento).filter((u) => u && u !== "EX")).size,
+    // fora do Brasil (DA-3): pessoas e países distintos (país sem fonte não conta como país)
+    exterior: pessoas.filter((p) => p.uf_nascimento === "EX").length,
+    paises: new Set(pessoas.map((p) => p.pais_nascimento).filter((x) => x && x !== "BR")).size,
     editoras: new Set(linhas.map((l) => l.editora).filter(Boolean)).size,
+    premios: distintos(linhas, (l) => l.premio), // CA-26.9: quantos prêmios entram no recorte
   };
 }
 
@@ -176,9 +184,10 @@ export function maiorQueda(f) {
   return pior;
 }
 
-// Índice de dissimilaridade de Duncan entre mulheres e homens ao longo das categorias (Livro do Ano fora).
+// Índice de dissimilaridade de Duncan entre mulheres e homens ao longo das categorias (Livro do Ano fora; a categoria
+// única "Geral" também, porque não reparte ninguém entre gêneros literários).
 export function duncan(linhas) {
-  const sel = linhas.filter((l) => l.categoria !== "Livro do Ano" && (l.genero === "mulher" || l.genero === "homem"));
+  const sel = linhas.filter((l) => l.categoria !== "Livro do Ano" && l.categoria !== "Geral" && (l.genero === "mulher" || l.genero === "homem"));
   const M = sel.filter((l) => l.genero === "mulher").length;
   const H = sel.length - M;
   if (!M || !H) return { D: null, mulheres: M, homens: H };
@@ -210,7 +219,7 @@ export function segregacao(linhas) {
 
 // Indicações (obras) por editora. Obra sem editora conhecida (série histórica sem fonte da época) não é uma editora:
 // fica fora da lista e é contada à parte por semEditora (CA-25.4).
-const indicacoesDeAutor = (linhas) => [...new Map(linhas.filter((l) => l.papel === "autor").map((l) => [`${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
+const indicacoesDeAutor = (linhas) => [...new Map(linhas.filter((l) => l.papel === "autor").map((l) => [`${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
 export const semEditora = (linhas) => indicacoesDeAutor(linhas).filter((l) => !l.editora).length;
 export function editoras(linhas, top = 15) {
   const m = new Map();
@@ -226,7 +235,7 @@ export function editoras(linhas, top = 15) {
 
 // Indicações (obras) de editoras de grupos editoriais vs independentes, na lista e entre premiadas.
 export function gruposEditoriais(linhas) {
-  const porObra = [...new Map(linhas.filter((l) => l.papel === "autor" && l.editora).map((l) => [`${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
+  const porObra = [...new Map(linhas.filter((l) => l.papel === "autor" && l.editora).map((l) => [`${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`, l])).values()];
   const tipo = (l) => (l.grupo_editorial ? "Grupos editoriais" : "Independentes");
   const out = [];
   for (const [etapa, sel] of [["Lista", porObra], ["Premiadas", porObra.filter((l) => l.premiada)]]) {
@@ -373,7 +382,7 @@ export function historia(linhas) {
   const sudeste = conta((p) => p.regiao === "Sudeste", comUF);
   return {
     pessoas: n,
-    indicacoes: distintos(linhas, (l) => `${l.ano}|${l.nome_original}|${l.obra_id}`),
+    indicacoes: distintos(linhas, (l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`),
     edicoes: distintos(linhas, (l) => l.ano),
     genero: { ...gt, pctMulheres: pct(gt.mulheres, n), atribuido: porPessoa(linhas).filter((l) => l.genero_atribuido).length },
     premiadas: { pessoas: prem.length, mulheres: gp.mulheres, pctMulheres: pct(gp.mulheres, prem.length) },
@@ -410,8 +419,8 @@ export function porEdicao(linhas) {
 export function vencedorasPorAno(linhas, ordemCategorias = []) {
   const obras = new Map();
   for (const l of linhas.filter((x) => x.vencedora)) {
-    const k = `${l.ano}|${l.categoria}|${l.obra_id}`;
-    const o = obras.get(k) ?? { ano: l.ano, categoria: l.categoria, obra_id: l.obra_id, titulo: l.titulo, editora: l.editora, pessoas: [] };
+    const k = `${l.premio}|${l.ano}|${l.categoria}|${l.obra_id}`;
+    const o = obras.get(k) ?? { premio: l.premio, ano: l.ano, categoria: l.categoria, obra_id: l.obra_id, titulo: l.titulo, editora: l.editora, pessoas: [] };
     if (!o.pessoas.some((p) => p.id === l.pessoa_id)) o.pessoas.push({ id: l.pessoa_id, nome: l.nome });
     obras.set(k, o);
   }
@@ -465,21 +474,78 @@ export function capacidadeAnel(largura, dMin = 44, max = 100) {
   return lo;
 }
 
-// Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores).
-// Texto vazio = padrão, a série completa [a0, a1] (CA-25.2); valores fora da série voltam ao padrão.
-export function filtroDeTexto(texto, [a0, a1], cats) {
+// Filtro de uma parte na URL (CA-02.2, D22): "ini-fim" + "~cat1,cat2" (se não forem todas) + "~todos" (autores e ilustradores)
+// + "~p:jabuti,oceanos" (prêmios, CA-26.8). Texto vazio = padrão: a série completa [a0, a1] (CA-25.2) e só o 1º prêmio de
+// `premios` (DA-4); valores fora da série ou prêmios desconhecidos voltam ao padrão. Sem `premios`, o filtro não tem prêmio.
+// padraoP: prêmios do padrão desta parte (a janela Entre prêmios abre com todos).
+export function filtroDeTexto(texto, [a0, a1], cats, premios = null, padraoP = premios?.slice(0, 1)) {
   const [anos = "", ...resto] = String(texto ?? "").split("~");
   const [i, f] = anos.split("-").map(Number);
   const anoIni = i >= a0 && i <= a1 ? i : a0;
   const anoFim = Math.max(anoIni, f >= a0 && f <= a1 ? f : a1);
-  const lista = resto.find((r) => r && r !== "todos")?.split(",").filter((c) => cats.includes(c));
-  return { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
+  const lista = resto.find((r) => r && r !== "todos" && !r.startsWith("p:"))?.split(",").filter((c) => cats.includes(c));
+  const f_ = { anoIni, anoFim, categorias: lista?.length ? lista : [...cats], papel: resto.includes("todos") ? "todos" : "autor" };
+  if (!premios?.length) return f_;
+  const ps = resto.find((r) => r.startsWith("p:"))?.slice(2).split(",").filter((p) => premios.includes(p));
+  return { ...f_, premios: ps?.length ? premios.filter((p) => ps.includes(p)) : [...padraoP] };
 }
 // [a0, a1]: anos do padrão (a série completa); o que não muda o padrão não vai para a URL.
-export function filtroParaTexto(f, [a0, a1], cats) {
+export function filtroParaTexto(f, [a0, a1], cats, premios = null, padraoP = premios?.slice(0, 1)) {
   const padraoAnos = f.anoIni === a0 && f.anoFim === a1, todasCats = f.categorias.length === cats.length;
-  if (padraoAnos && todasCats && f.papel !== "todos") return "";
-  return [`${f.anoIni}-${f.anoFim}`, todasCats ? null : f.categorias.join(","), f.papel === "todos" ? "todos" : null].filter(Boolean).join("~");
+  const padraoPremios = !premios?.length || !f.premios || (f.premios.length === padraoP.length && f.premios.every((p, i) => p === padraoP[i]));
+  if (padraoAnos && todasCats && f.papel !== "todos" && padraoPremios) return "";
+  return [`${f.anoIni}-${f.anoFim}`, todasCats ? null : f.categorias.join(","), f.papel === "todos" ? "todos" : null,
+    padraoPremios ? null : `p:${f.premios.join(",")}`].filter(Boolean).join("~");
+}
+
+// ---------- vários prêmios (RF-26) ----------
+// Edições sem lista pública ("<prêmio>|<ano>"): todas as categorias, fora o Livro do Ano, só com premiados (CA-25.3, CA-26.4).
+// D.categorias omite `premio` quando é o padrão.
+export function edicoesSemLista(categorias, padrao = null) {
+  const por = new Map();
+  for (const c of categorias) {
+    if (c.categoria === "Livro do Ano") continue;
+    const k = `${c.premio ?? padrao}|${c.ano}`, sem = (c.etapa_lista ?? (c.vagas_lista == null ? "premiados" : "")) === "premiados";
+    por.set(k, (por.get(k) ?? true) && sem);
+  }
+  return new Set([...por].filter(([, sem]) => sem).map(([k]) => k));
+}
+// Linhas separadas por prêmio, na ordem de `ordem` (a de D.premios); prêmio fora da ordem vai para o fim.
+export function porPremio(linhas, ordem = []) {
+  const m = new Map(ordem.map((p) => [p, []]));
+  for (const l of linhas) { if (!m.has(l.premio)) m.set(l.premio, []); m.get(l.premio).push(l); }
+  return new Map([...m].filter(([, ls]) => ls.length));
+}
+// Entre prêmios (CA-26.11): quem passou por mais de um prêmio do recorte, a sobreposição de cada par (com n) e a ordem
+// em que cada pessoa chegou a cada prêmio. etapa: "lista" (qualquer indicação) ou "premiada" (pódio).
+export function entrePremios(linhas, ordem = [], etapa = "premiada") {
+  const sel = etapa === "premiada" ? linhas.filter((l) => l.premiada) : linhas;
+  const ps = [...porPremio(sel, ordem).keys()];
+  const porP = new Map(); // pessoa → prêmio → 1º ano naquela etapa
+  for (const l of sel) {
+    const m = porP.get(l.pessoa_id) ?? new Map();
+    m.set(l.premio, Math.min(m.get(l.premio) ?? Infinity, l.ano));
+    porP.set(l.pessoa_id, m);
+  }
+  const nome = new Map(sel.map((l) => [l.pessoa_id, l]));
+  const pessoas = [...porP].filter(([, m]) => m.size > 1).map(([id, m]) => {
+    const l = nome.get(id), ordemChegada = [...m].sort((a, b) => a[1] - b[1] || ps.indexOf(a[0]) - ps.indexOf(b[0]));
+    return { pessoa_id: id, nome: l.nome, genero: l.genero, uf_nascimento: l.uf_nascimento, pais_nascimento: l.pais_nascimento,
+      premios: ordemChegada.map(([p]) => p), anos: ordemChegada.map(([, a]) => a) };
+  }).sort((a, b) => b.premios.length - a.premios.length || a.anos[0] - b.anos[0] || a.nome.localeCompare(b.nome, "pt-BR"));
+  // Pares: quantas pessoas de A também estão em B (n) sobre o total de A (base), nos dois sentidos.
+  const total = new Map(ps.map((p) => [p, [...porP.values()].filter((m) => m.has(p)).length]));
+  const pares = ps.flatMap((a) => ps.filter((b) => b !== a).map((b) => {
+    const n = [...porP.values()].filter((m) => m.has(a) && m.has(b)).length;
+    return { de: a, para: b, n, total: total.get(a), pct: pct(n, total.get(a)) };
+  }));
+  return { premios: ps, total: Object.fromEntries(total), pessoas, pares };
+}
+
+// Aplica uma agregação a cada prêmio e marca as linhas do resultado com o prêmio (facetas, CA-26.9): taxas de prêmios
+// diferentes nunca se somam. `fn` devolve uma lista de objetos.
+export function facetar(linhas, fn, ordem = [], nomes = {}) {
+  return [...porPremio(linhas, ordem)].flatMap(([p, ls]) => fn(ls).map((x) => ({ ...x, premio: p, premio_nome: nomes[p] ?? p })));
 }
 
 // ---------- busca determinística (RF-21, D23) ----------
@@ -505,19 +571,22 @@ export function indiceBusca(D) {
   const ls = D.participacao.filter((l) => l.papel !== "organizador");
   const porPessoaId = groupBy(ls, (l) => l.pessoa_id), porObra = groupBy(ls, (l) => l.obra_id);
   const jurados = new Set(D.jurados.map((j) => j.pessoa_id));
+  // Vários prêmios (CA-26.12): edições e livros dizem de que prêmio são; "Prêmio Oceanos" → "Oceanos".
+  const premios = D.premios ?? [], padrao = premios[0]?.id ?? "jabuti", multi = premios.length > 1;
+  const curto = (id) => (premios.find((p) => p.id === id)?.nome ?? "Prêmio Jabuti").replace(/^Prêmio\s+/, "");
   const e = [];
   const add = (tipo, rotulo, sub, href, extra = "") => e.push({ tipo, rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) });
   for (const p of D.pessoas) {
     const pl = porPessoaId.get(p.id);
     if (!pl && !jurados.has(p.id)) continue;
-    const n = new Set((pl ?? []).map((l) => `${l.ano}|${l.nome_original}|${l.obra_id}`)).size;
+    const n = new Set((pl ?? []).map((l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`)).size;
     add("Pessoa", p.nome, [p.uf_nascimento, p.ano_nascimento, n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : "jurado(a)"].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
   }
   for (const o of D.obras) {
     const ol = porObra.get(o.id);
     if (!ol) continue;
     const autores = [...new Set(ol.filter((l) => l.papel === "autor").map((l) => l.nome))];
-    const edicoes = [...new Set(ol.map((l) => `${l.categoria} ${l.ano}`))];
+    const edicoes = [...new Set(ol.map((l) => `${multi ? `${curto(l.premio)} · ` : ""}${l.categoria} ${l.ano}`))];
     add("Livro", o.titulo, [autores.join(", "), edicoes.join(", ")].filter(Boolean).join(" · "), `#/obra/${o.id}`, autores.join(" "));
   }
   const ufs = D.ufs.filter((u) => u.uf !== "EX");
@@ -529,8 +598,15 @@ export function indiceBusca(D) {
     if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
   }
   for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
-  for (const a of D.anos_coletados) add("Edição", `Jabuti ${a}`, a <= 1992 ? "um vencedor por categoria" : a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único", "#/grafico/linha-do-tempo", String(a));
+  // Edições com dados de cada prêmio; o Jabuti mantém a descrição curta do formato, os outros mostram o regime da edição.
+  const rotJabuti = (a) => (a <= 1992 ? "um vencedor por categoria" : a <= 2017 ? "pódio de 1º a 3º" : a === 2018 ? "transição: só 1º lugar" : "finalistas e vencedor único");
+  const regime = new Map((D.edicoes ?? []).map((x) => [`${x.premio ?? padrao}|${x.ano}`, x.regime]));
+  const comDados = [...new Set(ls.map((l) => `${l.premio ?? padrao}|${l.ano}`))].map((k) => k.split("|")).sort((a, b) => a[1] - b[1]);
+  for (const [p, a] of comDados.length ? comDados : D.anos_coletados.map((a) => [padrao, String(a)])) {
+    add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "", "#/grafico/linha-do-tempo", a);
+  }
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
+  if (multi) add("Gráfico", "Entre prêmios", "quem passa por mais de um prêmio", "#/grafico/entre-premios", "sobreposicao premios");
   return e;
 }
 

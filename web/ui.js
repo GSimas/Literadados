@@ -18,7 +18,26 @@ export const ROT_GEN = { mulher: "Mulher", homem: "Homem", nao_binario: "Não bi
 // Gênero atribuído pelo primeiro nome (CA-11.4, D16): asterisco que leva à nota de rodapé.
 export const CONTATO = "gustavosimassilva@gmail.com";
 export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" title="Inclui gênero atribuído pelo nome: ver nota">*</a>` : "");
-export const CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Livro do Ano"];
+// Taxonomia comum (CA-26.3), na ordem dos menus e gráficos. CATEGORIAS = as que existem nos dados (definirDados).
+export const ORDEM_CATEGORIAS = ["Romance", "Contos", "Crônica", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];
+export const CATEGORIAS = ORDEM_CATEGORIAS.filter((c) => c !== "Geral");
+// Prêmios da base, na ordem de D.premios (o 1º é o padrão, DA-4), e o nome de cada um.
+export const PREMIOS = [];
+export const NOME_PREMIO = {};
+export function definirDados(D) {
+  const presentes = new Set(D.categorias.map((c) => c.categoria));
+  CATEGORIAS.splice(0, CATEGORIAS.length, ...ORDEM_CATEGORIAS.filter((c) => presentes.has(c)));
+  PREMIOS.splice(0, PREMIOS.length, ...(D.premios ?? []).map((p) => p.id));
+  for (const p of D.premios ?? []) NOME_PREMIO[p.id] = p.nome;
+}
+// País de nascimento (DA-3): código ISO → nome em português ("PT" → "Portugal").
+const PAISES = typeof Intl !== "undefined" && Intl.DisplayNames ? new Intl.DisplayNames(["pt-BR"], { type: "region" }) : null;
+export const nomePais = (iso) => { try { return (iso && PAISES?.of(iso)) || iso || ""; } catch { return iso; } };
+// "Prêmio Jabuti", "Prêmio Jabuti e Oceanos", "3 prêmios" (rodapés e resumos).
+export function nomesPremios(ids = PREMIOS.slice(0, 1)) {
+  const ns = ids.map((p) => NOME_PREMIO[p] ?? p);
+  return ns.length <= 2 ? ns.join(" e ") : `${ns.length} prêmios`;
+}
 
 // Cor fixa por grupo (a mesma em todos os gráficos); dado faltante sempre em cinza.
 export function cores(dim) {
@@ -270,56 +289,77 @@ export function luzNosBlocos() {
 }
 
 // ---------- filtro de uma parte (RF-02, D22) ----------
-// Desenha a barra em `el` e altera `estado` (anoIni, anoFim, categorias, papel); chama aoMudar() a cada mudança.
-// Devolve resumo(html), para a parte mostrar o tamanho do próprio recorte.
+// Desenha a barra em `el` e altera `estado` (anoIni, anoFim, categorias, papel e, com vários prêmios, premios);
+// chama aoMudar() a cada mudança. Devolve resumo(html), para a parte mostrar o tamanho do próprio recorte.
 let nFiltro = 0;
+// Menu de caixas de seleção (categorias, prêmios): botão com resumo, lista com "todos", Esc e clique fora fecham.
+function menuMarcavel(wrap, { id, rotulo, opcoes, todos, obter, definir, resumo, aoMudar }) {
+  wrap.innerHTML = `<button type="button" class="sel-botao" id="${id}" aria-haspopup="true" aria-expanded="false" aria-controls="${id}-menu"></button>
+    <span class="menu filtro-menu" id="${id}-menu" role="group" aria-label="${esc(rotulo)}" hidden>
+      ${opcoes.map((o) => `<label class="chip"><input type="checkbox" value="${esc(o.v)}">${esc(o.rot)}</label>`).join("")}
+      <span class="filtro-menu-acoes"><button type="button" class="chip-link" data-todas>${esc(todos)}</button></span>
+    </span>`;
+  const botao = $("button.sel-botao", wrap), menu = $(".filtro-menu", wrap), caixas = $$("input", menu);
+  const sincronizar = () => {
+    caixas.forEach((c) => { c.checked = obter().includes(c.value); });
+    botao.innerHTML = `<span>${esc(resumo())}</span><svg class="sel-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+  };
+  const fechar = (foco = false) => { if (menu.hidden) return; botao.setAttribute("aria-expanded", "false"); wrap.closest(".filtro")?.classList.remove("cats-aberto"); fecharAnimado(menu); if (foco) botao.focus(); };
+  // Desmarcar tudo não deixa o recorte vazio: volta a marcar todos.
+  menu.addEventListener("change", () => { const v = opcoes.map((o) => o.v).filter((x) => caixas.find((c) => c.value === x).checked); definir(v.length ? v : opcoes.map((o) => o.v)); aoMudar(); });
+  $("[data-todas]", menu).addEventListener("click", () => { definir(opcoes.map((o) => o.v)); aoMudar(); });
+  botao.addEventListener("click", () => {
+    if (!menu.hidden) return fechar();
+    menu.hidden = false;
+    botao.setAttribute("aria-expanded", "true");
+    wrap.closest(".filtro")?.classList.add("cats-aberto");
+    caixas[0]?.focus();
+  });
+  menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fechar(true); } });
+  document.addEventListener("pointerdown", (e) => { if (!wrap.contains(e.target)) fechar(); });
+  return sincronizar;
+}
 export function montarFiltro(el, estado, { anos, padrao, aoMudar, baixar }) {
   const id = `filtro-${++nFiltro}`;
   const opAnos = (v) => anos.map((a) => `<option ${a === v ? "selected" : ""}>${a}</option>`).join("");
+  const comPremios = PREMIOS.length > 1 && !!estado.premios; // com um prêmio só, nada muda na barra (CA-26.2)
   el.classList.add("filtro");
   el.innerHTML = `<span class="filtro-rot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtro</span>
+    ${comPremios ? `<span class="filtro-cats filtro-premios"></span>` : ""}
     <label>De <select id="${id}-ini">${opAnos(estado.anoIni)}</select></label>
     <label>até <select id="${id}-fim">${opAnos(estado.anoFim)}</select></label>
-    <span class="filtro-cats">
-      <button type="button" class="sel-botao" id="${id}-cats" aria-haspopup="true" aria-expanded="false" aria-controls="${id}-menu"></button>
-      <span class="menu filtro-menu" id="${id}-menu" role="group" aria-label="Categorias" hidden>
-        ${CATEGORIAS.map((c) => `<label class="chip"><input type="checkbox" value="${esc(c)}">${esc(c)}</label>`).join("")}
-        <span class="filtro-menu-acoes"><button type="button" class="chip-link" data-todas>todas</button></span>
-      </span>
-    </span>
+    <span class="filtro-cats filtro-categorias"></span>
     <label>Pessoas <select id="${id}-papel"><option value="autor">só autores</option><option value="todos">autores e ilustradores</option></select></label>
     <span class="filtro-resumo" aria-live="polite"></span>
     <button type="button" class="chip-link" data-limpar>limpar</button>
     <button type="button" class="chip-link" data-csv>CSV</button>`;
   const ini = $(`#${id}-ini`, el), fim = $(`#${id}-fim`, el), papel = $(`#${id}-papel`, el);
-  const botaoCats = $(`#${id}-cats`, el), menu = $(`#${id}-menu`, el), caixas = $$("input", menu);
-  const rotCats = () => (estado.categorias.length === CATEGORIAS.length ? "Todas as categorias"
-    : estado.categorias.length === 1 ? estado.categorias[0] : `${estado.categorias.length} categorias`);
+  const iguais = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+  let sincCats = () => {}, sincPremios = () => {};
   const sincronizar = () => {
     ini.value = estado.anoIni; fim.value = estado.anoFim; papel.value = estado.papel;
-    caixas.forEach((c) => { c.checked = estado.categorias.includes(c.value); });
-    botaoCats.innerHTML = `<span>${esc(rotCats())}</span><svg class="sel-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+    sincCats(); sincPremios();
     const p = padrao();
-    $("[data-limpar]", el).hidden = estado.anoIni === p.anoIni && estado.anoFim === p.anoFim && estado.papel === p.papel && estado.categorias.length === CATEGORIAS.length;
+    $("[data-limpar]", el).hidden = estado.anoIni === p.anoIni && estado.anoFim === p.anoFim && estado.papel === p.papel
+      && estado.categorias.length === CATEGORIAS.length && (!comPremios || iguais(estado.premios, p.premios));
   };
   const mudou = () => { sincronizar(); aoMudar(); };
+  sincCats = menuMarcavel($(".filtro-categorias", el), {
+    id: `${id}-cats`, rotulo: "Categorias", todos: "todas", opcoes: CATEGORIAS.map((c) => ({ v: c, rot: c })),
+    obter: () => estado.categorias, definir: (v) => { estado.categorias = v; }, aoMudar: mudou,
+    resumo: () => (estado.categorias.length === CATEGORIAS.length ? "Todas as categorias"
+      : estado.categorias.length === 1 ? estado.categorias[0] : `${estado.categorias.length} categorias`),
+  });
+  if (comPremios) sincPremios = menuMarcavel($(".filtro-premios", el), {
+    id: `${id}-premios`, rotulo: "Prêmios", todos: "todos", opcoes: PREMIOS.map((p) => ({ v: p, rot: NOME_PREMIO[p] ?? p })),
+    obter: () => estado.premios, definir: (v) => { estado.premios = v; }, aoMudar: mudou,
+    resumo: () => (estado.premios.length === PREMIOS.length ? "Todos os prêmios" : nomesPremios(estado.premios)),
+  });
   [ini, fim, papel].forEach(melhorarSelect);
   sincronizar();
   ini.addEventListener("change", () => { estado.anoIni = +ini.value; estado.anoFim = Math.max(estado.anoFim, estado.anoIni); mudou(); });
   fim.addEventListener("change", () => { estado.anoFim = Math.max(+fim.value, estado.anoIni); mudou(); });
   papel.addEventListener("change", () => { estado.papel = papel.value; mudou(); });
-  menu.addEventListener("change", () => { estado.categorias = CATEGORIAS.filter((c) => caixas.find((x) => x.value === c).checked); mudou(); });
-  $("[data-todas]", menu).addEventListener("click", () => { estado.categorias = [...CATEGORIAS]; mudou(); });
-  const fecharMenu = (foco = false) => { if (menu.hidden) return; botaoCats.setAttribute("aria-expanded", "false"); el.classList.remove("cats-aberto"); fecharAnimado(menu); if (foco) botaoCats.focus(); };
-  botaoCats.addEventListener("click", () => {
-    if (!menu.hidden) return fecharMenu();
-    menu.hidden = false;
-    botaoCats.setAttribute("aria-expanded", "true");
-    el.classList.add("cats-aberto");
-    caixas[0].focus();
-  });
-  menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fecharMenu(true); } });
-  document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".filtro-cats") || !el.contains(e.target)) fecharMenu(); });
   $("[data-limpar]", el).addEventListener("click", () => { Object.assign(estado, padrao()); mudou(); });
   $("[data-csv]", el).addEventListener("click", baixar);
   return { resumo: (html) => { $(".filtro-resumo", el).innerHTML = html; } };

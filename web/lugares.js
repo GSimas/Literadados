@@ -1,7 +1,7 @@
 // Perfis de estados e regiões (RF-22, D23): #/uf/<UF> e #/regiao/<Região>, no mesmo <dialog> dos perfis de pessoas.
 // Números de metricas.perfilLugar (testada) sobre o recorte completo de autores; gráficos desenhados depois de o diálogo abrir.
 import * as M from "./metricas.js";
-import { esc, fmt, fmtPct, css, largura, estilo, desenhar, astGenero, nPequeno } from "./ui.js";
+import { esc, fmt, fmtPct, css, largura, estilo, desenhar, astGenero, nPequeno, nomesPremios } from "./ui.js";
 import { obterMalha } from "./mapa.js";
 
 const ehBR = (u) => u.uf !== "EX";
@@ -31,7 +31,7 @@ export function htmlLugar(tipo, chave, { D, linhas }) {
         <h2 id="perfil-nome">${esc(nome)}</h2>
         <p>${p.pessoas ? `<b>${fmt(p.pessoas)} pessoas-autoras</b> nasceram ${uf ? "neste estado" : "nesta região"}: ${fmtPct(p.parcela)} das ${fmt(p.pessoasBR)} com UF de nascimento conhecida no Brasil.`
           : `Nenhuma pessoa-autora do recorte tem UF de nascimento ${uf ? "neste estado" : "nesta região"}.`}</p>
-        <p class="muted pequeno">Série completa: ${D.anos[0]}–${D.anos[1]}, todas as categorias, só autores. População: Censo 2022.</p>
+        <p class="muted pequeno">${D.premios?.length > 1 ? `${esc(nomesPremios())}, série` : "Série"} completa: ${D.anos[0]}–${D.anos[1]}, todas as categorias, só autores. População: Censo 2022.</p>
         <div class="links-externos"><a href="#/${tipo}/${encodeURIComponent(chave)}" data-copiar>Link deste perfil</a></div>
       </div>
     </header>

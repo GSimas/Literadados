@@ -117,7 +117,7 @@ async function exportarGrafico(alvo, formato) {
   raiz.innerHTML = `<text x="${pad}" y="${pad + 14}" fill="${tinta}" font-family="${fonte}" font-size="17" font-weight="700">${esc(titulo)}</text>
     ${linhasLeg.map((l, i) => l.map((a) => `<rect x="${pad + a.x}" y="${pad + 30 + i * 20}" width="12" height="12" rx="3" fill="${a.cor}"/>
       <text x="${pad + a.x + 18}" y="${pad + 40 + i * 20}" fill="${tinta2}" font-family="${fonte}" font-size="12">${esc(a.rotulo)}</text>`).join("")).join("")}
-    <text x="${pad}" y="${altura - 14}" fill="${tinta2}" font-family="${fonte}" font-size="11">Literadados · Prêmio Jabuti ${esc(alvo.closest("[data-anos]")?.dataset.anos ?? "")}</text>`;
+    <text x="${pad}" y="${altura - 14}" fill="${tinta2}" font-family="${fonte}" font-size="11">Literadados · ${esc(alvo.closest("[data-premios]")?.dataset.premios ?? "Prêmio Jabuti")} ${esc(alvo.closest("[data-anos]")?.dataset.anos ?? "")}</text>`;
   const corpo = svgComEstilos(principal);
   corpo.setAttribute("x", pad);
   corpo.setAttribute("y", topo);

@@ -66,7 +66,8 @@ function posicoes(layout, corDim, pts, W, Hh, d) {
 }
 
 export function montarHistoria({ D, abrirPerfil }) {
-  const linhas = M.filtrar(D.participacao, { categorias: null, papel: "autor" });
+  // A história é a do prêmio padrão, o 1º de D.premios (DA-4): com outros prêmios na base, ela não muda.
+  const linhas = M.filtrar(D.participacao, { categorias: null, papel: "autor", premios: D.premios?.length ? [D.premios[0].id] : null });
   const H = M.historia(linhas);
   const pts = M.pontosHistoria(linhas);
   const P = passos(H, D);

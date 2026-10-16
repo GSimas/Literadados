@@ -176,6 +176,13 @@
         <span class="cg-desc">O perfil de quem julga se parece com o de quem vence?</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
+      <a class="cartao-grafico" href="#/grafico/entre-premios" data-janela="entre-premios" hidden>
+        <svg class="cg-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
+        <span class="cg-sobre">Análises · Entre prêmios</span>
+        <span class="cg-titulo">Quem passa por mais de um prêmio</span>
+        <span class="cg-desc">Quantas pessoas de um prêmio também chegam ao outro, e em que ordem.</span>
+        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
+      </a>
     </div>
   </section>
 
@@ -217,7 +224,7 @@
 
 <footer class="rodape">
   <p id="nota-genero" class="nota-genero"></p>
-  <p><b>Literadados</b> · dados abertos sobre o Prêmio Jabuti. <a href="metodo.html">Método e referências</a>. Fotos: Wikimedia Commons (créditos nos perfis). Malha: IBGE.</p>
+  <p><b>Literadados</b> · dados abertos sobre <span data-premios-texto>o Prêmio Jabuti</span>. <a href="metodo.html">Método e referências</a>. Fotos: Wikimedia Commons (créditos nos perfis). Malha: IBGE.</p>
   <p id="gerado-em" class="muted"></p>
 </footer>
 
@@ -330,6 +337,23 @@
     <header class="secao-cab"><p class="sobretitulo">Análises · Júri</p><h2 id="h-juri">Quem julga e quem vence</h2>
       <p class="lead">O perfil de quem julga se parece com o de quem vence? Os nomes dos jurados são divulgados desde 2019.</p></header>
     <figure class="cartao"><div id="g-juri" class="grafico"></div><details><summary>Ver dados em tabela</summary><div id="t-juri"></div></details></figure>
+  </div>
+</dialog>
+<dialog id="entre-premios" class="janela" aria-labelledby="h-entre-premios">
+  <div class="janela-topo"><div data-filtro="entre-premios"></div><button class="fechar" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="janela-corpo">
+    <header class="secao-cab"><p class="sobretitulo">Análises · Entre prêmios</p><h2 id="h-entre-premios">Quem passa por mais de um prêmio</h2>
+      <p class="lead">Pessoas-autoras que chegaram a mais de um prêmio do recorte. Cada célula diz quantas pessoas de um prêmio (linha) também estão no outro (coluna), sobre o total da linha. Os prêmios têm formatos e períodos diferentes: compare com cuidado.</p></header>
+    <div class="controles" role="group" aria-label="Etapa">
+      <div class="segmentado" id="entre-etapa" role="radiogroup" aria-label="Etapa">
+        <button type="button" role="radio" aria-checked="true" data-v="lista">Indicações</button>
+        <button type="button" role="radio" aria-checked="false" data-v="premiada">Premiadas</button>
+      </div>
+    </div>
+    <p id="entre-resumo" class="destaque" aria-live="polite"></p>
+    <figure class="cartao"><div id="g-entre-premios" class="grafico"></div><figcaption>Linha: prêmio de partida; coluna: o outro prêmio. % = parte das pessoas da linha que também estão na coluna.</figcaption>
+      <details><summary>Ver dados em tabela</summary><div id="t-entre-premios"></div></details></figure>
+    <div class="cartao"><h3>Quem são</h3><div id="entre-pessoas"></div></div>
   </div>
 </dialog>
 

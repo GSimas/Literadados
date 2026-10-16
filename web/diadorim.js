@@ -7,7 +7,7 @@ const OPENROUTER = "https://openrouter.ai";
 const MODELO = "openrouter/free";
 const RODADAS = 6;
 const CHAVE = "or_chave";
-const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri"];
+const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios"];
 export const SUGESTOES = [
   "Quantos autores pretos nascidos em São Paulo chegaram à lista do Jabuti em Contos?",
   "Quantas mulheres nascidas no Nordeste foram premiadas?",
@@ -67,12 +67,13 @@ const REGRAS_LINK = `Referências (obrigatório): termine toda resposta com uma 
 - Gráficos do painel: [Linha do tempo](#/grafico/linha-do-tempo) (composição de cada edição e vencedoras), [Mapa](#/grafico/geografia)
   (UF de nascimento e fluxo região → editora → resultado), [Evolução](#/grafico/evolucao) (composição por edição),
   [Funil](#/grafico/funil) (lista → finalistas → premiadas → vencedoras), [Categorias](#/grafico/segregacao) (índice de Duncan),
-  [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Ranking](#/grafico/ranking) (mais premiados e indicados), [Júri](#/grafico/juri).
+  [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Ranking](#/grafico/ranking) (mais premiados e indicados), [Júri](#/grafico/juri),
+  [Entre prêmios](#/grafico/entre-premios) (quem passa por mais de um prêmio, quando a base tem vários).
 - Seções: [Panorama](#panorama), [Autores](#autores), [Método](metodo.html#metodologia), [Referências](metodo.html#referencias).
 - Fontes externas: URLs das colunas fonte, genero_fonte, raca_fonte e nascimento_fonte, quando sustentarem a resposta.
 Nunca invente URL nem pessoa_id: use só o que vier das consultas. Mostre o n junto de todo percentual.
 Nunca cite nomes de tabelas, views ou colunas (v_participacao, pessoa, categoria_edicao, uf_nascimento…) como fonte nem no texto:
-quem lê não conhece o banco. Fale das coisas pelo nome comum (lista do Jabuti, perfil da pessoa, estado de nascimento).
+quem lê não conhece o banco. Fale das coisas pelo nome comum (lista do Jabuti, lista do Oceanos, perfil da pessoa, estado de nascimento).
 - Estados e regiões: [Minas Gerais](#/uf/MG), [Nordeste](#/regiao/Nordeste).`;
 
 // ---------- "Onde conferir" (CA-12.5): referências montadas pelo próprio Literadados, não pelo modelo ----------
@@ -85,6 +86,7 @@ const GRAFICO_POR_SQL = [
   [/idade_no_premio|ano_nascimento/i, "#/grafico/idade", "Idade"],
   [/uf_nascimento|regiao_nascimento/i, "#/grafico/geografia", "Mapa"],
   [/jurado/i, "#/grafico/juri", "Júri"],
+  [/\bpremio\b\s*(?:in|<>|!=)|count\s*\(\s*distinct\s+premio/i, "#/grafico/entre-premios", "Entre prêmios"],
 ];
 export function referencias(texto, consultas = []) {
   const links = new Map();

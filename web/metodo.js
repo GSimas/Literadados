@@ -13,8 +13,13 @@ D.participacao = M.expandir(D); // a busca precisa das linhas (design D13)
 montarBusca(D, "./");
 montarExportacao();
 
-const porAno = new Map(D.cobertura.map((c) => [c.ano, c]));
-tabela($("#t-cobertura"), ANOS.map((a) => ({ ano: a, ...(porAno.get(a) ?? {}) })), [
+// Cobertura por prêmio e edição (CA-26.7); D.cobertura omite o prêmio padrão. Cada prêmio só a partir da 1ª edição.
+const premios = D.premios?.length ? D.premios : [{ id: "jabuti", nome: "Prêmio Jabuti", ano_inicio: D.anos[0] }];
+const padrao = premios[0].id, multi = premios.length > 1;
+const porEdicao = new Map(D.cobertura.map((c) => [`${c.premio ?? padrao}|${c.ano}`, c]));
+const linhasCob = premios.flatMap((p) => ANOS.filter((a) => a >= (p.ano_inicio ?? ANOS[0]))
+  .map((a) => ({ premio: p.nome, ano: a, ...(porEdicao.get(`${p.id}|${a}`) ?? {}) })));
+tabela($("#t-cobertura"), linhasCob, [...(multi ? [{ rot: "Prêmio", k: "premio" }] : []),
   { rot: "Edição", k: "ano" }, { rot: "Pessoas-autoras", f: (d) => d.pessoas ?? "não coletada", num: true },
   { rot: "Gênero", f: (d) => fmtPct(d.pct_genero), num: true }, { rot: "UF", f: (d) => fmtPct(d.pct_uf), num: true },
   { rot: "Raça declarada", f: (d) => fmtPct(d.pct_raca), num: true }, { rot: "Busca de raça completa", f: (d) => fmtPct(d.pct_busca_raca), num: true },
@@ -29,6 +34,16 @@ $("#referencias-grupos").innerHTML = grupos.map(([g, { total, dominios }]) => `<
   <ul>${dominios.slice(0, 7).map((d) => `<li><a href="${esc(d.exemplo)}" target="_blank" rel="noopener noreferrer">${esc(d.dominio)}</a><span>${fmt(d.registros)}</span></li>`).join("")}
   ${dominios.length > 7 ? `<li class="muted">+ ${dominios.length - 7} domínios</li>` : ""}</ul></div>`).join("");
 $("#gerado-em").textContent = `Dados gerados em ${new Date(D.gerado_em).toLocaleString("pt-BR")}. ${D.anos_coletados.length} de ${ANOS.length} edições coletadas.`;
+
+// Prêmios da base (RF-26, DA-5): nomes no rodapé e, com mais de um, o quadro de prêmios com período e formatos.
+const nomes = premios.map((p) => p.nome), lista = nomes.length > 1 ? `${nomes.slice(0, -1).join(", ")} e ${nomes.at(-1)}` : `o ${nomes[0]}`;
+$$("[data-premios-texto]").forEach((el) => { el.textContent = lista; });
+if (multi && $("#metodo-premios")) {
+  const regimes = d3.rollups(D.edicoes ?? [], (v) => ({ de: d3.min(v, (x) => x.ano), ate: d3.max(v, (x) => x.ano) }), (x) => x.premio ?? padrao, (x) => x.regime);
+  const porP = new Map(regimes);
+  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; livros em português de qualquer país" : ""}):
+    ${(porP.get(p.id) ?? []).map(([r, x]) => `${esc(r)} (${x.de === x.ate ? x.de : `${x.de}–${x.ate}`})`).join("; ")}.</li>`).join("")}</ul>`;
+}
 
 // Revelação ao rolar, como no painel (CA-19.1).
 if (!movimentoReduzido() && "IntersectionObserver" in window) {
