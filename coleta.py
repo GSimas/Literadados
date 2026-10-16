@@ -67,6 +67,22 @@ def normalizar():
     editoras = {e["id"]: e for e in ler("editora")}
     obras, autoria, indicacoes, jurados = {}, set(), {}, {}
 
+    # Coedição: vale a 1ª editora. "A / B" e "A | B" sempre ("S/A" é sufixo: só " / " com espaços); "A e B", "A - B" e
+    # "A, B" só quando TODAS as partes já são editoras conhecidas, porque " e " também está em nomes ("Cultura e Barbárie").
+    conhecidas = set(editoras)
+    enr_arq0 = BRUTO / "editoras_enriquecidas.csv"
+    if enr_arq0.exists():
+        conhecidas |= {e["id"] for e in csv.DictReader(enr_arq0.open(encoding="utf-8"))}
+    sufixos = ("", "-pt", "-ao", "-mz", "-cv", "-gw", "-st", "-tl", "-sem-pais")  # a mesma editora, de outro país ou sem país
+    conhecida = lambda nome: any(slug(nome) + s in conhecidas or slug(nome) + s in editoras for s in sufixos)  # da base ou desta execução
+
+    def editora_principal(celula: str) -> str:
+        eds = [e.strip() for e in re.split(r"\|| +/ +", celula) if e.strip()]
+        if not eds:
+            return ""
+        partes = [p.strip() for p in re.split(r" e | - | – |, ", eds[0]) if p.strip()]
+        return partes[0] if len(partes) > 1 and all(conhecida(p) for p in partes) else eds[0]
+
     # Um prêmio por pasta (dados/coleta/<premio>/), na ordem de premio.csv (coluna `ordem`; 1 = o padrão do painel, DA-4):
     # o Jabuti vem primeiro, e os ids atuais (fotos, capas, links) não mudam quando entra outro prêmio (design D31).
     premios = sorted(ler("premio"), key=lambda p: (int(p.get("ordem") or 99), p["id"]))
@@ -138,17 +154,48 @@ def normalizar():
     # Casamento de obra (CA-26.5): mesmo título e a MESMA PESSOA na autoria (na antologia sem autor, o organizador).
     # Só o sobrenome em comum não junta (juntaria "Poesia reunida" de dois Silva): vira outra obra, com o ano no id, e as
     # pessoas vão para revisão. Se forem a mesma pessoa, a decisão em casamentos.csv junta pessoa e, com ela, a obra.
-    por_titulo = {}
+    por_titulo, por_chave = {}, {}
+    PALAVRAS_VAZIAS = {"de", "do", "da", "dos", "das", "o", "a", "os", "as", "e", "um", "uma"}
+
+    def chave_titulo(titulo: str) -> str:
+        """Título sem subtítulo (depois de ':', ' – ', ' - ' ou entre parênteses), sem artigos/preposições e sem espaços:
+        "Canalha! – Crônicas" = "Canalha!", "Tapete de silêncio" = "Tapete do silêncio", "AvóDezanove" = "Avó dezenove"."""
+        t = re.split(r":| – | - | \(", titulo)[0]
+        return "".join(p for p in slug(t).split("-") if p not in PALAVRAS_VAZIAS)
+
+    def juntar(o: dict, nomes_, pids, ed_id, premio_id):
+        o["_pids"] |= set(pids)
+        o["_sob"] |= {sobrenome(x) for x in nomes_} - {""}  # coautor novo também conta para o aviso de sobrenome
+        o["_premios"].add(premio_id)
+        o["editora_id"] = o["editora_id"] or ed_id  # 1ª editora não vazia, só para o perfil e o JSON compacto
+        return o["id"]
+
+    # Decisão humana para livro (como casamentos.csv para pessoa): dados/coleta/<premio>/obras_casamentos.csv
+    # (titulo, obra_id) junta um título da lista daquele prêmio a uma obra já existente, quando a grafia muda demais
+    # ("Avó dezenove" × "AvóDezanove", "Meridiano celeste & bestiário" × "Meridiano Celeste").
+    obra_decidida = {}
+    for pr in premios:
+        arq = BRUTO / pr["id"] / "obras_casamentos.csv"
+        if arq.exists():
+            obra_decidida.update({(pr["id"], c["titulo"]): c["obra_id"] for c in csv.DictReader(arq.open(encoding="utf-8"))})
 
     def obra(titulo: str, nomes_: list[str], pids: list[str], ano: str, ed_id: str, premio_id: str) -> str:
+        if (premio_id, titulo) in obra_decidida:
+            oid = obra_decidida[(premio_id, titulo)]
+            if oid not in obras:
+                raise SystemExit(f"{premio_id}/obras_casamentos.csv: '{titulo}' → obra {oid} não existe (ainda)")
+            return juntar(obras[oid], nomes_, pids, ed_id, premio_id)
         base = slug(titulo)
         for oid in por_titulo.get(base, []):
             o = obras[oid]
             if o["_pids"] & set(pids) or not (o["_pids"] or pids):
-                o["_pids"] |= set(pids)
-                o["_sob"] |= {sobrenome(x) for x in nomes_} - {""}  # coautor novo também conta para o aviso de sobrenome
-                o["editora_id"] = o["editora_id"] or ed_id  # 1ª editora não vazia, só para o perfil e o JSON compacto
-                return oid
+                return juntar(o, nomes_, pids, ed_id, premio_id)
+        # Entre prêmios, a grafia do título varia ("Tapete de/do silêncio"): com a MESMA pessoa na autoria, a chave
+        # tolerante junta. Dentro do mesmo prêmio, não (lá a grafia já é uma só, e "Poesia completa: vol. 2" é outra obra).
+        for oid in por_chave.get(chave_titulo(titulo), []):
+            o = obras[oid]
+            if o["_pids"] & set(pids) and premio_id not in o["_premios"]:
+                return juntar(o, nomes_, pids, ed_id, premio_id)
         for oid in por_titulo.get(base, []):
             for n, p in zip(nomes_, pids):
                 decidido = any((casam[premio_id].get(n, {}).get(k) or "").strip() for k in ("pessoa_id", "wikidata"))
@@ -159,8 +206,10 @@ def normalizar():
         oid, n = (base if base not in obras else f"{base}-{ano}"), 2
         while oid in obras:
             oid, n = f"{base}-{ano}-{n}", n + 1
-        obras[oid] = {"id": oid, "titulo": titulo, "editora_id": ed_id, "_sob": {sobrenome(x) for x in nomes_} - {""}, "_pids": set(pids)}
+        obras[oid] = {"id": oid, "titulo": titulo, "editora_id": ed_id, "_sob": {sobrenome(x) for x in nomes_} - {""}, "_pids": set(pids),
+                      "_premios": {premio_id}}
         por_titulo.setdefault(base, []).append(oid)
+        por_chave.setdefault(chave_titulo(titulo), []).append(oid)
         return oid
     edicoes, cats = [], []
     for pr in premios:
@@ -180,16 +229,18 @@ def normalizar():
             continue
         for r in csv.DictReader(open(arq, encoding="utf-8")):
             autores = nomes(r["autores"])
-            # Coedição ("Objetiva / Alfaguara", ou "A | B"): vale a 1ª editora. Só " / " com espaços, porque "S/A" é sufixo.
-            eds = [e.strip() for e in re.split(r"\|| +/ +", r["editora"] or "") if e.strip()]
-            ed_nome = eds[0] if eds else ""
+            ed_nome = editora_principal(r["editora"] or "")
             # Editora de outro país (coluna opcional editora_pais, ISO): outra editora, mesmo com o mesmo nome de uma
             # brasileira (Companhia das Letras de Lisboa ≠ de São Paulo). Id e nome levam o país; sede no exterior.
+            # Num prêmio que tem a coluna, país VAZIO = não se sabe (coedição entre países, selo com casa nos dois):
+            # editora à parte, sem sede, em vez de herdar a sede da brasileira de mesmo nome.
             ed_pais = (r.get("editora_pais") or "").strip().upper()
             estrangeira = bool(ed_nome) and ed_pais not in ("", "BR")
-            ed_id = (slug(f"{ed_nome} {ed_pais}") if estrangeira else slug(ed_nome)) if ed_nome else ""
+            sem_pais = bool(ed_nome) and "editora_pais" in r and not ed_pais
+            ed_id = (slug(f"{ed_nome} {ed_pais}") if estrangeira else slug(f"{ed_nome} sem pais") if sem_pais else slug(ed_nome)) if ed_nome else ""
             if ed_id:
-                editoras.setdefault(ed_id, {"id": ed_id, "nome": f"{ed_nome} ({ed_pais})", "uf_sede": "EX"} if estrangeira else {"id": ed_id, "nome": ed_nome})
+                editoras.setdefault(ed_id, {"id": ed_id, "nome": f"{ed_nome} ({ed_pais})", "uf_sede": "EX"} if estrangeira
+                                    else {"id": ed_id, "nome": f"{ed_nome} (país não informado)"} if sem_pais else {"id": ed_id, "nome": ed_nome})
             orgs = [n for n in nomes(r.get("organizadores")) if n not in autores]  # fora das contagens (design D14)
             pa, po = [pessoa(n, premio_id) for n in autores], [pessoa(n, premio_id) for n in orgs]
             oid = obra(r["titulo"], autores or orgs, pa or po, r["ano"], ed_id, premio_id)
@@ -224,7 +275,10 @@ def normalizar():
         i["editora_id"] = alias.get(i["_ed"], i["_ed"]) or da_edicao.get((i["premio_id"], i["ano"], i["obra_id"]), "")
 
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
-    gravar("editora", sorted(editoras.values(), key=lambda e: e["id"]))
+    # Só editoras usadas: grafias antigas e coedições que viraram canonico deixam de aparecer (a sede/grupo vive em
+    # editoras_enriquecidas.csv, então nada se perde).
+    usadas = {o["editora_id"] for o in obras.values()} | {i["editora_id"] for i in indicacoes.values()}
+    gravar("editora", sorted((e for e in editoras.values() if e["id"] in usadas), key=lambda e: e["id"]))
     gravar("obra", sorted(obras.values(), key=lambda o: o["id"]))
     gravar("autoria", [{"premio_id": pr, "obra_id": o, "pessoa_id": p, "papel": t} for pr, o, p, t in sorted(autoria)])
     gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))

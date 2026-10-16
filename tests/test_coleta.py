@@ -211,6 +211,43 @@ def test_pais_de_prefere_atual_e_preferido(monkeypatch):  # DA-3: país históri
     assert coleta.pais_de("Qcidade") == "ER"
 
 
+def test_titulo_variante_junta_so_entre_premios(bruto):  # gauntlet 3: "Tapete de/do silêncio", "Canalha! – Crônicas"
+    dados, b = bruto
+    _csv(b / "jabuti" / "lista_2016.csv", LISTA, [_livro("Tapete do silêncio", "Ana Silva"), _livro("Poesia completa", "José Lima"),
+                                                  _livro("Poesia completa: volume 2", "José Lima")])  # no mesmo prêmio, obras diferentes
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Tapete de silêncio", "Ana Silva"), _livro("Tapete de silêncio", "Caio Prado")])
+    coleta.normalizar()
+    ind = {(i["premio_id"], i["obra_id"]) for i in _ler(dados / "indicacao.csv")}
+    assert ("outro", "tapete-do-silencio") in ind  # mesma pessoa: a mesma obra
+    assert ("outro", "tapete-de-silencio") in ind  # outra pessoa: outra obra
+    assert {o["id"] for o in _ler(dados / "obra.csv")} >= {"poesia-completa", "poesia-completa-volume-2"}
+
+
+def test_obras_casamentos_decide_grafia_diferente(bruto):
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Mar alto e bravo", "José Lima")])
+    _csv(b / "outro" / "obras_casamentos.csv", ["titulo", "obra_id", "observacao"], [{"titulo": "Mar alto e bravo", "obra_id": "mar", "observacao": "x"}])
+    coleta.normalizar()
+    assert ("outro", "mar") in {(i["premio_id"], i["obra_id"]) for i in _ler(dados / "indicacao.csv")}
+    _csv(b / "outro" / "obras_casamentos.csv", ["titulo", "obra_id", "observacao"], [{"titulo": "Mar alto e bravo", "obra_id": "fantasma", "observacao": "x"}])
+    with pytest.raises(SystemExit, match="fantasma não existe"):
+        coleta.normalizar()
+
+
+def test_editora_sem_pais_e_coedicao(bruto):  # gauntlet 3: país vazio não vira a brasileira; coedição só entre editoras conhecidas
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA + ["editora_pais"], [
+        {**_livro("Sol", "Gente Nova"), "editora": "Ed", "editora_pais": ""},                # sem país: editora à parte, sem sede
+        {**_livro("Lua", "Gente Nova"), "editora": "Ed e Ed", "editora_pais": "BR"},         # coedição de conhecidas: a 1ª
+        {**_livro("Mar", "Gente Nova"), "editora": "Cultura e Barbárie", "editora_pais": "BR"},  # nome com " e ": não parte
+    ])
+    coleta.normalizar()
+    ind = {i["obra_id"]: i["editora_id"] for i in _ler(dados / "indicacao.csv") if i["premio_id"] == "outro"}
+    assert ind["sol"] == "ed-sem-pais" and ind["lua"] == "ed" and ind["mar-2016"] == "cultura-e-barbarie"
+    eds = {e["id"]: e for e in _ler(dados / "editora.csv")}
+    assert eds["ed-sem-pais"]["nome"] == "Ed (país não informado)" and not eds["ed-sem-pais"].get("uf_sede")
+
+
 def test_sem_pendencia_arquivo_de_revisao_some(bruto):
     _, b = bruto
     _csv(b / "outro" / "casamentos_revisar.csv", ["nome"], [{"nome": "velho"}])

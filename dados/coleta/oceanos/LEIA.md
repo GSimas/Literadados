@@ -131,3 +131,14 @@ Os scripts e as listas intermediárias, fora do repositório, estão em `side-se
 - `tabcols.py`: tabela de PDF por coluna.
 
 Os de 2003–2014 estão em `pt-scripts/`.
+
+## Integração (out/2026)
+
+- **Grande Prêmio 2012–2014**: segue a convenção do Livro do Ano do Jabuti. Entra só a obra vencedora (`etapa_lista = premiados`). As outras vencedoras de categoria ficam só na própria categoria; antes, contavam em dobro.
+- **`editora_pais` vazio**: vira uma editora à parte, `<nome> (país não informado)`, sem sede. Não herda a sede da brasileira de mesmo nome (Urutau, Tinta-da-China, LeYa, coedições entre países).
+- **Coedição**: vale a 1ª editora. Separa `A / B` e `A | B` sempre. Separa `A e B`, `A - B` e `A, B` só quando todas as partes já são editoras conhecidas.
+- **Grafias de editora**: unificadas por `canonico` em `../editoras_enriquecidas.csv`.
+- **Livros dos dois prêmios**: casam por título e mesma pessoa. Entre prêmios, com título tolerante (sem subtítulo, artigos ou preposições). Quando a grafia diverge demais, a decisão humana fica em `obras_casamentos.csv`: *Avó dezenove* × *AvóDezanove*, e *Meridiano celeste & bestiário* × *Meridiano Celeste*.
+- **Pessoas**: `casamentos.csv` ganhou Márcio de Souza, Paulliny Gualberto Tort, José Almino, Fernando Dusi Rocha e Mário Medeiros.
+- **Pendente (decisão humana)**: Luiz Bras é pseudônimo de Nelson de Oliveira (mesmo QID, Q4333755). Eles continuam como duas pessoas, e o build avisa.
+- **Fonte de 2017**: `portal-assets.icnetworks.org` dá 403. A `fonte_1` aponta para a cópia do Wayback.
