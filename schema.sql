@@ -88,7 +88,7 @@ CREATE TABLE autoria (
   PRIMARY KEY (obra_id, pessoa_id, papel)
 );
 
--- Prêmios da base (RF-26, design D31). O primeiro em (ano_inicio, id) é o padrão do painel (DA-4).
+-- Prêmios da base (RF-26, design D31). ordem = 1 é o padrão do painel (DA-4), e a coleta processa nessa ordem.
 -- Prêmios pelo conjunto da obra ficam fora (DA-2): todo prêmio aqui premia livros.
 CREATE TABLE premio (
   id           TEXT PRIMARY KEY,               -- slug ('jabuti', 'oceanos')
@@ -96,6 +96,7 @@ CREATE TABLE premio (
   organizador  TEXT NOT NULL,
   ano_inicio   INTEGER NOT NULL,               -- 1ª edição; o build recusa edição anterior a ela
   abrangencia  TEXT NOT NULL CHECK (abrangencia IN ('nacional','lusofono')),
+  ordem        INTEGER NOT NULL UNIQUE CHECK (ordem >= 1),  -- explícita: um prêmio mais antigo não vira o padrão sem querer
   fonte        TEXT NOT NULL
 );
 
@@ -135,7 +136,8 @@ CREATE TABLE indicacao (
   obra_id        TEXT NOT NULL REFERENCES obra(id),
   lista_curta    INTEGER CHECK (lista_curta IN (0,1)),  -- NULL quando a edição não teve 2ª lista
   colocacao      INTEGER CHECK (colocacao BETWEEN 1 AND 5),  -- NULL = não premiada; 4 e 5 só em 1993 (premiados sem pódio, ordem da Wikipédia)
-  editora_id     TEXT REFERENCES editora(id), -- só quando a edição que concorreu não é a de obra.editora_id (CA-26.6)
+  editora_id     TEXT REFERENCES editora(id), -- a edição que concorreu (CA-26.6); vazio = sem fonte da época. obra.editora_id
+                                              -- é só a 1ª editora conhecida, para o perfil do livro
   fonte          TEXT NOT NULL,
   PRIMARY KEY (premio_id, ano, nome_original, obra_id),
   FOREIGN KEY (premio_id, ano, nome_original) REFERENCES categoria_edicao(premio_id, ano, nome_original)
@@ -178,7 +180,7 @@ JOIN premio pr        ON pr.id = i.premio_id
 JOIN edicao ed        ON ed.premio_id = i.premio_id AND ed.ano = i.ano
 JOIN categoria_edicao c ON c.premio_id = i.premio_id AND c.ano = i.ano AND c.nome_original = i.nome_original
 JOIN obra o          ON o.id = i.obra_id
-LEFT JOIN editora e   ON e.id = COALESCE(i.editora_id, o.editora_id)  -- a edição que concorreu (CA-26.6)
+LEFT JOIN editora e   ON e.id = i.editora_id  -- a edição que concorreu (CA-26.6), nunca herdada de outro ano ou prêmio
 JOIN autoria a        ON a.obra_id = o.id
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;

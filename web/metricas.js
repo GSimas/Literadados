@@ -57,7 +57,8 @@ export function expandir(D) {
   const uf = por(D.ufs, (u) => u.uf);
   return D.participacao.map((l) => {
     const o = obra.get(l.obra_id);
-    const e = editora.get(l.editora_id ?? o.editora_id); // editora da indicação, quando difere da obra (CA-26.6)
+    // Editora da indicação (CA-26.6): ausente = a da obra; "" = nenhuma conhecida nesta indicação (build.exportar).
+    const e = l.editora_id === "" ? null : editora.get(l.editora_id ?? o.editora_id);
     const p = pessoa.get(l.pessoa_id);
     const p_ = pr(l);
     return {

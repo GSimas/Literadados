@@ -24,7 +24,7 @@ JOIN premio pr        ON pr.id = i.premio_id
 JOIN edicao ed        ON ed.premio_id = i.premio_id AND ed.ano = i.ano
 JOIN categoria_edicao c ON c.premio_id = i.premio_id AND c.ano = i.ano AND c.nome_original = i.nome_original
 JOIN obra o          ON o.id = i.obra_id
-LEFT JOIN editora e   ON e.id = COALESCE(i.editora_id, o.editora_id)  -- a edição que concorreu (CA-26.6)
+LEFT JOIN editora e   ON e.id = i.editora_id  -- a edição que concorreu (CA-26.6), nunca herdada de outro ano ou prêmio
 JOIN autoria a        ON a.obra_id = o.id
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;

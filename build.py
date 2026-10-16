@@ -141,8 +141,8 @@ def _tem_miniatura(pessoa_id: str) -> bool:
 
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
-    premios = _linhas(con, "SELECT * EXCLUDE (fonte) FROM premio ORDER BY ano_inicio, id")
-    padrao = [premios[0]["id"]] if premios else [None]  # 1º prêmio = padrão do painel (DA-4); no JSON, `premio` só aparece quando é outro
+    premios = _linhas(con, "SELECT * EXCLUDE (fonte, ordem) FROM premio ORDER BY ordem")
+    padrao = [premios[0]["id"]] if premios else [None]  # ordem 1 = padrão do painel (DA-4); no JSON, `premio` só aparece quando é outro
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
@@ -151,11 +151,15 @@ def exportar(con) -> dict:
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
         "edicoes": _sem_nulos(_linhas(con, "SELECT NULLIF(premio_id, ?) AS premio, ano, regime FROM edicao ORDER BY premio_id, ano", padrao)),
-        # editora_id só quando a edição que concorreu não é a da obra (CA-26.6); senão o navegador usa obras[].editora_id.
+        # Editora da indicação (CA-26.6), compacta: ausente = a mesma de obras[].editora_id; "" = sem editora conhecida
+        # nesta indicação, embora a obra tenha uma; outro valor = a edição que concorreu.
         "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(v.premio, ?) AS premio, v.ano, v.nome_original, v.obra_id, v.pessoa_id,
-                                               NULLIF(v.papel, 'autor') AS papel, v.lista_curta, v.colocacao, i.editora_id
+                                               NULLIF(v.papel, 'autor') AS papel, v.lista_curta, v.colocacao,
+                                               CASE WHEN i.editora_id IS NOT DISTINCT FROM o.editora_id THEN NULL
+                                                    WHEN i.editora_id IS NULL THEN '' ELSE i.editora_id END AS editora_id
                                         FROM v_participacao v JOIN indicacao i
                                           ON i.premio_id = v.premio AND i.ano = v.ano AND i.nome_original = v.nome_original AND i.obra_id = v.obra_id
+                                        JOIN obra o ON o.id = v.obra_id
                                         ORDER BY v.premio, v.ano, v.categoria, v.obra_id, v.papel, v.pessoa_id""", padrao)),
         "obras": _sem_nulos(_linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
                                  WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id""")),
@@ -196,7 +200,7 @@ def prompt_sistema(con) -> str:
                                      COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
                               FROM premio p JOIN indicacao i ON i.premio_id = p.id
                               JOIN categoria_edicao c USING (premio_id, ano, nome_original)
-                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ano_inicio ORDER BY p.ano_inicio, p.id""")
+                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ordem ORDER BY p.ordem""")
     padrao = premios[0] if premios else {"id": "jabuti", "nome": "Prêmio Jabuti"}
     varios = len(premios) > 1
     nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"

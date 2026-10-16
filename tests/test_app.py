@@ -31,7 +31,7 @@ def mini(tmp_path):
     """Base mínima válida: 1 edição, 1 categoria com 2 vagas, 1 premiada."""
     d = tmp_path / "dados"
     d.mkdir()
-    _csv(d / "premio.csv", [{"id": "jabuti", "nome": "Prêmio Jabuti", "organizador": "CBL", "ano_inicio": "1959", "abrangencia": "nacional", "fonte": "http://x"}])
+    _csv(d / "premio.csv", [{"id": "jabuti", "nome": "Prêmio Jabuti", "organizador": "CBL", "ano_inicio": "1959", "abrangencia": "nacional", "ordem": "1", "fonte": "http://x"}])
     _csv(d / "edicao.csv", [{"premio_id": "jabuti", "ano": "2016", "regime": "2010–2017 pódio", "fonte": "http://x"},
                             {"premio_id": "jabuti", "ano": "2017", "regime": "2010–2017 pódio", "fonte": "http://x"}])
     _csv(d / "editora.csv", [{"id": "ed", "nome": "Ed", "grupo": "", "municipio_sede": "São Paulo", "uf_sede": "SP"}])
@@ -47,8 +47,8 @@ def mini(tmp_path):
         {"premio_id": "jabuti", "ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "etapa_lista": "finalistas", "fonte": "http://x"},
     ])
     _csv(d / "indicacao.csv", [
-        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"},
-        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o2", "lista_curta": "", "colocacao": "", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "ed", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o2", "lista_curta": "", "colocacao": "", "editora_id": "ed", "fonte": "http://x"},
     ])
     return d
 
@@ -274,6 +274,26 @@ def test_editora_da_indicacao(mini, tmp_path):  # CA-26.6: a edição que concor
     assert [l["editora"] for l in _expandir_no_node(mini.parent / "t.json")] == ["Ed", "Editora PT"]
 
 
+def test_indicacao_sem_editora_nao_herda_da_obra(mini):  # CA-26.6: sem fonte da época, fica sem editora
+    linhas = list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
+    linhas[1]["editora_id"] = ""
+    _csv(mini / "indicacao.csv", linhas)
+    p = _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT obra_id, editora FROM v_participacao ORDER BY 1").fetchall() == [("o1", "Ed"), ("o2", None)]
+    assert [l.get("editora_id") for l in p["participacao"]] == [None, ""]  # "" = sem editora, embora a obra tenha
+    assert [l["editora"] for l in _expandir_no_node(mini.parent / "t.json")] == ["Ed", None]
+
+
+def test_premio_padrao_e_a_ordem_1(mini):  # DA-4: um prêmio mais antigo não vira o padrão
+    _csv(mini / "premio.csv", list(csv.DictReader((mini / "premio.csv").open(encoding="utf-8")))
+         + [{"id": "antigo", "nome": "Antigo", "organizador": "X", "ano_inicio": "1900", "abrangencia": "nacional", "ordem": "2", "fonte": "http://x"}])
+    assert [x["id"] for x in _build(mini)["premios"]] == ["jabuti", "antigo"]
+    _csv(mini / "premio.csv", [{**l, "ordem": "1"} for l in csv.DictReader((mini / "premio.csv").open(encoding="utf-8"))])
+    with pytest.raises(build.BuildError, match="premio.csv"):  # ordem repetida
+        _build(mini)
+
+
 @pytest.mark.parametrize("campo,valor,ok", [("categoria", "Geral", True), ("etapa_lista", "semifinalistas", True),
                                             ("etapa_lista", "", False), ("etapa_lista", "longlist", False)])
 def test_taxonomia_e_etapa_lista(mini, campo, valor, ok):  # CA-26.3, CA-26.4
@@ -289,13 +309,13 @@ def test_taxonomia_e_etapa_lista(mini, campo, valor, ok):  # CA-26.3, CA-26.4
 
 def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categoria em outro prêmio não se misturam
     _csv(mini / "premio.csv", list(csv.DictReader((mini / "premio.csv").open(encoding="utf-8")))
-         + [{"id": "outro", "nome": "Outro", "organizador": "X", "ano_inicio": "2000", "abrangencia": "lusofono", "fonte": "http://x"}])
+         + [{"id": "outro", "nome": "Outro", "organizador": "X", "ano_inicio": "2000", "abrangencia": "lusofono", "ordem": "2", "fonte": "http://x"}])
     _csv(mini / "edicao.csv", list(csv.DictReader((mini / "edicao.csv").open(encoding="utf-8")))
          + [{"premio_id": "outro", "ano": "2016", "regime": "único", "fonte": "http://x"}])
     _csv(mini / "categoria_edicao.csv", list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
          + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "1", "vagas_curta": "", "vagas_premio": "1", "etapa_lista": "finalistas", "fonte": "http://x"}])
     _csv(mini / "indicacao.csv", list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
-         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"}])
+         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "", "fonte": "http://x"}])
     p = _build(mini)
     assert [l.get("premio") for l in p["participacao"]].count("outro") == 1  # só o prêmio não padrão aparece no JSON
     con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)

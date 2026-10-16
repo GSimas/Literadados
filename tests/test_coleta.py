@@ -67,9 +67,9 @@ def test_casamento_entre_premios(bruto):
         _livro("Livro", "Ana Silva"),                 # mesmo nome e mesmo livro: casa, mas o nome vai para revisão
         _livro("Livro", "Caio Prado"),                # mesmo título, outro autor: outra obra
         _livro("Outro livro", "Bia Souza"),           # grafia diferente, casada pelo QID
-        _livro("Antologia", "", "Rui Costa"),         # antologia: casa pelo sobrenome do organizador
+        _livro("Antologia", "", "Rui Costa"),         # antologia: casa pela pessoa do organizador
         _livro("Mar", "José Lima"),                   # homônimo decidido por humano: outra pessoa e outra obra
-        _livro("Beatriz", "Beatrix Souza"),           # grafia diferente sem QID: a obra casa pelo sobrenome e a pessoa vai para revisão
+        _livro("Beatriz", "Beatrix Souza"),           # grafia diferente sem QID: só o sobrenome bate, então outra obra + revisão
         _livro("Terra", "Nuno Reis"),                 # pessoa nova com QID conferido
     ])
     _csv(b / "outro" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"],
@@ -78,15 +78,15 @@ def test_casamento_entre_premios(bruto):
     coleta.normalizar()
     ind = {(i["premio_id"], i["obra_id"]) for i in _ler(dados / "indicacao.csv")}
     assert ind == {("jabuti", "livro"), ("jabuti", "beatriz"), ("jabuti", "antologia"), ("jabuti", "mar"),
-                   ("outro", "livro"), ("outro", "livro-2016"), ("outro", "outro-livro"), ("outro", "antologia"), ("outro", "mar-2016"), ("outro", "terra"), ("outro", "beatriz")}
+                   ("outro", "livro"), ("outro", "livro-2016"), ("outro", "outro-livro"), ("outro", "antologia"), ("outro", "mar-2016"), ("outro", "terra"), ("outro", "beatriz-2016")}
     autoria = {(a["obra_id"], a["pessoa_id"]) for a in _ler(dados / "autoria.csv")}
     assert ("outro-livro", "beatriz-souza") in autoria and ("mar-2016", "jose-lima-outro") in autoria and ("mar", "jose-lima") in autoria
-    assert ("beatriz", "beatrix-souza") in autoria and ("beatriz", "beatriz-souza") in autoria
+    assert ("beatriz-2016", "beatrix-souza") in autoria and ("beatriz", "beatrix-souza") not in autoria  # nada contamina a obra antiga
     pessoas = {p["id"]: p for p in _ler(dados / "pessoa.csv")}
     assert "bia-souza" not in pessoas and pessoas["nuno-reis"]["wikidata"] == "Q9"
     rev = _ler(b / "outro" / "casamentos_revisar.csv")
     assert [(r["nome"], r["pessoa_id"]) for r in rev] == [("Ana Silva", "ana-silva"), ("Beatrix Souza", "beatrix-souza"), ("Rui Costa", "rui-costa")]
-    assert "casou pelo sobrenome com beatriz-souza" in rev[1]["motivo"]
+    assert "já existe como beatriz (beatriz-souza)" in rev[1]["motivo"]
     assert rev[0]["premios_base"] == "jabuti"
 
 
@@ -105,6 +105,73 @@ def test_casamento_decisao_com_id_inexistente_falha(bruto):
     _csv(b / "outro" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"], [{"nome": "Fulano", "wikidata": "", "pessoa_id": "fantasma"}])
     with pytest.raises(SystemExit, match="fantasma não existe"):
         coleta.normalizar()
+
+
+def test_editora_de_outro_pais_e_outra_editora(bruto):  # CA-26.6: Companhia das Letras de Lisboa ≠ de São Paulo
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA + ["editora_pais"], [
+        {**_livro("Livro", "Ana Silva"), "editora": "Ed", "editora_pais": "PT"},   # mesmo livro, edição portuguesa
+        {**_livro("Sol", "Gente Nova"), "editora": "Ed", "editora_pais": "BR"},    # brasileira explícita = a de sempre
+    ])
+    coleta.normalizar()
+    eds = {e["id"]: e for e in _ler(dados / "editora.csv")}
+    assert eds["ed-pt"]["nome"] == "Ed (PT)" and eds["ed-pt"]["uf_sede"] == "EX" and "nome" in eds["ed"]
+    ind = {(i["premio_id"], i["obra_id"]): i["editora_id"] for i in _ler(dados / "indicacao.csv")}
+    assert ind[("outro", "livro")] == "ed-pt" and ind[("jabuti", "livro")] == "ed" and ind[("outro", "sol")] == "ed"
+
+
+def test_mesmo_titulo_e_sobrenome_nao_junta_obras(bruto):  # revisão do gauntlet: "Ainda Estou Aqui" de outra Paiva
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Livro", "Joana Silva")])
+    coleta.normalizar()
+    autoria = {(a["obra_id"], a["pessoa_id"]) for a in _ler(dados / "autoria.csv")}
+    assert ("livro", "joana-silva") not in autoria and ("livro-2016", "joana-silva") in autoria
+    assert _ler(b / "outro" / "casamentos_revisar.csv")[0]["nome"] == "Joana Silva"
+
+
+def test_editora_vazia_nao_herda_de_outro_premio(bruto):  # editora sem fonte da época continua vazia (CLAUDE.md)
+    dados, b = bruto
+    _csv(b / "jabuti" / "lista_2016.csv", LISTA, [{**_livro("Cabra", "Ana Silva"), "editora": ""}])
+    _csv(b / "outro" / "lista_2016.csv", LISTA + ["editora_pais"], [{**_livro("Cabra", "Ana Silva"), "editora": "Caminho", "editora_pais": "PT"}])
+    coleta.normalizar()
+    ind = {(i["premio_id"], i["obra_id"]): i["editora_id"] for i in _ler(dados / "indicacao.csv")}
+    assert ind == {("jabuti", "cabra"): "", ("outro", "cabra"): "caminho-pt"}
+
+
+def test_livro_do_ano_herda_editora_da_mesma_edicao(bruto):  # a linha do Livro do Ano repete a obra sem editora
+    dados, b = bruto
+    _csv(b / "jabuti" / "lista_2016.csv", LISTA, [{**_livro("Cabra", "Ana Silva"), "nome_original": "Livro do Ano", "editora": ""},
+                                                  _livro("Cabra", "Ana Silva")])
+    coleta.normalizar()
+    assert {i["nome_original"]: i["editora_id"] for i in _ler(dados / "indicacao.csv")} == {"Livro do Ano": "ed", "Romance": "ed"}
+
+
+def test_jurado_vai_para_a_revisao_do_premio_que_chegou_depois(bruto):
+    dados, b = bruto
+    _csv(b / "jabuti" / "jurados_2016.csv", ["ano", "nome_original", "nome", "fonte"], [{"ano": "2016", "nome_original": "Romance", "nome": "Clara Tajes", "fonte": "http://x"}])
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Sol", "Clara Tajes")])
+    coleta.normalizar()
+    assert not (b / "jabuti" / "casamentos_revisar.csv").exists()
+    assert [r["nome"] for r in _ler(b / "outro" / "casamentos_revisar.csv")] == ["Clara Tajes"]
+
+
+def test_nova_no_premio_padrao_e_recusada(bruto):
+    _, b = bruto
+    _csv(b / "jabuti" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"], [{"nome": "Ana Silva", "wikidata": "", "pessoa_id": "nova"}])
+    with pytest.raises(SystemExit, match="não vale no prêmio padrão"):
+        coleta.normalizar()
+
+
+def test_normalizar_estavel_em_duas_execucoes(bruto):  # ids não mudam entre execuções (homônimo com QID diferente)
+    dados, b = bruto
+    _csv(b / "jabuti" / "lista_2016.csv", LISTA, [_livro("Sol", "Beatriz Souza")])
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Sol", "Beatriz Souza")])
+    _csv(b / "outro" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"], [{"nome": "Beatriz Souza", "wikidata": "Q2", "pessoa_id": ""}])
+    coleta.normalizar()
+    antes = [_ler(dados / f"{t}.csv") for t in ("obra", "autoria", "indicacao", "pessoa")]
+    coleta.normalizar()
+    assert [_ler(dados / f"{t}.csv") for t in ("obra", "autoria", "indicacao", "pessoa")] == antes
+    assert {(a["obra_id"], a["pessoa_id"]) for a in _ler(dados / "autoria.csv")} == {("sol", "beatriz-souza"), ("sol-2016", "beatriz-souza-outro")}
 
 
 def test_sem_pendencia_arquivo_de_revisao_some(bruto):
