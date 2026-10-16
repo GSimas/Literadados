@@ -83,7 +83,10 @@ def _expandir_no_node(json_path: Path) -> list[dict]:
         pytest.skip("node não instalado")
     js = (f"import * as M from {json.dumps((RAIZ / 'web' / 'metricas.js').as_uri())};"
           f"import {{ readFileSync }} from 'node:fs';"
-          f"process.stdout.write(JSON.stringify(M.expandir(JSON.parse(readFileSync({json.dumps(str(json_path))}, 'utf8')))));")
+          f"const ler = (a) => JSON.parse(readFileSync(a, 'utf8'));"
+          f"const D = ler({json.dumps(str(json_path))});"
+          f"const partes = (D.partes ?? []).map((n) => ler({json.dumps(str(json_path.parent))} + '/' + n));"  # CA-26.14
+          f"process.stdout.write(JSON.stringify(M.expandir(M.juntar(D, partes))));")
     r = subprocess.run([node, "--input-type=module", "-e", js], capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(r.stdout)
 
@@ -238,6 +241,53 @@ def test_build_falha_premio_inexistente(mini):  # CA-26.1
     _csv(mini / "indicacao.csv", linhas)
     with pytest.raises(build.BuildError, match="indicacao.csv"):
         _build(mini)
+
+
+def _dois_premios(mini):
+    """mini + um 2º prêmio ("outro") com a obra o1 (mesma pessoa) e uma obra nova de pessoa nova (nascida em Portugal)."""
+    def mais(nome, linhas):
+        _csv(mini / f"{nome}.csv", list(csv.DictReader((mini / f"{nome}.csv").open(encoding="utf-8"))) + linhas)
+    mais("premio", [{"id": "outro", "nome": "Outro", "organizador": "X", "ano_inicio": "2000", "abrangencia": "lusofono", "ordem": "2", "fonte": "https://outro.example/"}])
+    mais("edicao", [{"premio_id": "outro", "ano": "2016", "regime": "único", "fonte": "https://outro.example/2016"}])
+    mais("categoria_edicao", [{"premio_id": "outro", "ano": "2016", "nome_original": "Prêmio", "categoria": "Geral", "vagas_lista": "2", "vagas_curta": "",
+                               "vagas_premio": "1", "etapa_lista": "semifinalistas", "fonte": "https://outro.example/2016"}])
+    mais("pessoa", [{"id": "c", "nome": "C", "genero": "mulher", "raca": "sem_declaracao", "uf_nascimento": "EX", "pais_nascimento": "PT"}])
+    mais("editora", [{"id": "pt", "nome": "Ed (PT)", "grupo": "", "municipio_sede": "", "uf_sede": "EX"}])
+    mais("obra", [{"id": "o3", "titulo": "O3", "editora_id": "pt", "ano_publicacao": "2015"}])
+    mais("autoria", [{"obra_id": "o3", "pessoa_id": "c", "papel": "autor"}])
+    mais("indicacao", [{"premio_id": "outro", "ano": "2016", "nome_original": "Prêmio", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "pt", "fonte": "https://outro.example/2016"},
+                       {"premio_id": "outro", "ano": "2016", "nome_original": "Prêmio", "obra_id": "o3", "lista_curta": "", "colocacao": "", "editora_id": "pt", "fonte": "https://outro.example/2016"}])
+
+
+def test_json_dividido_por_premio(mini, tmp_path):  # CA-26.14: um arquivo por prêmio, e o navegador remonta tudo
+    _dois_premios(mini)
+    db, saida = tmp_path / "d.duckdb", tmp_path / "d.json"
+    p = build.build(mini, db, saida)
+    base = json.loads(saida.read_text(encoding="utf-8"))
+    parte = json.loads((tmp_path / "d-outro.json").read_text(encoding="utf-8"))
+    assert base["partes"] == ["d-outro.json"] and parte["premio"] == "outro"
+    assert all("premio" not in l for l in base["participacao"]) and all(l["premio"] == "outro" for l in parte["participacao"])
+    assert [x["id"] for x in parte["pessoas"]] == ["c"]  # "a" já está na base: não se repete
+    assert {e["id"] for e in parte["editoras"]} == {"pt"} and len(base["participacao"]) + len(parte["participacao"]) == len(p["participacao"])
+    con = duckdb.connect(str(db), read_only=True)
+    esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY premio, ano, categoria, obra_id, papel, pessoa_id"), default=str))
+    obtido = sorted(_expandir_no_node(saida), key=lambda l: (l["premio"], l["ano"], l["categoria"], l["obra_id"], l["papel"], l["pessoa_id"]))
+    assert obtido == esperado
+    # Com um prêmio só, nenhuma parte (e uma parte velha é apagada).
+    build.build(RAIZ / "dados", tmp_path / "s.duckdb", saida)
+    assert not (tmp_path / "d-outro.json").exists() and "partes" not in json.loads(saida.read_text(encoding="utf-8"))
+
+
+def test_cobertura_e_prompt_por_premio(mini, tmp_path):  # CA-26.7, CA-26.13
+    _dois_premios(mini)
+    p = build.build(mini, tmp_path / "c.duckdb", tmp_path / "c.json")
+    cob = {(c.get("premio", "jabuti"), c["ano"]): c["pessoas"] for c in p["cobertura"]}
+    assert cob == {("jabuti", 2016): 2, ("outro", 2016): 2}  # a mesma pessoa conta em cada prêmio, separado
+    con = duckdb.connect(str(tmp_path / "c.duckdb"), read_only=True)
+    prompt = build.prompt_sistema(con)
+    assert "Prêmio Jabuti e Outro" in prompt and "premio = 'outro'" in prompt and "nunca some" in prompt
+    assert "Formatos: único (2016)." in prompt  # o formato (regime) de cada prêmio vai no prompt
+    assert {f["grupo"] for f in p["fontes"] if f["dominio"] == "outro.example"} == {"Outro"}  # RF-18: grupo do próprio prêmio
 
 
 @pytest.mark.parametrize("uf,pais,ok", [

@@ -30,6 +30,12 @@ export function definirDados(D) {
   PREMIOS.splice(0, PREMIOS.length, ...(D.premios ?? []).map((p) => p.id));
   for (const p of D.premios ?? []) NOME_PREMIO[p.id] = p.nome;
 }
+// dados.json e, se houver, as partes de outros prêmios (dados-<prêmio>.json, CA-26.14), carregadas em paralelo.
+export async function carregarDados(base = "") {
+  const ler = (arq) => fetch(`${base}${arq}`).then((r) => { if (!r.ok) throw new Error(`${arq}: HTTP ${r.status}`); return r.json(); });
+  const D = await ler("dados.json");
+  return M.juntar(D, await Promise.all((D.partes ?? []).map(ler)));
+}
 // País de nascimento (DA-3): código ISO → nome em português ("PT" → "Portugal").
 const PAISES = typeof Intl !== "undefined" && Intl.DisplayNames ? new Intl.DisplayNames(["pt-BR"], { type: "region" }) : null;
 export const nomePais = (iso) => { try { return (iso && PAISES?.of(iso)) || iso || ""; } catch { return iso; } };

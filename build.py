@@ -98,6 +98,11 @@ def fontes(con) -> list[dict]:
                 "SELECT genero_fonte FROM pessoa", "SELECT raca_fonte FROM pessoa", "SELECT nascimento_fonte FROM pessoa"]:
         for (v,) in con.execute(sql).fetchall():
             urls += [u.strip() for u in (v or "").split(" ; ") if u.strip().startswith("http")]
+    # Domínio do site de cada prêmio vira o grupo do próprio prêmio (RF-18, D31), antes das regras fixas; o prêmio cujo
+    # domínio já tem grupo fixo (premiojabuti.com.br → "Prêmio Jabuti e CBL") fica com ele.
+    dominio = lambda u: (urlsplit(u).hostname or "").removeprefix("www.")
+    grupos = [(rf"(^|\.){re.escape(dominio(f))}$", n) for n, f in con.execute("SELECT nome, fonte FROM premio ORDER BY ordem").fetchall()
+              if dominio(f) and not any(re.search(rx, dominio(f)) for rx, _ in GRUPOS_FONTE)] + GRUPOS_FONTE
     por = {}
     for u in urls:
         dom = urlsplit(u).hostname or ""
@@ -107,7 +112,7 @@ def fontes(con) -> list[dict]:
         r = por.setdefault(dom, {"dominio": dom, "registros": 0, "exemplo": u})
         r["registros"] += 1
     for r in por.values():
-        r["grupo"] = next((g for rx, g in GRUPOS_FONTE if re.search(rx, r["dominio"])), "Outros")
+        r["grupo"] = next((g for rx, g in grupos if re.search(rx, r["dominio"])), "Outros")
     return sorted(por.values(), key=lambda r: (-r["registros"], r["dominio"]))
 
 
@@ -204,8 +209,14 @@ def prompt_sistema(con) -> str:
     padrao = premios[0] if premios else {"id": "jabuti", "nome": "Prêmio Jabuti"}
     varios = len(premios) > 1
     nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"
+    # Formatos de cada prêmio (CA-26.13): os regimes da tabela edicao, com os anos em que valeram.
+    regimes = {}
+    periodo = lambda de, ate: str(de) if de == ate else f"{de}–{ate}"
+    for r in _linhas(con, "SELECT premio_id, regime, MIN(ano) AS de, MAX(ano) AS ate FROM edicao GROUP BY ALL ORDER BY premio_id, de"):
+        regimes.setdefault(r["premio_id"], []).append(f"{r['regime']} ({periodo(r['de'], r['ate'])})")
     recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}): "
-                        f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}." for p in premios)
+                        f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}. Formatos: {'; '.join(regimes.get(p['id'], []))}."
+                        for p in premios)
     regra_premios = (f"""- Vários prêmios: se a pergunta não citar prêmio, responda sobre o {padrao['nome']} (premio = '{padrao['id']}'), o padrão do painel,
   e diga isso; cite os outros só se perguntarem. Ao comparar prêmios, mostre cada um com o próprio n e %: nunca some ou
   faça média de percentuais de prêmios diferentes (formatos, vagas e períodos diferem). A mesma pessoa pode estar em mais
@@ -259,6 +270,39 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
+PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "capas"]
+
+
+def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
+    """Um arquivo por prêmio (CA-26.14, RNF-06): dados.json fica com o prêmio padrão e o que é comum (prêmios, edições,
+    categorias, júri, cobertura, fontes); cada outro prêmio vai para dados-<id>.json, com a participação dele e as pessoas,
+    obras, editoras, mídias e capas que ainda não estavam em arquivo anterior. O navegador junta tudo (metricas.juntar).
+    Com um prêmio só, nada muda. Devolve (base, {nome do arquivo: parte})."""
+    if len(payload.get("premios", [])) < 2:
+        return payload, {}
+    vistos = {k: set() for k in ("pessoas", "obras", "editoras")}
+    obra_ed = {o["id"]: o.get("editora_id") for o in payload["obras"]}
+
+    def recorte(linhas, jurados=()):
+        ps = {l["pessoa_id"] for l in linhas} | {j["pessoa_id"] for j in jurados}
+        os_ = {l["obra_id"] for l in linhas}
+        eds = {e for l in linhas for e in (l.get("editora_id") or None, obra_ed.get(l["obra_id"])) if e}
+        novos = {"pessoas": ps - vistos["pessoas"], "obras": os_ - vistos["obras"], "editoras": eds - vistos["editoras"]}
+        for k, v in novos.items():
+            vistos[k] |= v
+        return {"participacao": linhas,
+                "pessoas": [p for p in payload["pessoas"] if p["id"] in novos["pessoas"]],
+                "obras": [o for o in payload["obras"] if o["id"] in novos["obras"]],
+                "editoras": [e for e in payload["editoras"] if e["id"] in novos["editoras"]],
+                "midia": [m for m in payload["midia"] if m["pessoa_id"] in novos["pessoas"]],
+                "capas": [c for c in payload["capas"] if c["obra_id"] in novos["obras"]]}
+
+    outros = [p["id"] for p in payload["premios"][1:]]
+    base = {**payload, **recorte([l for l in payload["participacao"] if "premio" not in l], payload["jurados"])}
+    partes = {f"{prefixo}-{p}.json": {"premio": p, **recorte([l for l in payload["participacao"] if l.get("premio") == p])} for p in outros}
+    return {**base, "partes": list(partes)}, partes
+
+
 def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", saida: Path = RAIZ / "web" / "dados.json") -> dict:
     tmp = db.with_suffix(".tmp")
     tmp.unlink(missing_ok=True)
@@ -275,7 +319,14 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
     con.close()
     os.replace(tmp, db)  # troca atômica: o servidor nunca vê banco pela metade
     saida.parent.mkdir(exist_ok=True)
-    saida.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+    base, partes = dividir(payload, saida.stem)
+    escrever = lambda arq, obj: arq.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+    escrever(saida, base)
+    for velho in saida.parent.glob(f"{saida.stem}-*.json"):  # parte de prêmio que saiu da base
+        if velho.name not in partes:
+            velho.unlink()
+    for nome, parte in partes.items():
+        escrever(saida.parent / nome, parte)
     return payload
 
 

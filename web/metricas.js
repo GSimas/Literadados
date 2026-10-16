@@ -40,6 +40,14 @@ const contar = (arr, chave) => {
 };
 const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 
+// Junta ao dados.json as partes de outros prêmios (dados-<prêmio>.json, CA-26.14, build.dividir): cada parte traz a
+// participação do prêmio e as pessoas, obras, editoras, mídias e capas que ainda não vieram. Devolve D (alterado).
+export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "capas"];
+export function juntar(D, partes = []) {
+  for (const p of partes) for (const k of CHAVES_PARTES) if (p[k]?.length) D[k] = [...(D[k] ?? []), ...p[k]];
+  return D;
+}
+
 // Remonta as linhas de v_participacao a partir do dados.json compacto (design D13).
 // Só junções: as regras (regime, negra, premiada, vencedora) já vêm do SQL. A ordem das chaves é a da view.
 export function expandir(D) {

@@ -1,5 +1,5 @@
 // Página de método e referências (RF-13, RF-18, design D18): cobertura por edição e fontes agrupadas por domínio.
-import { $, $$, fmt, fmtPct, esc, tabela, movimentoReduzido, luzNosBlocos } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, tabela, movimentoReduzido, luzNosBlocos, carregarDados } from "./ui.js";
 import * as M from "./metricas.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
@@ -7,7 +7,7 @@ import { montarExportacao } from "./exportar.js";
 
 montarTema();
 luzNosBlocos();
-const D = await fetch("dados.json").then((r) => r.json());
+const D = await carregarDados(); // dados.json + partes de outros prêmios (CA-26.14)
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 D.participacao = M.expandir(D); // a busca precisa das linhas (design D13)
 montarBusca(D, "./");

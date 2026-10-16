@@ -1,7 +1,7 @@
 // Painel Literadados: estado, navegação e ciclo de desenho. Agregações em metricas.js (testadas);
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
 import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
@@ -14,7 +14,7 @@ import { htmlLugar } from "./lugares.js";
 import { montarExportacao } from "./exportar.js";
 
 // Sem dados não há painel: avisa no lugar dos números da abertura, com botão para tentar de novo, em vez de falhar em silêncio.
-const [D] = await Promise.all([fetch("dados.json").then((r) => { if (!r.ok) throw new Error(`dados.json: HTTP ${r.status}`); return r.json(); }), carregarMalha()])
+const [D] = await Promise.all([carregarDados(), carregarMalha()])
   .catch((e) => {
     $("#hero-numeros").innerHTML = `<p class="vazio" role="alert">Não foi possível carregar os dados (${esc(e.message)}). <button type="button" class="chip-link" onclick="location.reload()">Tentar de novo</button></p>`;
     throw e;
