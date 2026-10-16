@@ -264,6 +264,8 @@ def _dois_premios(mini):
 
 
 def test_json_dividido_por_premio(mini, tmp_path):  # CA-26.14: um arquivo por prêmio, e o navegador remonta tudo
+    so_jabuti = tmp_path / "so_jabuti"
+    shutil.copytree(mini, so_jabuti)
     _dois_premios(mini)
     db, saida = tmp_path / "d.duckdb", tmp_path / "d.json"
     p = build.build(mini, db, saida)
@@ -278,7 +280,7 @@ def test_json_dividido_por_premio(mini, tmp_path):  # CA-26.14: um arquivo por p
     obtido = sorted(_expandir_no_node(saida), key=lambda l: (l["premio"], l["ano"], l["categoria"], l["obra_id"], l["papel"], l["pessoa_id"]))
     assert obtido == esperado
     # Com um prêmio só, nenhuma parte (e uma parte velha é apagada).
-    build.build(RAIZ / "dados", tmp_path / "s.duckdb", saida)
+    build.build(so_jabuti, tmp_path / "s.duckdb", saida)
     assert not (tmp_path / "d-outro.json").exists() and "partes" not in json.loads(saida.read_text(encoding="utf-8"))
 
 
@@ -422,7 +424,7 @@ def test_banco_do_navegador_igual_ao_build(base, mini, tmp_path):  # CA-12.4: me
     d = mini if base == "mini" else RAIZ / "dados"
     build.build(d, tmp_path / "r.duckdb", tmp_path / "web" / "dados.json")
     nav, orig = _banco_do_navegador(tmp_path / "web"), duckdb.connect(str(tmp_path / "r.duckdb"), read_only=True)
-    for q in ["SELECT COUNT(*), COUNT(DISTINCT pessoa_id), SUM(premiada::INT) FROM v_participacao", "SELECT * FROM v_cobertura ORDER BY ano",
+    for q in ["SELECT COUNT(*), COUNT(DISTINCT pessoa_id), SUM(premiada::INT) FROM v_participacao", "SELECT * FROM v_cobertura ORDER BY premio, ano",
               "SELECT COUNT(*) FROM pessoa WHERE genero_evidencia = 'atribuicao'"]:
         assert nav.execute(q).fetchall() == orig.execute(q).fetchall(), q
     ctx = json.loads((tmp_path / "web" / "contexto.json").read_text(encoding="utf-8"))["sistema"]
@@ -515,7 +517,7 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     # toda edição antiga tem premiado em ao menos 3 categorias do recorte, e o Livro do Ano só tem vencedores
     por_ano = dict(con.execute("SELECT ano, COUNT(DISTINCT categoria) FROM v_participacao WHERE ano < 2010 AND premiada GROUP BY ano").fetchall())
     assert set(por_ano) == set(range(1959, 2010)) and min(por_ano.values()) >= 3
-    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN categoria_edicao c USING (premio_id, ano, nome_original) WHERE c.categoria = 'Livro do Ano' AND i.colocacao IS DISTINCT FROM 1").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN categoria_edicao c USING (premio_id, ano, nome_original) WHERE i.premio_id = 'jabuti' AND c.categoria = 'Livro do Ano' AND i.colocacao IS DISTINCT FROM 1").fetchone()[0] == 0  # no Oceanos, o Grande Prêmio lista os 3 vencedores de categoria
     # editora antiga só com fonte da época: o site oficial atual dá a editora de hoje (Companhia das Letras, fundada em 1986, em 1959)
     assert con.execute("""SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id JOIN editora e ON e.id = o.editora_id
                           WHERE i.ano < 1986 AND e.nome ILIKE '%companhia das letras%'""").fetchone()[0] == 0

@@ -28,6 +28,12 @@ export const MARCOS = [
   { premio: "jabuti", ano: 2018, texto: "Reforma: só o 1º lugar" },
   { premio: "jabuti", ano: 2020, texto: "Romance Literário" },
   { premio: "jabuti", ano: 2021, texto: "CBL coleta raça" },
+  // Oceanos (fontes em dados/coleta/oceanos/LEIA.md); a 1ª edição (2003) vem de premios.ano_inicio.
+  { premio: "oceanos", ano: 2007, texto: "Língua portuguesa" },
+  { premio: "oceanos", ano: 2012, texto: "Três categorias" },
+  { premio: "oceanos", ano: 2015, texto: "Vira Oceanos" },
+  { premio: "oceanos", ano: 2017, texto: "Livros de qualquer país" },
+  { premio: "oceanos", ano: 2023, texto: "Prosa e Poesia" },
 ];
 // premios = null: só os do prêmio padrão (o 1º da lista), como antes de haver vários prêmios. Com a lista da base
 // (D.premios), cada prêmio que não é o padrão ganha também o marco da 1ª edição (ano_inicio), vindo dos dados.
@@ -47,7 +53,7 @@ const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 
 // Junta ao dados.json as partes de outros prêmios (dados-<prêmio>.json, CA-26.14, build.dividir): cada parte traz a
 // participação do prêmio e as pessoas, obras, editoras, mídias e capas que ainda não vieram. Devolve D (alterado).
-export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "capas"];
+export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "capas", "jurados", "categorias", "edicoes", "cobertura"];
 export function juntar(D, partes = []) {
   for (const p of partes) for (const k of CHAVES_PARTES) if (p[k]?.length) D[k] = [...(D[k] ?? []), ...p[k]];
   return D;

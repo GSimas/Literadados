@@ -451,7 +451,8 @@ test("juntar: partes de outros prêmios se somam ao dados.json (CA-26.14)", () =
 
 test("marcos: 1ª edição dos outros prêmios vem dos dados (CA-26.10)", () => {
   const base = [{ id: "jabuti", ano_inicio: 1959 }, { id: "oceanos", ano_inicio: 2003 }];
-  assert.deepEqual(M.marcosDe(["oceanos"], "jabuti", base), [{ premio: "oceanos", ano: 2003, texto: "1ª edição" }]);
+  const mo = M.marcosDe(["oceanos"], "jabuti", base);
+  assert.ok(mo.every((m) => m.premio === "oceanos") && mo.some((m) => m.ano === 2003 && m.texto === "1ª edição") && mo.length > 1);
   assert.ok(!M.marcosDe(["jabuti"], "jabuti", base).some((m) => m.texto === "1ª edição")); // o padrão não ganha marco de criação
 });
 

@@ -272,7 +272,7 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
-PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "capas"]
+PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "capas", "jurados", "categorias", "edicoes", "cobertura"]  # = metricas.CHAVES_PARTES
 
 
 def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
@@ -300,8 +300,12 @@ def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
                 "capas": [c for c in payload["capas"] if c["obra_id"] in novos["obras"]]}
 
     outros = [p["id"] for p in payload["premios"][1:]]
-    base = {**payload, **recorte([l for l in payload["participacao"] if "premio" not in l], payload["jurados"])}
-    partes = {f"{prefixo}-{p}.json": {"premio": p, **recorte([l for l in payload["participacao"] if l.get("premio") == p])} for p in outros}
+    # Júri, categorias, edições e cobertura de cada prêmio também vão para a parte dele (e as pessoas do júri junto).
+    do = lambda chave, p: [x for x in payload[chave] if x.get("premio") == p]
+    por_premio = lambda p: {k: do(k, p) for k in ("jurados", "categorias", "edicoes", "cobertura")}
+    base = {**payload, **por_premio(None), **recorte([l for l in payload["participacao"] if "premio" not in l], do("jurados", None))}
+    partes = {f"{prefixo}-{p}.json": {"premio": p, **por_premio(p), **recorte([l for l in payload["participacao"] if l.get("premio") == p], do("jurados", p))}
+              for p in outros}
     return {**base, "partes": list(partes)}, partes
 
 
