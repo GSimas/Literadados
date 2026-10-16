@@ -21,7 +21,7 @@ RAIZ = Path(__file__).parent.parent
 
 def _csv(p: Path, linhas: list[dict]):
     with p.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(linhas[0]))
+        w = csv.DictWriter(f, fieldnames=list(dict.fromkeys(k for l in linhas for k in l)))  # colunas de todas as linhas
         w.writeheader()
         w.writerows(linhas)
 
@@ -43,8 +43,8 @@ def mini(tmp_path):
                           {"id": "o2", "titulo": "O2", "editora_id": "ed", "ano_publicacao": "2015"}])
     _csv(d / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "autor"}])
     _csv(d / "categoria_edicao.csv", [
-        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "2", "vagas_curta": "", "vagas_premio": "1", "fonte": "http://x"},
-        {"premio_id": "jabuti", "ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "2", "vagas_curta": "", "vagas_premio": "1", "etapa_lista": "finalistas", "fonte": "http://x"},
+        {"premio_id": "jabuti", "ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "etapa_lista": "finalistas", "fonte": "http://x"},
     ])
     _csv(d / "indicacao.csv", [
         {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"},
@@ -73,7 +73,7 @@ def test_build_gera_banco_e_json(mini):  # CA-01.1, CA-01.4
 
 # ---------- RNF-06 ----------
 
-COMPACTA = {"premio", "ano", "nome_original", "obra_id", "pessoa_id", "papel", "lista_curta", "colocacao", "premiada", "vencedora"}
+COMPACTA = {"premio", "editora_id", "ano", "nome_original", "obra_id", "pessoa_id", "papel", "lista_curta", "colocacao", "premiada", "vencedora"}
 
 
 def _expandir_no_node(json_path: Path) -> list[dict]:
@@ -240,13 +240,60 @@ def test_build_falha_premio_inexistente(mini):  # CA-26.1
         _build(mini)
 
 
+@pytest.mark.parametrize("uf,pais,ok", [
+    ("EX", "PT", True),   # nascida fora do Brasil: país ISO
+    ("EX", "", True),     # fora do Brasil, país ainda sem fonte
+    ("SP", "PT", False),  # país só com uf 'EX'
+    ("EX", "BR", False),  # 'BR' é derivado da UF, nunca gravado
+    ("EX", "pt", False),  # ISO alfa-2 em maiúsculas
+])
+def test_pais_de_nascimento(mini, uf, pais, ok):  # DA-3
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[1].update(uf_nascimento=uf, pais_nascimento=pais)
+    _csv(mini / "pessoa.csv", linhas)
+    if not ok:
+        with pytest.raises(build.BuildError, match="pessoa.csv"):
+            _build(mini)
+        return
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT pessoa_id, pais_nascimento, regiao_nascimento FROM v_participacao ORDER BY 1").fetchall() == [
+        ("a", "BR", "Sudeste"), ("b", pais or None, "Exterior")]
+
+
+def test_editora_da_indicacao(mini, tmp_path):  # CA-26.6: a edição que concorreu vale no lugar da editora da obra
+    _csv(mini / "editora.csv", list(csv.DictReader((mini / "editora.csv").open(encoding="utf-8")))
+         + [{"id": "pt", "nome": "Editora PT", "grupo": "", "municipio_sede": "", "uf_sede": "EX"}])
+    linhas = list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
+    linhas[1]["editora_id"] = "pt"
+    _csv(mini / "indicacao.csv", linhas)
+    p = _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT obra_id, editora FROM v_participacao ORDER BY 1").fetchall() == [("o1", "Ed"), ("o2", "Editora PT")]
+    assert [l.get("editora_id") for l in p["participacao"]] == [None, "pt"]
+    assert [l["editora"] for l in _expandir_no_node(mini.parent / "t.json")] == ["Ed", "Editora PT"]
+
+
+@pytest.mark.parametrize("campo,valor,ok", [("categoria", "Geral", True), ("etapa_lista", "semifinalistas", True),
+                                            ("etapa_lista", "", False), ("etapa_lista", "longlist", False)])
+def test_taxonomia_e_etapa_lista(mini, campo, valor, ok):  # CA-26.3, CA-26.4
+    linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
+    linhas[0][campo] = valor
+    _csv(mini / "categoria_edicao.csv", linhas)
+    if ok:
+        _build(mini)
+    else:
+        with pytest.raises(build.BuildError, match="categoria_edicao.csv"):
+            _build(mini)
+
+
 def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categoria em outro prêmio não se misturam
     _csv(mini / "premio.csv", list(csv.DictReader((mini / "premio.csv").open(encoding="utf-8")))
          + [{"id": "outro", "nome": "Outro", "organizador": "X", "ano_inicio": "2000", "abrangencia": "lusofono", "fonte": "http://x"}])
     _csv(mini / "edicao.csv", list(csv.DictReader((mini / "edicao.csv").open(encoding="utf-8")))
          + [{"premio_id": "outro", "ano": "2016", "regime": "único", "fonte": "http://x"}])
     _csv(mini / "categoria_edicao.csv", list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
-         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "1", "vagas_curta": "", "vagas_premio": "1", "fonte": "http://x"}])
+         + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "1", "vagas_curta": "", "vagas_premio": "1", "etapa_lista": "finalistas", "fonte": "http://x"}])
     _csv(mini / "indicacao.csv", list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
          + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "fonte": "http://x"}])
     p = _build(mini)

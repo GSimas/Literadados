@@ -33,10 +33,14 @@ CREATE TABLE pessoa (
   ano_nascimento        INTEGER,
   municipio_nascimento  TEXT,
   uf_nascimento         TEXT REFERENCES uf(uf),
+  -- País de nascimento (DA-3), ISO 3166-1 alfa-2, só para quem nasceu fora do Brasil (uf_nascimento = 'EX').
+  -- Quem tem UF brasileira é 'BR' por definição: a view deriva, sem repetir em 1.000 linhas.
+  pais_nascimento       TEXT CHECK (pais_nascimento IS NULL OR (regexp_full_match(pais_nascimento, '[A-Z]{2}') AND pais_nascimento <> 'BR')),
   nascimento_fonte      TEXT,
   revisado_em           TEXT,                 -- data ISO da última checagem humana
   CHECK (raca = 'sem_declaracao' OR (raca_evidencia IS NOT NULL AND raca_fonte IS NOT NULL)),
   CHECK (raca = 'sem_declaracao' OR raca_busca IS DISTINCT FROM 'parcial'),
+  CHECK (pais_nascimento IS NULL OR uf_nascimento = 'EX'),
   CHECK (genero_evidencia IS NULL OR (genero <> 'nao_identificado' AND genero_fonte IS NULL))
 );
 
@@ -110,10 +114,13 @@ CREATE TABLE categoria_edicao (
   premio_id      TEXT NOT NULL,
   ano            INTEGER NOT NULL,
   nome_original  TEXT NOT NULL,               -- ex. 'Contos e Crônicas', 'Romance Literário'
-  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano')),
+  -- Taxonomia comum a todos os prêmios (CA-26.3); 'Geral' = categoria única, com prosa e poesia concorrendo juntas.
+  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano','Geral')),
   vagas_lista    INTEGER,                     -- tamanho da 1ª lista pública (≈10 nos dois regimes)
   vagas_curta    INTEGER,                     -- 2ª lista (≈5); NULL se a edição não teve
   vagas_premio   INTEGER NOT NULL,            -- 3 até 2017, 1 a partir de 2018
+  -- O que é a 1ª lista ali (CA-26.4): sem lista pública, 'premiados' (a etapa lista = só as premiadas).
+  etapa_lista    TEXT NOT NULL CHECK (etapa_lista IN ('indicados','semifinalistas','finalistas','premiados')),
   fonte          TEXT NOT NULL,
   PRIMARY KEY (premio_id, ano, nome_original),
   FOREIGN KEY (premio_id, ano) REFERENCES edicao(premio_id, ano)
@@ -128,6 +135,7 @@ CREATE TABLE indicacao (
   obra_id        TEXT NOT NULL REFERENCES obra(id),
   lista_curta    INTEGER CHECK (lista_curta IN (0,1)),  -- NULL quando a edição não teve 2ª lista
   colocacao      INTEGER CHECK (colocacao BETWEEN 1 AND 5),  -- NULL = não premiada; 4 e 5 só em 1993 (premiados sem pódio, ordem da Wikipédia)
+  editora_id     TEXT REFERENCES editora(id), -- só quando a edição que concorreu não é a de obra.editora_id (CA-26.6)
   fonte          TEXT NOT NULL,
   PRIMARY KEY (premio_id, ano, nome_original, obra_id),
   FOREIGN KEY (premio_id, ano, nome_original) REFERENCES categoria_edicao(premio_id, ano, nome_original)
@@ -157,7 +165,9 @@ SELECT
   p.genero, COALESCE(p.genero_evidencia = 'atribuicao', FALSE) AS genero_atribuido,
   p.raca, p.raca_busca,
   p.raca IN ('preta','parda','negra')                   AS negra,
-  p.uf_nascimento, u.regiao                            AS regiao_nascimento,
+  p.uf_nascimento,
+  CASE WHEN p.uf_nascimento <> 'EX' THEN 'BR' ELSE p.pais_nascimento END AS pais_nascimento,  -- ISO 3166-1 (DA-3)
+  u.regiao                                              AS regiao_nascimento,
   i.ano - p.ano_nascimento                              AS idade_no_premio,
   i.lista_curta,
   i.colocacao,
@@ -168,7 +178,7 @@ JOIN premio pr        ON pr.id = i.premio_id
 JOIN edicao ed        ON ed.premio_id = i.premio_id AND ed.ano = i.ano
 JOIN categoria_edicao c ON c.premio_id = i.premio_id AND c.ano = i.ano AND c.nome_original = i.nome_original
 JOIN obra o          ON o.id = i.obra_id
-LEFT JOIN editora e   ON e.id = o.editora_id
+LEFT JOIN editora e   ON e.id = COALESCE(i.editora_id, o.editora_id)  -- a edição que concorreu (CA-26.6)
 JOIN autoria a        ON a.obra_id = o.id
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;

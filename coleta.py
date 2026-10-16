@@ -26,13 +26,13 @@ UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
 
 CAMPOS = {
     "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "genero_evidencia", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",
-               "ano_nascimento", "municipio_nascimento", "uf_nascimento", "nascimento_fonte", "revisado_em"],
+               "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento", "nascimento_fonte", "revisado_em"],
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
     "autoria": ["obra_id", "pessoa_id", "papel"],
     "edicao": ["premio_id", "ano", "regime", "fonte"],
-    "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "fonte"],
-    "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "fonte"],
+    "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "etapa_lista", "fonte"],
+    "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
     "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
     "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
 }
@@ -132,6 +132,7 @@ def normalizar():
                                                  "motivo": f"obra '{titulo}' casou pelo sobrenome com {', '.join(sorted(o['_pids']))}: mesma pessoa?"}
                 o["_pids"] |= set(pids)
                 o["_sob"] |= sob
+                o["editora_id"] = o["editora_id"] or ed_id  # linha do Livro do Ano sem editora não apaga a da categoria
                 return oid
         oid, n = (base if base not in obras else f"{base}-{ano}"), 2
         while oid in obras:
@@ -169,7 +170,7 @@ def normalizar():
             fonte = " ; ".join(f for f in (r["fonte_1"], r["fonte_2"]) if f)
             indicacoes[(premio_id, r["ano"], r["nome_original"], oid)] = {
                 "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
-                "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte}
+                "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte, "_ed": ed_id}
 
     for premio_id, arq in juris:
         for r in csv.DictReader(open(arq, encoding="utf-8")):
@@ -178,7 +179,7 @@ def normalizar():
                 "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid, "fonte": r["fonte"]}
 
     # Editoras: sede/grupo levantados à parte; `canonico` unifica duplicatas (ex.: "record" → "editora-record").
-    enr_arq = BRUTO / "editoras_enriquecidas.csv"
+    enr_arq, alias = BRUTO / "editoras_enriquecidas.csv", {}
     if enr_arq.exists():
         enr = {e["id"]: e for e in csv.DictReader(enr_arq.open(encoding="utf-8"))}
         alias = {i: e["canonico"] for i, e in enr.items() if e.get("canonico") and e["canonico"] != i}
@@ -188,6 +189,10 @@ def normalizar():
                     for i, e in editoras.items() if i not in alias}
         for i in set(alias.values()) - set(editoras):
             editoras[i] = {k: enr[i][k] for k in ("id", "nome", "grupo", "municipio_sede", "uf_sede")} if i in enr else {"id": i, "nome": i}
+    # Editora por indicação (CA-26.6): só quando a edição que concorreu não é a da obra (a da 1ª aparição).
+    for i in indicacoes.values():
+        ed = alias.get(i["_ed"], i["_ed"])
+        i["editora_id"] = ed if ed and ed != obras[i["obra_id"]]["editora_id"] else ""
 
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
     gravar("editora", sorted(editoras.values(), key=lambda e: e["id"]))

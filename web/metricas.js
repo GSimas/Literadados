@@ -54,7 +54,7 @@ export function expandir(D) {
   const uf = por(D.ufs, (u) => u.uf);
   return D.participacao.map((l) => {
     const o = obra.get(l.obra_id);
-    const e = editora.get(o.editora_id);
+    const e = editora.get(l.editora_id ?? o.editora_id); // editora da indicação, quando difere da obra (CA-26.6)
     const p = pessoa.get(l.pessoa_id);
     const p_ = pr(l);
     return {
@@ -79,6 +79,7 @@ export function expandir(D) {
       raca_busca: p.raca_busca ?? null,
       negra: p.negra,
       uf_nascimento: p.uf_nascimento ?? null,
+      pais_nascimento: p.uf_nascimento == null ? null : p.uf_nascimento === "EX" ? p.pais_nascimento ?? null : "BR", // DA-3
       regiao_nascimento: uf.get(p.uf_nascimento)?.regiao ?? null,
       idade_no_premio: p.ano_nascimento == null ? null : l.ano - p.ano_nascimento,
       lista_curta: l.lista_curta ?? null,

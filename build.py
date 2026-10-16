@@ -151,15 +151,18 @@ def exportar(con) -> dict:
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
         "edicoes": _sem_nulos(_linhas(con, "SELECT NULLIF(premio_id, ?) AS premio, ano, regime FROM edicao ORDER BY premio_id, ano", padrao)),
-        "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(premio, ?) AS premio, ano, nome_original, obra_id, pessoa_id,
-                                               NULLIF(papel, 'autor') AS papel, lista_curta, colocacao FROM v_participacao
-                                        ORDER BY v_participacao.premio, ano, categoria, obra_id, v_participacao.papel, pessoa_id""", padrao)),
+        # editora_id só quando a edição que concorreu não é a da obra (CA-26.6); senão o navegador usa obras[].editora_id.
+        "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(v.premio, ?) AS premio, v.ano, v.nome_original, v.obra_id, v.pessoa_id,
+                                               NULLIF(v.papel, 'autor') AS papel, v.lista_curta, v.colocacao, i.editora_id
+                                        FROM v_participacao v JOIN indicacao i
+                                          ON i.premio_id = v.premio AND i.ano = v.ano AND i.nome_original = v.nome_original AND i.obra_id = v.obra_id
+                                        ORDER BY v.premio, v.ano, v.categoria, v.obra_id, v.papel, v.pessoa_id""", padrao)),
         "obras": _sem_nulos(_linhas(con, """SELECT id, titulo, ano_publicacao, editora_id FROM obra
                                  WHERE id IN (SELECT obra_id FROM indicacao) ORDER BY id""")),
         "pessoas": _fontes_wd(_sem_nulos(_linhas(con, """SELECT id, nome, wikidata, genero, genero_fonte, genero_evidencia, raca,
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
-                                          nascimento_fonte FROM pessoa ORDER BY nome"""))),
+                                          pais_nascimento, nascimento_fonte FROM pessoa ORDER BY nome"""))),
         "jurados": _sem_nulos(_linhas(con, """SELECT NULLIF(j.premio_id, ?) AS premio, j.ano, c.categoria, j.pessoa_id FROM jurado j
                                    JOIN categoria_edicao c USING (premio_id, ano, nome_original) ORDER BY j.premio_id, j.ano, c.categoria, j.pessoa_id""", padrao)),
         "categorias": _sem_nulos(_linhas(con, """SELECT NULLIF(premio_id, ?) AS premio, * EXCLUDE (premio_id, fonte) FROM categoria_edicao

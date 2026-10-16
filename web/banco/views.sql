@@ -11,7 +11,9 @@ SELECT
   p.genero, COALESCE(p.genero_evidencia = 'atribuicao', FALSE) AS genero_atribuido,
   p.raca, p.raca_busca,
   p.raca IN ('preta','parda','negra')                   AS negra,
-  p.uf_nascimento, u.regiao                            AS regiao_nascimento,
+  p.uf_nascimento,
+  CASE WHEN p.uf_nascimento <> 'EX' THEN 'BR' ELSE p.pais_nascimento END AS pais_nascimento,  -- ISO 3166-1 (DA-3)
+  u.regiao                                              AS regiao_nascimento,
   i.ano - p.ano_nascimento                              AS idade_no_premio,
   i.lista_curta,
   i.colocacao,
@@ -22,7 +24,7 @@ JOIN premio pr        ON pr.id = i.premio_id
 JOIN edicao ed        ON ed.premio_id = i.premio_id AND ed.ano = i.ano
 JOIN categoria_edicao c ON c.premio_id = i.premio_id AND c.ano = i.ano AND c.nome_original = i.nome_original
 JOIN obra o          ON o.id = i.obra_id
-LEFT JOIN editora e   ON e.id = o.editora_id
+LEFT JOIN editora e   ON e.id = COALESCE(i.editora_id, o.editora_id)  -- a edição que concorreu (CA-26.6)
 JOIN autoria a        ON a.obra_id = o.id
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;

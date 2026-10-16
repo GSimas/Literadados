@@ -139,7 +139,8 @@ test("expandir remonta as linhas de v_participacao a partir do JSON compacto (CA
   const [a, b] = M.expandir(D);
   assert.deepEqual(Object.keys(a), ["premio", "premio_nome", "ano", "regime", "categoria", "nome_original", "obra_id", "titulo", "ano_publicacao", "editora",
     "grupo_editorial", "uf_editora", "pessoa_id", "nome", "papel", "genero", "genero_atribuido", "raca", "raca_busca", "negra", "uf_nascimento",
-    "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
+    "pais_nascimento", "regiao_nascimento", "idade_no_premio", "lista_curta", "colocacao", "premiada", "vencedora"]);
+  assert.deepEqual([a.pais_nascimento, b.pais_nascimento], ["BR", null]); // UF brasileira = BR; sem UF = sem país (DA-3)
   assert.equal(a.categoria, "Contos");
   assert.deepEqual([a.premio, a.premio_nome], ["jabuti", "Prêmio Jabuti"]); // premio ausente no JSON = 1º de D.premios (D31)
   assert.equal(a.editora, "Ed");
