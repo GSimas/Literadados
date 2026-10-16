@@ -174,7 +174,15 @@ def exportar(con) -> dict:
                   SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
         "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
+        "pessoas_em_varios_premios": varios_premios(con),
     }
+
+
+def varios_premios(con) -> int:
+    """Pessoas (autoria de qualquer papel ou júri) em mais de um prêmio (CA-26.5)."""
+    return con.execute("""WITH x AS (SELECT DISTINCT pessoa_id, premio FROM v_participacao
+                                    UNION SELECT DISTINCT pessoa_id, premio_id FROM jurado)
+                          SELECT COUNT(*) FROM (SELECT pessoa_id FROM x GROUP BY pessoa_id HAVING COUNT(*) > 1)""").fetchone()[0]
 
 
 # ---------- banco no navegador (Diadorim, design D26) ----------
@@ -254,6 +262,7 @@ def main():
         print(f"ERRO: {e}", file=sys.stderr)
         sys.exit(1)
     print(f"ok: {len(p['participacao'])} participações, {len(p['pessoas'])} pessoas, edições coletadas {p['anos_coletados']}")
+    print(f"prêmios: {', '.join(x['nome'] for x in p['premios'])}; pessoas em mais de um prêmio: {p['pessoas_em_varios_premios']}")
     print("cobertura (% das pessoas-autoras por edição):")
     print(f"  {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
     for c in p["cobertura"]:

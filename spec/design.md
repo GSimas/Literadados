@@ -139,6 +139,7 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
 | 18.1 | `test_build_exporta_fontes_por_dominio` |
 | 12.1 (P3) | `test_chat_real_perguntas_originais`, marcado `integracao`: com `ANTHROPIC_API_KEY`, o chat real responde às três perguntas originais citando os mesmos números do SQL de referência e consultando o banco; sem a chave é pulado (`pytest -q -rs` mostra o motivo) |
 | RNF-06.1, RNF-06.2 | `test_json_real_menor_que_1mb`, `test_json_compacto_reconstroi_v_participacao`; `metricas.test.mjs` (`expandir`) |
+| 26.5 | `test_coleta.py` (`test_casamento_*`), `test_vagas_conferidas_por_premio` (`pessoas_em_varios_premios`) |
 | 26.1, 26.2 | `test_etapa0_so_jabuti`, `test_build_falha_edicao_antes_do_premio`, `test_build_falha_premio_inexistente`, `test_vagas_conferidas_por_premio`; `metricas.test.mjs` (`expandir` com prêmio padrão) |
 
 ## 6. Decisões registradas
@@ -188,8 +189,9 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
   **Coleta.**
   - As listas brutas passam para `dados/coleta/<premio>/` (`lista_AAAA.csv`, `jurados_AAAA.csv`, `categorias_edicao.csv`). As do Jabuti são movidas com `git mv`. Os arquivos de pessoas (`pessoas_*.csv`) continuam na raiz de `dados/coleta/`, porque pessoa é uma só.
   - `normalizar` processa o Jabuti primeiro, para os ids atuais não mudarem (fotos, capas e links dependem deles), e depois os outros prêmios na ordem de `premio`.
-  - **Casamento de pessoa:** primeiro o QID (`pessoa.wikidata`), depois o nome normalizado. O casamento só pelo nome vai para `dados/coleta/<premio>/casamentos_revisar.csv`, para decisão humana. Homônimos seguem a regra de hoje (nome distinto na lista).
-  - **Casamento de obra:** título normalizado e sobrenome de algum autor. Mesmo título com autoria diferente gera id com sufixo.
+  - **Casamento de pessoa:** `dados/coleta/<premio>/casamentos.csv` (`nome`, `wikidata`, `pessoa_id`) guarda o que foi conferido. A ordem é: decisão humana (`pessoa_id` = um id da base, ou `nova` para homônimo, que vira `<slug>-<premio>`); depois o QID, que casa com quem já tem esse `pessoa.wikidata` (pessoa nova herda o QID); por último o nome normalizado. O casamento só pelo nome com pessoa de outro prêmio, e o nome igual com QID diferente (que vira pessoa nova), vão para `casamentos_revisar.csv` na mesma pasta. Esse arquivo é refeito a cada `normalizar` e some quando não há pendência. Para resolver, copie a linha para `casamentos.csv` com a decisão. Dentro de um prêmio, o nome continua sendo a identidade.
+  - **Casamento de obra:** mesmo título normalizado e mesma pessoa na autoria, ou algum sobrenome em comum (pega grafias diferentes do mesmo nome). Na antologia sem autor, vale o organizador. Homônimo decidido não casa pelo sobrenome. Quando a obra casa só pelo sobrenome, as pessoas vão para revisão ("mesma pessoa?"). Mesmo título com autoria diferente gera `<título>-<ano>` (e `-2`, `-3`… se colidir). No Jabuti, a regra nova dá exatamente os mesmos ids da antiga.
+  - O build informa quantas pessoas estão em mais de um prêmio (`pessoas_em_varios_premios` no `dados.json`).
 
   **`dados.json`.**
   - Entram `premios` e `edicoes`, que substitui `regimes`.

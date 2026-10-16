@@ -253,6 +253,7 @@ def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categor
     assert [l.get("premio") for l in p["participacao"]].count("outro") == 1  # só o prêmio não padrão aparece no JSON
     con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
     assert con.execute("SELECT premio, COUNT(*) FROM v_participacao GROUP BY ALL ORDER BY 1").fetchall() == [("jabuti", 2), ("outro", 1)]
+    assert p["pessoas_em_varios_premios"] == 1  # a pessoa de o1 está nos dois (CA-26.5)
 
 
 # ---------- RF-12 ----------
