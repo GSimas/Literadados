@@ -29,7 +29,7 @@ CAMPOS = {
                "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento", "nascimento_fonte", "revisado_em"],
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
-    "autoria": ["obra_id", "pessoa_id", "papel"],
+    "autoria": ["premio_id", "obra_id", "pessoa_id", "papel"],
     "edicao": ["premio_id", "ano", "regime", "fonte"],
     "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "etapa_lista", "fonte"],
     "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
@@ -119,9 +119,13 @@ def normalizar():
             ja = pessoas.get(pid, {}).get("wikidata")
             antes = {p for p in premios_do_nome.get(base, set()) if ordem[p] < ordem[premio_id]}
             if qid and ja and ja != qid:  # mesmo nome, outra pessoa no Wikidata: homônimo
+                if ordem[premio_id] == 0:  # no prêmio padrão, isso tiraria as indicações de quem já está na base
+                    raise SystemExit(f"{premio_id}/casamentos.csv: {nome} com QID diferente ({qid} × {ja}) no prêmio padrão: corrija a base")
                 pid = f"{base}-{premio_id}"
                 revisar[premio_id][nome] = {"nome": nome, "pessoa_id": pid, "motivo": f"QID diferente ({qid} × {ja}): criada pessoa nova",
                                             "wikidata_base": ja, "premios_base": ",".join(sorted(antes))}
+            elif qid and not ja and pid in pessoas:  # QID conferido para quem já está na base sem QID: grava e vale
+                pessoas[pid]["wikidata"], por_qid[qid] = qid, pid
             elif antes:
                 revisar[premio_id][nome] = {"nome": nome, "pessoa_id": pid, "motivo": "casou só pelo nome com pessoa de outro prêmio",
                                             "wikidata_base": ja or "", "premios_base": ",".join(sorted(antes))}
@@ -142,6 +146,7 @@ def normalizar():
             o = obras[oid]
             if o["_pids"] & set(pids) or not (o["_pids"] or pids):
                 o["_pids"] |= set(pids)
+                o["_sob"] |= {sobrenome(x) for x in nomes_} - {""}  # coautor novo também conta para o aviso de sobrenome
                 o["editora_id"] = o["editora_id"] or ed_id  # 1ª editora não vazia, só para o perfil e o JSON compacto
                 return oid
         for oid in por_titulo.get(base, []):
@@ -188,11 +193,11 @@ def normalizar():
             orgs = [n for n in nomes(r.get("organizadores")) if n not in autores]  # fora das contagens (design D14)
             pa, po = [pessoa(n, premio_id) for n in autores], [pessoa(n, premio_id) for n in orgs]
             oid = obra(r["titulo"], autores or orgs, pa or po, r["ano"], ed_id, premio_id)
-            autoria.update((oid, p, "autor") for p in pa)
-            autoria.update((oid, p, "organizador") for p in po)
+            autoria.update((premio_id, oid, p, "autor") for p in pa)  # crédito do próprio prêmio (RF-26)
+            autoria.update((premio_id, oid, p, "organizador") for p in po)
             for n in nomes(r["ilustradores"]):
                 if n not in autores:
-                    autoria.add((oid, pessoa(n, premio_id), "ilustrador"))
+                    autoria.add((premio_id, oid, pessoa(n, premio_id), "ilustrador"))
             fonte = " ; ".join(f for f in (r["fonte_1"], r["fonte_2"]) if f)
             indicacoes[(premio_id, r["ano"], r["nome_original"], oid)] = {
                 "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
@@ -221,7 +226,7 @@ def normalizar():
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
     gravar("editora", sorted(editoras.values(), key=lambda e: e["id"]))
     gravar("obra", sorted(obras.values(), key=lambda o: o["id"]))
-    gravar("autoria", [{"obra_id": o, "pessoa_id": p, "papel": t} for o, p, t in sorted(autoria)])
+    gravar("autoria", [{"premio_id": pr, "obra_id": o, "pessoa_id": p, "papel": t} for pr, o, p, t in sorted(autoria)])
     gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))
     gravar("jurado", sorted(jurados.values(), key=lambda j: (j["premio_id"], j["ano"], j["nome_original"], j["pessoa_id"])))
     for premio_id, linhas in revisar.items():  # refeito a cada execução; sem pendência, o arquivo some
@@ -300,7 +305,10 @@ def pais_de(local: str) -> str:
     """País do local de nascimento (P17), como ISO 3166-1 alfa-2 do item do país (P297), para quem nasceu fora do Brasil
     (DA-3). País histórico sem código ISO (ex.: Reino de Portugal) devolve vazio: confira à mão."""
     ent = entidades([local]).get(local, {})
-    pais = (_claim(ent, "P17") or {}).get("id", "")
+    # Rank "preferred" primeiro e nada com data de fim (P582): Lviv ou Asmara têm países históricos listados antes.
+    validas = [c for c in ent.get("claims", {}).get("P17", []) if c.get("rank") != "deprecated" and "P582" not in c.get("qualifiers", {})]
+    validas.sort(key=lambda c: c.get("rank") != "preferred")
+    pais = next((c["mainsnak"]["datavalue"]["value"]["id"] for c in validas if c.get("mainsnak", {}).get("datavalue")), "")
     if not pais:
         return ""
     return (_claim(entidades([pais]).get(pais, {}), "P297") or "").upper()

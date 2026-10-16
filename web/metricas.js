@@ -619,9 +619,11 @@ export function indiceBusca(D) {
   const ufs = D.ufs.filter((u) => u.uf !== "EX");
   for (const u of ufs) add("Estado", u.nome, `${u.uf} · ${u.regiao}`, `#/uf/${u.uf}`, u.uf);
   for (const r of [...new Set(ufs.map((u) => u.regiao))]) add("Região", r, `${ufs.filter((u) => u.regiao === r).length} UFs`, `#/regiao/${encodeURIComponent(r)}`);
-  const obrasPorEditora = groupBy(D.obras.filter((o) => porObra.has(o.id)), (o) => o.editora_id);
+  // Obras por editora da INDICAÇÃO (CA-26.6), como o gráfico de editoras: a edição portuguesa conta para a editora dela.
+  const obrasPorEditora = new Map();
+  for (const l of ls) if (l.editora) obrasPorEditora.set(l.editora, (obrasPorEditora.get(l.editora) ?? new Set()).add(l.obra_id));
   for (const ed of D.editoras) {
-    const n = obrasPorEditora.get(ed.id)?.length;
+    const n = obrasPorEditora.get(ed.nome)?.size;
     if (n) add("Editora", ed.nome, [`${n} obra${n > 1 ? "s" : ""}`, ed.municipio_sede && `sede: ${ed.municipio_sede}${ed.uf_sede ? `/${ed.uf_sede}` : ""}`, ed.grupo].filter(Boolean).join(" · "), "#/grafico/editoras", ed.grupo ?? "");
   }
   for (const c of [...new Set(D.categorias.map((c) => c.categoria))]) add("Categoria", c, "gráfico de categorias", "#/grafico/segregacao");
@@ -632,7 +634,8 @@ export function indiceBusca(D) {
   for (const [p, a] of comDados.length ? comDados : D.anos_coletados.map((a) => [padrao, String(a)])) {
     // Edição de outro prêmio abre a linha do tempo já filtrada naquele prêmio e ano (CA-26.12).
     add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "",
-      p === padrao ? "#/grafico/linha-do-tempo" : `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo`, a);
+      // O padrão também leva filtro explícito (só o ano): substitui um filtro de outro prêmio deixado na URL.
+      p === padrao ? `?linha-do-tempo=${a}-${a}#/grafico/linha-do-tempo` : `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo`, a);
   }
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   if (multi) add("Gráfico", "Entre prêmios", "quem passa por mais de um prêmio", "#/grafico/entre-premios", "sobreposicao premios");

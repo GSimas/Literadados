@@ -154,7 +154,8 @@ export function htmlPerfil(id, { D, midiaPorId }) {
     <header class="perfil-cab">
       <div>${foto(p, m, { w: 480 })}${m?.imagem ? `<p class="credito">${credito(m)}</p>` : ""}</div>
       <div>
-        <p class="sobretitulo">${ls.some((l) => l.papel === "autor") ? "Autor(a)" : "Ilustrador(a)"}${jur.length ? " · jurado(a)" : ""}</p>
+        <p class="sobretitulo">${[ls.some((l) => l.papel === "autor") ? "Autor(a)" : ls.length ? "Ilustrador(a)" : org.length ? "Organizador(a)" : "",
+          jur.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^j/, "J")}</p>
         <h2 id="perfil-nome">${esc(p.nome)}</h2>
         <p>${fmt(ls.length)} indicaç${ls.length === 1 ? "ão" : "ões"} · ${premios ? `${premios} prêmio${premios > 1 ? "s" : ""}` : "sem prêmio"}${vit ? ` · <b>${vezes(vit)} 1º lugar</b>` : ""}${multi ? `<br><span class="muted">em ${esc(nomesPremios(ps))}</span>` : ""}</p>
         <div class="links-externos">${links}</div>

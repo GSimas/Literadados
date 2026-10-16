@@ -240,7 +240,9 @@ Regras de análise:
   semifinalistas, finalistas ou premiados), finalista (lista_curta = 1, só onde houve 2ª lista; no Jabuti, de 2019 em diante),
   premiada (premiada = true; no Jabuti: vencedor único até 1992, 1º a 3º de 1993 a 2017, só 1º depois), vencedora (vencedora = true).
 - Categoria 'Geral' = prêmio de categoria única (prosa e poesia concorrendo juntas).
-- Editora: v_participacao.editora é a da edição que concorreu (indicacao.editora_id, quando difere de obra.editora_id).
+- Editora: v_participacao.editora = indicacao.editora_id, a edição que concorreu; vazia = sem editora conhecida da época
+  (comum antes de 2000). Nunca use obra.editora_id para contar editoras: é só a 1ª editora conhecida do livro.
+- Autoria: o crédito é de cada prêmio (autoria.premio_id); v_participacao já junta pelo prêmio da indicação.
 - Período padrão: a série completa, {padrao.get('de', 1959)}–{padrao.get('ate', 2025)}, como no painel. Recorte outro período só se a pergunta pedir (uma edição, uma década, "desde 2010").
 - No Jabuti, de 1959 a 1999 não houve lista pública de indicados (etapa_lista = 'premiados', vagas_lista vazio): nessas edições a "lista" é só a das premiadas.
   Ao comparar a lista com premiadas ou vencedoras, ou a composição da lista ao longo do tempo, diga isso e, se ajudar, mostre também 2000–2025.

@@ -13,6 +13,18 @@ CREATE TABLE uf (
   populacao_2022  INTEGER                     -- Censo IBGE 2022 (preencher na coleta), para taxas per capita
 );
 
+-- Prêmios da base (RF-26, design D31). ordem = 1 é o padrão do painel (DA-4), e a coleta processa nessa ordem.
+-- Prêmios pelo conjunto da obra ficam fora (DA-2): todo prêmio aqui premia livros.
+CREATE TABLE premio (
+  id           TEXT PRIMARY KEY,               -- slug ('jabuti', 'oceanos')
+  nome         TEXT NOT NULL,
+  organizador  TEXT NOT NULL,
+  ano_inicio   INTEGER NOT NULL,               -- 1ª edição; o build recusa edição anterior a ela
+  abrangencia  TEXT NOT NULL CHECK (abrangencia IN ('nacional','lusofono')),
+  ordem        INTEGER NOT NULL UNIQUE CHECK (ordem >= 1),  -- explícita: um prêmio mais antigo não vira o padrão sem querer
+  fonte        TEXT NOT NULL
+);
+
 CREATE TABLE pessoa (
   id                    TEXT PRIMARY KEY,
   nome                  TEXT NOT NULL,        -- como aparece nos créditos
@@ -81,23 +93,14 @@ CREATE TABLE obra_capa (
   pagina    TEXT CHECK (pagina IS NULL OR pagina LIKE 'https://%')
 );
 
+-- Crédito por prêmio (RF-26): o mesmo livro pode ser creditado de forma diferente em cada prêmio (a CBL credita
+-- ilustradores como autores em 2023; outro prêmio pode listar um coautor). Uma indicação só vê o crédito do próprio prêmio.
 CREATE TABLE autoria (
+  premio_id  TEXT NOT NULL REFERENCES premio(id),
   obra_id    TEXT NOT NULL REFERENCES obra(id),
   pessoa_id  TEXT NOT NULL REFERENCES pessoa(id),
   papel      TEXT NOT NULL DEFAULT 'autor' CHECK (papel IN ('autor','ilustrador','organizador')),
-  PRIMARY KEY (obra_id, pessoa_id, papel)
-);
-
--- Prêmios da base (RF-26, design D31). ordem = 1 é o padrão do painel (DA-4), e a coleta processa nessa ordem.
--- Prêmios pelo conjunto da obra ficam fora (DA-2): todo prêmio aqui premia livros.
-CREATE TABLE premio (
-  id           TEXT PRIMARY KEY,               -- slug ('jabuti', 'oceanos')
-  nome         TEXT NOT NULL,
-  organizador  TEXT NOT NULL,
-  ano_inicio   INTEGER NOT NULL,               -- 1ª edição; o build recusa edição anterior a ela
-  abrangencia  TEXT NOT NULL CHECK (abrangencia IN ('nacional','lusofono')),
-  ordem        INTEGER NOT NULL UNIQUE CHECK (ordem >= 1),  -- explícita: um prêmio mais antigo não vira o padrão sem querer
-  fonte        TEXT NOT NULL
+  PRIMARY KEY (premio_id, obra_id, pessoa_id, papel)
 );
 
 -- Uma linha por edição de cada prêmio. O regime (formato da premiação) é dado da edição, não regra da view.
@@ -182,7 +185,7 @@ JOIN edicao ed        ON ed.premio_id = i.premio_id AND ed.ano = i.ano
 JOIN categoria_edicao c ON c.premio_id = i.premio_id AND c.ano = i.ano AND c.nome_original = i.nome_original
 JOIN obra o          ON o.id = i.obra_id
 LEFT JOIN editora e   ON e.id = i.editora_id  -- a edição que concorreu (CA-26.6), nunca herdada de outro ano ou prêmio
-JOIN autoria a        ON a.obra_id = o.id
+JOIN autoria a        ON a.obra_id = o.id AND a.premio_id = i.premio_id  -- crédito do próprio prêmio
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;
 

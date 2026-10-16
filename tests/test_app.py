@@ -41,7 +41,7 @@ def mini(tmp_path):
     ])
     _csv(d / "obra.csv", [{"id": "o1", "titulo": "O1", "editora_id": "ed", "ano_publicacao": "2015"},
                           {"id": "o2", "titulo": "O2", "editora_id": "ed", "ano_publicacao": "2015"}])
-    _csv(d / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "autor"}])
+    _csv(d / "autoria.csv", [{"premio_id": "jabuti", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"premio_id": "jabuti", "obra_id": "o2", "pessoa_id": "b", "papel": "autor"}])
     _csv(d / "categoria_edicao.csv", [
         {"premio_id": "jabuti", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "2", "vagas_curta": "", "vagas_premio": "1", "etapa_lista": "finalistas", "fonte": "http://x"},
         {"premio_id": "jabuti", "ano": "2017", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "10", "vagas_curta": "", "vagas_premio": "3", "etapa_lista": "finalistas", "fonte": "http://x"},
@@ -190,7 +190,7 @@ def test_build_falha_premiadas_a_mais(mini):  # CA-01.3
 
 
 def test_obra_so_com_organizador_e_valida(mini):  # CA-01.5: antologia creditada só ao organizador
-    _csv(mini / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "organizador"}])
+    _csv(mini / "autoria.csv", [{"premio_id": "jabuti", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"premio_id": "jabuti", "obra_id": "o2", "pessoa_id": "b", "papel": "organizador"}])
     p = _build(mini)
     con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
     assert con.execute("SELECT papel FROM v_participacao WHERE pessoa_id = 'b'").fetchall() == [("organizador",)]
@@ -199,7 +199,7 @@ def test_obra_so_com_organizador_e_valida(mini):  # CA-01.5: antologia creditada
 
 
 def test_build_falha_obra_sem_autor_nem_organizador(mini):  # CA-01.5
-    _csv(mini / "autoria.csv", [{"obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"obra_id": "o2", "pessoa_id": "b", "papel": "ilustrador"}])
+    _csv(mini / "autoria.csv", [{"premio_id": "jabuti", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"}, {"premio_id": "jabuti", "obra_id": "o2", "pessoa_id": "b", "papel": "ilustrador"}])
     with pytest.raises(build.BuildError, match="obra sem autor nem organizador: o2"):
         _build(mini)
 
@@ -257,7 +257,8 @@ def _dois_premios(mini):
     mais("pessoa", [{"id": "c", "nome": "C", "genero": "mulher", "raca": "sem_declaracao", "uf_nascimento": "EX", "pais_nascimento": "PT"}])
     mais("editora", [{"id": "pt", "nome": "Ed (PT)", "grupo": "", "municipio_sede": "", "uf_sede": "EX"}])
     mais("obra", [{"id": "o3", "titulo": "O3", "editora_id": "pt", "ano_publicacao": "2015"}])
-    mais("autoria", [{"obra_id": "o3", "pessoa_id": "c", "papel": "autor"}])
+    mais("autoria", [{"premio_id": "outro", "obra_id": "o3", "pessoa_id": "c", "papel": "autor"}, {"premio_id": "outro", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"},
+                     {"premio_id": "outro", "obra_id": "o1", "pessoa_id": "c", "papel": "autor"}])  # o "outro" credita C também em o1
     mais("indicacao", [{"premio_id": "outro", "ano": "2016", "nome_original": "Prêmio", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "pt", "fonte": "https://outro.example/2016"},
                        {"premio_id": "outro", "ano": "2016", "nome_original": "Prêmio", "obra_id": "o3", "lista_curta": "", "colocacao": "", "editora_id": "pt", "fonte": "https://outro.example/2016"}])
 
@@ -279,6 +280,30 @@ def test_json_dividido_por_premio(mini, tmp_path):  # CA-26.14: um arquivo por p
     # Com um prêmio só, nenhuma parte (e uma parte velha é apagada).
     build.build(RAIZ / "dados", tmp_path / "s.duckdb", saida)
     assert not (tmp_path / "d-outro.json").exists() and "partes" not in json.loads(saida.read_text(encoding="utf-8"))
+
+
+def test_outro_premio_nao_muda_o_jabuti(mini, tmp_path):  # gauntlet 2: o crédito de um prêmio não vaza para o outro
+    antes = build.build(mini, tmp_path / "a.duckdb", tmp_path / "a.json")
+    q = "SELECT * EXCLUDE (premio_nome) FROM v_participacao WHERE premio = 'jabuti' ORDER BY ALL"
+    linhas_antes = duckdb.connect(str(tmp_path / "a.duckdb"), read_only=True).execute(q).fetchall()
+    _dois_premios(mini)  # o "outro" credita a pessoa C como coautora de o1
+    depois = build.build(mini, tmp_path / "b.duckdb", tmp_path / "b.json")
+    assert duckdb.connect(str(tmp_path / "b.duckdb"), read_only=True).execute(q).fetchall() == linhas_antes
+    k = lambda p: {kk: v for kk, v in M_kpis(p).items() if kk != "premios"}
+    assert k(antes) == k(depois)  # KPIs do Jabuti filtrado iguais
+
+
+def M_kpis(payload):
+    """KPIs do Jabuti (padrão) pela mesma metricas.kpis do navegador, sobre o JSON gerado."""
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node não instalado")
+    js = (f"import * as M from {json.dumps((RAIZ / 'web' / 'metricas.js').as_uri())};"
+          f"const D = {json.dumps(json.loads(json.dumps(payload, default=str)))};"
+          f"const L = M.filtrar(M.expandir(D), {{ premios: [D.premios[0].id] }});"
+          f"process.stdout.write(JSON.stringify(M.kpis(L)));")
+    r = subprocess.run([node, "--input-type=module", "-e", js], capture_output=True, text=True, encoding="utf-8", check=True)
+    return json.loads(r.stdout)
 
 
 def test_cobertura_e_prompt_por_premio(mini, tmp_path):  # CA-26.7, CA-26.13
@@ -369,6 +394,8 @@ def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categor
          + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "categoria": "Contos", "vagas_lista": "1", "vagas_curta": "", "vagas_premio": "1", "etapa_lista": "finalistas", "fonte": "http://x"}])
     _csv(mini / "indicacao.csv", list(csv.DictReader((mini / "indicacao.csv").open(encoding="utf-8")))
          + [{"premio_id": "outro", "ano": "2016", "nome_original": "Contos e Crônicas", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "", "fonte": "http://x"}])
+    _csv(mini / "autoria.csv", list(csv.DictReader((mini / "autoria.csv").open(encoding="utf-8")))
+         + [{"premio_id": "outro", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"}])  # o crédito é de cada prêmio
     p = _build(mini)
     assert [l.get("premio") for l in p["participacao"]].count("outro") == 1  # só o prêmio não padrão aparece no JSON
     con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)

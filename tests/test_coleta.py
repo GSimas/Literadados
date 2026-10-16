@@ -174,6 +174,43 @@ def test_normalizar_estavel_em_duas_execucoes(bruto):  # ids não mudam entre ex
     assert {(a["obra_id"], a["pessoa_id"]) for a in _ler(dados / "autoria.csv")} == {("sol", "beatriz-souza"), ("sol-2016", "beatriz-souza-outro")}
 
 
+def test_credito_fica_no_proprio_premio(bruto):  # gauntlet 2: coautor que só o outro prêmio credita não entra no Jabuti
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Livro", "Ana Silva|Fulano Tradutor")])
+    coleta.normalizar()
+    autoria = {(a["premio_id"], a["obra_id"], a["pessoa_id"]) for a in _ler(dados / "autoria.csv")}
+    assert ("outro", "livro", "fulano-tradutor") in autoria and ("jabuti", "livro", "fulano-tradutor") not in autoria
+    assert ("jabuti", "livro", "ana-silva") in autoria and ("outro", "livro", "ana-silva") in autoria
+
+
+def test_qid_no_casamento_grava_e_dispensa_revisao(bruto):  # QID conferido para pessoa da base sem QID
+    dados, b = bruto
+    _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Sol", "Ana Silva")])
+    _csv(b / "outro" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"], [{"nome": "Ana Silva", "wikidata": "Q7", "pessoa_id": ""}])
+    coleta.normalizar()
+    assert {p["id"]: p["wikidata"] for p in _ler(dados / "pessoa.csv")}["ana-silva"] == "Q7"
+    assert not (b / "outro" / "casamentos_revisar.csv").exists()
+
+
+def test_qid_divergente_no_premio_padrao_e_recusado(bruto):
+    _, b = bruto
+    _csv(b / "jabuti" / "lista_2016.csv", LISTA, [_livro("Sol", "Beatriz Souza")])
+    _csv(b / "jabuti" / "casamentos.csv", ["nome", "wikidata", "pessoa_id"], [{"nome": "Beatriz Souza", "wikidata": "Q2", "pessoa_id": ""}])
+    with pytest.raises(SystemExit, match="QID diferente"):
+        coleta.normalizar()
+
+
+def test_pais_de_prefere_atual_e_preferido(monkeypatch):  # DA-3: país histórico (com data de fim) não vale
+    snak = lambda q: {"datavalue": {"value": {"id": q}}}
+    ents = {"Qcidade": {"claims": {"P17": [
+        {"rank": "normal", "mainsnak": snak("Qantigo"), "qualifiers": {"P582": [{}]}},
+        {"rank": "normal", "mainsnak": snak("Qoutro")},
+        {"rank": "preferred", "mainsnak": snak("Qatual")}]}},
+        "Qatual": {"claims": {"P297": [{"mainsnak": {"datavalue": {"value": "er"}}}]}}}
+    monkeypatch.setattr(coleta, "entidades", lambda ids: {i: ents.get(i, {}) for i in ids})
+    assert coleta.pais_de("Qcidade") == "ER"
+
+
 def test_sem_pendencia_arquivo_de_revisao_some(bruto):
     _, b = bruto
     _csv(b / "outro" / "casamentos_revisar.csv", ["nome"], [{"nome": "velho"}])

@@ -463,7 +463,7 @@ test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no 
   const oc = ix.find((e) => e.tipo === "Edição" && e.rotulo === "Oceanos 2018");
   assert.equal(oc.href, "?linha-do-tempo=2018-2018~p:oceanos#/grafico/linha-do-tempo");
   assert.equal(oc.sub, "categoria única");
-  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "#/grafico/linha-do-tempo");
+  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "?linha-do-tempo=2016-2016#/grafico/linha-do-tempo");
   assert.ok(ix.find((e) => e.rotulo === "Eva Angolana").sub.startsWith("Angola"));
   assert.ok(ix.some((e) => e.rotulo === "Entre prêmios"));
 });
