@@ -23,7 +23,11 @@ D.participacao = M.expandir(D); // JSON compacto → linhas de v_participacao (d
 definirDados(D); // categorias presentes nos dados e prêmios da base (CA-26.3, CA-26.8)
 { // rodapé: os prêmios da base (DA-5)
   const ns = (D.premios ?? []).map((p) => p.nome);
-  if (ns.length > 1) $$("[data-premios-texto]").forEach((el) => { el.textContent = `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}`; });
+  if (ns.length > 1) {
+    $$("[data-premios-texto]").forEach((el) => { el.textContent = `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}`; });
+    $("#diadorim-pergunta")?.setAttribute("placeholder", "Pergunte sobre os prêmios…"); // CA-26.12
+    $("#tempo-trilho")?.setAttribute("aria-label", "Edições dos prêmios do recorte");
+  }
 }
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 const midiaPorId = new Map((D.midia ?? []).map((m) => [m.pessoa_id, m]));
@@ -92,7 +96,8 @@ function renderAbertura() {
   $("#hero-numeros").innerHTML = nums.map(([, , extra, t]) => `<div class="hero-num"><b><span class="n"></span>${extra}</b><span>${t}</span></div>`).join("");
   $$("#hero-numeros .n").forEach((el, i) => contar(el, nums[i][0], (v) => nums[i][1](i === 0 && v != null ? Math.round(v) : v)));
   // Carrossel decorativo: fotos livres (vencedoras primeiro), em 3 faixas que correm em sentidos opostos. Nenhum dado codificado.
-  const vencedoras = new Set(L0.filter((l) => l.vencedora).map((l) => l.pessoa_id));
+  // Vencedoras de qualquer papel do prêmio padrão primeiro (ilustradoras incluídas, como antes do multi-prêmio).
+  const vencedoras = new Set(D.participacao.filter((l) => l.vencedora && l.premio === PREMIOS[0]).map((l) => l.pessoa_id));
   const fotos = D.pessoas.filter((p) => midiaPorId.get(p.id)?.imagem).sort((a, b) => vencedoras.has(b.id) - vencedoras.has(a.id)).slice(0, 60);
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
   const span = (p) => `<span style="background-image:url('${srcFoto(p.id, midiaPorId.get(p.id), 160).replace(/'/g, "%27")}')"></span>`;

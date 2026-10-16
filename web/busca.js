@@ -25,7 +25,8 @@ export function montarBusca(D, prefixo = "") {
     fechar();
     campo.value = "";
     campo.blur();
-    const href = e.href.startsWith("#") && prefixo ? `${prefixo}${e.href}` : e.href;
+    // "#…" e "?…" (filtro na URL) vivem no index: em metodo.html ganham o prefixo "./".
+    const href = /^[#?]/.test(e.href) && prefixo ? `${prefixo}${e.href}` : e.href;
     if (href.startsWith("#")) location.hash = href; else location.assign(href);
   };
   const marcar = (i) => {

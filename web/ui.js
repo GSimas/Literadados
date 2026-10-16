@@ -26,9 +26,23 @@ export const PREMIOS = [];
 export const NOME_PREMIO = {};
 export function definirDados(D) {
   const presentes = new Set(D.categorias.map((c) => c.categoria));
-  CATEGORIAS.splice(0, CATEGORIAS.length, ...ORDEM_CATEGORIAS.filter((c) => presentes.has(c)));
+  // Categoria nova da taxonomia (ex.: Ensaio) que ainda não está na ordem conhecida entra no fim, nunca some do menu.
+  CATEGORIAS.splice(0, CATEGORIAS.length, ...ORDEM_CATEGORIAS.filter((c) => presentes.has(c)),
+    ...[...presentes].filter((c) => !ORDEM_CATEGORIAS.includes(c)).sort((a, b) => a.localeCompare(b, "pt-BR")));
   PREMIOS.splice(0, PREMIOS.length, ...(D.premios ?? []).map((p) => p.id));
   for (const p of D.premios ?? []) NOME_PREMIO[p.id] = p.nome;
+}
+// Gráfico que junta prêmios (contagens, medianas, fluxos; CA-26.9): com mais de um prêmio no recorte, um aviso logo
+// antes do gráfico diz quantas participações vêm de cada um. Com um prêmio só, o aviso some.
+export function avisoPremios(el, L) {
+  const por = new Map();
+  for (const l of L) por.set(l.premio, (por.get(l.premio) ?? 0) + 1);
+  let p = el.previousElementSibling?.classList.contains("aviso-premios") ? el.previousElementSibling : null;
+  if (por.size < 2) { p?.remove(); return; }
+  if (!p) { p = Object.assign(document.createElement("p"), { className: "aviso-premios muted pequeno" }); el.before(p); }
+  const ps = [...por].sort((a, b) => PREMIOS.indexOf(a[0]) - PREMIOS.indexOf(b[0]));
+  p.textContent = `Este gráfico junta ${ps.length} prêmios (${ps.map(([k, n]) => `${NOME_PREMIO[k] ?? k}: ${fmt(n)} participações`).join("; ")}), `
+    + "com formatos e períodos diferentes. Para comparar, escolha um prêmio por vez no filtro.";
 }
 // dados.json e, se houver, as partes de outros prêmios (dados-<prêmio>.json, CA-26.14), carregadas em paralelo.
 export async function carregarDados(base = "") {

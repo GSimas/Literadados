@@ -433,3 +433,37 @@ test("edições sem lista pública por prêmio; marcos só dos prêmios do recor
   assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
   assert.ok(M.marcosDe(null).length > 0 && M.marcosDe(null).every((m) => m.premio === "jabuti"));
 });
+test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
+  const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
+    L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x4", pessoa_id: "g", genero: "homem", uf_nascimento: null })]);
+  assert.deepEqual(r.paises.map((x) => [x.pais, x.pessoas]), [["AO", 1], ["PT", 1], [null, 1]]);
+  assert.deepEqual([r.fora, r.semLocal], [3, 1]);
+  assert.equal(M.paisOuExterior("PT"), "Portugal");
+  assert.equal(M.paisOuExterior(null), "exterior");
+});
+
+test("juntar: partes de outros prêmios se somam ao dados.json (CA-26.14)", () => {
+  const D = { participacao: [{ a: 1 }], pessoas: [{ id: "a" }], obras: [], premios: [{ id: "jabuti" }] };
+  M.juntar(D, [{ premio: "oceanos", participacao: [{ a: 2 }], pessoas: [{ id: "b" }], obras: [{ id: "o" }] }]);
+  assert.deepEqual([D.participacao.length, D.pessoas.map((p) => p.id), D.obras.length, D.premios.length], [2, ["a", "b"], 1, 1]);
+  assert.equal(M.juntar(D, []), D);
+});
+
+test("marcos: 1ª edição dos outros prêmios vem dos dados (CA-26.10)", () => {
+  const base = [{ id: "jabuti", ano_inicio: 1959 }, { id: "oceanos", ano_inicio: 2003 }];
+  assert.deepEqual(M.marcosDe(["oceanos"], "jabuti", base), [{ premio: "oceanos", ano: 2003, texto: "1ª edição" }]);
+  assert.ok(!M.marcosDe(["jabuti"], "jabuti", base).some((m) => m.texto === "1ª edição")); // o padrão não ganha marco de criação
+});
+
+test("busca: edição de outro prêmio abre a linha do tempo filtrada; país no lugar de EX (CA-26.12)", () => {
+  const D = { premios: [{ id: "jabuti", nome: "Prêmio Jabuti" }, { id: "oceanos", nome: "Prêmio Oceanos" }], edicoes: [{ premio: "oceanos", ano: 2018, regime: "categoria única" }],
+    participacao: LP.map((l) => ({ ...l, nome: l.pessoa_id, titulo: l.obra_id })), pessoas: [{ id: "e", nome: "Eva Angolana", uf_nascimento: "EX", pais_nascimento: "AO" }],
+    obras: [], editoras: [], ufs: [], categorias: [], jurados: [], anos_coletados: [] };
+  const ix = M.indiceBusca(D);
+  const oc = ix.find((e) => e.tipo === "Edição" && e.rotulo === "Oceanos 2018");
+  assert.equal(oc.href, "?linha-do-tempo=2018-2018~p:oceanos#/grafico/linha-do-tempo");
+  assert.equal(oc.sub, "categoria única");
+  assert.equal(ix.find((e) => e.rotulo === "Jabuti 2016").href, "#/grafico/linha-do-tempo");
+  assert.ok(ix.find((e) => e.rotulo === "Eva Angolana").sub.startsWith("Angola"));
+  assert.ok(ix.some((e) => e.rotulo === "Entre prêmios"));
+});

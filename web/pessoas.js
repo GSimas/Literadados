@@ -73,7 +73,7 @@ export function montarPessoas(ctx) {
 // Resumo no centro do anel: nome, UF · ano, indicações e selo (CA-11.5).
 const htmlCentro = (p) => `<div class="centro-pessoa">
   <b class="centro-nome">${esc(p.nome)}</b>
-  <span class="centro-meta">${[p.uf_nascimento, p.ano_nascimento].filter(Boolean).map(esc).join(" · ") || "nascimento sem dado"}</span>
+  <span class="centro-meta">${[p.uf_nascimento === "EX" ? M.paisOuExterior(p.pais_nascimento) : p.uf_nascimento, p.ano_nascimento].filter(Boolean).map(esc).join(" · ") || "nascimento sem dado"}</span>
   <span class="centro-meta">${p.participacoes} indicaç${p.participacoes > 1 ? "ões" : "ão"}${p.linhas.every((l) => l.papel === "ilustrador") ? " como ilustrador(a)" : ""}</span>
   ${p.vitorias ? `<span class="selo">★ ${vezes(p.vitorias)} 1º lugar</span>` : p.premios ? `<span class="selo">${p.premios} prêmio${p.premios > 1 ? "s" : ""}</span>` : ""}
   <span class="centro-dica">clique para abrir o perfil</span></div>`;
@@ -104,7 +104,7 @@ export function renderPessoas(L, { D, midiaPorId }) {
   if (tabelaVis) {
     $("#t-pessoas").innerHTML = `<caption class="sr">Pessoas do recorte; Enter abre o perfil com fontes</caption>
       <thead><tr><th scope="col">Nome</th><th scope="col">Gênero</th><th scope="col">Raça declarada</th><th scope="col">UF nasc.</th><th class="num" scope="col">Participações</th><th class="num" scope="col">Prêmios</th></tr></thead>
-      <tbody>${pag.map((p) => `<tr data-id="${esc(p.id)}" tabindex="0"><td>${esc(p.nome)}</td><td>${ROT_GEN[p.genero]}${astGenero(p.genero_evidencia === "atribuicao")}</td><td>${ROT_RACA[p.raca]}</td><td>${esc(p.uf_nascimento ?? "–")}</td><td class="num">${p.participacoes}</td><td class="num">${p.premios}</td></tr>`).join("")
+      <tbody>${pag.map((p) => `<tr data-id="${esc(p.id)}" tabindex="0"><td>${esc(p.nome)}</td><td>${ROT_GEN[p.genero]}${astGenero(p.genero_evidencia === "atribuicao")}</td><td>${ROT_RACA[p.raca]}</td><td>${esc(p.uf_nascimento === "EX" ? M.paisOuExterior(p.pais_nascimento) : p.uf_nascimento ?? "–")}</td><td class="num">${p.participacoes}</td><td class="num">${p.premios}</td></tr>`).join("")
       || `<tr><td colspan="6" class="vazio">Ninguém encontrado.</td></tr>`}</tbody>`;
     return;
   }

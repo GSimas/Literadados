@@ -29,8 +29,13 @@ export const MARCOS = [
   { premio: "jabuti", ano: 2020, texto: "Romance Literário" },
   { premio: "jabuti", ano: 2021, texto: "CBL coleta raça" },
 ];
-// premios = null: só os do prêmio padrão (o 1º da lista), como antes de haver vários prêmios.
-export const marcosDe = (premios, padrao = "jabuti") => MARCOS.filter((m) => (premios ?? [padrao]).includes(m.premio));
+// premios = null: só os do prêmio padrão (o 1º da lista), como antes de haver vários prêmios. Com a lista da base
+// (D.premios), cada prêmio que não é o padrão ganha também o marco da 1ª edição (ano_inicio), vindo dos dados.
+export const marcosDe = (premios, padrao = "jabuti", base = []) => {
+  const sel = premios ?? [padrao];
+  const inicios = base.filter((p) => p.id !== padrao && sel.includes(p.id)).map((p) => ({ premio: p.id, ano: p.ano_inicio, texto: "1ª edição" }));
+  return [...MARCOS.filter((m) => sel.includes(m.premio)), ...inicios.filter((i) => !MARCOS.some((m) => m.premio === i.premio && m.ano === i.ano))];
+};
 
 const pct = (n, d) => (d ? (100 * n) / d : null);
 const contar = (arr, chave) => {
@@ -507,6 +512,19 @@ export function filtroParaTexto(f, [a0, a1], cats, premios = null, padraoP = pre
     padraoPremios ? null : `p:${f.premios.join(",")}`].filter(Boolean).join("~");
 }
 
+// Nascidas fora do Brasil, por país (DA-3): pessoas distintas, do maior para o menor; sem país conhecido = pais null.
+// Também conta quem ainda não tem local de nascimento (semLocal).
+export function porPais(linhas) {
+  const pessoas = porPessoa(linhas), fora = pessoas.filter((p) => p.uf_nascimento === "EX");
+  const paises = [...contar(fora, (p) => p.pais_nascimento ?? null)].map(([pais, pessoas]) => ({ pais, pessoas }))
+    .sort((a, b) => (a.pais == null) - (b.pais == null) || b.pessoas - a.pessoas || String(a.pais).localeCompare(String(b.pais)));
+  return { paises, fora: fora.length, semLocal: pessoas.filter((p) => !p.uf_nascimento).length };
+}
+
+// País de nascimento por extenso ("PT" → "Portugal"); sem país, "exterior" (DA-3).
+const PAISES_PT = typeof Intl !== "undefined" && Intl.DisplayNames ? new Intl.DisplayNames(["pt-BR"], { type: "region" }) : null;
+export function paisOuExterior(iso) { try { return (iso && PAISES_PT?.of(iso)) || iso || "exterior"; } catch { return iso; } }
+
 // ---------- vários prêmios (RF-26) ----------
 // Edições sem lista pública ("<prêmio>|<ano>"): todas as categorias, fora o Livro do Ano, só com premiados (CA-25.3, CA-26.4).
 // D.categorias omite `premio` quando é o padrão.
@@ -589,7 +607,7 @@ export function indiceBusca(D) {
     const pl = porPessoaId.get(p.id);
     if (!pl && !jurados.has(p.id)) continue;
     const n = new Set((pl ?? []).map((l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`)).size;
-    add("Pessoa", p.nome, [p.uf_nascimento, p.ano_nascimento, n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : "jurado(a)"].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
+    add("Pessoa", p.nome, [p.uf_nascimento === "EX" ? paisOuExterior(p.pais_nascimento) : p.uf_nascimento, p.ano_nascimento, n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : "jurado(a)"].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
   }
   for (const o of D.obras) {
     const ol = porObra.get(o.id);
@@ -612,7 +630,9 @@ export function indiceBusca(D) {
   const regime = new Map((D.edicoes ?? []).map((x) => [`${x.premio ?? padrao}|${x.ano}`, x.regime]));
   const comDados = [...new Set(ls.map((l) => `${l.premio ?? padrao}|${l.ano}`))].map((k) => k.split("|")).sort((a, b) => a[1] - b[1]);
   for (const [p, a] of comDados.length ? comDados : D.anos_coletados.map((a) => [padrao, String(a)])) {
-    add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "", "#/grafico/linha-do-tempo", a);
+    // Edição de outro prêmio abre a linha do tempo já filtrada naquele prêmio e ano (CA-26.12).
+    add("Edição", `${curto(p)} ${a}`, p === "jabuti" ? rotJabuti(+a) : regime.get(`${p}|${a}`) ?? "",
+      p === padrao ? "#/grafico/linha-do-tempo" : `?linha-do-tempo=${a}-${a}~p:${p}#/grafico/linha-do-tempo`, a);
   }
   for (const [tipo, rotulo, sub, href, extra] of DESTINOS) add(tipo, rotulo, sub, href, extra);
   if (multi) add("Gráfico", "Entre prêmios", "quem passa por mais de um prêmio", "#/grafico/entre-premios", "sobreposicao premios");

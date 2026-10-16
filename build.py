@@ -338,10 +338,15 @@ def main():
         sys.exit(1)
     print(f"ok: {len(p['participacao'])} participações, {len(p['pessoas'])} pessoas, edições coletadas {p['anos_coletados']}")
     print(f"prêmios: {', '.join(x['nome'] for x in p['premios'])}; pessoas em mais de um prêmio: {p['pessoas_em_varios_premios']}")
-    print("cobertura (% das pessoas-autoras por edição):")
-    print(f"  {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
+    padrao = p["premios"][0]["id"] if p["premios"] else ""
+    print("cobertura (% das pessoas-autoras por prêmio e edição):")
+    print(f"  {'prêmio':<10} {'ano':>4} {'pessoas':>7} {'gênero':>7} {'UF':>6} {'raça':>6} {'busca raça completa':>20} {'idade':>6}")
     for c in p["cobertura"]:
-        print(f"  {c['ano']:>4} {c['pessoas']:>7} {c['pct_genero']:>7} {c['pct_uf']:>6} {c['pct_raca']:>6} {c['pct_busca_raca']:>20} {c['pct_idade']:>6}")
+        print(f"  {c.get('premio', padrao):<10} {c['ano']:>4} {c['pessoas']:>7} {c['pct_genero']:>7} {c['pct_uf']:>6} {c['pct_raca']:>6} {c['pct_busca_raca']:>20} {c['pct_idade']:>6}")
+    # Casamentos de pessoa só pelo nome ainda sem decisão (coleta.py normalizar, CA-26.5): valem, mas pedem conferência.
+    for arq in sorted((RAIZ / "dados" / "coleta").glob("*/casamentos_revisar.csv")):
+        n = sum(1 for _ in arq.open(encoding="utf-8")) - 1
+        print(f"ATENÇÃO: {n} casamento(s) de pessoa para conferir em {arq.relative_to(RAIZ)} (decida em casamentos.csv)")
 
 
 if __name__ == "__main__":

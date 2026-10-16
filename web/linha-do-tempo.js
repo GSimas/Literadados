@@ -28,7 +28,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   const temFy = estreito || multi;
   const canais = { ...(estreito ? {} : { fx: "indicador" }), ...(temFy ? { fy: fyRot } : {}) };
   // Marcos só dos prêmios do recorte, repetidos em cada painel do próprio prêmio.
-  const marcos = M.marcosDe(ps, PREMIOS[0]).filter((m) => anosVis.includes(m.ano))
+  const marcos = M.marcosDe(ps, PREMIOS[0], D.premios ?? []).filter((m) => anosVis.includes(m.ano))
     .flatMap((m) => INDICADORES.map((i) => ({ ano: m.ano, premio_nome: nome(m.premio), indicador: i.rot })));
   const paineis = estreito ? dominioFy.length : multi ? ps.length : 1;
   desenhar(el, Plot.plot({
@@ -66,7 +66,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   // Bloco de um prêmio num ano: marcos, composição da lista e vencedoras por categoria.
   const bloco = (p, ano) => {
     const x = porAno.get(`${p}|${ano}`), reg = regime.get(`${p}|${ano}`);
-    const m = M.marcosDe([p], PREMIOS[0]).filter((mm) => mm.ano === ano);
+    const m = M.marcosDe([p], PREMIOS[0], D.premios ?? []).filter((mm) => mm.ano === ano);
     const vs = venc.filter((o) => o.ano === ano && o.premio === p);
     return `${multi ? `<div class="tempo-premio">${esc(nome(p))}${reg ? ` <span class="tempo-regime">${esc(ROT_REGIME[reg] ?? reg)}</span>` : ""}</div>` : ""}
       ${m.map((mm) => `<div class="tempo-marco">${esc(mm.texto)}</div>`).join("")}
