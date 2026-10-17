@@ -219,11 +219,11 @@ def varios_premios(con) -> int:
 # Regras de análise + DDL que a IA recebe como prompt de sistema (antes montado no server.py).
 def prompt_sistema(con) -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
-    premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, MIN(i.ano) AS de, MAX(i.ano) AS ate,
+    premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, p.obras, MIN(i.ano) AS de, MAX(i.ano) AS ate,
                                      COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
                               FROM premio p JOIN indicacao i ON i.premio_id = p.id
                               JOIN categoria_edicao c USING (premio_id, ano, nome_original)
-                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.ordem ORDER BY p.ordem""")
+                              GROUP BY p.id, p.nome, p.organizador, p.abrangencia, p.obras, p.ordem ORDER BY p.ordem""")
     varios = len(premios) > 1
     nomes = " e ".join(p["nome"] for p in premios) if len(premios) <= 2 else f"{len(premios)} prêmios literários"
     # Formatos de cada prêmio (CA-26.13): os regimes da tabela edicao, com os anos em que valeram.
@@ -231,7 +231,7 @@ def prompt_sistema(con) -> str:
     periodo = lambda de, ate: str(de) if de == ate else f"{de}–{ate}"
     for r in _linhas(con, "SELECT premio_id, regime, MIN(ano) AS de, MAX(ano) AS ate FROM edicao GROUP BY ALL ORDER BY premio_id, de"):
         regimes.setdefault(r["premio_id"], []).append(f"{r['regime']} ({periodo(r['de'], r['ate'])})")
-    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}): "
+    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}{', ORIGINAIS INÉDITOS de autores estreantes (não são livros do mercado; não compare com os outros sem dizer isso)' if p['obras'] == 'ineditas' else ''}): "
                         f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}. Formatos: {'; '.join(regimes.get(p['id'], []))}."
                         for p in premios)
     # DA-4/DA-5 (revistas): a plataforma é de prêmios, sem prêmio padrão; sem prêmio na pergunta, todos, lado a lado.

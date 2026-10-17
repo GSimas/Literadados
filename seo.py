@@ -369,7 +369,7 @@ def pagina_premio(b, p):
     pm = primeira_mulher(b, pid)
     corpo = f"""<article class="secao">
 <header class="secao-cab"><p class="sobretitulo">Prêmio · {e(p["organizador"])}</p><h1>{e(nome)}</h1>
-<p class="lead">{e(nome)}, organizado por {e(p["organizador"])} desde {p["ano_inicio"]}, {"aberto a autores de toda a língua portuguesa" if p["abrangencia"] == "lusofono" else "prêmio nacional"}.
+<p class="lead">{e(nome)}, organizado por {e(p["organizador"])} desde {p["ano_inicio"]}, {"aberto a autores de toda a língua portuguesa" if p["abrangencia"] == "lusofono" else "prêmio nacional"}{" que premia originais inéditos de autores estreantes, e não livros já publicados — compare com os outros prêmios com cuidado" if p.get("obras") == "ineditas" else ""}.
 O Literadados reúne {fmt(len(anos))} edições ({anos[0]}–{anos[-1]}) nas categorias {", ".join(cats)}: {fmt(r["pessoas"])} pessoas-autoras em {fmt(r["indicacoes"])} indicações.</p>
 <p class="links-externos"><a class="chip-link" href="/?panorama=~p:{pid}#panorama">Abrir no painel</a> <a class="chip-link" href="{e(p["fonte"])}" rel="noopener">Site oficial</a></p></header>
 <h2>Quem chega, quem é premiado, quem vence</h2>
