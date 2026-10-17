@@ -10,6 +10,7 @@ aeroplano,Aeroplano,,,
 age-editora,Editora AGE,,Porto Alegre,RS
 agir-editora,Agir Editora,Grupo Ediouro,Rio de Janeiro,RJ
 alameda-casa-editorial,Alameda Casa Editorial,,São Paulo,SP
+alaude,Alaúde,,,
 alcance-editores-mz,Alcance Editores (MZ),,,EX
 alcance-mz,Alcance (MZ),,,EX
 aldeia-de-palavras,Aldeia de Palavras,,,
@@ -43,6 +44,7 @@ autentica,Autêntica,Grupo Autêntica,Belo Horizonte,MG
 autentica-contemporanea,Autêntica Contemporânea,Grupo Autêntica,Belo Horizonte,MG
 autopublicacao-sem-pais,Autopublicação (país não informado),,,
 ayine,Âyiné,,,
+babel,Babel,,,
 bem-te-vi,Editora Bem-Te-Vi,,,
 benvira,Benvirá,Somos Educação,São Paulo,SP
 berlendis,Berlendis & Vertecchia,,São Paulo,SP
@@ -58,6 +60,7 @@ bom-texto-editora-e-produtora-de-arte-ltda,Bom Texto Editora e Produtora de Arte
 brinque-book,Brinque-Book,,São Paulo,SP
 cachalote,Cachalote,,Cotia,SP
 cacto-editora,Cacto Editora,,,
+caiaponte,Caiaponte,,,
 caixote,Caixote,,São Paulo,SP
 callis,Callis Editora,,Barueri,SP
 caminho-pt,Caminho (PT),,,EX
@@ -95,6 +98,7 @@ conexoes-criativas,Conexões Criativas,,Salvador,BA
 confraria-do-vento,Confraria do Vento,,Rio de Janeiro,RJ
 contra-capa,Contra Capa,,Rio de Janeiro,RJ
 contracorrente,Editora Contracorrente,,Avaré,SP
+coqueiro,Coqueiro,,,
 cora-editora,Cora Editora,,Belo Horizonte,MG
 coragem,Coragem,,Porto Alegre,RS
 coralina,Editora Coralina,,Porto Alegre,RS
@@ -141,9 +145,12 @@ edith,Edith,,,
 editora-34,Editora 34,,São Paulo,SP
 editora-a-lapis,Editora a lápis,,,
 editora-arx,Editora Arx,,São Paulo,SP
+editora-bazar-do-tempo,Editora Bazar do Tempo,,,
 editora-brasiliense,Editora Brasiliense,,São Paulo,SP
+editora-casa-dos-mundos,Editora Casa dos Mundos,,,
 editora-casa-lygia-bojunga-ltda,Editora Casa Lygia Bojunga Ltda.,,Rio de Janeiro,RJ
 editora-cidade-nova,Editora Cidade Nova,,Vargem Grande Paulista,SP
+editora-companhia-das-letras,Editora Companhia das Letras,,,
 editora-contexto,Editora Contexto,,São Paulo,SP
 editora-da-casa,Editora da Casa,,,
 editora-da-cidade,Editora da Cidade,,São Paulo,SP
@@ -160,6 +167,7 @@ editora-le,Editora Lê,,Belo Horizonte,MG
 editora-leitura,Editora Leitura,,,
 editora-moderna,Editora Moderna,Santillana,São Paulo,SP
 editora-nos,Editora Nós,,São Paulo,SP
+editora-oito-e-meio,Editora Oito e Meio,,,
 editora-patua,Editora Patuá,,São Paulo,SP
 editora-perspectiva,Editora Perspectiva,,São Paulo,SP
 editora-positivo,Editora Positivo,,Curitiba,PR
@@ -174,6 +182,7 @@ editora-unicamp,Editora Unicamp,,Campinas,SP
 editora-universitaria-da-pucrs,Editora Universitária da PUCRS,,,
 editora-zahar,Editora Zahar,,Rio de Janeiro,RJ
 editorial-fundza-mz,Editorial Fundza (MZ),,,EX
+edufal,EDUFAL,,,
 edufba,Edufba,,Salvador,BA
 edufrn,EDUFRN,,,
 elefante,Editora Elefante,,São Paulo,SP
@@ -212,6 +221,7 @@ galera-record,Galera Record,Grupo Editorial Record,Rio de Janeiro,RJ
 galo-branco,Galo Branco,,Rio de Janeiro,RJ
 garamond,Garamond,,,
 geracao,Geração,,São Paulo,SP
+giostri,Giostri,,,
 giostri-editora,Giostri Editora,,Ubatuba,SP
 global,Global,,São Paulo,SP
 globinho,Globinho,Grupo Globo,São Paulo,SP
@@ -239,6 +249,7 @@ imprensa-nacional-casa-da-moeda-pt,Imprensa Nacional – Casa da Moeda (PT),,,EX
 imprensa-oficial-do-estado,Imprensa Oficial do Estado,,São Paulo,SP
 imprensa-universitaria,Imprensa Universitária,,Fortaleza,CE
 impressoes-de-minas,Impressões de Minas,,Belo Horizonte,MG
+incompleta,Incompleta,,,
 independente,Independente,,,
 infinito-particular,Infinito Particular,,,
 inmensa-editorial-sem-pais,Inmensa Editorial (país não informado),,,
@@ -320,6 +331,7 @@ octavo,Octavo,,,
 odysseus,Odysseus,,São Paulo,SP
 oficina-do-livro-pt,Oficina do Livro (PT),,,EX
 oficina-raquel,Oficina Raquel,,,
+oficio-da-palavra,Ofício da Palavra,,,
 oficios-terrestres-edicoes,Ofícios Terrestres Edições,,Campinas,SP
 oito-e-meio,Oito e meio,,,
 olhares,Editora Olhares,,São Paulo,SP
@@ -346,11 +358,13 @@ piu,Editora Piu,,Porto Alegre,RS
 planeta-do-brasil,Planeta do Brasil,Grupo Planeta,São Paulo,SP
 poesia-viral,Poesia Viral,,,
 poetica-pt,Poética (PT),,,EX
+polen-livros,Pólen Livros,,,
 portal-literatura-sem-pais,Portal Literatura (país não informado),,,
 porto-editora-pt,Porto Editora (PT),,,EX
 porto-sem-pais,Porto (país não informado),,,
 premius-editora,Premius Editora,,Fortaleza,CE
 projeto,Editora Projeto,,Porto Alegre,RS
+prologo,Prólogo,,,
 prosa-nova,Prosa Nova Editora,,Curitiba,PR
 prumo,Prumo,,,
 publifolha,Publifolha,Grupo Folha,São Paulo,SP
@@ -380,6 +394,7 @@ scriptum,Scriptum,,,
 seguinte,Seguinte,Penguin Random House,São Paulo,SP
 selo-demonio-negro,Selo Demônio Negro,,,
 selo-edith,Selo Edith,,,
+selo-editorial-besouros-abstemios,Selo Editorial Besouros Abstêmios,,,
 selo-off-flip,Selo Off FLIP,,,
 senac,Senac,,São Paulo,SP
 sesi,Sesi,,,
@@ -403,6 +418,7 @@ thesaurus-editora,Thesaurus Editora,,Brasília,DF
 tibi-livros,Tibi Livros,,,
 tinta-da-china-brasil,Tinta-da-china Brasil,,Rio de Janeiro,RJ
 tinta-da-china-sem-pais,Tinta da China (país não informado),,,
+tinta-negra,Tinta Negra,,,
 todavia,Todavia,,São Paulo,SP
 todavia-sem-pais,Todavia (país não informado),,,
 toma-ai-um-poema,Toma Aí Um Poema,,,

@@ -80,7 +80,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-11.6 👁** Galeria e tabela são **paginadas**, com 100 pessoas por página. Há setas à esquerda e à direita do anel (e as teclas ← e →) e o indicador "1–100 de 713 · página 1 de 8". O anel ocupa quase a altura toda da tela. Busca e ordenação voltam à página 1. Uma mudança de filtro mantém a página, desde que ela ainda exista.
 - **CA-11.7 🧪👁** Em tela de toque (`pointer: coarse`), todo controle tem alvo de pelo menos 44 × 44 px; links dentro de texto corrido (fonte, crédito), pelo menos 24 px. O anel mostra por página só as pessoas que cabem com retratos de 44 px ou mais (`metricas.capacidadeAnel`).
 - **CA-11.2 🧪👁** O perfil de cada pessoa tem endereço próprio (`#/pessoa/<id>`, link compartilhável), lista as participações em linha do tempo **em ordem de ano** (indicações, júri e organização juntos) e a **fonte de cada atributo**. Raça mostra o trecho literal e o link. Há links para Wikidata e Wikipédia quando existem.
-- **CA-11.4 🧪👁** Gênero sem fonte pode ser **atribuído pelo primeiro nome** (`genero_evidencia = 'atribuicao'`, sem `genero_fonte`). O build falha se a atribuição vier com fonte ou sem gênero definido. Todo número de gênero (abertura, panorama, história) leva um asterisco quando o recorte inclui pessoas com gênero atribuído. A nota de rodapé diz quantas são, que o dado pode estar errado e como pedir correção (gustavosimassilva@gmail.com). O perfil e a tabela de pessoas marcam o gênero atribuído com o mesmo asterisco.
+- **CA-11.4 🧪👁** Gênero sem fonte pode ser **atribuído pelo primeiro nome** (`genero_evidencia = 'atribuicao'`, sem `genero_fonte`). O build falha se a atribuição vier com fonte ou sem gênero definido. Todo número de gênero (abertura, panorama, história) leva um asterisco quando o recorte inclui pessoas com gênero atribuído. A nota de rodapé diz quantas são, que o dado pode estar errado e como pedir correção (contato@gustavosimas.com). O perfil e a tabela de pessoas marcam o gênero atribuído com o mesmo asterisco.
 - **CA-11.3 🧪👁** Foto só de arquivo do Wikimedia Commons com licença livre (CC BY, CC BY-SA, CC0, "Attribution" do Commons ou domínio público), sempre com autoria e licença visíveis e link para a página do arquivo. Sem foto livre, um avatar com as iniciais, cuja cor **não** depende de gênero, raça ou região.
 
 ### RF-15 Página, navegação e tema
@@ -167,6 +167,8 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 
 - **CA-26.15 🧪👁** Plataforma, não um prêmio (DA-5): nenhum texto genérico do site (título da página, abertura, cabeçalhos, rodapés, placeholders, rótulos, prompt da Diadorim, README) se refere a um prêmio só. O nome de um prêmio só aparece junto de um dado ou de uma regra daquele prêmio (ex.: "no Jabuti, até 1999 só há premiados"). Um teste varre `web/` e falha com frases que fixam um prêmio.
 
+- **CA-26.16 🧪** **Prêmio São Paulo de Literatura** (2008–2025, `premio_id = 'sao-paulo'`, abrangência nacional): as duas categorias (Melhor Romance do Ano e Melhor Romance de Estreia, dividida em até 40 e mais de 40 anos em 2013–2018) mapeiam para `Romance`; `nome_original` distingue. A lista são os finalistas (`etapa_lista = finalistas`), com 1 vencedor por categoria; o ano é o da edição (os livros são do ano anterior). Fonte principal: página oficial "Edições Anteriores"; segunda fonte por ano (Wikipédia, PublishNews ou página oficial arquivada). Onde a página atual diverge do registro da época (2013: finalista omitida e rótulos de idade trocados), vale o registro da época, anotado em `observacao`.
+
 **Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
 - **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.
 - **DA-2 Conjunto da obra:** prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) ficam fora (ver §6).
@@ -215,7 +217,7 @@ Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Ser
 ### RF-13 Metodologia e transparência
 Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), com o mesmo cabeçalho, logotipo e tema. O item "Método" da navegação leva a essa página, e ela tem links de volta para as seções do painel.
 - **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial, organizadores fora das contagens) e o protocolo de raça.
-- **CA-13.2 👁** Instrução de como pedir correção, com fonte, e o contato (gustavosimassilva@gmail.com).
+- **CA-13.2 👁** Instrução de como pedir correção, com fonte, e o contato (contato@gustavosimas.com).
 - **CA-13.3 🧪👁** Cada pessoa registra se a busca de autodeclaração racial foi `completa` (protocolo cumprido) ou `parcial` (interrompida). A cobertura por edição mostra a % de buscas completas, e o panorama avisa quando há buscas parciais: "sem declaração" com busca parcial não significa ausência de declaração.
 
 ### RF-14 Exportação

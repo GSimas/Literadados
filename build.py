@@ -70,6 +70,9 @@ def checar(con):
     # Antologia creditada só ao organizador é válida (design D14); obra sem nenhum dos dois, não.
     for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador'))"):
         erros.append(f"obra sem autor nem organizador: {r['id']}")
+    # Nome de editora é a chave do perfil de editora no painel (D33): dois ids com o mesmo nome = duplicata a unificar.
+    for r in _linhas(con, "SELECT nome, string_agg(id, ', ' ORDER BY id) AS ids FROM editora GROUP BY nome HAVING COUNT(*) > 1 ORDER BY nome"):
+        erros.append(f"editora com nome repetido: {r['nome']} ({r['ids']}); unifique por canonico em dados/coleta/editoras_enriquecidas.csv")
     # Texto de edição (CA-28.3): toda fonte é uma URL; a FK já recusa edição inexistente.
     for r in _linhas(con, "SELECT premio_id, ano, fontes FROM edicao_contexto ORDER BY ALL"):
         if any(not u.strip().startswith("http") for u in r["fontes"].split(" ; ")):

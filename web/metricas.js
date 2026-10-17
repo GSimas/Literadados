@@ -34,10 +34,14 @@ export const MARCOS = [
   { premio: "oceanos", ano: 2015, texto: "Vira Oceanos" },
   { premio: "oceanos", ano: 2017, texto: "Livros de qualquer país" },
   { premio: "oceanos", ano: 2023, texto: "Prosa e Poesia" },
+  // São Paulo de Literatura (fontes em dados/coleta/sao-paulo/LEIA.md)
+  { premio: "sao-paulo", ano: 2013, texto: "Estreia por idade" },
+  { premio: "sao-paulo", ano: 2019, texto: "Estreia unificada" },
 ];
 // Formato do pódio de cada prêmio, para textos que juntam ou comparam prêmios (sempre ditos com o nome do prêmio, DA-5).
 export const FORMATOS = {
   jabuti: "até 1992 havia um vencedor por categoria; de 1993 a 2017, pódio de 1º a 3º; desde 2018, só o 1º",
+  "sao-paulo": "um vencedor por categoria, só romance: Melhor Romance do Ano e Melhor Romance de Estreia (de 2013 a 2018, a estreia dividida em até 40 e mais de 40 anos)",
   oceanos: "o pódio teve 3 ou 4 premiados até 2022 (de 2012 a 2014, um vencedor por categoria e o Grande Prêmio); desde 2023, um vencedor em prosa e outro em poesia",
 };
 // Marcos dos prêmios escolhidos (premios = null: todos). Com a lista da base (D.premios), cada prêmio criado depois do
@@ -708,6 +712,8 @@ export function resumoEdicao(autores) {
 }
 
 const ordemCategoria = (a, b) => (a === "Livro do Ano") - (b === "Livro do Ano") || a.localeCompare(b, "pt-BR");
+// Dentro da mesma categoria, a lista de estreantes vem depois da principal (São Paulo: Melhor Romance do Ano, depois Estreia).
+const estreia = (n) => (/estrei/i.test(n) ? 1 : 0);
 
 export function perfilEdicao(linhas, premio, ano) {
   const doPremio = linhas.filter((l) => l.premio === premio);
@@ -733,7 +739,7 @@ export function perfilEdicao(linhas, premio, ano) {
       obra_id, titulo: o[0].titulo, editora: o[0].editora ?? null, colocacao: o[0].colocacao ?? null, lista_curta: o[0].lista_curta ?? 0,
       autores: pessoaDe(o, "autor"), ilustradores: pessoaDe(o, "ilustrador"), organizadores: pessoaDe(o, "organizador"),
     })).sort((a, b) => (a.colocacao ?? 99) - (b.colocacao ?? 99) || b.lista_curta - a.lista_curta || a.titulo.localeCompare(b.titulo, "pt-BR")),
-  })).sort((a, b) => ordemCategoria(a.categoria, b.categoria) || a.nome_original.localeCompare(b.nome_original, "pt-BR"));
+  })).sort((a, b) => ordemCategoria(a.categoria, b.categoria) || estreia(a.nome_original) - estreia(b.nome_original) || a.nome_original.localeCompare(b.nome_original, "pt-BR"));
   return {
     premio, premio_nome: daEd[0].premio_nome, ano, regime: daEd[0].regime, anterior, seguinte,
     obras: distintos(daEd, (l) => l.obra_id),
