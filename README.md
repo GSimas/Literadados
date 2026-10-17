@@ -6,7 +6,7 @@
 </p>
 
 <p align="center"><b>Quem chega aos prêmios literários?</b><br>
-Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem o Prêmio Jabuti (1959–2025) e o Prêmio Oceanos (2003–2025): painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
+Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem cinco prêmios: Jabuti (1959–2025), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2025) e Sesc de Literatura (2004–2025). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
 
 <p align="center">
   <a href="https://literadados.gustavosimas.com"><img alt="Site no ar" src="https://img.shields.io/website?url=https%3A%2F%2Fliteradados.gustavosimas.com&label=literadados.gustavosimas.com&up_message=no%20ar&down_message=fora%20do%20ar"></a>
@@ -35,17 +35,17 @@ Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascim
 
 | | |
 |---|---|
-| Prêmios | **Prêmio Jabuti**: 67 edições (1959–2025; listas públicas de 2000 em diante, antes só os premiados), 1.675 indicações, 1.021 pessoas-autoras. **Prêmio Oceanos**: 23 edições (2003–2025), 1.088 indicações, 642 pessoas-autoras |
-| Base toda | 2.763 indicações em 2.498 obras; **1.411 pessoas-autoras** distintas (252 passaram pelos dois prêmios), 124 ilustradoras, 24 organizadoras e 225 juradas (há quem tenha mais de um papel); 430 editoras |
-| Gênero (autoras) | 986 com fonte, **394 atribuídos pelo primeiro nome** (marcados com \*), 31 não identificados |
-| Nascimento (autoras) | 732 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
-| Raça declarada (autoras) | 42 autodeclarações públicas, 29 pessoas negras (piso). Busca do protocolo completa para 1.083 de 1.411 |
-| Edições | **90 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 26 marcados para revisão humana |
-| Perfis | 904 QIDs do Wikidata, 379 fotos com licença livre, 285 capas |
-| Fontes citadas | 187 domínios, agrupados na seção Referências |
-| Páginas para buscadores e IAs | 2.232 URLs no `sitemap.xml` (prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos) |
+| Prêmios | **Prêmio Jabuti**: 67 edições (1959–2025; listas públicas de 2000 em diante, antes só os premiados), 1.675 indicações, 1.021 pessoas-autoras. **Prêmio Oceanos**: 23 edições (2003–2025), 1.088 indicações, 642 pessoas-autoras. **Prêmio São Paulo de Literatura**: 18 edições (2008–2025, finalistas), 352 indicações, 263 pessoas-autoras. **Prêmio Biblioteca Nacional**: 30 edições (1995–2025, sem 2003; premiados), 237 indicações, 204 pessoas-autoras. **Prêmio Sesc de Literatura**: 22 edições (2004–2025; vencedores, originais inéditos), 44 indicações, 43 pessoas-autoras |
+| Base toda | 3.396 indicações em 2.839 obras; **1.586 pessoas-autoras** distintas (390 passaram por mais de um prêmio), 132 ilustradoras, 24 organizadoras e 467 juradas (há quem tenha mais de um papel); 486 editoras |
+| Gênero (autoras) | 1.117 com fonte, **427 atribuídos pelo primeiro nome** (marcados com \*), 42 não identificados |
+| Nascimento (autoras) | 951 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
+| Raça declarada (autoras) | 47 autodeclarações públicas ou fontes curadas, 33 pessoas negras (piso). Busca do protocolo completa para 1.252 de 1.586 |
+| Edições | **160 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 39 marcados para revisão humana |
+| Perfis | 994 QIDs do Wikidata, 378 fotos com licença livre, 285 capas |
+| Fontes citadas | 234 domínios, agrupados na seção Referências |
+| Páginas para buscadores e IAs | 2.710 URLs no `sitemap.xml` (prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos) |
 
-Categorias no recorte: Romance, Contos, Crônica, Poesia, Infantil, Juvenil, Infantil e Juvenil e Livro do Ano (no Jabuti), e a categoria única, Romance, Poesia, Conto/Crônica, Prosa e o Grande Prêmio (no Oceanos); detalhes por ano no Método. O painel abre com todos os prêmios na série completa de cada um; cada parte tem filtro de prêmio, período e categoria, e os gráficos de taxa mostram um painel por prêmio.
+Categorias no recorte: Romance, Contos, Crônica, Poesia, Infantil, Juvenil, Infantil e Juvenil e Livro do Ano (no Jabuti); a categoria única, Romance, Poesia, Conto/Crônica, Prosa e o Grande Prêmio (no Oceanos); Romance do Ano e Romance de Estreia (no São Paulo); Machado de Assis, Clarice Lispector, Alphonsus de Guimaraens, Glória Pondé e Sylvia Orthof (na Biblioteca Nacional); Romance, Conto e Poesia (no Sesc, que premia originais inéditos de autores estreantes e não se compara direto aos prêmios de livro publicado). Detalhes por ano no Método. O painel abre com todos os prêmios na série completa de cada um; cada parte tem filtro de prêmio, período e categoria, e os gráficos de taxa mostram um painel por prêmio.
 
 ## O que o painel mostra
 
