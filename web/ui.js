@@ -16,7 +16,7 @@ export const estilo = () => ({ background: "transparent", color: css("--tinta"),
 export const ROT_RACA = { branca: "Branca", preta: "Preta", parda: "Parda", negra: "Negra (sem especificar)", amarela: "Amarela", indigena: "Indígena", sem_declaracao: "Sem declaração" };
 export const ROT_GEN = { mulher: "Mulher", homem: "Homem", nao_binario: "Não binária", nao_identificado: "Não identificado" };
 // Gênero atribuído pelo primeiro nome (CA-11.4, D16): asterisco que leva à nota de rodapé.
-export const CONTATO = "gustavosimassilva@gmail.com";
+export const CONTATO = "contato@gustavosimas.com";
 export const astGenero = (n) => (n ? `<a class="nota-ref" href="#nota-genero" title="Inclui gênero atribuído pelo nome: ver nota">*</a>` : "");
 // Taxonomia comum (CA-26.3), na ordem dos menus e gráficos. CATEGORIAS = as que existem nos dados (definirDados).
 export const ORDEM_CATEGORIAS = ["Romance", "Contos", "Crônica", "Prosa", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];

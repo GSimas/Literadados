@@ -433,7 +433,7 @@ test("edições sem lista pública por prêmio; marcos só dos prêmios do recor
   ];
   assert.deepEqual([...M.edicoesSemLista(cats, "jabuti")].sort(), ["jabuti|1990", "jabuti|2017", "oceanos|2016"]);
   assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
-  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["jabuti", "oceanos"]); // null = todos (DA-4)
+  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["jabuti", "oceanos", "sao-paulo"]); // null = todos (DA-4)
 });
 test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
   const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),

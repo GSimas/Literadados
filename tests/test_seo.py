@@ -68,7 +68,8 @@ def test_paginas_geradas(site):  # CA-27.1
     assert {f"editoras/{x}/index.html" for x in eds} <= set(pags)  # CA-29.3
     assert {"premios/index.html", "premios/jabuti/index.html", "pessoas/index.html", "estados/index.html", "perguntas/index.html", "dados-abertos/index.html", "editoras/index.html"} <= set(pags)
     assert not (site / "pessoas" / "fantasma").exists()  # quem saiu da base sai do site
-    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + 2 + 6  # nada além disso (2 prêmios, 6 listas)
+    premios = {e.split("/")[0] for e in edicoes}
+    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6  # nada além disso (6 listas)
 
 
 def test_metadados_e_json_ld(site):  # CA-27.2

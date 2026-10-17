@@ -1,14 +1,15 @@
 # Literadados
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos): gênero, raça autodeclarada e UF de nascimento de 1.411 pessoas-autoras em 2.753 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura): gênero, raça autodeclarada e UF de nascimento de 1.514 pessoas-autoras em 3.105 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
 ## Números principais
 
-- Base inteira: 1.411 pessoas-autoras; 36% mulheres (504); pelo menos 29 pessoas negras (2,1%).
+- Base inteira: 1.514 pessoas-autoras; 36% mulheres (551); pelo menos 31 pessoas negras (2,0%).
 - Prêmio Jabuti (1959–2025, 67 edições): 1.021 pessoas-autoras; mulheres 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274); pelo menos 24 pessoas negras.
 - Prêmio Oceanos (2003–2025, 23 edições): 642 pessoas-autoras; mulheres 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31); pelo menos 14 pessoas negras.
+- Prêmio São Paulo de Literatura (2008–2025, 18 edições): 263 pessoas-autoras; mulheres 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40); pelo menos 6 pessoas negras.
 
 ## Páginas
 
@@ -24,6 +25,7 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 
 - [Prêmio Jabuti](https://literadados.gustavosimas.com/premios/jabuti/)
 - [Prêmio Oceanos](https://literadados.gustavosimas.com/premios/oceanos/)
+- [Prêmio São Paulo de Literatura](https://literadados.gustavosimas.com/premios/sao-paulo/)
 
 ## Optional
 

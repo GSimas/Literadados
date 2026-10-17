@@ -174,7 +174,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 <footer class="rodape">
   <p><b>Literadados</b> · dados abertos sobre quem chega aos prêmios literários de língua portuguesa. Cada número tem fonte; cada pessoa, um perfil.
   <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/">Painel interativo</a>.</p>
-  <p class="muted">Correções, com fonte pública: <a href="mailto:gustavosimassilva@gmail.com">gustavosimassilva@gmail.com</a>.</p>
+  <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
 </footer>
 </body>
 </html>
@@ -269,7 +269,7 @@ def pagina_edicao(b, premio, ano):
     por_cat = defaultdict(list)
     for l in todas:
         por_cat[(l["categoria"], l["nome_original"])].append(l)
-    cats = sorted(por_cat, key=lambda k: (ordem_cat(k[0]), k[1]))
+    cats = sorted(por_cat, key=lambda k: (ordem_cat(k[0]), "estrei" in k[1].lower(), k[1]))  # estreia depois da lista principal
     obras = {k: obras_de(b, por_cat[k]) for k in cats}
     vencedoras = [(k, o) for k in cats for o in obras[k] if o["colocacao"] == 1]
     lead = ('<p class="lead"><b>Venceram (1º lugar):</b></p><ul class="vencedoras-lead">' + "".join(f"<li><b>{e(k[1])}:</b> {credito_obra(b, o)}</li>" for k, o in vencedoras) + "</ul>") if vencedoras else ""
@@ -494,7 +494,7 @@ def pagina_pessoa(b, pid):
 {f'''<h2>Nos prêmios</h2><div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Ano</th><th scope="col">Prêmio</th><th scope="col">Categoria</th><th scope="col">Obra</th><th scope="col">Editora</th><th scope="col">Resultado</th></tr></thead>
 <tbody>{linhas_t}</tbody></table></div>''' if obras else ""}
 {("<h2>Júri</h2><ul>" + "".join(f'<li><a href="/premios/{j["premio_id"]}/{j["ano"]}/">{e(b.nome_premio[j["premio_id"]])} {j["ano"]}</a> — {e(j["nome_original"])}</li>' for j in jur) + "</ul>") if jur else ""}
-<p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:gustavosimassilva@gmail.com">gustavosimassilva@gmail.com</a> com a fonte. <a href="/metodo.html">Método</a>.</p>
+<p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com a fonte. <a href="/metodo.html">Método</a>.</p>
 </article>"""
     pessoa = {"@type": "Person", "name": p["nome"], "url": f"{SITE}/pessoas/{quote(pid)}/"}
     same = [f"https://www.wikidata.org/wiki/{p['wikidata']}"] if p["wikidata"] else []
@@ -797,7 +797,7 @@ def pagina_dados(b, con):
 <li>Não some percentuais de prêmios diferentes: formatos e períodos diferem.</li></ul>
 <h2>Como citar</h2>
 <p>SIMAS, Gustavo. <i>Literadados</i>: quem chega aos prêmios literários. {date.today().year}. Disponível em: <a href="{SITE}/">{SITE}/</a>.</p>
-<p class="muted pequeno">Correções, com fonte pública: <a href="mailto:gustavosimassilva@gmail.com">gustavosimassilva@gmail.com</a>. <a href="/metodo.html">Método e referências</a>.</p>
+<p class="muted pequeno">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. <a href="/metodo.html">Método e referências</a>.</p>
 </article>"""
     ld = [{"@context": "https://schema.org", "@type": "Dataset", "name": "Literadados — quem chega aos prêmios literários", "description": desc,
            "url": f"{SITE}/dados-abertos/", "sameAs": REPO, "inLanguage": "pt-BR", "creator": AUTOR, "publisher": AUTOR, "isAccessibleForFree": True,

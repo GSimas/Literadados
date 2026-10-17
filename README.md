@@ -26,7 +26,6 @@ Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascim
   <img alt="Acessibilidade: axe-core WCAG 2.1 AA" src="https://img.shields.io/badge/a11y-axe--core%20WCAG%202.1%20AA-0f6b4f">
   <img alt="Spec-Driven Development" src="https://img.shields.io/badge/m%C3%A9todo-SDD%20(spec%20%E2%86%92%20design%20%E2%86%92%20tarefas)-0f6b4f">
   <img alt="Dados abertos" src="https://img.shields.io/badge/dados-abertos%2C%20com%20fonte-0f6b4f">
-  <img alt="Raça só por autodeclaração" src="https://img.shields.io/badge/ra%C3%A7a-s%C3%B3%20autodeclara%C3%A7%C3%A3o-0b5c43">
   <img alt="SEO, AEO e GEO" src="https://img.shields.io/badge/SEO%20%C2%B7%20AEO%20%C2%B7%20GEO-sitemap%20%C2%B7%20JSON--LD%20%C2%B7%20llms.txt-0b5c43">
 </p>
 
@@ -89,7 +88,7 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 - **Todo percentual mostra o n.** As séries usam proporções, porque o número de vagas mudou em 2018.
 - **Edições sem dados** aparecem como lacuna, nunca como zero.
 
-> **Encontrou um erro?** Os dados atribuídos podem estar errados. Escreva para **gustavosimassilva@gmail.com** com o nome, o dado correto e, se possível, uma fonte pública. A correção entra pelos arquivos de `dados/` e fica registrada.
+> **Encontrou um erro?** Os dados atribuídos podem estar errados. Escreva para **contato@gustavosimas.com** com o nome, o dado correto e, se possível, uma fonte pública. A correção entra pelos arquivos de `dados/` e fica registrada.
 
 ## Rodar
 
