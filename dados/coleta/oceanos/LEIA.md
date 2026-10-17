@@ -1,6 +1,6 @@
 # Oceanos (ex-Prêmio Portugal Telecom): coleta bruta
 
-Piloto do multi-prêmio (RF-26, DA-1, D31; tarefa T23.4). Esta pasta é **só a coleta bruta**. `coleta.py normalizar` e o build ainda não foram rodados, porque a taxonomia não aceita `Geral` nem `Prosa` (T23.3) e o casamento entre prêmios (T23.2) não existe. Veja "O que falta para integrar".
+Piloto do multi-prêmio (RF-26, DA-1, D31; tarefa T23.4). Esta pasta é a coleta bruta; `coleta.py normalizar` a leva para `dados/*.csv`. Integrado à base em out/2026 (T23.2, T23.3); as decisões da integração estão em "Integração", no fim.
 
 - **23 edições, 2003–2025, todas com lista completa.** 1.094 linhas de `lista_*.csv`: 1.085 indicações mais 9 linhas do Grande Prêmio 2012–2014. Cada linha tem `fonte_1`/`fonte_2` e `observacao`.
 - **648 autores distintos**, dos quais **259 já estão na base** por nome; 3 deles casados apesar de grafia diferente. **137 jurados**, dos quais **50 já estão na base**. Ver `casamentos.csv`.
@@ -107,20 +107,6 @@ As fontes divergem sobre o ano de criação. A página "História" do site atual
   - o apóstrofo tipográfico em "André Sant’Anna" trocado pelo reto.
   - A grafia original fica anotada em `observacao` da linha.
 - **Editoras.** A editora fica como na fonte, inclusive com vários selos numa célula ("Quetzal e TAG", "Caminho / Companhia das Letras"). São 42 células com coedição ou vários selos.
-
-## O que falta para integrar (T23.2, T23.3, DA-3)
-
-1. **Taxonomia (T23.3).** O CHECK de `categoria` precisa aceitar `Geral` (2003–2011 e 2015–2022) e decidir sobre **`Prosa`** (2023–2025: romance, conto, crônica e dramaturgia juntos). As opções:
-   - criar `Prosa` na taxonomia comum;
-   - mapear `Prosa` para `Geral`, o que mistura com os anos de categoria única.
-
-   O Grande Prêmio de 2012–2014 foi mapeado para `Livro do Ano`, como no Jabuti. Também é preciso criar `etapa_lista` em `categoria_edicao`, já preenchida aqui.
-2. **`editora_pais` e editora por indicação (CA-26.6).** São 281 grafias de editora, e 219 não têm par exato em `dados/editora.csv`. Muitas são portuguesas, moçambicanas e cabo-verdianas. Também há variantes da mesma casa: "Dom Quixote" e "D. Quixote", "Tinta-da-China" e "Tinta-da-china", "Relógio D'Água" e "Relógio D’Água", "7Letras", "7letras" e "7 Letras".
-   - As 42 coedições precisam de regra: primeira editora? editora do país de quem inscreveu?
-   - As homônimas (Companhia das Letras BR/PT, Leya, Tinta-da-China) se separam por `editora_pais`.
-3. **Pessoas (T23.2).** `normalizar` deve ler `casamentos.csv` antes do casamento só pelo nome. Os outros cerca de 390 autores são novos na base, muitos de Portugal, Angola, Moçambique, Cabo Verde e Timor-Leste. Eles precisam de `pais_nascimento` (DA-3) e do protocolo de pessoas (gênero, UF/país, raça por autodeclaração).
-4. **Obras.** O mesmo livro pode estar no Jabuti e no Oceanos (ex.: *A resistência*, de Julián Fuks; *Torto arado*). O casamento de obra é por título e sobrenome (D31).
-5. **Teste.** A linha `oceanos` em `dados/premio.csv` faz `test_etapa0_so_jabuti` falhar, porque o teste exige `premios == ["jabuti"]`; os outros 33 testes passam. O teste precisa ser atualizado na integração. Se o build for rodado antes disso, o `dados.json` lista o Oceanos sem participação.
 
 ## Reprodução
 

@@ -44,10 +44,14 @@ export const MARCOS = [
   { premio: "biblioteca-nacional", ano: 2012, texto: "Sylvia Orthof; só o vencedor" },
   { premio: "biblioteca-nacional", ano: 2017, texto: "3 finalistas" },
   { premio: "biblioteca-nacional", ano: 2018, texto: "Pódio de novo" },
+  // Sesc (dados/coleta/sesc/LEIA.md): originais inéditos de estreantes
+  { premio: "sesc", ano: 2006, texto: "Categoria Conto" },
+  { premio: "sesc", ano: 2024, texto: "Categoria Poesia" },
 ];
 // Formato do pódio de cada prêmio, para textos que juntam ou comparam prêmios (sempre ditos com o nome do prêmio, DA-5).
 export const FORMATOS = {
   jabuti: "até 1992 havia um vencedor por categoria; de 1993 a 2017, pódio de 1º a 3º; desde 2018, só o 1º",
+  sesc: "premia originais inéditos de autores estreantes (não livros publicados), com um vencedor por categoria: romance desde 2004, conto desde 2006 e poesia desde 2024",
   "biblioteca-nacional": "um vencedor por categoria até 2008 (em 2004, um prêmio único; em 2003, nenhum), pódio de 1º a 3º em 2009–2011, só o vencedor em 2012–2016, três finalistas em 2017 e pódio de novo desde 2018; só autores brasileiros, inscritos pelo próprio autor",
   "sao-paulo": "um vencedor por categoria, só romance: Melhor Romance do Ano e Melhor Romance de Estreia (de 2013 a 2018, a estreia dividida em até 40 e mais de 40 anos)",
   oceanos: "o pódio teve 3 ou 4 premiados até 2022 (de 2012 a 2014, um vencedor por categoria e o Grande Prêmio); desde 2023, um vencedor em prosa e outro em poesia",

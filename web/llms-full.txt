@@ -1,6 +1,6 @@
 # Literadados — texto completo
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional): gênero, raça autodeclarada e UF de nascimento de 1.570 pessoas-autoras em 3.342 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura): gênero, raça autodeclarada e UF de nascimento de 1.586 pessoas-autoras em 3.386 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
@@ -8,15 +8,15 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 
 ### Quantas pessoas chegaram aos prêmios literários reunidos no Literadados?
 
-1.570 pessoas-autoras, em 3.342 indicações: Prêmio Jabuti, 1959–2025 (67 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2025 (30 edições). 380 delas passaram por mais de um prêmio.
+1.586 pessoas-autoras, em 3.386 indicações: Prêmio Jabuti, 1959–2025 (67 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2025 (30 edições); Prêmio Sesc de Literatura, 2004–2025 (22 edições). 390 delas passaram por mais de um prêmio.
 
 ### Qual a participação de mulheres nos prêmios literários?
 
-Na base inteira, 36% das pessoas-autoras são mulheres (567 de 1.570). No Prêmio Jabuti: 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 31% na lista (63 de 204) e 27% no 1º lugar (31 de 113). Para 428 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
+Na base inteira, 36% das pessoas-autoras são mulheres (570 de 1.586). No Prêmio Jabuti: 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 31% na lista (63 de 204) e 27% no 1º lugar (31 de 113). No Prêmio Sesc de Literatura: 26% na lista (11 de 43) e 26% no 1º lugar (11 de 43). Para 427 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
 
 ### Quantos autores negros chegaram aos prêmios literários?
 
-Pelo menos 33 das 1.570 pessoas-autoras (2,1%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.523 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 24 de 1.021. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 204.
+Pelo menos 33 das 1.586 pessoas-autoras (2,1%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.539 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 24 de 1.021. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 204. No Prêmio Sesc de Literatura: pelo menos 0 de 43.
 
 ### Quem mais venceu o Prêmio Jabuti?
 
@@ -97,6 +97,22 @@ No Prêmio Biblioteca Nacional 2025, venceram (1º lugar): Prêmio Machado de As
 ### Quais editoras mais ganham o Prêmio Biblioteca Nacional?
 
 Contando as obras premiadas no Prêmio Biblioteca Nacional com editora conhecida: Editora Record (21), Companhia das Letras (16), Editora Companhia das Letras (8), Editora do Brasil (8), Editora 34 (7). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
+
+### Quem mais venceu o Prêmio Sesc de Literatura?
+
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Sesc de Literatura foi Luisa Geisler (2 vezes em 1º lugar, 2 prêmios); Abáz (1 vez em 1º lugar, 1 prêmio); Airton Souza (1 vez em 1º lugar, 1 prêmio); Alexandre Marques Rodrigues (1 vez em 1º lugar, 1 prêmio); André de Leones (1 vez em 1º lugar, 1 prêmio).
+
+### Quantas mulheres venceram o Prêmio Sesc de Literatura?
+
+11 das 43 pessoas que venceram (1º lugar) o Prêmio Sesc de Literatura nas categorias do recorte são mulheres (26%). A primeira vitória de uma mulher foi em 2005: Eugenia Zerbini, em Romance, com As netas da Ema.
+
+### De que estados vêm os autores premiados no Prêmio Sesc de Literatura?
+
+Entre as 32 pessoas premiadas no Prêmio Sesc de Literatura com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (8, 25%), Rio de Janeiro (6, 19%), Rio Grande do Sul (4, 13%), Pará (3, 9,4%), Pernambuco (3, 9,4%).
+
+### Quem venceu o Prêmio Sesc de Literatura 2025?
+
+No Prêmio Sesc de Literatura 2025, venceram (1º lugar): Romance: Goiás, de Marcus Groza; Conto: Massaranduba, de Abáz; Poesia: Escalar cansa, de Leonardo Piana. Veja a edição completa.
 
 ### Como o Literadados sabe a raça de cada pessoa?
 
@@ -2425,4 +2441,271 @@ Fontes: https://quatrocincoum.com.br/noticias/premios-literarios/os-ganhadores-d
 - Prêmio Glória Pondé, 1º lugar: Giraflor e outros jequitinhonhas, de Heloisa Pires Lima (FTD Educação)
 - Prêmio Glória Pondé, 2º lugar: Nossos mitos, de Yaguarê Yamã (Pallas Editora)
 - Prêmio Glória Pondé, 3º lugar: Poesia travessia, de Roseana Murray (Editora do Brasil)
+
+## Prêmio Sesc de Literatura
+
+Organizador: Serviço Social do Comércio (Sesc), Departamento Nacional. Página: https://literadados.gustavosimas.com/premios/sesc/
+
+### Prêmio Sesc de Literatura 2004
+
+Formato: 2004–2005 originais inéditos: romance, um vencedor. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2004/
+
+O Prêmio Sesc de Literatura nasceu em 2003, no Departamento Nacional do Sesc, no Rio, com uma ideia simples: em vez de dinheiro, quem vencesse ganharia a edição do livro por uma grande casa. Segundo Henrique Rodrigues, um dos idealizadores, a Record topou a parceria logo na primeira reunião com Luciana Villas-Boas, então diretora executiva, num momento em que a Flip acabava de surgir e o Prêmio Portugal Telecom ainda nascia. O edital de estreia aceitava só romances inéditos, inscritos até 30 de dezembro de 2003, de autores com no máximo dois livros publicados, e previa a premiação para maio de 2004, no Rio.
+Chegaram mais de trezentos originais, em quatro vias impressas e encadernadas. Subcomissões fizeram a triagem, e a comissão final, formada por Antônio Torres e Italo Moriconi, escolheu Santo Reis da Luz Divina, de Marco Aurélio Cremasco, professor de engenharia química da Unicamp nascido em Guaraci, no interior do Paraná. A saga familiar vai da Guerra do Paraguai ao Paraná dos anos 1990.
+Publicado pela Record em 2004, o romance entrou na lista de finalistas do Jabuti de 2005, primeiro sinal de que os estreantes do Sesc também circulariam entre os livros já publicados.
+Fontes: https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u38607.shtml ; http://www1.folha.uol.com.br/fsp/mais/fs2111200423.htm ; https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html
+
+- Romance, 1º lugar: Santo Reis da Luz Divina, de Marco Aurélio Cremasco
+
+### Prêmio Sesc de Literatura 2005
+
+Formato: 2004–2005 originais inéditos: romance, um vencedor. 1 pessoas-autoras; 100% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2005/
+
+A segunda edição do Prêmio Sesc, que o próprio Sesc numerava como 2004, manteve uma única categoria, Romance, e o mesmo modelo: originais inéditos, inscritos com pseudônimo, triados por subcomissões antes da comissão final. Venceu As netas da Ema, de Eugenia Zerbini, de São Paulo, com formação em direito e contos publicados no Rascunho, na Cult e no blog do caderno Prosa e Verso, de O Globo.
+O título acena para Emma Bovary. A narradora, depois de ver a morte de perto num assalto, passa a revisar a própria vida e a das mulheres de sua geração, num relato que volta aos anos de chumbo. A Record lançou o livro em 2005, e em junho a Folha o apresentava como romance de estreia premiado pelo Sesc. No catálogo do prêmio, o comentário sobre a obra é de Carlos Heitor Cony.
+Henrique Rodrigues, um dos criadores do concurso, lembraria em 2024 que o livro fez leitores revisitarem a ditadura e logo ganhou segunda edição, sinal de que o formato funcionava. Segundo a Record, As netas da Ema foi adotado em escolas paulistas.
+Fontes: https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html ; http://www1.folha.uol.com.br/fsp/ilustrad/fq1806200524.htm ; https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; https://www.record.com.br/products/mentiras-do-rio
+
+- Romance, 1º lugar: As netas da Ema, de Eugenia Zerbini
+
+### Prêmio Sesc de Literatura 2006
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2006/
+
+Na terceira edição (numerada 2005 pelo Sesc), o prêmio ganhou a categoria Conto e passou a revelar dois estreantes por ano. Em Romance, Luiz Antonio de Assis Brasil e Moacyr Scliar escolheram Hoje está um dia morto, de André de Leones, então jovem estudante em Goiânia: Jean e Fabiana, jovens do interior, tentam escapar do tédio e da falta de perspectivas, num livro que também reflete sobre a construção da própria narrativa. Em Conto, o primeiro livro premiado foi A secretária de Borges, de Lúcia Bettencourt, do Rio, histórias de mudanças bruscas na vida de personagens quase sempre femininas.
+O romance de Leones provocou o primeiro atrito interno. Henrique Rodrigues contou em 2024 que o presidente da Federação do Comércio da Bahia reclamou de palavrões e cenas de sexo, e que ele teve de redigir um parecer justificando a escolha do júri; o assunto morreu ali. O livro depois virou filme.
+Os dois títulos saíram pela Record em 2006. Leones seguiu publicando e voltou às listas em 2019 com Eufrates, semifinalista do Jabuti e do Oceanos e finalista do Prêmio São Paulo de Literatura.
+Fontes: https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html ; https://web.archive.org/web/20090510225840/http://www.sesc.com.br:80/premiosesc/ ; http://www1.folha.uol.com.br/fsp/ilustrad/fq2211200816.htm
+
+- Romance, 1º lugar: Hoje está um dia morto, de André de Leones
+- Conto, 1º lugar: A secretária de Borges, de Lúcia Bettencourt
+
+### Prêmio Sesc de Literatura 2007
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2007/
+
+A quarta edição (2006 na numeração do Sesc) foi a segunda com duas categorias, e os originais ainda chegavam em papel, em quatro vias encadernadas, às unidades do Sesc. Em Romance, venceu Casa entre vértebras, de Wesley Peres, de Goiânia, psicanalista e poeta com dois livros de poemas premiados em Goiás: um homem fechado em casa ensaia cartas nunca escritas para uma certa Ana, numa prosa de forte carga poética. Em Conto, Correio litorâneo, de Nereu Afonso da Silva, de São Paulo, com formação em filosofia pela USP e trajetória no teatro, inclusive como palhaço dos Doutores da Alegria, reúne oito histórias amarradas às notícias de um jornal fictício que dá nome ao livro.
+No catálogo do prêmio, os comentários sobre as obras são de Bernardo Ajzenberg (romance) e Cristiane Costa (contos). A Record publicou os dois livros em 2007.
+Casa entre vértebras chegou ao Prêmio São Paulo de Literatura logo na primeira edição, em 2008, entre os finalistas de Melhor Romance de Estreia, e no mesmo ano ficou entre os semifinalistas do Portugal Telecom.
+Fontes: https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html ; https://web.archive.org/web/20090510225840/http://www.sesc.com.br:80/premiosesc/ ; https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf
+
+- Romance, 1º lugar: Casa entre vértebras, de Wesley Peres
+- Conto, 1º lugar: Correio litorâneo, de Nereu Afonso da Silva
+
+### Prêmio Sesc de Literatura 2008
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2008/
+
+Na quinta edição (2007 para o Sesc), o romance premiado foi Zé, Mizé, camarada André: notícia de Angola, de Sérgio Guimarães, nascido em Santo Anastácio (SP) em 1951. O livro vem da temporada do autor em Angola entre 1978 e 1980, logo depois da independência, e se constrói nos diálogos entre um jornalista brasileiro e uma angolana em plena revolução. Antes da ficção, Guimarães fizera carreira em educação, com livros escritos em parceria com Paulo Freire, e trabalhara para o Unicef em países da África e da América Central.
+Em Conto, venceu Beijando dentes, de Maurício de Almeida, antropólogo formado pela Unicamp, nascido em Campinas em 1982, com contos sombrios sobre a incomunicabilidade entre as pessoas. No catálogo do Sesc, Raimundo Carrero e Daniel Piza assinam os comentários sobre os dois livros, lançados pela Record em 2008.
+Os dois seguiram rumos distintos nas listas: o romance angolano foi finalista de Melhor Romance de Estreia no Prêmio São Paulo de 2009, e Maurício de Almeida voltou ao mesmo prêmio em 2017 para vencê-lo na categoria de estreia até 40 anos, com A instrução da noite.
+Fontes: https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html ; https://web.archive.org/web/20090510225840/http://www.sesc.com.br:80/premiosesc/ ; https://www.sesc.com.br/premio-literatura/sergio-guimaraes/ ; https://www.sesc.com.br/premio-literatura/mauricio-de-almeida/
+
+- Romance, 1º lugar: Zé, Mizé, Camarada André, de Sérgio Guimarães
+- Conto, 1º lugar: Beijando dentes, de Maurício de Almeida
+
+### Prêmio Sesc de Literatura 2009
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2009/
+
+A sexta edição (2008 na numeração do Sesc) teve inscrições até 15 de setembro de 2008, com originais ainda enviados em papel, em quatro vias, às unidades do Sesc. Segundo a Record, o concurso recebeu 457 inscrições; só em Conto, 51 livros passaram pela primeira seleção. Pelos editais da época, além da publicação, quem vencia recebia 10% do preço de capa nas vendas em livraria, e parte da tiragem ia para a rede de bibliotecas do Sesc.
+O romance escolhido foi O momento mágico, de Marcio Ribeiro Leite, de Salvador, com formação em medicina, homeopatia e psicologia junguiana: a partir do trabalho clínico com idosos, o livro acompanha um homem de 88 anos que deseja morrer e não consegue, sozinho num apartamento diante do mar. Em Conto, a comissão final, com Luiz Vilela e Flávio Carneiro, ficou com Mentiras do Rio, de Sergio Leo, jornalista carioca que vive em Brasília, histórias que oscilam entre o encanto da cidade e a violência cotidiana, e entre a ficção e o relato jornalístico.
+A Record lançou O momento mágico em junho de 2009 e publicou Mentiras do Rio no mesmo ano.
+Fontes: https://www.record.com.br/products/mentiras-do-rio ; https://www.record.com.br/products/o-momento-magico ; https://www.record.com.br/products/prosa-de-papagaio ; https://web.archive.org/web/20090510225850/http://www.sesc.com.br:80/premiosesc/edital.html ; https://web.archive.org/web/20100520203052/http://www.sesc.com.br:80/premiosesc/catalogo.html ; https://web.archive.org/web/20090510225840/http://www.sesc.com.br:80/premiosesc/
+
+- Romance, 1º lugar: O momento mágico, de Marcio Ribeiro Leite
+- Conto, 1º lugar: Mentiras do Rio, de Sergio Leo
+
+### Prêmio Sesc de Literatura 2010
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2010/
+
+A sétima edição, que o Sesc chamava de edição 2009, foi a mais concorrida até então: 667 inscrições, 210 a mais que no ciclo anterior, segundo a Record. As subcomissões pré-selecionaram 43 romances e 57 livros de contos, e o resultado saiu em fevereiro de 2010, com cerimônia anunciada para agosto na Academia Brasileira de Letras.
+Em Romance, Ana Miranda e Luiz Ruffato escolheram Prosa de papagaio, de Gabriela Guimarães Gazzinelli, diplomata mineira com formação em letras e filosofia, então com 28 anos: a vida de uma família contada por Louro, um papagaio de inclinações filosóficas. Em Conto, venceu Cavala, de Sergio Tavares, jornalista de Niterói, quatro contos longos sobre compulsões e delírios ligados ao sexo. O júri deu ainda seis menções honrosas, três por categoria, a originais do Acre, de Pernambuco, do Rio de Janeiro, de Santa Catarina e de São Paulo.
+Prosa de papagaio ficou entre os finalistas de Melhor Romance de Estreia do Prêmio São Paulo de 2011, e Gazzinelli voltaria ao Jabuti em 2023, como semifinalista de Conto com A gaveta e o abismo.
+Fontes: https://web.archive.org/web/20100626021942/http://www.sesc.com.br:80/premiosesc/vencedores.html ; https://www.record.com.br/products/prosa-de-papagaio ; https://www.record.com.br/products/cavala ; https://web.archive.org/web/20090510225850/http://www.sesc.com.br:80/premiosesc/edital.html
+
+- Romance, 1º lugar: Prosa de Papagaio, de Gabriela Guimarães Gazzinelli
+- Conto, 1º lugar: Cavala, de Sergio Tavares
+
+### Prêmio Sesc de Literatura 2011
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2011/
+
+A oitava edição (2010/2011, na nomenclatura do Sesc) recebeu 1.142 inscrições, vindas de todos os estados, bem acima do recorde anterior, de 667. Os vencedores foram recebidos em 13 de julho de 2011 na Academia Brasileira de Letras, numa solenidade aberta pelo presidente da casa, Marcos Vinicios Vilaça, com a presença da diretora editorial da Record, Luciana Villas-Boas. Àquela altura, a parceria entre Sesc e Record completava oito anos, e o concurso já havia levado catorze autores ao mercado.
+O romance premiado foi Habeas asas, sertão de céu!, de Arthur Martins Cecim, de Belém, que dava aulas de inglês e fazia traduções: uma prosa poética em que urubus narram o sertão visto do alto. Em Conto, Marina Colasanti e Raimundo Carrero escolheram Contos de mentira, de Luisa Geisler, estudante de relações internacionais em Canoas (RS), aos 19 anos; ela se disse surpresa por vencer sem currículo. São 17 contos em torno de mentiras literais e metafóricas.
+Foi o começo de uma trajetória rápida: Contos de mentira esteve entre os finalistas do Jabuti de 2012, e Geisler voltaria a vencer o próprio Prêmio Sesc no ano seguinte.
+Fontes: https://web.archive.org/web/20130520130823/http://www.sesc.com.br/premiosesc/noticias/2011/noticia13-07.html ; https://www.record.com.br/products/habeas-asas-sertao-de-ceu ; https://www.sesc.com.br/premio-literatura/luisa-geisler-2/
+
+- Romance, 1º lugar: Habeas asas, sertão de céu!, de Arthur Martins Cecim
+- Conto, 1º lugar: Contos de Mentira, de Luisa Geisler
+
+### Prêmio Sesc de Literatura 2012
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2012/
+
+A nona edição (2011/2012 para o Sesc) teve 430 romances e 523 livros de contos inscritos; 30 e 41 originais, respectivamente, chegaram à fase final. O resultado produziu um caso sem repetição na base: Luisa Geisler, premiada em Conto no ano anterior, venceu agora em Romance, com Quiçá, sobre relações familiares e conflitos entre gerações. No mesmo ano, a revista britânica Granta a incluiu entre os melhores autores brasileiros com menos de 40 anos.
+Em Conto, venceu Réveillon e outros dias, de Rafael Gallo, de São Paulo, coletânea aberta por um viúvo que passa a virada do ano com o filho surdo, prestes a deixar o país. Ainda em Conto, três originais, da Bahia e do Distrito Federal, receberam menção honrosa.
+Os dois livros saíram pela Record em 2012 e reapareceram nas listas do ano seguinte: Quiçá foi finalista do Jabuti de Romance e do Prêmio São Paulo em 2013, e Réveillon e outros dias, do Jabuti de Contos e Crônicas. Gallo venceria o Prêmio São Paulo de 2016 com Rebentar e, depois, o Prêmio Literário José Saramago.
+Fontes: https://web.archive.org/web/20120523201028/http://www.sesc.com.br/premiosesc/vencedores.html ; https://www.sesc.com.br/premio-literatura/luisa-geisler/ ; https://www.record.com.br/products/reveillon-e-outros-dias ; https://www.sesc.com.br/premio-literatura/rafael-gallo/ ; https://www.publishnews.com.br/materias/2023/01/06/premio-sesc-de-literatura-abre-inscricoes-para-20-edicao
+
+- Romance, 1º lugar: Quiçá, de Luisa Geisler
+- Conto, 1º lugar: Réveillon e Outros Dias, de Rafael Gallo
+
+### Prêmio Sesc de Literatura 2013
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2013/
+
+A décima edição (2012/2013 para o Sesc) teve o resultado divulgado em 22 de março de 2013. Mais de mil pessoas se inscreveram, e a seleção final reuniu 37 romances e 36 coletâneas de contos. Em Romance, venceu O evangelho segundo Hitler, de Marcos Peres, advogado paranaense; o júri deu ainda três menções honrosas na categoria, a originais do Rio de Janeiro, de São Paulo e do Ceará.
+Em Conto, o escolhido foi Noveleletas, de João Vereza, carioca que vive em São Paulo e trabalha com redação. Segundo a Folha, as histórias do livro assumem a forma de poemas, textos teatrais e canções, num tom que oscila entre a memória e a zombaria.
+Os dois livros saíram pela Record em 2013 e voltaram a aparecer nas listas no ano seguinte. O evangelho segundo Hitler venceu o Prêmio São Paulo de Literatura de 2014 na categoria de romance de estreia de autor com até 40 anos e esteve entre os finalistas do Jabuti de Romance; Noveleletas entrou na lista de finalistas do Jabuti de Contos e Crônicas de 2014.
+Fontes: https://web.archive.org/web/20130520120117/http://www.sesc.com.br/premiosesc/noticias/2012/noticias.html ; http://www1.folha.uol.com.br/fsp/ilustrada/120871-livros.shtml
+
+- Romance, 1º lugar: O Evangelho Segundo Hitler, de Marcos Peres
+- Conto, 1º lugar: Noveleletas, de João Vereza
+
+### Prêmio Sesc de Literatura 2014
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2014/
+
+Na 11ª edição, com resultado divulgado em 21 de março de 2014, o Sesc informou 456 inscritos. Em Romance, a comissão de Eneida Maria de Souza e Luiz Ruffato escolheu Enquanto Deus não está olhando, de Débora Ferraz, jornalista pernambucana de 27 anos, romance não linear sobre perda e sobre a relação entre pai e filha. Em Conto, Ronaldo Bressane e Heitor Ferraz premiaram Parafilias, de Alexandre Marques Rodrigues, psicólogo de Santos, então com 34 anos, contos que tratam da solidão pelo viés das perversões sexuais.
+A cerimônia estava prevista para julho, na Academia Brasileira de Letras, seguida da participação dos autores na programação do Sesc em Paraty durante a Flip. Anos depois, Henrique Rodrigues contaria que a gravação de Parafilias em audiolivro, prevista para os vencedores, foi barrada internamente por causa do conteúdo sexual.
+A safra rendeu nas listas: Débora Ferraz venceu o Prêmio São Paulo de 2015 na categoria de estreia até 40 anos, e Parafilias foi finalista do Jabuti de Contos e Crônicas e semifinalista do Oceanos, ambos em 2015.
+Fontes: https://web.archive.org/web/20140504033934/http://www.sesc.com.br/portal/site/premiosesc/noticias/premio+ja+tem+os+vencedores+da+edicao+2014 ; https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; https://www.sesc.com.br/premio-literatura/debora-ferraz/
+
+- Romance, 1º lugar: Enquanto Deus Não Está Olhando, de Débora Ferraz
+- Conto, 1º lugar: Parafilias, de Alexandre Marques Rodrigues
+
+### Prêmio Sesc de Literatura 2015
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 100% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2015/
+
+A 12ª edição bateu recorde, com 1.966 inscrições, e o Sesc registrou que só um terço vinha de mulheres. As duas vagas, porém, ficaram com elas. Em Romance, Michel Laub e Noemi Jaffe escolheram Desesterro, de Sheyla Smanioto, paulista de 25 anos, mestra em teoria literária pela Unicamp e autora de um livro de poemas, um romance de muitas vozes sobre uma menina sem nome, uma avó cansada e uma cidade faminta. Em Conto, Caetano Galindo e Luci Collin premiaram Antes que seque, de Marta Barcellos, carioca de 49 anos com 18 anos de redação em jornais: 24 contos sobre a classe média alta e mulheres diante da maternidade idealizada.
+Em 17 de novembro de 2015, as duas foram recebidas na Academia Brasileira de Letras ao lado dos vencedores de 2014, e os livros saíram pela Record com tiragem inicial de dois mil exemplares.
+A repercussão veio rápido: em 2016, Desesterro venceu o Prêmio Machado de Assis, da Biblioteca Nacional, e ficou em terceiro lugar no Jabuti de Romance, e Antes que seque levou o Prêmio Clarice Lispector, também da Biblioteca Nacional.
+Fontes: https://web.archive.org/web/20150725130745/http://www.sesc.com.br/portal/site/premiosesc/noticias/vencedores+2015 ; https://www.publishnews.com.br/materias/2015/11/17/ganhadoras-do-prmio-sesc-tm-encontro-marcado-com-os-imortais ; https://www.sesc.com.br/premio-literatura/sheyla-smanioto/ ; https://www.sesc.com.br/premio-literatura/marta-barcellos/
+
+- Romance, 1º lugar: Desesterro, de Sheyla Smanioto
+- Conto, 1º lugar: Antes que seque, de Marta Barcellos
+
+### Prêmio Sesc de Literatura 2016
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2016/
+
+A 13ª edição recebeu 1.503 livros, 794 romances e 709 coletâneas de contos, três vezes a média histórica do projeto, segundo o Sesc. Pela primeira vez, a avaliação foi feita em leitores digitais, para poupar a impressão de mais de 500 mil folhas. Em março, o prêmio foi apresentado na Primavera Literária Brasileira, em Paris, como modelo de incentivo a novos escritores, com Lúcia Bettencourt, que venceu em Conto em 2006, no programa.
+Em Romance, venceu Céus e terra, de Franklin Carvalho, jornalista da Bahia, de 47 anos: um menino de 12 anos morre ao tentar salvar um cigano crucificado e passa a acompanhar, como espírito, a vida de Araci, no sertão baiano. Em Conto, Receita para se fazer um monstro, de Mário Rodrigues, professor de Garanhuns (PE), de 38 anos, parte de cenas de infância nos anos 1980. Os livros foram lançados em 29 de novembro no Sesc Belenzinho, em São Paulo, com conversa entre João Anzanello Carrascoza e Luiz Antonio de Assis Brasil, jurados de cada categoria.
+Céus e terra venceu o Prêmio São Paulo de 2017 na categoria de estreia para mais de 40 anos; o livro de Mário Rodrigues foi finalista do Jabuti de Contos e Crônicas.
+Fontes: https://www.publishnews.com.br/materias/2016/02/24/prmio-sesc-de-literatura-recebe-mais-de-15-mil-inscritos ; https://www.publishnews.com.br/materias/2016/03/17/prmio-sesc-de-literatura-ser-apresentado-na-frana ; https://web.archive.org/web/20161225003704/http://www.sesc.com.br:80/portal/site/premiosesc/noticias/vencedores+do+premio+sesc+de+literatura+2016+lancam+livros+em+sao+paulo ; https://www.publishnews.com.br/materias/2016/11/10/vencedor-do-premio-sesc-ceus-e-terra-explora-a-tematica-da-morte-de-forma-leve-e-lirica
+
+- Romance, 1º lugar: Céus e terra, de Franklin Carvalho
+- Conto, 1º lugar: Receita para se Fazer um Monstro, de Mário Rodrigues
+
+### Prêmio Sesc de Literatura 2017
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2017/
+
+Na 14ª edição, o Sesc registrou 1.793 inscrições, 980 romances e 813 livros de contos, e divulgou o resultado em 19 de junho de 2017, junto com a lista dos pré-selecionados. A comissão final de Romance, com Andrea del Fuego e Luiz Ruffato, escolheu Última hora, de José Almeida Júnior, de Mossoró (RN), com atuação na Defensoria Pública do Distrito Federal: um romance histórico passado no jornal de Samuel Wainer, visto por um personagem fictício que fora torturado no Estado Novo.
+Em Conto, Sidney Rocha e Ronaldo Correia de Brito premiaram o original Poraquê e outros contos, de João Meirelles Filho, ativista ambiental nascido em São Paulo que vive em Belém desde 2004; os oito contos, sobre o humano e o desconhecido na Amazônia, chegaram às livrarias como O abridor de letras. Os dois títulos saíram pela Record e foram lançados em 28 de novembro, no Sesc 24 de Maio, em São Paulo, ao lado de Mário Rodrigues e Franklin Carvalho, os nomes de 2016.
+Última hora foi finalista do Jabuti de Romance e do Prêmio São Paulo em 2018; Meirelles Filho voltaria ao Jabuti em 2021, entre os semifinalistas de Conto, com Aboio.
+Fontes: https://web.archive.org/web/20170630180725/http://www.sesc.com.br:80/portal/site/premiosesc/noticias/vencedoresepreselecionados2017 ; https://web.archive.org/web/20170630180744/http://www.sesc.com.br:80/portal/site/premiosesc/vencedores/joaomeirellesfilho ; https://www.publishnews.com.br/materias/2017/11/27/vencedores-do-premio-sesc-de-literatura-participam-de-bate-papo-em-sp ; https://www.sesc.com.br/premio-literatura/jose-almeida-junior/
+
+- Romance, 1º lugar: Última hora, de José Almeida Júnior
+- Conto, 1º lugar: O abridor de letras, de João Meirelles Filho
+
+### Prêmio Sesc de Literatura 2018
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2018/
+
+O prêmio completou 15 anos em 2018 com 1.540 inscrições, 820 romances e 720 livros de contos, e um balanço de mais de 12 mil livros inscritos e 27 autores revelados, segundo Henrique Rodrigues, então analista de cultura do Departamento Nacional do Sesc. A avaliação final coube a Beatriz Resende, Flávio Carneiro, Letícia Wierzchowski e Daniel Galera, e o resultado saiu em 14 de junho.
+Em Romance, venceu Entre as mãos, de Juliana Leite, de Petrópolis, inscrito como Magdalena usa as mãos: uma tecelã que, depois de um acidente, precisa reaprender a falar e a viver com as cicatrizes. Em Conto, As coisas, de Tobias Carvalho, nascido em Porto Alegre em 1995, acompanha um jovem homossexual entre aplicativos, viagens e metrópoles. Henrique Rodrigues relatou depois que unidades regionais do Sesc devolveram exemplares do livro e se recusaram a receber o autor, e que os recursos foram redirecionados a outros estados.
+Entre as mãos deu a Juliana Leite o prêmio da APCA e vagas entre os finalistas do Prêmio São Paulo e os semifinalistas do Jabuti e do Oceanos em 2019. Naquele ano, ela e Tobias Carvalho estiveram no festival Folio, em Óbidos, Portugal.
+Fontes: https://www.publishnews.com.br/materias/2018/06/14/premio-sesc-de-literatura-anuncia-os-vencedores-de-2018 ; https://web.archive.org/web/20180704112437/http://www.sesc.com.br:80/portal/site/premiosesc/vencedores/julianaleite ; https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; https://www.sesc.com.br/premio-literatura/juliana-leite/ ; https://www.publishnews.com.br/materias/2019/10/09/vencedores-do-premio-sesc-em-portugal
+
+- Romance, 1º lugar: Entre as mãos, de Juliana Leite
+- Conto, 1º lugar: As coisas, de Tobias Carvalho
+
+### Prêmio Sesc de Literatura 2019
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2019/
+
+Aos 16 anos, o prêmio teve novo recorde: 1.969 obras inscritas, 1.043 romances e 926 livros de contos. As comissões finais reuniram Ana Miranda, Tércia Montenegro, Veronica Stigger e Julián Fuks, e o resultado saiu em 14 de junho. Os livros premiados teriam tiragem inicial de dois mil exemplares pela Record, e a dupla vencedora foi levada à programação do Sesc na Flip daquele ano.
+Em Romance, O legado de nossa miséria, de Felipe Holloway, nascido em Canindé (CE) e professor de português da rede estadual em Cuiabá: um crítico e professor universitário encontra, num evento literário numa cidade fictícia de Minas Gerais, o escritor que sempre admirou, e os dois revisitam carreiras marcadas por fracassos éticos e estéticos. Em Conto, O doce e o amargo, de João Gabriel Paulsen, de Juiz de Fora (MG), estudante de filosofia na UFJF, reúne nove contos sobre tensões entre gerações e ritos de passagem.
+O romance de Holloway foi finalista de Melhor Romance de Estreia no Prêmio São Paulo de 2020. Em 2022, Paulsen participou do festival Folio, em Portugal, numa mesa sobre o Prêmio Sesc e a nova literatura brasileira.
+Fontes: https://www.publishnews.com.br/materias/2019/06/14/premio-sesc-2019-anuncia-vencedores ; https://blogs.opovo.com.br/girolusofono/2019/06/21/cearense-vence-premio-sesc-de-literatura-2019-na-categoria-romance/ ; https://www.sesc.com.br/premio-literatura/felipe-holloway/ ; https://www.sesc.com.br/premio-literatura/joao-gabriel-paulsen/ ; https://www.publishnews.com.br/materias/2022/10/13/vencedores-do-premio-sesc-de-literatura-em-portugal
+
+- Romance, 1º lugar: O legado de nossa miséria, de Felipe Holloway
+- Conto, 1º lugar: O doce e o amargo, de João Gabriel Paulsen
+
+### Prêmio Sesc de Literatura 2020
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2020/
+
+A 17ª edição atravessou o primeiro ano da pandemia de covid-19 sem mudar o calendário: segundo o Bahia Notícias, o trabalho remoto manteve o cronograma. Foram 1.358 livros inscritos, 692 romances e 666 coletâneas de contos, menos que no recorde do ano anterior. Os resultados saíram em 19 de junho, e as comissões finais tiveram Renata Pimentel e Samarone Lima, em Romance, e Ana Paula Maia e Marcelo Moutinho, em Conto.
+Em Romance, venceu Encontro você no oitavo round, de Caê Guimarães, poeta e jornalista nascido no Rio em 1970 e criado no Espírito Santo: às vésperas da última luta, um pugilista se divide entre um zumbido que não cessa e a memória de outra vida, enquanto uma jornalista tenta entender o que o levou aos ringues. Em Conto, Terra nos cabelos, de Tônio Caetano, de Porto Alegre, que trabalha no serviço público municipal e tem especialização em literatura brasileira pela PUC-RS, segue percursos de mulheres entre o trabalho, os ritos de iniciação e as violências.
+Os dois livros saíram pela Record. Encontro você no oitavo round foi finalista de Melhor Romance de Estreia no Prêmio São Paulo de 2021.
+Fontes: https://www.publishnews.com.br/materias/2020/06/19/premio-sesc-de-literatura-2020-anuncia-vencedores ; https://www.bahianoticias.com.br/noticia/249972-premio-sesc-de-literatura-anuncia-os-vencedores-da-edicao-2020 ; https://www.sesc.com.br/premio-literatura/cae-guimaraes/
+
+- Romance, 1º lugar: Encontro você no oitavo round, de Caê Guimarães
+- Conto, 1º lugar: Terra nos cabelos, de Tônio Caetano
+
+### Prêmio Sesc de Literatura 2021
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2021/
+
+A 18ª edição anunciou o resultado em 18 de junho de 2021, ainda sob a pandemia, depois de receber 1.688 inscrições, 850 em Romance e 838 em Conto. Os livros sairiam em outubro pela Record, que o Sesc apresentava como parceira desde a criação do prêmio.
+Em Romance, venceu O réptil melancólico, de Fábio Horácio-Castro, do Pará, com formação em jornalismo e carreira de docente universitário: Felipe, levado ao exílio ainda criança pela mãe, militante perseguida e torturada pela ditadura, volta à cidade natal e reencontra a família paterna, num livro sobre colonialismo e as alegorias da Amazônia. Em Conto, O que a casa criou, de Diogo Monteiro, de Pernambuco, jornalista que trabalha com pesquisa de opinião, reúne 16 contos sobre o inusitado que irrompe no cotidiano, na virada de uma esquina ou ao abrir de uma porta.
+O romance de Horácio-Castro foi finalista de Melhor Romance de Estreia no Prêmio São Paulo e semifinalista do Oceanos, ambos em 2022. Em outubro daquele ano, Horácio-Castro e João Gabriel Paulsen, de 2019, representaram o prêmio no festival Folio, em Óbidos, e na Fundação José Saramago, em Lisboa.
+Fontes: https://www.publishnews.com.br/materias/2021/06/21/premio-sesc-de-literatura-anuncia-os-vencedores-de-2021 ; https://www.sesc.com.br/premio-literatura/fabio-horacio-castro/ ; https://www.sesc.com.br/premio-literatura/diogo-monteiro/ ; https://www.publishnews.com.br/materias/2022/10/13/vencedores-do-premio-sesc-de-literatura-em-portugal
+
+- Romance, 1º lugar: O réptil melancólico, de Fábio Horácio-Castro
+- Conto, 1º lugar: O que a casa criou, de Diogo Monteiro
+
+### Prêmio Sesc de Literatura 2022
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2022/
+
+Na 19ª edição, anunciada em 20 de maio de 2022, o Sesc recebeu 1.632 inscrições e, pela primeira vez em 19 anos, Conto (844) superou Romance (788). Henrique Rodrigues, analista de literatura do Sesc, observou que Pará e Rio Grande do Sul passavam a somar quatro vencedores cada.
+Os dois nomes do ano entram nessa conta. Em Romance, Itamar Vieira Junior e Luciany Aparecida escolheram Mikaia, de Taiane Santi Martins, de Vacaria (RS), editora de uma revista literária: três gerações de mulheres que fugiram da guerra civil moçambicana, entre a bailarina que perdeu a memória e quer lembrar, a irmã que quer esquecer e a avó que se cala. Em Conto, Natalia Borges Polesso e Paulo Scott premiaram Corpos benzidos em metal pesado, de Pedro Augusto Baía, de Abaetetuba (PA), que atua na área de psicologia do Tribunal de Justiça do Pará, contos escritos ao longo de quatro anos sobre a devastação ambiental e as violências no Norte do país.
+A Record lançou os dois livros em novembro. Em 2023, Mikaia ficou em segundo lugar no Prêmio Machado de Assis, da Biblioteca Nacional, e entre os finalistas de Melhor Romance de Estreia do Prêmio São Paulo.
+Fontes: https://www.sesc.com.br/cultura/literatura/premio-sesc-de-literatura/premio-sesc-de-literatura-anuncia-os-vencedores-de-2022/ ; https://www.publishnews.com.br/materias/2022/05/20/os-vencedores-do-premio-sesc-de-literatura-2022 ; https://www.sesc.com.br/premio-literatura/taiane-santi-martins/
+
+- Romance, 1º lugar: Mikaia, de Taiane Santi Martins
+- Conto, 1º lugar: Corpos benzidos em metal pesado, de Pedro Augusto Baía
+
+### Prêmio Sesc de Literatura 2023
+
+Formato: 2006–2023 originais inéditos: romance e conto, um vencedor cada. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2023/
+
+A 20ª edição, a do aniversário, recebeu 1.495 inscrições, 770 romances e 725 coletâneas de contos, e anunciou o resultado em 24 de maio de 2023. Em Romance, Joca Reiners Terron e Suzana Vargas escolheram Outro outono de carne estranha, de Airton Souza, professor de história em Marabá (PA): o amor entre dois garimpeiros em Serra Pelada, no fim da ditadura. A Record o publicou como Outono de carne estranha. Em Conto, Giovana Madalosso e Sérgio Rodrigues premiaram O ninho, de Bethânia Pires Amaro, pernambucana que vive em São Paulo, contos que desmontam a casa como lugar de segurança.
+O aniversário terminou em crise. Na Flip, em novembro, Airton leu um trecho explícito do romance numa mesa do Sesc; segundo Henrique Rodrigues, idealizador do prêmio, a direção se disse ofendida, e ele acabou demitido em janeiro de 2024. Em março, a Record denunciou publicamente uma circular do Sesc às regionais sobre "conteúdo sensível" no livro e o atraso no circuito dos autores; o Sesc negou censura e falou em classificação indicativa.
+Os livros seguiram adiante: O ninho venceu o Jabuti de Conto em 2024 e ficou em segundo no Prêmio Clarice Lispector, da Biblioteca Nacional; o romance de Airton foi finalista do Oceanos e do Prêmio São Paulo.
+Fontes: https://www.publishnews.com.br/materias/2023/05/24/airton-souza-e-bethania-pires-amaro-vencem-o-premio-sesc-de-literatura-2023 ; https://www.sesc.com.br/cultura/premio-sesc-de-literatura-anuncia-vencedores/ ; https://revistazcultural.pacc.ufrj.br/wp-content/uploads/2024/12/DA-INTERDICAO-UM-NOVO-CAMINHO-%E2%80%93-Revista-Z-Cultural.pdf ; https://www.publishnews.com.br/materias/2024/03/06/indefinicoes-sobre-o-novo-edital-do-premio-sesc-de-literatura-causam-impasse-publico-e-questionamentos ; https://pt.wikipedia.org/wiki/Pr%C3%AAmio_Sesc_de_Literatura ; https://www.record.com.br/products/outono-de-carne-estranha
+
+- Romance, 1º lugar: Outono de carne estranha, de Airton Souza
+- Conto, 1º lugar: O ninho, de Bethânia Pires Amaro
+
+### Prêmio Sesc de Literatura 2024
+
+Formato: 2024–2025 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2024/
+
+A 21ª edição foi a da ruptura. Em março de 2024, depois de a Record cobrar publicamente o Sesc pela demissão de Henrique Rodrigues e pelo rumor de uma instância interna que revisaria a escolha dos jurados, o edital saiu sem a editora: os vencedores passariam a ser publicados pela Editora Senac Rio, fim de uma parceria de 20 anos. Vieram também a categoria Poesia, R$ 30 mil para cada vencedor e uma troca de palavras notada pelo mercado: o edital, que antes falava em público adulto, passou a pedir livros "destinados a todos os públicos". O Sesc disse que queria ampliar o público.
+Foram 2.731 inscrições, mais da metade em Poesia. Em 30 de agosto, a comissão final anunciou Bololô: gaiola vazia, de Ricardo Mauricio Gonzaga, docente de artes visuais na Ufes e duas vezes finalista do próprio prêmio em Conto, e A glória dos corpos menores, de Patrícia Lima, de Bauru (SP). Em Poesia, a primeira escolha foi impugnada dias depois, porque Igor Sarapuí já tinha um livro de poesia publicado em 2023; a vitória passou a Contra a parede, de Antonio Veloso Maia, de Niterói, aos 73 anos.
+Fontes: https://www.publishnews.com.br/materias/2024/03/21/premio-sesc-de-literatura-divulga-edital-2024-sem-a-participacao-da-editora-record ; https://www.publishnews.com.br/materias/2024/09/02/premio-sesc-de-literatura-anuncia-os-vencedores-de-2024-em-edicao-marcada-por-polemicas ; https://www.publishnews.com.br/materias/2024/09/03/vencedor-do-premio-sesc-de-literatura-2024-tem-premiacao-impugnada-por-nao-ser-inedito-na-categoria ; https://www.sesc.com.br/cultura/nota-sobre-o-vencedor-da-categoria-poesia-do-premio-sesc-de-literatura/ ; https://www.sesc.com.br/premio-literatura/ricardo-mauricio-gonzaga/
+
+- Romance, 1º lugar: Bololô: gaiola vazia, de Ricardo Mauricio Gonzaga
+- Conto, 1º lugar: A glória dos corpos menores, de Patrícia Lima
+- Poesia, 1º lugar: Contra a parede, de Antonio Veloso Maia
+
+### Prêmio Sesc de Literatura 2025
+
+Formato: 2024–2025 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2025/
+
+A 22ª edição, a segunda publicada pela Editora Senac Rio, recebeu 2.451 originais: 1.168 de poesia, 684 romances e 599 coletâneas de contos. O resultado saiu em 28 de agosto de 2025, com R$ 30 mil para cada categoria e menções honrosas a três finalistas trabalhadores do comércio, mecanismo criado no ano anterior.
+Em Romance, Goiás marca a estreia na prosa longa de Marcus Groza, de São Paulo, com trajetória em poesia, dramaturgia e encenação: um cão caramelo farejador, de operações de resgate, atravessa a devastação humana e ambiental. Em Conto, Massaranduba, de Abáz, de Salvador, docente da rede municipal de São Paulo que começou a escrever em oficinas em agosto de 2024, reúne histórias de violência, afeto e fé nas periferias. Em Poesia, Escalar cansa, de Leonardo Piana, de Andradas (MG), recorre à mitologia grega. Piana já tinha dois romances, entre eles Sismógrafo, finalista de Melhor Romance de Estreia do Prêmio São Paulo de 2023: o edital exige ineditismo só na categoria em que se concorre.
+Os três livros foram lançados em 15 de dezembro, no Rio, numa conversa mediada por Eliana Alves Cruz, integrante do júri. Segundo o Sesc, o prêmio somava então cerca de 24 mil originais recebidos e 43 autores revelados.
+Fontes: https://www.sesc.com.br/cultura/premio-sesc-de-literatura-anuncia-os-vencedores/ ; https://www.publishnews.com.br/materias/2025/08/28/premio-sesc-de-literatura-anuncia-os-tres-vencedores-de-2025 ; https://www.sesc.com.br/cultura/livros-do-premio-sesc-de-literatura-sao-lancados/ ; https://www.sesc.com.br/premio-literatura/abaz/ ; https://www.sesc.com.br/premio-literatura/leonardo-piana/
+
+- Romance, 1º lugar: Goiás, de Marcus Groza
+- Conto, 1º lugar: Massaranduba, de Abáz
+- Poesia, 1º lugar: Escalar cansa, de Leonardo Piana
 

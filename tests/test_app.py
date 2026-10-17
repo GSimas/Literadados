@@ -183,6 +183,15 @@ def test_build_falha_editora_com_nome_repetido(mini):  # D33: o nome da editora 
         _build(mini)
 
 
+def test_premio_de_ineditos_e_dito_nos_textos(mini):  # CA-26.18: o prompt e a página do prêmio dizem que ele julga inéditos
+    _csv(mini / "premio.csv", [{"id": "jabuti", "nome": "Prêmio Jabuti", "organizador": "CBL", "ano_inicio": "1959", "abrangencia": "nacional",
+                                "obras": "ineditas", "ordem": "1", "fonte": "http://x"}])
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert "ORIGINAIS INÉDITOS" in build.prompt_sistema(con)
+    assert "originais inéditos" in (mini.parent / "premios" / "jabuti" / "index.html").read_text(encoding="utf-8")
+
+
 def test_build_falha_lista_incompleta(mini):  # CA-01.3
     linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     linhas[0]["vagas_lista"] = "10"
