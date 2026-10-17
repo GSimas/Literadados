@@ -37,10 +37,18 @@ export const MARCOS = [
   // São Paulo de Literatura (fontes em dados/coleta/sao-paulo/LEIA.md)
   { premio: "sao-paulo", ano: 2013, texto: "Estreia por idade" },
   { premio: "sao-paulo", ano: 2019, texto: "Estreia unificada" },
+  // Biblioteca Nacional (dados/coleta/biblioteca-nacional/LEIA.md)
+  { premio: "biblioteca-nacional", ano: 2004, texto: "Prêmio único" },
+  { premio: "biblioteca-nacional", ano: 2007, texto: "Glória Pondé (infantojuvenil)" },
+  { premio: "biblioteca-nacional", ano: 2009, texto: "Pódio de 1º a 3º" },
+  { premio: "biblioteca-nacional", ano: 2012, texto: "Sylvia Orthof; só o vencedor" },
+  { premio: "biblioteca-nacional", ano: 2017, texto: "3 finalistas" },
+  { premio: "biblioteca-nacional", ano: 2018, texto: "Pódio de novo" },
 ];
 // Formato do pódio de cada prêmio, para textos que juntam ou comparam prêmios (sempre ditos com o nome do prêmio, DA-5).
 export const FORMATOS = {
   jabuti: "até 1992 havia um vencedor por categoria; de 1993 a 2017, pódio de 1º a 3º; desde 2018, só o 1º",
+  "biblioteca-nacional": "um vencedor por categoria até 2008 (em 2004, um prêmio único; em 2003, nenhum), pódio de 1º a 3º em 2009–2011, só o vencedor em 2012–2016, três finalistas em 2017 e pódio de novo desde 2018; só autores brasileiros, inscritos pelo próprio autor",
   "sao-paulo": "um vencedor por categoria, só romance: Melhor Romance do Ano e Melhor Romance de Estreia (de 2013 a 2018, a estreia dividida em até 40 e mais de 40 anos)",
   oceanos: "o pódio teve 3 ou 4 premiados até 2022 (de 2012 a 2014, um vencedor por categoria e o Grande Prêmio); desde 2023, um vencedor em prosa e outro em poesia",
 };
@@ -711,7 +719,10 @@ export function resumoEdicao(autores) {
   };
 }
 
-const ordemCategoria = (a, b) => (a === "Livro do Ano") - (b === "Livro do Ano") || a.localeCompare(b, "pt-BR");
+// Ordem padrão das categorias (a mesma de ui.ORDEM_CATEGORIAS e de seo.py); categoria desconhecida vai para o fim, em ordem alfabética.
+const ORDEM_CAT = ["Romance", "Contos", "Crônica", "Prosa", "Poesia", "Infantil", "Juvenil", "Infantil e Juvenil", "Geral", "Livro do Ano"];
+const posCat = (c) => (ORDEM_CAT.includes(c) ? ORDEM_CAT.indexOf(c) : ORDEM_CAT.length);
+const ordemCategoria = (a, b) => posCat(a) - posCat(b) || a.localeCompare(b, "pt-BR");
 // Dentro da mesma categoria, a lista de estreantes vem depois da principal (São Paulo: Melhor Romance do Ano, depois Estreia).
 const estreia = (n) => (/estrei/i.test(n) ? 1 : 0);
 

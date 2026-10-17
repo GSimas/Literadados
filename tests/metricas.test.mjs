@@ -433,7 +433,7 @@ test("edições sem lista pública por prêmio; marcos só dos prêmios do recor
   ];
   assert.deepEqual([...M.edicoesSemLista(cats, "jabuti")].sort(), ["jabuti|1990", "jabuti|2017", "oceanos|2016"]);
   assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
-  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["jabuti", "oceanos", "sao-paulo"]); // null = todos (DA-4)
+  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["biblioteca-nacional", "jabuti", "oceanos", "sao-paulo"]); // null = todos (DA-4)
 });
 test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
   const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
@@ -485,8 +485,8 @@ test("perfilEdicao: números com n, edição vizinha, categorias em ordem de res
   assert.equal(p.pessoas, 3); assert.equal(p.mulheres, 2); assert.equal(p.negras, 1); // piso: só autodeclaração
   assert.equal(p.comUF, 3); assert.equal(p.sudeste, 2);
   assert.equal(p.anterior, null); assert.equal(p.seguinte, 2023);
-  assert.deepEqual(p.categorias.map((c) => c.categoria), ["Poesia", "Romance"]);
-  assert.deepEqual(p.categorias[1].obras.map((o) => o.obra_id), ["o2", "o1"]); // 1º lugar antes da lista
+  assert.deepEqual(p.categorias.map((c) => c.categoria), ["Romance", "Poesia"]); // ordem padrão das categorias
+  assert.deepEqual(p.categorias[0].obras.map((o) => o.obra_id), ["o2", "o1"]); // 1º lugar antes da lista
   const q = M.perfilEdicao(ls, "jabuti", 2023);
   assert.equal(q.pessoas, 2); // ilustrador fora dos números…
   assert.deepEqual(q.categorias[0].obras.find((o) => o.obra_id === "o4").ilustradores.map((x) => x.id), ["i"]); // …mas na ficha da obra
