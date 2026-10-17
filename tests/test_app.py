@@ -102,7 +102,9 @@ def test_json_compacto_reconstroi_v_participacao(base, mini, tmp_path):  # CA-RN
     con = duckdb.connect(str(db), read_only=True)
     esperado = json.loads(json.dumps(build._linhas(con, "SELECT * FROM v_participacao ORDER BY premio, ano, categoria, obra_id, papel, pessoa_id"), default=str))
     con.close()
-    obtido = _expandir_no_node(saida)
+    chave = lambda l: (l["premio"], l["ano"], l["categoria"], l["obra_id"], l["papel"], l["pessoa_id"])
+    obtido = sorted(_expandir_no_node(saida), key=chave)  # o JSON segue a ordem dos prêmios (premio.ordem); a view, a alfabética
+    esperado = sorted(esperado, key=chave)
     assert len(obtido) == len(esperado)
     for o, e in zip(obtido, esperado):
         assert list(o) == list(e)  # mesmas colunas, mesma ordem da view
@@ -539,7 +541,8 @@ def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
     # editora antiga só com fonte da época: o site oficial atual dá a editora de hoje (Companhia das Letras, fundada em 1986, em 1959)
     assert con.execute("""SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id JOIN editora e ON e.id = o.editora_id
                           WHERE i.ano < 1986 AND e.nome ILIKE '%companhia das letras%'""").fetchone()[0] == 0
-    assert con.execute("SELECT COUNT(*) FROM indicacao i JOIN obra o ON o.id = i.obra_id WHERE i.ano < 2000 AND o.editora_id IS NOT NULL").fetchone()[0] == 0
+    # Série histórica do Jabuti: a indicação fica sem editora da época, mesmo quando o livro ganhou editora por outro prêmio (CA-26.6).
+    assert con.execute("SELECT COUNT(*) FROM indicacao WHERE premio_id = 'jabuti' AND ano < 2000 AND editora_id IS NOT NULL").fetchone()[0] == 0
 
 
 # Frases que fazem do site o site de um prêmio só (CA-26.15, DA-5) ou que usam o 1º prêmio como padrão (DA-4).
