@@ -210,3 +210,11 @@
 - [x] T26.4 Marcos e formato no painel; build, testes e conferência 🧪👁
 - [x] T26.5 Textos de contexto das 18 edições (RF-28, protocolo `dados/coleta/contexto/PROTOCOLO.md`)
 - [ ] T26.6 Busca de raça dos jurados do São Paulo que ficou `parcial`; conferências listadas em `dados/coleta/sao-paulo/LEIA.md`
+
+## T27 Prêmio Literário Biblioteca Nacional (out/2026, CA-26.17)
+- [x] T27.1 Premiados 1995–2025 das categorias do recorte, com duas fontes; júri onde publicado 🧪
+- [x] T27.2 Casamento de pessoas e obras; editoras 🧪
+- [x] T27.3 Pessoas novas pelo protocolo
+- [x] T27.4 Textos de contexto das edições (RF-28)
+- [x] T27.5 Marcos e formato no painel; build, testes e conferência 🧪👁
+- [ ] T27.6 Pendências da FBN em `dados/coleta/biblioteca-nacional/LEIA.md` (identidades, coautoria do Infantil 2022, júri de 2011, raça dos jurados); decidir sobre as listas de habilitadas
