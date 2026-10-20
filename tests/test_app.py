@@ -174,6 +174,13 @@ def test_build_falha_fk_inexistente(mini):  # CA-01.2
         _build(mini)
 
 
+def test_build_falha_editora_com_nome_repetido(mini):  # D33: o nome da editora é a chave do perfil no painel
+    _csv(mini / "editora.csv", [{"id": "ed", "nome": "Ed", "grupo": "", "municipio_sede": "São Paulo", "uf_sede": "SP"},
+                                {"id": "editora-ed", "nome": "Ed", "grupo": "", "municipio_sede": "", "uf_sede": ""}])
+    with pytest.raises(build.BuildError, match="editora com nome repetido: Ed"):
+        _build(mini)
+
+
 def test_build_falha_lista_incompleta(mini):  # CA-01.3
     linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     linhas[0]["vagas_lista"] = "10"

@@ -201,3 +201,12 @@
 - [x] T25.2 Links para o perfil: livro, pessoa, edição, linha do tempo, busca, gráfico de editoras 👁
 - [x] T25.3 Páginas estáticas `/editoras/<id>/` e `/editoras/` com paridade de números 🧪
 - [x] T25.4 README atualizado (logotipo em PNG, badges, estado atual) 👁
+
+## T26 Prêmio São Paulo de Literatura (out/2026, CA-26.16)
+- [x] T26.0 Levantamento de prêmios candidatos (`dados/coleta/premios_candidatos.md`)
+- [x] T26.1 Listas 2008–2025 (finalistas e vencedores) com duas fontes por ano; júri final 🧪
+- [x] T26.2 Casamento de pessoas e obras com a base; editoras 🧪
+- [x] T26.3 Pessoas novas pelo protocolo (gênero, UF de nascimento, raça por autodeclaração)
+- [x] T26.4 Marcos e formato no painel; build, testes e conferência 🧪👁
+- [x] T26.5 Textos de contexto das 18 edições (RF-28, protocolo `dados/coleta/contexto/PROTOCOLO.md`)
+- [ ] T26.6 Busca de raça dos jurados do São Paulo que ficou `parcial`; conferências listadas em `dados/coleta/sao-paulo/LEIA.md`

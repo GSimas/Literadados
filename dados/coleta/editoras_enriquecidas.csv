@@ -455,3 +455,6 @@ quetzal-editores-pt,Quetzal Editores (PT),,,,quetzal-pt,,"Gauntlet 3 do Oceanos 
 quetzal-e-tag-sem-pais,Quetzal e TAG (país não informado),,,,quetzal-sem-pais,,"Gauntlet 3 do Oceanos (out/2026): mesma editora,  grafia ou coedição diferente"
 lumme,Lumme,,,,lumme-editor,,"Gauntlet 3 do Oceanos (out/2026): mesma editora,  grafia ou coedição diferente"
 leya-brasil,Leya Brasil,,,,leya,,"Gauntlet 3 do Oceanos (out/2026): mesma editora,  grafia ou coedição diferente"
+editora-quelonio,Editora Quelônio,,,,quelonio,,"Integração do São Paulo de Literatura (out/2026): mesma editora que quelonio, grafia da lista oficial gerava outro id"
+editora-taverna,Editora Taverna,,,,taverna,,"Integração do São Paulo de Literatura (out/2026): mesma editora que taverna, grafia da lista oficial gerava outro id"
+maralto-edicoes,Maralto Edições,,,,maralto,,"Integração do São Paulo de Literatura (out/2026): mesma editora que maralto, grafia da lista oficial gerava outro id"
