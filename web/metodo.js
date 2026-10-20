@@ -41,7 +41,7 @@ if (lista) $$("[data-premios-texto]").forEach((el) => { el.textContent = lista; 
 if (premios.length && $("#metodo-premios")) {
   const regimes = d3.rollups(D.edicoes ?? [], (v) => ({ de: d3.min(v, (x) => x.ano), ate: d3.max(v, (x) => x.ano) }), (x) => x.premio ?? padrao, (x) => x.regime);
   const porP = new Map(regimes);
-  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; prêmio de literatura em língua portuguesa (quem pode concorrer mudou com os anos)" : ""}):
+  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; prêmio de literatura em língua portuguesa (quem pode concorrer mudou com os anos)" : ""}${p.obras === "ineditas" ? "; premia <b>originais inéditos</b>, não livros publicados" : ""}):
     ${(porP.get(p.id) ?? []).map(([r, x]) => (/^\d{4}/.test(r) ? esc(r) : `${esc(r)} (${x.de === x.ate ? x.de : `${x.de}–${x.ate}`})`)).join("; ")}.</li>`).join("")}</ul>`; // regime que já começa pelo período não repete os anos
 }
 

@@ -1,5 +1,6 @@
-id,nome,organizador,ano_inicio,abrangencia,ordem,fonte
-jabuti,Prêmio Jabuti,Câmara Brasileira do Livro (CBL),1959,nacional,1,https://www.premiojabuti.com.br/
-oceanos,Prêmio Oceanos,Oceanos Cultura e Associação Oceanos,2003,lusofono,2,https://associacaooceanos.org/edicoes/2014-2003/sobre
-sao-paulo,Prêmio São Paulo de Literatura,Governo do Estado de São Paulo (Secretaria da Cultura),2008,nacional,3,https://premiosaopaulodeliteratura.org.br/edicoes-anteriores/
-biblioteca-nacional,Prêmio Biblioteca Nacional,Fundação Biblioteca Nacional (FBN),1995,nacional,4,https://www.gov.br/bn/pt-br/atuacao/cooperacao-e-difusao/premio-literario
+id,nome,organizador,ano_inicio,abrangencia,obras,ordem,fonte
+jabuti,Prêmio Jabuti,Câmara Brasileira do Livro (CBL),1959,nacional,publicadas,1,https://www.premiojabuti.com.br/
+oceanos,Prêmio Oceanos,Oceanos Cultura e Associação Oceanos,2003,lusofono,publicadas,2,https://associacaooceanos.org/edicoes/2014-2003/sobre
+sao-paulo,Prêmio São Paulo de Literatura,Governo do Estado de São Paulo (Secretaria da Cultura),2008,nacional,publicadas,3,https://premiosaopaulodeliteratura.org.br/edicoes-anteriores/
+biblioteca-nacional,Prêmio Biblioteca Nacional,Fundação Biblioteca Nacional (FBN),1995,nacional,publicadas,4,https://www.gov.br/bn/pt-br/atuacao/cooperacao-e-difusao/premio-literario
+sesc,Prêmio Sesc de Literatura,"Serviço Social do Comércio (Sesc), Departamento Nacional",2004,nacional,ineditas,5,https://www.sesc.com.br/premiosesc

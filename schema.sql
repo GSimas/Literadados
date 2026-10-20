@@ -21,6 +21,8 @@ CREATE TABLE premio (
   organizador  TEXT NOT NULL,
   ano_inicio   INTEGER NOT NULL,               -- 1ª edição; o build recusa edição anterior a ela
   abrangencia  TEXT NOT NULL CHECK (abrangencia IN ('nacional','lusofono')),
+  -- O que o prêmio julga (CA-26.18): livros publicados ou originais inéditos (Sesc). Inéditos não se comparam com livros do mercado.
+  obras        TEXT NOT NULL DEFAULT 'publicadas' CHECK (obras IN ('publicadas','ineditas')),
   ordem        INTEGER NOT NULL UNIQUE CHECK (ordem >= 1),  -- explícita: um prêmio mais antigo não vira o padrão sem querer
   fonte        TEXT NOT NULL
 );

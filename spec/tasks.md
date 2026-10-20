@@ -218,3 +218,10 @@
 - [x] T27.4 Textos de contexto das edições (RF-28)
 - [x] T27.5 Marcos e formato no painel; build, testes e conferência 🧪👁
 - [ ] T27.6 Pendências da FBN em `dados/coleta/biblioteca-nacional/LEIA.md` (identidades, coautoria do Infantil 2022, júri de 2011, raça dos jurados); decidir sobre as listas de habilitadas
+
+## T28 Prêmio Sesc de Literatura (out/2026, CA-26.18)
+- [x] T28.1 Coluna `premio.obras` (publicadas/inéditas) nos textos do prêmio, no Método e no prompt 🧪
+- [x] T28.2 Vencedores 2004–2025 com duas fontes; júri onde publicado 🧪
+- [x] T28.3 Pessoas novas pelo protocolo; textos de contexto (RF-28)
+- [x] T28.4 Marcos e formato no painel; build, testes e conferência 🧪👁
+- [ ] T28.5 Pendências do Sesc em `dados/coleta/sesc/LEIA.md` (Zé, Mizé no Oceanos 2008; inscritos de 2014; edição 2026)
