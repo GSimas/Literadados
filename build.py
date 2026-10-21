@@ -12,7 +12,7 @@ import duckdb
 import seo
 
 RAIZ = Path(__file__).parent
-TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
+TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
@@ -351,6 +351,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
         carregar(con, dados)
         checar(con)
         payload = exportar(con)
+        logos = {r.pop("editora_id"): r for r in _linhas(con, "SELECT * FROM editora_logo ORDER BY editora_id")}
         exportar_banco(con, saida.parent)
         saida.parent.mkdir(exist_ok=True)
         (saida.parent / "edicoes.json").write_text(json.dumps(contextos(con), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -367,6 +368,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
     base, partes = dividir({k: v for k, v in payload.items() if k not in ("qids_repetidos", "capas", "fontes")}, saida.stem)
     escrever = lambda arq, obj: arq.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
     escrever(saida.parent / "capas.json", {"sites": SITES_CAPA, "capas": payload["capas"]})
+    escrever(saida.parent / "editoras-logos.json", logos)
     escrever(saida.parent / "fontes.json", payload["fontes"])
     escrever(saida, base)
     for velho in saida.parent.glob(f"{saida.stem}-*.json"):  # parte de prêmio que saiu da base

@@ -8,7 +8,8 @@ import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
 import { montarPessoas, renderPessoas, htmlPerfil, htmlObra, carregarCapas } from "./pessoas.js";
 import { htmlEdicao, carregarContextos, celulaEdicao } from "./edicoes.js";
-import { htmlEditora } from "./editoras.js";
+import { htmlEditora, carregarLogos } from "./editoras.js";
+import { montarCapas3D } from "./capas-3d.js";
 import { montarTema } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
@@ -189,6 +190,7 @@ function fecharJanela(dlg) {
 // Rota única por hash: #/grafico/<id> abre a janela; #/pessoa|obra|uf|regiao|edicao|editora/<id> abre o perfil por cima (a janela fica);
 // outro hash fecha os dois.
 async function rota() {
+  const destino = location.hash;
   const perfil = location.hash.match(PERFIL), graf = location.hash.match(/^#\/grafico\/([\w-]+)$/);
   const dlg = $("#perfil");
   if (!perfil) {
@@ -206,16 +208,17 @@ async function rota() {
   const [premioEd, anoEd] = tipo === "edicao" ? decodeURIComponent(chave).split("/") : [];
   const r = tipo === "pessoa" ? { html: htmlPerfil(decodeURIComponent(chave), ctx) }
     : tipo === "obra" ? { html: htmlObra(decodeURIComponent(chave), { ...ctx, capas: await carregarCapas() }) }
-    : tipo === "editora" ? htmlEditora(decodeURIComponent(chave), { D, linhas: D.participacao })
+    : tipo === "editora" ? htmlEditora(decodeURIComponent(chave), { D, linhas: D.participacao, logos: await carregarLogos() })
     : tipo === "edicao" ? htmlEdicao(premioEd, +anoEd, { D, linhas: D.participacao, contexto: (await carregarContextos())[`${premioEd}|${anoEd}`] })
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });
-  if (!r?.html) return;
+  if (!r?.html || location.hash !== destino) return;
   $("#perfil-corpo").innerHTML = r.html;
   if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
   if (r.desenhar) { await carregarGraficos().catch((e) => console.error(e)); r.desenhar(); } // gráficos do perfil de lugar: depois de abrir, com a largura conhecida
 }
 addEventListener("hashchange", rota);
+montarCapas3D($("#perfil-corpo"));
 // Janelas: ×, Esc e clique fora fecham com animação e limpam o endereço (CA-20.2).
 for (const id of Object.keys(JANELAS)) {
   const j = $(`#${id}`);

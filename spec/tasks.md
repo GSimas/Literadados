@@ -201,6 +201,8 @@
 - [x] T25.2 Links para o perfil: livro, pessoa, edição, linha do tempo, busca, gráfico de editoras 👁
 - [x] T25.3 Páginas estáticas `/editoras/<id>/` e `/editoras/` com paridade de números 🧪
 - [x] T25.4 README atualizado (logotipo em PNG, badges, estado atual) 👁
+- [x] T25.5 Identidade visual em todos os perfis de editoras e páginas permanentes: 16 logotipos oficiais com crédito; marca tipográfica nos demais, durante o carregamento e em caso de falha, conforme decisão do responsável. SVGs conferidos no navegador e rasters em folha de contato; descartada a marca da Nova Fronteira por resolução insuficiente (64 px). Testes de referências, HTTPS, acesso alternativo e geração estática (CA-29.4, D35). 👁
+- [x] T25.6 Capas com lombada, páginas e inclinação 3D ao mover o cursor; crédito imóvel, toque e movimento reduzido respeitados. Testes de limites dos ângulos e retorno na saída, cancelamento, perda de foco e mudança de preferência; movimento conferido no navegador (CA-24.3, D35). 👁
 
 ## T26 Prêmio São Paulo de Literatura (out/2026, CA-26.16)
 - [x] T26.0 Levantamento de prêmios candidatos (`dados/coleta/premios_candidatos.md`)

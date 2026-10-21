@@ -869,6 +869,23 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
 
 /* ---------- perfil de livro (RF-24) ---------- */
 .obra-cab { grid-template-columns: 180px 1fr; }
+.capa-palco { perspective: 850px; width: 100%; aspect-ratio: 2 / 3; }
+.capa-livro { position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+  transform: rotateX(0deg) rotateY(0deg); transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.capa-livro::before { content: ""; position: absolute; inset: 3px 0 3px auto; width: 12px;
+  background: repeating-linear-gradient(90deg, #ded9cc 0 1px, #f9f5e9 1px 3px); border-radius: 1px;
+  transform-origin: right center; transform: rotateY(-90deg); }
+.capa-livro::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 12px;
+  background: linear-gradient(90deg, #1b2922, #687366 40%, #25362c); transform-origin: left center; transform: rotateY(90deg); }
+.capa-verso { position: absolute; inset: 2px; background: #384138; border-radius: 5px 9px 9px 5px; transform: translateZ(-12px); }
+.capa-livro .capa { height: 100%; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .inclinando .capa-livro { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(12px); transition-duration: .12s; }
+  .capa::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(105deg, rgba(255,255,255,.16), transparent 35%, rgba(0,0,0,.09));
+    box-shadow: inset 4px 0 5px rgba(0,0,0,.2), inset 6px 0 1px rgba(255,255,255,.12); }
+}
+@media (prefers-reduced-motion: reduce) { .capa-livro { transition: none; } }
 .capa { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; border-radius: 6px 10px 10px 6px; overflow: hidden;
   background: hsl(var(--h, 150) 32% 28%); box-shadow: inset 6px 0 10px -6px rgba(0, 0, 0, .45), var(--sombra), 0 12px 28px rgba(0, 0, 0, .18); }
 .capa img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -876,9 +893,28 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
   font-family: var(--fonte-titulo); font-weight: 700; font-size: 1.1rem; line-height: 1.15; overflow-wrap: anywhere; overflow: hidden; }
 .capa-tip small { font-family: var(--fonte); font-weight: 500; font-size: .74rem; opacity: .85; }
 .obras-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; font-size: .9rem; }
-@media (max-width: 720px) { .obra-cab .capa { width: 140px; } }
+@media (max-width: 720px) { .obra-cab .capa-palco { width: 140px; } }
 
 /* Perfil de edição (RF-28) */
+.editora-cab { grid-template-columns: 180px 1fr; align-items: start; }
+.editora-marca { margin: 0; width: 180px; }
+.editora-logo { position: relative; width: 100%; aspect-ratio: 6 / 5; overflow: hidden; border: 1px solid var(--borda);
+  border-radius: var(--raio); background: var(--marca-suave); color: var(--marca); }
+.editora-logo svg { width: 100%; height: 100%; display: block; }
+.editora-logo svg path { fill: none; stroke: currentColor; stroke-width: 1; opacity: .5; }
+.editora-logo svg text { fill: currentColor; font-family: var(--fonte-titulo); font-size: 46px; font-weight: 600; }
+.editora-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 20px; background: #fff; opacity: 0; }
+.editora-logo.logo-escuro img { background: #203d32; }
+.tem-logo.logo-carregado .editora-logo img { opacity: 1; }
+.tem-logo.logo-carregado .editora-logo svg { visibility: hidden; }
+.tem-logo.logo-carregado .marca-alternativa, .editora-marca .marca-fonte { display: none; }
+.tem-logo.logo-carregado .marca-fonte { display: inline; }
+.editora-marca .credito { margin-bottom: 0; }
+.editora-cab-estatica { display: grid; grid-template-columns: 180px 1fr; gap: 1.5rem; align-items: start; }
+@media (max-width: 720px) {
+  .editora-cab, .editora-cab-estatica { grid-template-columns: 1fr; }
+  .editora-marca { width: 150px; }
+}
 .edicao-texto { max-width: 68ch; }
 .edicao-texto p { font-size: 1.02rem; line-height: 1.65; margin: 0 0 .9rem; }
 .edicao-texto p:first-child::first-letter { font-family: var(--fonte-titulo); font-size: 3.1em; float: left; line-height: .9; margin: .06em .1em 0 0; color: var(--marca); }

@@ -233,7 +233,7 @@ export function htmlObra(id, { D, capas: C = {} }) {
   ].filter(Boolean).join("");
   return `<article>
     <header class="perfil-cab obra-cab">
-      <div><span class="capa" style="--h:${M.corAvatar(id)}">${tipografica}${imgCapa}</span>
+      <div><div class="capa-palco" style="--h:${M.corAvatar(id)}"><div class="capa-livro"><span class="capa-verso" aria-hidden="true"></span><span class="capa">${tipografica}${imgCapa}</span></div></div>
         ${capa ? `<p class="credito">Capa: ${capa.pagina ? `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte] ?? esc(capa.fonte)}</a>` : FONTE_CAPA[capa.fonte]}</p>` : `<p class="credito">Sem imagem de capa encontrada.</p>`}</div>
       <div>
         <p class="sobretitulo">Livro · ${cats.map(esc).join(" · ")}</p>

@@ -72,6 +72,29 @@ def test_paginas_geradas(site):  # CA-27.1
     assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6  # nada além disso (6 listas)
 
 
+def test_marcas_editoras_e_catalogo_separado(site):  # CA-29.4, RNF-06
+    logos = json.loads((site / "editoras-logos.json").read_text())
+    assert logos and all(x["imagem_url"].startswith("https://") and x["pagina"].startswith("https://") for x in logos.values())
+    assert "editoras-logos" not in (site / "dados.json").read_text()
+    for arq in (site / "editoras").glob("*/index.html"):
+        txt = arq.read_text()
+        assert 'role="img" aria-label="Identidade visual de ' in txt
+        assert 'class="marca-alternativa">Marca tipográfica' in txt
+        if arq.parent.name in logos:
+            assert 'referrerpolicy="no-referrer"' in txt
+            assert logos[arq.parent.name]["imagem_url"].replace("&", "&amp;") in txt
+            org = Pagina(txt).ld[0]["mainEntity"]
+            assert org["logo"] == logos[arq.parent.name]["imagem_url"]
+
+
+@pytest.mark.parametrize("mudanca", [{"editora_id": "inexistente"}, {"imagem_url": "http://x/logo.png"}, {"pagina": ""}, {"fundo": "qualquer"}])
+def test_catalogo_logos_recusa_referencia_ou_fonte_invalida(mini, mudanca):
+    row = {"editora_id": "ed", "imagem_url": "https://editora.example/logo.svg", "pagina": "https://editora.example/", "fonte": "Editora", "fundo": "claro", **mudanca}
+    _csv(mini / "editora_logo.csv", [row])
+    with pytest.raises(build.BuildError):
+        _build(mini)
+
+
 def test_metadados_e_json_ld(site):  # CA-27.2
     for rel, txt in _paginas(site).items():
         p = Pagina(txt)

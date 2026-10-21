@@ -5,6 +5,25 @@ import { esc, fmt, fmtPct, css, largura, estilo, desenhar, astGenero, nPequeno, 
 
 const ROT_ETAPA = { indicados: "indicada", semifinalistas: "semifinalista", finalistas: "finalista", premiados: "premiada" };
 let idPorNome = null;
+let logos = null;
+export function carregarLogos() {
+  logos ??= fetch("editoras-logos.json").then((r) => r.ok ? r.json() : {}).catch(() => ({}));
+  return logos;
+}
+
+export function iniciaisEditora(nome) {
+  const palavras = nome.split(/\s+/).filter((p) => !/^(editora|edições|editorial|de|da|das|do|dos|e|a|o)$/iu.test(p));
+  return (palavras.length > 1 ? palavras.slice(0, 2).map((p) => [...p][0]).join("") : [...(palavras[0] || nome)].slice(0, 2).join("")).toLocaleUpperCase("pt-BR");
+}
+
+export function marcaEditora(ed, logo) {
+  return `<figure class="editora-marca${logo ? " tem-logo" : ""}">
+    <div class="editora-logo${logo?.fundo === "escuro" ? " logo-escuro" : ""}" role="img" aria-label="Identidade visual de ${esc(ed.nome)}">
+      <svg viewBox="0 0 180 150" aria-hidden="true"><path d="M38 27h104M38 123h104M52 21v12m76-12v12M52 117v12m76-12v12"/><text x="90" y="91" text-anchor="middle">${esc(iniciaisEditora(ed.nome))}</text></svg>
+      ${logo ? `<img src="${esc(logo.imagem_url)}" alt="" width="180" height="150" decoding="async" referrerpolicy="no-referrer" onload="this.closest('figure').classList.add('logo-carregado')" onerror="this.closest('figure').classList.remove('tem-logo'); this.remove()">` : ""}
+    </div><figcaption class="credito"><span class="marca-alternativa">Marca tipográfica</span>${logo ? `<span class="marca-fonte">Logotipo: <a href="${esc(logo.pagina)}" target="_blank" rel="noopener noreferrer">${esc(logo.fonte)}</a></span>` : ""}</figcaption>
+  </figure>`;
+}
 // Link para o perfil da editora a partir do nome (como vem na participação); sem editora conhecida, texto puro.
 export function linkEditora(nome, D) {
   if (!nome) return "";
@@ -13,7 +32,7 @@ export function linkEditora(nome, D) {
   return id ? `<a href="#/editora/${esc(id)}">${esc(nome)}</a>` : esc(nome);
 }
 
-export function htmlEditora(id, { D, linhas }) {
+export function htmlEditora(id, { D, linhas, logos: L = {} }) {
   const ed = D.editoras.find((e) => e.id === id);
   if (!ed) return null;
   const p = M.perfilEditora(linhas, ed.nome);
@@ -25,7 +44,8 @@ export function htmlEditora(id, { D, linhas }) {
   const sede = [ed.municipio_sede, ed.uf_sede].filter(Boolean).map(esc).join("/");
   const pessoa = (x) => `<a href="#/pessoa/${esc(x.id)}">${esc(x.nome)}</a>`;
   const html = `<article class="editora">
-    <header class="perfil-cab edicao-cab">
+    <header class="perfil-cab editora-cab">
+      ${marcaEditora(ed, L[id])}
       <div>
         <p class="sobretitulo">Editora · ${ed.grupo ? `grupo ${esc(ed.grupo)}` : "independente"}${sede ? ` · sede: ${sede}` : ""}</p>
         <h2 id="perfil-nome">${esc(ed.nome)}</h2>

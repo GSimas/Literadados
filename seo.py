@@ -96,6 +96,7 @@ class Base:
         self.fotos = {f["pessoa_id"]: f for f in _linhas(con, "SELECT * FROM pessoa_foto")}  # direitos reservados (D34)
         self.ufs = {u["uf"]: u for u in _linhas(con, "SELECT * FROM uf ORDER BY uf") if u["uf"] != "EX"}
         self.editoras = {x["id"]: x for x in _linhas(con, "SELECT * FROM editora ORDER BY nome")}
+        self.logos = {x["editora_id"]: x for x in _linhas(con, "SELECT * FROM editora_logo")}
         self.ed_id = {x["nome"]: i for i, x in self.editoras.items()}  # nomes únicos (D33)
         self.contexto = {(c["premio_id"], c["ano"]): c for c in _linhas(con, "SELECT * FROM edicao_contexto")}
         self.com_dados = sorted({(l["premio"], l["ano"]) for l in self.part}, key=lambda k: ([p["id"] for p in self.premios].index(k[0]), k[1]))
@@ -619,6 +620,18 @@ def contagem_editora(ls) -> dict:
     return {"indicacoes": len(ind), "premiadas": sum(bool(l["premiada"]) for l in ind.values()), "vencedoras": sum(bool(l["vencedora"]) for l in ind.values())}
 
 
+def marca_editora(ed, logo=None):
+    palavras = [p for p in ed["nome"].split() if p.lower() not in {"editora", "edições", "editorial", "de", "da", "das", "do", "dos", "e", "a", "o"}]
+    iniciais = ("".join(p[0] for p in palavras[:2]) if len(palavras) > 1 else (palavras or [ed["nome"]])[0][:2]).upper()
+    imagem = (f'<img src="{e(logo["imagem_url"])}" alt="" width="180" height="150" decoding="async" referrerpolicy="no-referrer" '
+              'onload="this.closest(\'figure\').classList.add(\'logo-carregado\')" onerror="this.closest(\'figure\').classList.remove(\'tem-logo\'); this.remove()">') if logo else ""
+    fonte = (f'<span class="marca-fonte">Logotipo: <a href="{e(logo["pagina"])}" target="_blank" rel="noopener noreferrer">{e(logo["fonte"])}</a></span>') if logo else ""
+    return (f'<figure class="editora-marca{" tem-logo" if logo else ""}"><div class="editora-logo{" logo-escuro" if logo and logo["fundo"] == "escuro" else ""}" role="img" aria-label="Identidade visual de {e(ed["nome"])}">'
+            '<svg viewBox="0 0 180 150" aria-hidden="true"><path d="M38 27h104M38 123h104M52 21v12m76-12v12M52 117v12m76-12v12"/>'
+            f'<text x="90" y="91" text-anchor="middle">{e(iniciais)}</text></svg>{imagem}</div>'
+            f'<figcaption class="credito"><span class="marca-alternativa">Marca tipográfica</span>{fonte}</figcaption></figure>')
+
+
 def pagina_editora(b, eid, posicao, total_ed):
     ed = b.editoras[eid]
     ls = linhas_editora(b, ed["nome"])
@@ -639,9 +652,9 @@ def pagina_editora(b, eid, posicao, total_ed):
     lead = (f"{e(ed['nome'])}{' (grupo ' + e(ed['grupo']) + ')' if ed['grupo'] else ', editora independente'}{', sede: ' + e(sede) if sede else ''}, "
             f"teve {fmt(c['indicacoes'])} indicaç{'ão' if c['indicacoes'] == 1 else 'ões'} nos prêmios da base entre {anos[0]} e {anos[-1]}: "
             f"{fmt(c['premiadas'])} premiada{'' if c['premiadas'] == 1 else 's'}, {fmt(c['vencedoras'])} em 1º lugar. É a {posicao}ª de {fmt(total_ed)} editoras em indicações.")
-    corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Editora</p><h1>{e(ed["nome"])}</h1>
+    corpo = f"""<article class="secao"><header class="secao-cab editora-cab-estatica">{marca_editora(ed, b.logos.get(eid))}<div><p class="sobretitulo">Editora</p><h1>{e(ed["nome"])}</h1>
 <p class="lead">{lead}</p>
-<p class="links-externos"><a class="chip-link" href="/#/editora/{quote(eid)}">Abrir no painel, com gráfico</a></p></header>
+<p class="links-externos"><a class="chip-link" href="/#/editora/{quote(eid)}">Abrir no painel, com gráfico</a></p></div></header>
 {kpis([(e(n), fmt(cp["indicacoes"]), f"indicações ({ap[0]}–{ap[-1]}); {fmt(cp['premiadas'])} premiadas, {fmt(cp['vencedoras'])} em 1º lugar") for n, cp, ap in por_premio])}
 <h2>Quem a editora levou aos prêmios</h2>
 {kpis_resumo(r)}
@@ -652,6 +665,8 @@ def pagina_editora(b, eid, posicao, total_ed):
 <tbody>{linhas_t}</tbody></table></div>
 <p class="muted pequeno">Editora = a edição que concorreu (a mesma obra pode ter concorrido por editoras diferentes). Obras sem editora conhecida da época ficam fora.</p></article>"""
     org = {"@type": "Organization", "name": ed["nome"], "url": f"{SITE}/editoras/{quote(eid)}/"}
+    if eid in b.logos:
+        org["logo"] = b.logos[eid]["imagem_url"]
     if ed["grupo"]:
         org["parentOrganization"] = {"@type": "Organization", "name": ed["grupo"]}
     if sede:
@@ -777,6 +792,7 @@ TABELAS_DOC = {
     "pessoa": "pessoas: gênero, raça autodeclarada (com fonte e trecho), nascimento (com fonte), Wikidata", "editora": "editoras: grupo e sede",
     "jurado": "júri divulgado por edição e categoria", "pessoa_midia": "fotos livres do Wikimedia Commons e verbete da Wikipédia",
     "pessoa_foto": "fotos com direitos reservados, exibidas da fonte (site e página do crédito)",
+    "editora_logo": "logotipos oficiais das editoras, exibidos da fonte com crédito e alternativa tipográfica",
     "obra_capa": "capas (Open Library, Google Books, lojas e editoras), com a página de origem", "uf": "unidades da federação, região e população (Censo 2022)",
 }
 

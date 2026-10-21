@@ -87,6 +87,15 @@ CREATE TABLE obra (
   ano_publicacao  INTEGER
 );
 
+-- Marca oficial exibida da fonte; nenhuma cópia de logotipo de terceiros no site (CA-29.4).
+CREATE TABLE editora_logo (
+  editora_id TEXT PRIMARY KEY REFERENCES editora(id),
+  imagem_url TEXT NOT NULL CHECK (imagem_url LIKE 'https://%'),
+  pagina TEXT NOT NULL CHECK (pagina LIKE 'https://%'),
+  fonte TEXT NOT NULL,
+  fundo TEXT NOT NULL DEFAULT 'claro' CHECK (fundo IN ('claro', 'escuro'))
+);
+
 -- Capa de cada obra (RF-24): imagem exibida a partir da fonte (não guardamos cópia), com link para a página dela.
 CREATE TABLE obra_capa (
   obra_id   TEXT PRIMARY KEY REFERENCES obra(id),
