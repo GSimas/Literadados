@@ -52,14 +52,14 @@ Regimes: `1959–1992 vencedor por categoria`, `1993–2009 pódio`, `2010–201
   "editoras": [ { "id", "nome", "grupo", "municipio_sede", "uf_sede" } ],
   "ufs": [ { "uf", "nome", "regiao", "populacao_2022" } ],
   "cobertura": [ /* linhas de v_cobertura, por prêmio e ano */ ],
-  "midia": [ { "pessoa_id", "imagem"?, "imagem_autor"?, "imagem_licenca"?, "wikipedia_pt"?, "miniatura"? } ],  // só campos preenchidos
-  "capas": [ { "obra_id", "f", "i", "p"? } ],  // compacta (build._capa_compacta)
-  "fontes": [ { "dominio", "grupo", "registros", "exemplo" } ],
+  "midia": [ { "pessoa_id", "imagem"?, "imagem_autor"?, "imagem_licenca"?, "wikipedia_pt"?, "miniatura"?, "foto_url"?, "foto_pagina"?, "foto_fonte"? } ],  // só campos preenchidos
   "pessoas_em_varios_premios": 0,
   "partes": [ "dados-oceanos.json" ]  // só com mais de um prêmio (CA-26.14)
 }
 ```
-Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", "obras", "editoras", "midia", "capas" }` com o que ainda não veio em `dados.json` ou em parte anterior. `ui.carregarDados` busca as partes em paralelo, logo depois de `dados.json`, e `metricas.juntar` as soma antes de `expandir`. Todas carregam na abertura (cada arquivo < 1 MB): o carregamento sob demanda complicaria os filtros, que são síncronos, sem ganho real, porque o Netlify comprime e as partes são pequenas.
+As capas ficam em `web/capas.json` (`{ "sites": build.SITES_CAPA, "capas": [ { "obra_id", "f", "i", "p"? } ] }`, compactas por `build._capa_compacta`), lido só quando um perfil de livro abre (D34, RNF-06). As fontes agrupadas por domínio (`[ { "dominio", "grupo", "registros", "exemplo" } ]`) ficam em `web/fontes.json`, lido só pela página de método.
+
+Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", "obras", "editoras", "midia" }` com o que ainda não veio em `dados.json` ou em parte anterior. `ui.carregarDados` busca as partes em paralelo, logo depois de `dados.json`, e `metricas.juntar` as soma antes de `expandir`. Todas carregam na abertura (cada arquivo < 1 MB): o carregamento sob demanda complicaria os filtros, que são síncronos, sem ganho real, porque o Netlify comprime e as partes são pequenas.
 
 - **Mídia (RF-11):** `dados/pessoa_midia.csv` → tabela `pessoa_midia` (FK `pessoa`). Gerado por `coleta.py midia`: para cada pessoa com QID, lê `P18` (imagem) e o verbete da pt.wikipedia no Wikidata, e a autoria e a licença do arquivo na API do Commons (`extmetadata`). Só entram licenças livres (CC BY, CC BY-SA, CC0, "Attribution" do Commons, domínio público); o CHECK exige autor e licença quando há imagem. O navegador carrega a miniatura por `commons.wikimedia.org/wiki/Special:FilePath/<arquivo>?width=…`.
 - **Fontes (RF-18):** agregadas no build a partir das URLs de `indicacao.fonte`, `categoria_edicao.fonte`, `jurado.fonte` e das fontes de atributo em `pessoa`, por domínio (`fontes`).

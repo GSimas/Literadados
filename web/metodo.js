@@ -26,7 +26,8 @@ tabela($("#t-cobertura"), linhasCob, [...(multi ? [{ rot: "Prêmio", k: "premio"
   { rot: "Idade", f: (d) => fmtPct(d.pct_idade), num: true },
 ]);
 
-const grupos = d3.rollups(D.fontes ?? [], (v) => ({ total: d3.sum(v, (x) => x.registros), dominios: v }), (x) => x.grupo)
+const fontes = await fetch("fontes.json").then((r) => (r.ok ? r.json() : [])).catch(() => []); // fora do dados.json (D34)
+const grupos = d3.rollups(fontes, (v) => ({ total: d3.sum(v, (x) => x.registros), dominios: v }), (x) => x.grupo)
   .sort((a, b) => b[1].total - a[1].total);
 const max = d3.max(grupos, (g) => g[1].total) || 1;
 $("#referencias-grupos").innerHTML = grupos.map(([g, { total, dominios }]) => `<div class="cartao ref-grupo">
