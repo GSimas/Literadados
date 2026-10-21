@@ -5,8 +5,8 @@ Departamento Nacional. **Premia originais inéditos de autores estreantes no gê
 publicado depois (Record de 2004 a 2023, Editora Senac Rio desde 2024). Por isso `premio.obras = ineditas`, e todo texto que
 apresenta o prêmio diz que ele não julga livros do mercado.
 
-- **22 edições, 2004–2025, 44 vencedores**: Romance (2004–), Conto (`Contos`, 2006–), Poesia (2024–). A edição de 2026
-  (vencedores de agosto/2026) fica para quando os outros prêmios tiverem 2026.
+- **23 edições, 2004–2026, 47 vencedores**: Romance (2004–), Conto (`Contos`, 2006–), Poesia (2024–). A edição de 2026
+  (resultado de 19/08/2026, 2.969 inscritos) foi acrescentada em out/2026, com o júri completo (dois por categoria).
 - **Lista = só os vencedores** (`etapa_lista = premiados`): os finalistas de 2012–2013 saíram com pseudônimo e ficam fora.
 - **Editora vazia na indicação** (concorreu como original); a editora e o ano de publicação do livro estão em `observacao`.
 - **Ano:** o do anúncio do resultado, como na Wikipédia e na página atual do Sesc. O site antigo numerava pelo ano da inscrição
@@ -22,8 +22,8 @@ páginas antigas no Wayback, PublishNews, Folha, Record e pt.wikipedia. 36 das 4
 
 ## Júri (`jurados_AAAA.csv`)
 
-16 edições com jurados publicados (73 linhas): por categoria em 2004, 2006, 2009–2011, 2014–2016, 2020, 2022–2023; comissão
-comum (repetida em cada categoria) em 2018, 2019 e 2024; 2025 só com Eliana Alves Cruz. Sem júri achado em 2005, 2007,
+17 edições com jurados publicados (79 linhas): por categoria em 2004, 2006, 2009–2011, 2014–2016, 2020, 2022–2023; comissão
+comum (repetida em cada categoria) em 2018, 2019 e 2024; por categoria em 2026; 2025 só com Eliana Alves Cruz. Sem júri achado em 2005, 2007,
 2008, 2012, 2013 e 2021 (o de 2017 foi achado na redação do texto de contexto, na página do Sesc arquivada). Os comentadores do catálogo de 2010 (Cony, Ajzenberg e outros) provavelmente foram jurados,
 mas nenhuma fonte diz: ficaram fora.
 
@@ -46,7 +46,7 @@ mas nenhuma fonte diz: ficaram fora.
   com Mário Rodrigues (refeito: Garanhuns, PE, 1977): 19 com gênero com fonte, 14 com UF de nascimento, nenhuma
   autodeclaração racial. REVISAR: Tônio Caetano (está na antologia "Ancestralidades: escritores negros" — inclusão em
   antologia não é autodeclaração).
-- Textos de contexto das 22 edições (`../contexto/lote_9.csv`). Retirada do texto de 2024 a frase sobre o processo de
+- Textos de contexto das 23 edições (`../contexto/lote_9.csv`; 2026 em `lote_10.csv`). Retirada do texto de 2024 a frase sobre o processo de
   Henrique Rodrigues contra o Sesc (vinha de um resumo de segunda mão; a reportagem original não foi lida).
 - **A conferir:** o catálogo do Sesc diz que *Zé, Mizé, camarada André* (Sérgio Guimarães) foi finalista do Portugal Telecom
   2008, e a lista do Oceanos 2008 da base não o tem; o número de inscritos de 2014 (456) destoa das edições vizinhas.

@@ -537,11 +537,12 @@ def test_malha_uf_tem_27_ufs():  # CA-07.3
     assert all(f["geometry"]["type"] in ("Polygon", "MultiPolygon") for f in g["features"])
 
 
-def test_serie_historica_1959_2025(tmp_path):  # CA-25.1, CA-25.2
+def test_serie_historica_completa(tmp_path):  # CA-25.1, CA-25.2
     build.build(RAIZ / "dados", tmp_path / "h.duckdb", tmp_path / "h.json")
     j = json.loads((tmp_path / "h.json").read_text(encoding="utf-8"))
-    assert j["anos_coletados"] == list(range(1959, 2026))
-    assert j["anos"] == [1959, 2025] and "recorte" not in j  # série completa por padrão (CA-25.2)
+    fim = max(int(r["ano"]) for r in csv.DictReader((RAIZ / "dados" / "edicao.csv").open(encoding="utf-8")))  # cresce a cada edição nova
+    assert j["anos_coletados"] == list(range(1959, fim + 1))
+    assert j["anos"] == [1959, fim] and "recorte" not in j  # série completa por padrão (CA-25.2)
     con = duckdb.connect(str(tmp_path / "h.duckdb"), read_only=True)
     # toda edição antiga tem premiado em ao menos 3 categorias do recorte, e o Livro do Ano só tem vencedores
     por_ano = dict(con.execute("SELECT ano, COUNT(DISTINCT categoria) FROM v_participacao WHERE ano < 2010 AND premiada GROUP BY ano").fetchall())
