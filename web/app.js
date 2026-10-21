@@ -6,7 +6,7 @@ import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSa
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
-import { montarPessoas, renderPessoas, htmlPerfil, htmlObra } from "./pessoas.js";
+import { montarPessoas, renderPessoas, htmlPerfil, htmlObra, carregarCapas } from "./pessoas.js";
 import { htmlEdicao, carregarContextos, celulaEdicao } from "./edicoes.js";
 import { htmlEditora } from "./editoras.js";
 import { montarTema } from "./tema.js";
@@ -205,7 +205,7 @@ async function rota() {
   const [, tipo, chave] = perfil;
   const [premioEd, anoEd] = tipo === "edicao" ? decodeURIComponent(chave).split("/") : [];
   const r = tipo === "pessoa" ? { html: htmlPerfil(decodeURIComponent(chave), ctx) }
-    : tipo === "obra" ? { html: htmlObra(decodeURIComponent(chave), ctx) }
+    : tipo === "obra" ? { html: htmlObra(decodeURIComponent(chave), { ...ctx, capas: await carregarCapas() }) }
     : tipo === "editora" ? htmlEditora(decodeURIComponent(chave), { D, linhas: D.participacao })
     : tipo === "edicao" ? htmlEdicao(premioEd, +anoEd, { D, linhas: D.participacao, contexto: (await carregarContextos())[`${premioEd}|${anoEd}`] })
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });

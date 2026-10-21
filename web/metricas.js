@@ -74,8 +74,8 @@ const contar = (arr, chave) => {
 const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 
 // Junta ao dados.json as partes de outros prêmios (dados-<prêmio>.json, CA-26.14, build.dividir): cada parte traz a
-// participação do prêmio e as pessoas, obras, editoras, mídias e capas que ainda não vieram. Devolve D (alterado).
-export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "capas", "jurados", "categorias", "edicoes", "cobertura"];
+// participação do prêmio e as pessoas, obras, editoras e mídias que ainda não vieram. Devolve D (alterado).
+export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura"];
 export function juntar(D, partes = []) {
   for (const p of partes) for (const k of CHAVES_PARTES) if (p[k]?.length) D[k] = [...(D[k] ?? []), ...p[k]];
   return D;

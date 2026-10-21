@@ -4,6 +4,7 @@
   python coleta.py aplicar_pessoas  # incorpora dados/coleta/pessoas_*.csv (pesquisa de nascimento e raça)
   python coleta.py verificar    # confere se cada raca_trecho aparece na página de raca_fonte
   python coleta.py midia        # foto (Commons, licença livre) e verbete da pt.wikipedia das pessoas com QID → dados/pessoa_midia.csv
+  python coleta.py imagens      # fotos e capas com direitos reservados (dados/coleta/imagens/*, D34) → dados/pessoa_foto.csv, dados/obra_capa.csv
   python coleta.py malha        # limites das UFs (IBGE, malha mínima) → web/br-uf.json
 """
 import csv
@@ -36,6 +37,7 @@ CAMPOS = {
     "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
     "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
     "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
+    "pessoa_foto": ["pessoa_id", "foto_url", "pagina", "fonte"],
 }
 
 
@@ -709,6 +711,32 @@ def capas():
         time.sleep(0.5)
 
 
+def imagens():
+    """Junta dados/coleta/imagens/fotos_*.csv e capas_*.csv (PROTOCOLO.md da pasta, D34): foto com direitos reservados só para
+    quem não tem foto livre (→ pessoa_foto.csv) e capa só para obra sem capa (→ obra_capa.csv). O primeiro arquivo em ordem
+    alfabética vence; refazer do zero as fotos a cada execução deixa a junção reproduzível."""
+    pasta = DADOS / "coleta" / "imagens"
+    livres = {m["pessoa_id"] for m in ler("pessoa_midia") if m.get("imagem")}
+    pessoas, obras = {p["id"] for p in ler("pessoa")}, {o["id"] for o in ler("obra")}
+    ok = lambda u: (u or "").startswith("https://")
+    fotos = {}
+    for arq in sorted(pasta.glob("fotos_*.csv")):
+        for l in csv.DictReader(arq.open(encoding="utf-8")):
+            pid = l["pessoa_id"]
+            if pid in pessoas and pid not in livres and pid not in fotos and ok(l["imagem_url"]) and l["pagina"].startswith("http") and l["fonte"].strip():
+                fotos[pid] = {"pessoa_id": pid, "foto_url": l["imagem_url"], "pagina": l["pagina"], "fonte": l["fonte"].strip()}
+    gravar("pessoa_foto", [fotos[k] for k in sorted(fotos)])
+    capas = {c["obra_id"]: c for c in ler("obra_capa")}
+    antes = len(capas)
+    for arq in sorted(pasta.glob("capas_*.csv")):
+        for l in csv.DictReader(arq.open(encoding="utf-8")):
+            oid = l["obra_id"]
+            if oid in obras and oid not in capas and ok(l["capa_url"]) and l["pagina"].startswith("http") and l["fonte"].strip():
+                capas[oid] = {"obra_id": oid, "capa_url": l["capa_url"], "fonte": l["fonte"].strip(), "pagina": l["pagina"]}
+    gravar("obra_capa", [capas[k] for k in sorted(capas)])
+    print(f"{len(fotos)} fotos com direitos reservados; {len(capas) - antes} capas novas ({len(capas)} no total)")
+
+
 def contexto():
     """Junta os lotes de texto de edição (dados/coleta/contexto/lote_*.csv, PROTOCOLO.md) em dados/edicao_contexto.csv (RF-28).
     Lote posterior (ordem numérica) vence na mesma edição; o build confere fonte e edição."""
@@ -726,4 +754,4 @@ def contexto():
 
 if __name__ == "__main__":
     {"normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
-     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "contexto": contexto}[sys.argv[1]]()
+     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto}[sys.argv[1]]()

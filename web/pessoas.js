@@ -1,7 +1,7 @@
 // Galeria de pessoas e perfil com rota por hash (RF-11): #/pessoa/<id>.
 import * as M from "./metricas.js";
 import { linkEditora } from "./editoras.js";
-import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, astGenero, CONTATO, movimentoReduzido, PREMIOS, NOME_PREMIO, nomesPremios, noPremio, nomePais } from "./ui.js";
+import { $, $$, fmt, esc, ROT_GEN, ROT_RACA, foto, credito, temFoto, astGenero, CONTATO, movimentoReduzido, PREMIOS, NOME_PREMIO, nomesPremios, noPremio, nomePais } from "./ui.js";
 
 const PAGINA = 100;
 let pagina = 1, nPag = 1; // CA-11.6: busca e ordenação voltam à 1; filtro mantém, se a página ainda existir
@@ -88,8 +88,8 @@ export function renderPessoas(L, { D, midiaPorId }) {
     .filter((p) => !termo || semAcento(p.nome).includes(termo))
     .sort((a, b) => (ordem === "nome" ? 0 : ordem === "participacoes" ? b.participacoes - a.participacoes || b.premios - a.premios : b.premios - a.premios || b.participacoes - a.participacoes)
       || a.nome.localeCompare(b.nome, "pt-BR"));
-  const comFoto = lista.filter((p) => midiaPorId.get(p.id)?.imagem).length;
-  $("#galeria-contagem").textContent = `${fmt(lista.length)} pessoas · ${fmt(comFoto)} com foto livre`;
+  const comFoto = lista.filter((p) => temFoto(midiaPorId.get(p.id))).length;
+  $("#galeria-contagem").textContent = `${fmt(lista.length)} pessoas · ${fmt(comFoto)} com foto`;
   const tabelaVis = vista === "tabela";
   $("#galeria").hidden = tabelaVis;
   $("#tabela-pessoas-wrap").hidden = !tabelaVis;
@@ -154,7 +154,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   ].filter(Boolean).join("");
   return `<article>
     <header class="perfil-cab">
-      <div>${foto(p, m, { w: 480 })}${m?.imagem ? `<p class="credito">${credito(m)}</p>` : ""}</div>
+      <div>${foto(p, m, { w: 480 })}${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
       <div>
         <p class="sobretitulo">${[ls.some((l) => l.papel === "autor") ? "Autor(a)" : ls.length ? "Ilustrador(a)" : org.length ? "Organizador(a)" : "",
           jur.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^j/, "J")}</p>
@@ -190,22 +190,30 @@ export function htmlPerfil(id, { D, midiaPorId }) {
     </div></article>`;
 }
 
-// Perfil de livro (RF-24): #/obra/<id>. Capa vinda da fonte (Google Books ou Open Library) quando a coleta achou uma que
+// Perfil de livro (RF-24): #/obra/<id>. Capa vinda da fonte (Google Books, Open Library, loja ou editora: D34) quando a coleta achou uma que
 // bate título e autor; por baixo dela, sempre, uma capa tipográfica (aparece se não houver imagem ou se ela não carregar).
 const FONTE_CAPA = { google_books: "Google Books", open_library: "Open Library" };
-// Capa compacta do dados.json (build._capa_compacta) → URLs da imagem e da página na fonte.
-export function urlsCapa(c) {
+// capas.json (build, D34): lido só quando um perfil de livro abre, fora do dados.json (RNF-06).
+let capas = null;
+export async function carregarCapas() {
+  capas ??= fetch("capas.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  return capas;
+}
+// Capa compacta (build._capa_compacta) → URLs da imagem e da página na fonte; `sites` remonta os prefixos (SITES_CAPA).
+export function urlsCapa(c, sites = {}) {
   if (!c) return null;
+  const s = sites[c.f];
+  if (s) return { url: s.url + c.i, pagina: s.pagina + c.p, fonte: s.nome };
   if (c.f === "ol") return { url: `https://covers.openlibrary.org/b/id/${c.i}-M.jpg`, pagina: `https://openlibrary.org/${c.p.endsWith("W") ? "works" : "books"}/${c.p}`, fonte: "open_library" };
   if (c.f === "gb") return { url: `https://books.google.com/books/content?id=${c.i}&printsec=frontcover&img=1&zoom=1`, pagina: `https://books.google.com/books?id=${c.i}`, fonte: "google_books" };
   return c;
 }
-export function htmlObra(id, { D }) {
+export function htmlObra(id, { D, capas: C = {} }) {
   const o = D.obras.find((x) => x.id === id), ls = D.participacao.filter((l) => l.obra_id === id);
   if (!o || !ls.length) return null;
   indexarEtapas(D);
   const ps = premiosDe(ls), multi = ps.length > 1;
-  const capa = urlsCapa((D.capas ?? []).find((c) => c.obra_id === id)), ed = D.editoras.find((e) => e.id === o.editora_id);
+  const capa = urlsCapa((C.capas ?? []).find((c) => c.obra_id === id), C.sites), ed = D.editoras.find((e) => e.id === o.editora_id);
   const papel = (p) => [...new Map(ls.filter((l) => l.papel === p).map((l) => [l.pessoa_id, l])).values()];
   const [autores, ilus, orgs] = ["autor", "ilustrador", "organizador"].map(papel);
   const chips = (xs) => xs.map((l) => `<button type="button" class="link-pessoa" data-pessoa="${esc(l.pessoa_id)}">${esc(l.nome)}</button>`).join("");
@@ -220,13 +228,13 @@ export function htmlObra(id, { D }) {
   const tipografica = `<span class="capa-tip"><span>${esc(o.titulo)}</span><small>${esc(nomesAutores)}</small></span>`;
   const imgCapa = capa ? `<img src="${esc(capa.url)}" alt="Capa de ${esc(o.titulo)}" width="128" height="192" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
   const links = [
-    capa?.pagina && `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte]}</a>`,
+    capa?.pagina && `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte] ?? esc(capa.fonte)}</a>`,
     `<a href="#/obra/${esc(id)}" data-copiar>Link deste perfil</a>`,
   ].filter(Boolean).join("");
   return `<article>
     <header class="perfil-cab obra-cab">
       <div><span class="capa" style="--h:${M.corAvatar(id)}">${tipografica}${imgCapa}</span>
-        ${capa ? `<p class="credito">Capa: ${capa.pagina ? `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte]}</a>` : FONTE_CAPA[capa.fonte]}</p>` : `<p class="credito">Sem imagem de capa encontrada.</p>`}</div>
+        ${capa ? `<p class="credito">Capa: ${capa.pagina ? `<a href="${esc(capa.pagina)}" target="_blank" rel="noopener noreferrer">${FONTE_CAPA[capa.fonte] ?? esc(capa.fonte)}</a>` : FONTE_CAPA[capa.fonte]}</p>` : `<p class="credito">Sem imagem de capa encontrada.</p>`}</div>
       <div>
         <p class="sobretitulo">Livro · ${cats.map(esc).join(" · ")}</p>
         <h2 id="perfil-nome">${esc(o.titulo)}</h2>

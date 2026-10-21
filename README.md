@@ -41,7 +41,7 @@ Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascim
 | Nascimento (autoras) | 844 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
 | Raça declarada (autoras) | 47 autodeclarações públicas ou fontes curadas, 33 pessoas negras (piso). Busca do protocolo completa para 1.263 de 1.597 |
 | Edições | **162 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 39 marcados para revisão humana |
-| Perfis | 998 QIDs do Wikidata, 378 fotos com licença livre, 285 capas |
+| Perfis | 998 QIDs do Wikidata, 378 fotos com licença livre e 347 com direitos reservados, exibidas da fonte com crédito (699 das 1.597 autoras com foto), 2.449 capas |
 | Fontes citadas | 234 domínios, agrupados na seção Referências |
 | Páginas para buscadores e IAs | 2.710 URLs no `sitemap.xml` (prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos) |
 
@@ -123,7 +123,7 @@ Toda mudança de comportamento segue a ordem `spec/spec.md` (requisito e critér
 | `dados/coleta/` | Levantamentos brutos (listas por edição, pesquisas de pessoas com `PROTOCOLO_PESSOAS.md`, textos das edições com `contexto/PROTOCOLO.md`) |
 | `build.py` | CSVs → `literadados.duckdb` + `web/dados.json` + `web/edicoes.json`, com checagens de consistência |
 | `seo.py` | Páginas estáticas, `sitemap.xml`, `llms.txt` e `llms-full.txt` (chamado pelo build) |
-| `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `miniaturas`, `capas`, `malha` (UFs), `contexto` (textos das edições) |
+| `coleta.py` | `normalizar`, `aplicar_pessoas`, `wikidata`, `verificar` (trechos de raça), `midia` (fotos livres), `miniaturas`, `capas`, `imagens` (fotos e capas com direitos reservados), `malha` (UFs), `contexto` (textos das edições) |
 | `server.py` | Servidor estático para desenvolvimento local (o site publicado não precisa dele) |
 | `netlify.toml` | Publicação de `web/` no Netlify |
 | `web/` | Frontend sem etapa de build: Observable Plot e d3 via CDN, módulos ES. Páginas geradas em `web/premios/`, `web/pessoas/`, `web/editoras/`, `web/estados/`, `web/perguntas/` e `web/dados-abertos/` (não edite à mão) |

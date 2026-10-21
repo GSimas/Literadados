@@ -12,7 +12,7 @@ import duckdb
 import seo
 
 RAIZ = Path(__file__).parent
-TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
+TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
@@ -135,9 +135,20 @@ def _fontes_wd(pessoas):
     return pessoas
 
 
+# Sites de capa com URL previsível (D34): no capas.json vai só o resto da URL e da página; pessoas.urlsCapa remonta.
+SITES_CAPA = {
+    "mf": {"nome": "Martins Fontes", "url": "https://martinsfontespaulista.vteximg.com.br/arquivos/ids/", "pagina": "https://www.martinsfontespaulista.com.br/"},
+    "cl": {"nome": "Companhia das Letras", "url": "https://ciadasletras.vteximg.com.br/arquivos/ids/", "pagina": "https://www.companhiadasletras.com.br/"},
+    "ev": {"nome": "Estante Virtual", "url": "https://static.estantevirtual.com.br/book/", "pagina": "https://www.estantevirtual.com.br/livro/"},
+}
+
+
 def _capa_compacta(c: dict) -> dict:
-    """Capa no dados.json só com fonte e ids (RNF-06); o navegador remonta as URLs (pessoas.urlsCapa). Formato fora do padrão vai inteiro."""
+    """Capa no capas.json só com fonte e ids (RNF-06); o navegador remonta as URLs (pessoas.urlsCapa). Formato fora do padrão vai inteiro."""
     import re
+    for k, s in SITES_CAPA.items():
+        if c["fonte"] == s["nome"] and c["capa_url"].startswith(s["url"]) and (c["pagina"] or "").startswith(s["pagina"]):
+            return {"obra_id": c["obra_id"], "f": k, "i": c["capa_url"][len(s["url"]):], "p": c["pagina"][len(s["pagina"]):]}
     if c["fonte"] == "open_library":
         m, p = re.search(r"/b/id/(\d+)-M\.jpg$", c["capa_url"]), re.search(r"/(books|works)/(OL\w+)$", c["pagina"] or "")
         if m and p:
@@ -190,9 +201,14 @@ def exportar(con) -> dict:
         "cobertura": _sem_nulos(_linhas(con, "SELECT NULLIF(premio, ?) AS premio, * EXCLUDE (premio) FROM v_cobertura ORDER BY v_cobertura.premio, ano", padrao)),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
         # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
+        # foto_*: foto com direitos reservados, exibida da fonte (D34), só para quem não tem foto livre.
         "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
                   for m in _linhas(con, """
-                  SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
+                  SELECT COALESCE(m.pessoa_id, f.pessoa_id) AS pessoa_id, m.imagem, m.imagem_autor, m.imagem_licenca, m.wikipedia_pt,
+                         CASE WHEN m.imagem IS NULL THEN f.foto_url END AS foto_url,
+                         CASE WHEN m.imagem IS NULL THEN f.pagina END AS foto_pagina,
+                         CASE WHEN m.imagem IS NULL THEN f.fonte END AS foto_fonte
+                  FROM pessoa_midia m FULL JOIN pessoa_foto f USING (pessoa_id) ORDER BY 1""")],
         "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
         "pessoas_em_varios_premios": varios_premios(con),
@@ -291,13 +307,13 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
-PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "capas", "jurados", "categorias", "edicoes", "cobertura"]  # = metricas.CHAVES_PARTES
+PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura"]  # = metricas.CHAVES_PARTES
 
 
 def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
     """Um arquivo por prêmio (CA-26.14, RNF-06): dados.json fica com o prêmio padrão e o que é comum (prêmios, edições,
     categorias, júri, cobertura, fontes); cada outro prêmio vai para dados-<id>.json, com a participação dele e as pessoas,
-    obras, editoras, mídias e capas que ainda não estavam em arquivo anterior. O navegador junta tudo (metricas.juntar).
+    obras, editoras e mídias que ainda não estavam em arquivo anterior. O navegador junta tudo (metricas.juntar).
     Com um prêmio só, nada muda. Devolve (base, {nome do arquivo: parte})."""
     if len(payload.get("premios", [])) < 2:
         return payload, {}
@@ -315,8 +331,7 @@ def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
                 "pessoas": [p for p in payload["pessoas"] if p["id"] in novos["pessoas"]],
                 "obras": [o for o in payload["obras"] if o["id"] in novos["obras"]],
                 "editoras": [e for e in payload["editoras"] if e["id"] in novos["editoras"]],
-                "midia": [m for m in payload["midia"] if m["pessoa_id"] in novos["pessoas"]],
-                "capas": [c for c in payload["capas"] if c["obra_id"] in novos["obras"]]}
+                "midia": [m for m in payload["midia"] if m["pessoa_id"] in novos["pessoas"]]}
 
     outros = [p["id"] for p in payload["premios"][1:]]
     # Júri, categorias, edições e cobertura de cada prêmio também vão para a parte dele (e as pessoas do júri junto).
@@ -347,8 +362,12 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
     con.close()
     os.replace(tmp, db)  # troca atômica: o servidor nunca vê banco pela metade
     saida.parent.mkdir(exist_ok=True)
-    base, partes = dividir({k: v for k, v in payload.items() if k != "qids_repetidos"}, saida.stem)  # aviso do build, não do painel
+    # qids_repetidos é aviso do build, não do painel. Fora do dados.json (RNF-06, D34): capas, lidas só no perfil de livro,
+    # e fontes por domínio, lidas só na página de método.
+    base, partes = dividir({k: v for k, v in payload.items() if k not in ("qids_repetidos", "capas", "fontes")}, saida.stem)
     escrever = lambda arq, obj: arq.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+    escrever(saida.parent / "capas.json", {"sites": SITES_CAPA, "capas": payload["capas"]})
+    escrever(saida.parent / "fontes.json", payload["fontes"])
     escrever(saida, base)
     for velho in saida.parent.glob(f"{saida.stem}-*.json"):  # parte de prêmio que saiu da base
         if velho.name not in partes:
