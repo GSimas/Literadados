@@ -41,7 +41,7 @@ Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascim
 | Nascimento (autoras) | 844 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
 | Raça declarada (autoras) | 47 autodeclarações públicas ou fontes curadas, 33 pessoas negras (piso). Busca do protocolo completa para 1.263 de 1.597 |
 | Edições | **162 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 39 marcados para revisão humana |
-| Perfis | 998 QIDs do Wikidata, 378 fotos com licença livre e 347 com direitos reservados, exibidas da fonte com crédito (699 das 1.597 autoras com foto), 2.449 capas |
+| Perfis | 998 QIDs do Wikidata, 378 fotos com licença livre e 403 com direitos reservados, exibidas da fonte com crédito (755 das 1.597 autoras com foto), 2.468 capas |
 | Fontes citadas | 234 domínios, agrupados na seção Referências |
 | Páginas para buscadores e IAs | 2.710 URLs no `sitemap.xml` (prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos) |
 

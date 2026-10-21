@@ -230,4 +230,4 @@
 - [x] T29.1 Spec, design e esquema (`pessoa_foto`, `obra_capa.fonte` livre com página obrigatória) 🧪
 - [x] T29.2 Coleta por agentes (`dados/coleta/imagens/PROTOCOLO.md`): capas em lojas/editoras, fotos em Wikipédias (inclusive não livres), sites de prêmios, editoras e perfis
 - [x] T29.3 `coleta.py imagens` junta as coletas; build exporta; crédito em perfil, galeria e páginas estáticas 🧪👁
-- [ ] T29.4 Segunda passada de fotos (~900 autores sem foto: Goodreads devagar, Wook/Bertrand para o Oceanos, busca web) e das 411 capas que faltam
+- [ ] T29.4 Segunda passada de imagens: +56 fotos e +19 capas em 21/10/2026; filas recalculadas (vencedores primeiro, até 3 livros distintos por pessoa). Restam 842 pessoas-autoras sem foto e 392 obras sem capa. Goodreads interrompido ao primeiro WAF (202); dez capas da Patuá recusadas por MIME incorreto. Nova coleta necessária para esgotar as filas.
