@@ -155,19 +155,22 @@ export const dica = {
   },
 };
 
-// Foto do Commons (licença livre, CA-11.3) ou avatar de iniciais com matiz neutro derivado do id.
+// Foto do Commons (licença livre), senão foto com direitos reservados exibida da fonte (CA-11.3, D34); sem nenhuma,
+// avatar de iniciais com matiz neutro derivado do id.
 export const urlFoto = (arquivo, w = 320) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(arquivo)}?width=${w}`;
-// Miniatura WebP servida pelo site (coleta.py miniaturas, RNF-08) quando existe; senão, o Commons.
-export const srcFoto = (id, m, w) => (m.miniatura ? `fotos/${id}-${w <= 160 ? 160 : 480}.webp` : urlFoto(m.imagem, w));
+export const temFoto = (m) => !!(m?.imagem || m?.foto_url);
+// Miniatura WebP servida pelo site (coleta.py miniaturas, RNF-08) quando existe; senão, o Commons; senão, a fonte da foto.
+export const srcFoto = (id, m, w) => (m.miniatura ? `fotos/${id}-${w <= 160 ? 160 : 480}.webp` : m.imagem ? urlFoto(m.imagem, w) : m.foto_url);
 export const paginaArquivo = (arquivo) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(arquivo.replace(/ /g, "_"))}`;
 export function foto(p, midia, { w = 320, classe = "foto" } = {}) {
   const avatar = `<span class="avatar" aria-hidden="true" data-iniciais="${esc(M.iniciais(p.nome))}" style="--h:${M.corAvatar(p.id)}"></span>`;
-  if (!midia?.imagem) return `<span class="${classe}">${avatar}</span>`;
+  if (!temFoto(midia)) return `<span class="${classe}">${avatar}</span>`;
   // O avatar fica por baixo: se a foto não carregar, ela some e as iniciais aparecem.
-  return `<span class="${classe}">${avatar}<img src="${esc(srcFoto(p.id, midia, w))}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>`;
+  return `<span class="${classe}">${avatar}<img src="${esc(srcFoto(p.id, midia, w))}" alt="" loading="lazy" decoding="async"${midia.imagem ? "" : ' referrerpolicy="no-referrer"'} onerror="this.remove()"></span>`;
 }
 export const credito = (m) => (m?.imagem
   ? `Foto: ${esc(m.imagem_autor)} · <a href="${esc(paginaArquivo(m.imagem))}" target="_blank" rel="noopener noreferrer">${esc(m.imagem_licenca)}, Wikimedia Commons</a>`
+  : m?.foto_url ? `Foto: <a href="${esc(m.foto_pagina)}" target="_blank" rel="noopener noreferrer">${esc(m.foto_fonte)}</a> · direitos reservados`
   : "");
 
 // ---------- sistema visual próprio (RF-19, D17) ----------

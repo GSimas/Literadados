@@ -512,6 +512,27 @@ def test_midia_exige_licenca_livre(mini, linha):  # CA-11.3
         _build(mini)
 
 
+def test_foto_com_direitos_reservados_so_sem_foto_livre(mini):  # CA-11.3, D34
+    _csv(mini / "pessoa_midia.csv", [{"pessoa_id": "a", "imagem": "A.jpg", "imagem_autor": "Fulano", "imagem_licenca": "CC BY 4.0", "imagem_licenca_url": "", "wikipedia_pt": ""}])
+    _csv(mini / "pessoa_foto.csv", [
+        {"pessoa_id": "a", "foto_url": "https://ed.example/a.jpg", "pagina": "https://ed.example/autora-a", "fonte": "Editora"},  # a foto livre vence
+        {"pessoa_id": "b", "foto_url": "https://ed.example/b.jpg", "pagina": "https://ed.example/autor-b", "fonte": "Editora"},
+    ])
+    m = {x["pessoa_id"]: x for x in _build(mini)["midia"]}
+    assert "foto_url" not in m["a"] and m["a"]["imagem"] == "A.jpg"
+    assert m["b"] == {"pessoa_id": "b", "foto_url": "https://ed.example/b.jpg", "foto_pagina": "https://ed.example/autor-b", "foto_fonte": "Editora"}
+
+
+@pytest.mark.parametrize("tabela,linha", [
+    ("pessoa_foto", {"pessoa_id": "b", "foto_url": "https://ed.example/b.jpg", "pagina": "", "fonte": "Editora"}),  # sem página do crédito
+    ("obra_capa", {"obra_id": "o1", "capa_url": "https://loja.example/o1.jpg", "fonte": "Loja", "pagina": ""}),  # idem
+])
+def test_imagem_com_direitos_reservados_exige_credito(mini, tabela, linha):  # CA-11.3, CA-24.2
+    _csv(mini / f"{tabela}.csv", [linha])
+    with pytest.raises(build.BuildError, match=tabela):
+        _build(mini)
+
+
 def test_build_exporta_fontes_por_dominio(mini):  # CA-18.1
     linhas = list(csv.DictReader((mini / "categoria_edicao.csv").open(encoding="utf-8")))
     for l in linhas:

@@ -12,7 +12,7 @@ import duckdb
 import seo
 
 RAIZ = Path(__file__).parent
-TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "obra", "obra_capa", "autoria",
+TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
 
 
@@ -190,9 +190,14 @@ def exportar(con) -> dict:
         "cobertura": _sem_nulos(_linhas(con, "SELECT NULLIF(premio, ?) AS premio, * EXCLUDE (premio) FROM v_cobertura ORDER BY v_cobertura.premio, ano", padrao)),
         # Só campos preenchidos; o crédito da foto aponta para a página do arquivo no Commons (licença e autoria completas lá).
         # miniatura: há web/fotos/<id>-160.webp e -480.webp (coleta.py miniaturas); sem ela, o site busca a foto no Commons.
+        # foto_*: foto com direitos reservados, exibida da fonte (D34), só para quem não tem foto livre.
         "midia": [{k: v for k, v in m.items() if v is not None} | ({"miniatura": True} if m["imagem"] and _tem_miniatura(m["pessoa_id"]) else {})
                   for m in _linhas(con, """
-                  SELECT pessoa_id, imagem, imagem_autor, imagem_licenca, wikipedia_pt FROM pessoa_midia ORDER BY pessoa_id""")],
+                  SELECT COALESCE(m.pessoa_id, f.pessoa_id) AS pessoa_id, m.imagem, m.imagem_autor, m.imagem_licenca, m.wikipedia_pt,
+                         CASE WHEN m.imagem IS NULL THEN f.foto_url END AS foto_url,
+                         CASE WHEN m.imagem IS NULL THEN f.pagina END AS foto_pagina,
+                         CASE WHEN m.imagem IS NULL THEN f.fonte END AS foto_fonte
+                  FROM pessoa_midia m FULL JOIN pessoa_foto f USING (pessoa_id) ORDER BY 1""")],
         "capas": [_capa_compacta(c) for c in _linhas(con, "SELECT obra_id, capa_url, fonte, pagina FROM obra_capa WHERE obra_id IN (SELECT obra_id FROM indicacao) ORDER BY obra_id")],
         "fontes": fontes(con),
         "pessoas_em_varios_premios": varios_premios(con),

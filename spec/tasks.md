@@ -225,3 +225,8 @@
 - [x] T28.3 Pessoas novas pelo protocolo; textos de contexto (RF-28)
 - [x] T28.4 Marcos e formato no painel; build, testes e conferência 🧪👁
 - [ ] T28.5 Pendências do Sesc em `dados/coleta/sesc/LEIA.md` (Zé, Mizé no Oceanos 2008; inscritos de 2014; edição 2026)
+
+## T29 Imagens com direitos reservados (out/2026, CA-11.3, CA-24.2, D34)
+- [ ] T29.1 Spec, design e esquema (`pessoa_foto`, `obra_capa.fonte` livre com página obrigatória) 🧪
+- [ ] T29.2 Coleta por agentes (`dados/coleta/imagens/PROTOCOLO.md`): capas em lojas/editoras, fotos em Wikipédias (inclusive não livres), sites de prêmios, editoras e perfis
+- [ ] T29.3 `coleta.py imagens` junta as coletas; build exporta; crédito em perfil, galeria e páginas estáticas 🧪👁

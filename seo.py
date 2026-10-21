@@ -93,6 +93,7 @@ class Base:
                                        ORDER BY j.premio_id, j.ano, c.categoria, p.nome""")
         self.pessoas = {p["id"]: p for p in _linhas(con, "SELECT * FROM pessoa ORDER BY nome")}
         self.midia = {m["pessoa_id"]: m for m in _linhas(con, "SELECT * FROM pessoa_midia")}
+        self.fotos = {f["pessoa_id"]: f for f in _linhas(con, "SELECT * FROM pessoa_foto")}  # direitos reservados (D34)
         self.ufs = {u["uf"]: u for u in _linhas(con, "SELECT * FROM uf ORDER BY uf") if u["uf"] != "EX"}
         self.editoras = {x["id"]: x for x in _linhas(con, "SELECT * FROM editora ORDER BY nome")}
         self.ed_id = {x["nome"]: i for i, x in self.editoras.items()}  # nomes únicos (D33)
@@ -477,6 +478,9 @@ def pagina_pessoa(b, pid):
         arquivo = "https://commons.wikimedia.org/wiki/File:" + quote(m["imagem"].replace(" ", "_"))
         foto = (f'<figure class="foto-estatica"><img src="/fotos/{quote(pid)}-480.webp" alt="{e(p["nome"])}" width="240" height="276" loading="lazy" decoding="async">'
                 f'<figcaption class="credito">Foto: {e(m["imagem_autor"])}, {e(m["imagem_licenca"])} · <a href="{e(arquivo)}" rel="noopener">Wikimedia Commons</a></figcaption></figure>')
+    elif not m.get("imagem") and (f := b.fotos.get(pid)):  # exibida da fonte, sem cópia no site (CA-11.3)
+        foto = (f'<figure class="foto-estatica"><img src="{e(f["foto_url"])}" alt="{e(p["nome"])}" width="240" height="276" loading="lazy" decoding="async" referrerpolicy="no-referrer">'
+                f'<figcaption class="credito">Foto: <a href="{e(f["pagina"])}" rel="noopener">{e(f["fonte"])}</a> · direitos reservados</figcaption></figure>')
     papel_rot = {"autor": "", "ilustrador": " (ilustração)", "organizador": " (organização)"}
     linhas_t = "".join(
         f'<tr><td><a href="/premios/{o["premio"]}/{o["ano"]}/">{o["ano"]}</a></td><td>{e(b.nome_premio[o["premio"]])}</td><td>{e(o["nome_original"])}</td>'
@@ -772,7 +776,8 @@ TABELAS_DOC = {
     "indicacao": "cada obra em cada lista: finalista, colocação, editora da época, fonte", "obra": "livros", "autoria": "quem escreveu, ilustrou ou organizou cada obra, por prêmio",
     "pessoa": "pessoas: gênero, raça autodeclarada (com fonte e trecho), nascimento (com fonte), Wikidata", "editora": "editoras: grupo e sede",
     "jurado": "júri divulgado por edição e categoria", "pessoa_midia": "fotos livres do Wikimedia Commons e verbete da Wikipédia",
-    "obra_capa": "capas (Open Library e Google Books)", "uf": "unidades da federação, região e população (Censo 2022)",
+    "pessoa_foto": "fotos com direitos reservados, exibidas da fonte (site e página do crédito)",
+    "obra_capa": "capas (Open Library, Google Books, lojas e editoras), com a página de origem", "uf": "unidades da federação, região e população (Censo 2022)",
 }
 
 

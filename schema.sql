@@ -91,8 +91,16 @@ CREATE TABLE obra (
 CREATE TABLE obra_capa (
   obra_id   TEXT PRIMARY KEY REFERENCES obra(id),
   capa_url  TEXT NOT NULL CHECK (capa_url LIKE 'https://%'),
-  fonte     TEXT NOT NULL CHECK (fonte IN ('google_books', 'open_library')),
-  pagina    TEXT CHECK (pagina IS NULL OR pagina LIKE 'https://%')
+  fonte     TEXT NOT NULL,                  -- 'google_books', 'open_library' ou o nome legível do site (D34)
+  pagina    TEXT CHECK (pagina IS NULL OR pagina LIKE 'http%'),
+  CHECK (fonte IN ('google_books', 'open_library') OR pagina IS NOT NULL)  -- crédito com link sempre
+);
+-- Foto com direitos reservados (CA-11.3, D34): exibida da própria fonte, com crédito; só para quem não tem foto livre.
+CREATE TABLE pessoa_foto (
+  pessoa_id  TEXT PRIMARY KEY REFERENCES pessoa(id),
+  foto_url   TEXT NOT NULL CHECK (foto_url LIKE 'https://%'),
+  pagina     TEXT NOT NULL CHECK (pagina LIKE 'http%'),
+  fonte      TEXT NOT NULL
 );
 
 -- Crédito por prêmio (RF-26): o mesmo livro pode ser creditado de forma diferente em cada prêmio (a CBL credita
