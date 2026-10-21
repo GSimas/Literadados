@@ -1,7 +1,7 @@
 // Perfil de editora (RF-29, D33): #/editora/<id>, no mesmo <dialog> dos perfis. Números de metricas.perfilEditora (testada).
 // A participação expandida traz o nome da editora; o id vem de D.editoras (nomes únicos).
 import * as M from "./metricas.js";
-import { esc, fmt, fmtPct, css, largura, estilo, desenhar, astGenero, nPequeno, tabela, PREMIOS } from "./ui.js";
+import { esc, fmt, fmtPct, css, largura, estilo, desenhar, astGenero, nPequeno, tabela, PREMIOS, FOLGA_PAINEL, fyPaineis, alturaPaineis, nomesPaineis } from "./ui.js";
 
 const ROT_ETAPA = { indicados: "indicada", semifinalistas: "semifinalista", finalistas: "finalista", premiados: "premiada" };
 let idPorNome = null;
@@ -57,12 +57,15 @@ export function htmlEditora(id, { D, linhas }) {
     const el = document.getElementById("editora-anos");
     if (!el) return;
     const dados = p.porAno.flatMap((d) => [{ ...d, tipo: "Premiadas", n: d.premiadas }, { ...d, tipo: "Não premiadas", n: d.outras }]).filter((d) => d.n);
+    // Um painel por prêmio, com o nome no alto dele (no eixo lateral, nomes longos eram cortados).
+    const dominio = p.porPremio.map((x) => x.premio_nome).filter((n) => dados.some((d) => d.premio_nome === n)), mt = multi ? FOLGA_PAINEL : 20, mb = 30;
+    const altura = multi ? alturaPaineis(dominio.length, 90, { marginTop: mt, marginBottom: mb }) : 220;
     desenhar(el, Plot.plot({
-      width: largura(el), height: multi ? 120 + 110 * p.porPremio.length : 220, marginLeft: 40, marginRight: multi ? 110 : 20, style: estilo(), ariaLabel: `Indicações de ${ed.nome} por edição`,
-      x: { label: null, tickFormat: "d", interval: 1, ticks: 8 }, y: { label: "indicações", grid: true, tickFormat: "d" },
-      ...(multi ? { fy: { label: null } } : {}),
+      width: largura(el), height: altura, marginTop: mt, marginBottom: mb, marginLeft: 50, marginRight: 20, style: estilo(), ariaLabel: `Indicações de ${ed.nome} por edição`,
+      x: { label: null, tickFormat: "d", interval: 1, ticks: 8 }, y: { label: "indicações", labelAnchor: "center", grid: true, tickFormat: "d" },
+      ...(multi ? { fy: fyPaineis(dominio, { altura, marginTop: mt, marginBottom: mb }) } : {}),
       color: { domain: ["Premiadas", "Não premiadas"], range: [css("--s1"), css("--s-na")], legend: true },
-      marks: [Plot.rectY(dados, Plot.stackY({ x: "ano", y: "n", fill: "tipo", ...(multi ? { fy: "premio_nome" } : {}), inset: 0.5, tip: true }))],
+      marks: [Plot.rectY(dados, Plot.stackY({ x: "ano", y: "n", fill: "tipo", ...(multi ? { fy: "premio_nome" } : {}), inset: 0.5, tip: true })), ...(multi ? nomesPaineis(dominio) : [])],
     }));
     tabela(document.getElementById("t-editora-anos"), p.porAno, [
       { rot: "Prêmio", k: "premio_nome" }, { rot: "Ano", k: "ano" }, { rot: "Premiadas", k: "premiadas", num: true }, { rot: "Não premiadas", k: "outras", num: true },

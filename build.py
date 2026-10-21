@@ -159,7 +159,7 @@ def exportar(con) -> dict:
     padrao = [premios[0]["id"]] if premios else [None]  # 1º da ordem: no JSON, `premio` só aparece quando é outro (economia; o painel abre com todos, DA-4)
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "anos": [min(anos_coletados), 2025],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
+        "anos": [min(anos_coletados), max(anos_coletados)],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
         "anos_coletados": anos_coletados,
         "premios": premios,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,

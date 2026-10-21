@@ -1,6 +1,6 @@
 # Literadados — texto completo
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura): gênero, raça autodeclarada e UF de nascimento de 1.586 pessoas-autoras em 3.386 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura): gênero, raça autodeclarada e UF de nascimento de 1.597 pessoas-autoras em 3.407 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
@@ -8,15 +8,15 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 
 ### Quantas pessoas chegaram aos prêmios literários reunidos no Literadados?
 
-1.586 pessoas-autoras, em 3.386 indicações: Prêmio Jabuti, 1959–2025 (67 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2025 (30 edições); Prêmio Sesc de Literatura, 2004–2025 (22 edições). 390 delas passaram por mais de um prêmio.
+1.597 pessoas-autoras, em 3.407 indicações: Prêmio Jabuti, 1959–2025 (67 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2026 (31 edições); Prêmio Sesc de Literatura, 2004–2026 (23 edições). 391 delas passaram por mais de um prêmio.
 
 ### Qual a participação de mulheres nos prêmios literários?
 
-Na base inteira, 36% das pessoas-autoras são mulheres (570 de 1.586). No Prêmio Jabuti: 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 31% na lista (63 de 204) e 27% no 1º lugar (31 de 113). No Prêmio Sesc de Literatura: 26% na lista (11 de 43) e 26% no 1º lugar (11 de 43). Para 427 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
+Na base inteira, 36% das pessoas-autoras são mulheres (576 de 1.597). No Prêmio Jabuti: 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 33% na lista (71 de 218) e 28% no 1º lugar (33 de 116). No Prêmio Sesc de Literatura: 26% na lista (12 de 46) e 26% no 1º lugar (12 de 46). Para 428 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
 
 ### Quantos autores negros chegaram aos prêmios literários?
 
-Pelo menos 33 das 1.586 pessoas-autoras (2,1%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.539 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 24 de 1.021. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 204. No Prêmio Sesc de Literatura: pelo menos 0 de 43.
+Pelo menos 33 das 1.597 pessoas-autoras (2,1%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.550 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 24 de 1.021. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 218. No Prêmio Sesc de Literatura: pelo menos 0 de 46.
 
 ### Quem mais venceu o Prêmio Jabuti?
 
@@ -80,39 +80,39 @@ Contando as obras premiadas no Prêmio São Paulo de Literatura com editora conh
 
 ### Quem mais venceu o Prêmio Biblioteca Nacional?
 
-Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Biblioteca Nacional foi Paulo Henriques Britto (3 vezes em 1º lugar, 3 prêmios); João Anzanello Carrascoza (2 vezes em 1º lugar, 3 prêmios); Alberto Mussa (2 vezes em 1º lugar, 2 prêmios); Adélia Prado (2 vezes em 1º lugar, 2 prêmios); Alexei Bueno (2 vezes em 1º lugar, 2 prêmios).
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Biblioteca Nacional foi Adélia Prado (3 vezes em 1º lugar, 3 prêmios); Paulo Henriques Britto (3 vezes em 1º lugar, 3 prêmios); João Anzanello Carrascoza (2 vezes em 1º lugar, 3 prêmios); Roger Mello (2 vezes em 1º lugar, 3 prêmios); Alberto Mussa (2 vezes em 1º lugar, 2 prêmios).
 
 ### Quantas mulheres venceram o Prêmio Biblioteca Nacional?
 
-31 das 113 pessoas que venceram (1º lugar) o Prêmio Biblioteca Nacional nas categorias do recorte são mulheres (27%). A primeira vitória de uma mulher foi em 1995: Lygia Fagundes Telles, em Prêmio Artur Azevedo, com A Noite Escura e mais Eu.
+33 das 116 pessoas que venceram (1º lugar) o Prêmio Biblioteca Nacional nas categorias do recorte são mulheres (28%). A primeira vitória de uma mulher foi em 1995: Lygia Fagundes Telles, em Prêmio Artur Azevedo, com A Noite Escura e mais Eu.
 
 ### De que estados vêm os autores premiados no Prêmio Biblioteca Nacional?
 
-Entre as 150 pessoas premiadas no Prêmio Biblioteca Nacional com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (41, 27%), Rio de Janeiro (30, 20%), Rio Grande do Sul (21, 14%), Minas Gerais (19, 13%), Pernambuco (7, 4,7%).
+Entre as 160 pessoas premiadas no Prêmio Biblioteca Nacional com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (47, 29%), Rio de Janeiro (31, 19%), Rio Grande do Sul (21, 13%), Minas Gerais (19, 12%), Pernambuco (8, 5%).
 
-### Quem venceu o Prêmio Biblioteca Nacional 2025?
+### Quem venceu o Prêmio Biblioteca Nacional 2026?
 
-No Prêmio Biblioteca Nacional 2025, venceram (1º lugar): Prêmio Machado de Assis: Guerra I: ofensiva paraguaia e reação aliada (novembro de 1864 a março de 1866), de Beatriz Bracher (Editora 34); Prêmio Clarice Lispector: Tantra e a arte de cortar cebolas, de Iara Biderman (Editora 34); Prêmio Alphonsus de Guimaraens: Pote de mel e outros poemas, de Leonardo Gandolfi (Editora 34); Prêmio Sylvia Orthof: Encaramujado, de Vana Campos; ilustração de Raquel Matsushita (PeraBook); Prêmio Glória Pondé: Giraflor e outros jequitinhonhas, de Heloisa Pires Lima; ilustração de Gildásio Jardim (FTD Educação). Veja a edição completa.
+No Prêmio Biblioteca Nacional 2026, venceram (1º lugar): Prêmio Machado de Assis: Os imortais, de Paulliny Tort (Fósforo); Prêmio Clarice Lispector: Recapitulações, de Maria Valéria Rezende (Editora 34); Prêmio João do Rio: Lugares para chorar no Recife e outros, de DJ Dolores (Seja Breve Edições); Prêmio Alphonsus de Guimaraens: O jardim das oliveiras, de Adélia Prado (Editora Record); Prêmio Sylvia Orthof: Gavião, de Lulu Lima (Mil Caramiolas); Prêmio Glória Pondé: U-507, de Roger Mello; ilustração de Felipe Cavalcante (Global). Veja a edição completa.
 
 ### Quais editoras mais ganham o Prêmio Biblioteca Nacional?
 
-Contando as obras premiadas no Prêmio Biblioteca Nacional com editora conhecida: Editora Record (21), Companhia das Letras (16), Editora Companhia das Letras (8), Editora do Brasil (8), Editora 34 (7). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
+Contando as obras premiadas no Prêmio Biblioteca Nacional com editora conhecida: Editora Record (23), Companhia das Letras (18), Editora 34 (8), Editora Companhia das Letras (8), Editora do Brasil (8). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
 
 ### Quem mais venceu o Prêmio Sesc de Literatura?
 
-Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Sesc de Literatura foi Luisa Geisler (2 vezes em 1º lugar, 2 prêmios); Abáz (1 vez em 1º lugar, 1 prêmio); Airton Souza (1 vez em 1º lugar, 1 prêmio); Alexandre Marques Rodrigues (1 vez em 1º lugar, 1 prêmio); André de Leones (1 vez em 1º lugar, 1 prêmio).
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Sesc de Literatura foi Luisa Geisler (2 vezes em 1º lugar, 2 prêmios); Abáz (1 vez em 1º lugar, 1 prêmio); Airton Souza (1 vez em 1º lugar, 1 prêmio); Alexandre Marques Rodrigues (1 vez em 1º lugar, 1 prêmio); Anacã Agra (1 vez em 1º lugar, 1 prêmio).
 
 ### Quantas mulheres venceram o Prêmio Sesc de Literatura?
 
-11 das 43 pessoas que venceram (1º lugar) o Prêmio Sesc de Literatura nas categorias do recorte são mulheres (26%). A primeira vitória de uma mulher foi em 2005: Eugenia Zerbini, em Romance, com As netas da Ema.
+12 das 46 pessoas que venceram (1º lugar) o Prêmio Sesc de Literatura nas categorias do recorte são mulheres (26%). A primeira vitória de uma mulher foi em 2005: Eugenia Zerbini, em Romance, com As netas da Ema.
 
 ### De que estados vêm os autores premiados no Prêmio Sesc de Literatura?
 
 Entre as 32 pessoas premiadas no Prêmio Sesc de Literatura com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (8, 25%), Rio de Janeiro (6, 19%), Rio Grande do Sul (4, 13%), Pará (3, 9,4%), Pernambuco (3, 9,4%).
 
-### Quem venceu o Prêmio Sesc de Literatura 2025?
+### Quem venceu o Prêmio Sesc de Literatura 2026?
 
-No Prêmio Sesc de Literatura 2025, venceram (1º lugar): Romance: Goiás, de Marcus Groza; Conto: Massaranduba, de Abáz; Poesia: Escalar cansa, de Leonardo Piana. Veja a edição completa.
+No Prêmio Sesc de Literatura 2026, venceram (1º lugar): Romance: A vontade das coisas mortas, de Mariana do Nascimento Ramos; Conto: A replicação do sangue, de Anacã Agra; Poesia: Geografia do desconforto, de Guilherme de Miranda Ramos. Veja a edição completa.
 
 ### Como o Literadados sabe a raça de cada pessoa?
 
@@ -2244,7 +2244,7 @@ Fontes: https://web.archive.org/web/20180404073242/https://www.bn.gov.br/acontec
 
 ### Prêmio Biblioteca Nacional 2018
 
-Formato: 2018–2025 pódio de 1º a 3º. 15 pessoas-autoras; 33% mulheres (5); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2018/
+Formato: 2018–2026 pódio de 1º a 3º. 15 pessoas-autoras; 33% mulheres (5); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2018/
 
 O pódio de três colocados voltou em 2018, nas nove categorias, para livros publicados de maio de 2017 a abril de 2018. O calendário teve de ser revisto em novembro, por atraso na remessa dos livros aos jurados. Os vencedores saíram em 13 de novembro, mas a lista do conto veio com o segundo e o terceiro lugares trocados; a FBN corrigiu a ordem no dia seguinte, depois que parte da imprensa já tinha publicado a primeira versão. Cada vencedor recebeu R$ 30 mil, em cerimônia marcada para 4 de dezembro.
 Evandro Affonso Ferreira venceu o Machado de Assis com Nunca houve tanto fim como agora (Record), à frente de Manoel Herzog e Luis S. Krausz. No conto, Alguns humanos, de Gustavo Pacheco (Tinta-da-China), ficou em primeiro; na versão corrigida, Zoografia: zooalgia, de Pedro de Souza, passou ao segundo lugar, e Noemi Jaffe, ao terceiro. Francesca Angiolillo levou a poesia com Etiópia (7 Letras).
@@ -2269,7 +2269,7 @@ Fontes: https://web.archive.org/web/2019/https://www.bn.gov.br/edital/2018/edita
 
 ### Prêmio Biblioteca Nacional 2019
 
-Formato: 2018–2025 pódio de 1º a 3º. 16 pessoas-autoras; 38% mulheres (6); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2019/
+Formato: 2018–2026 pódio de 1º a 3º. 16 pessoas-autoras; 38% mulheres (6); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2019/
 
 Em 2019 a Fundação Biblioteca Nacional recebeu 923 inscrições, das quais 698 foram habilitadas; depois de 88 recursos, 78 deferidos, a lista cresceu. Os três primeiros de cada uma das nove categorias saíram em 10 de outubro, e a cerimônia ficou para 5 de dezembro. Cada vencedor, ou seu espólio, recebia R$ 30 mil.
 O Clarice Lispector foi para Kafkianas (Todavia), de Elvira Vigna, morta em 2017, à frente de Um exu em Nova York, de Cidinha da Silva, e Sebastopol, de Emilio Fraia. No romance, Paradeiro, de Luís Bueno (Ateliê Editorial), venceu; o segundo lugar, Paraízo-Paraguay, de Marcelo Labes (Caiaponte), ganharia no ano seguinte o Prêmio São Paulo de Literatura. Paulo Henriques Britto, jurado de poesia em 2010, levou o Alphonsus de Guimaraens com Nenhum mistério (Companhia das Letras).
@@ -2294,7 +2294,7 @@ Fontes: https://web.archive.org/web/2020/https://www.bn.gov.br/edital/2019/edita
 
 ### Prêmio Biblioteca Nacional 2020
 
-Formato: 2018–2025 pódio de 1º a 3º. 17 pessoas-autoras; 53% mulheres (9); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2020/
+Formato: 2018–2026 pódio de 1º a 3º. 17 pessoas-autoras; 53% mulheres (9); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2020/
 
 A pandemia mudou o prêmio de 2020. Com a Biblioteca Nacional fechada e a equipe em trabalho remoto para conter o coronavírus, a FBN tirou do edital a categoria Projeto Gráfico, cujo julgamento depende dos exemplares físicos, e ficou com oito categorias. As inscrições foram só pela internet; das 1.376 recebidas, 1.152 foram habilitadas. O resultado, adiado, saiu em 27 de novembro.
 Menalton Braff venceu o Machado de Assis com Além do Rio dos Sinos (Reformatório), à frente de Noemi Jaffe e Marcelo Mirisola. No conto, Jarid Arraes levou o Clarice Lispector com Redemoinho em dia quente (Alfaguara), histórias de mulheres do sertão. O segundo lugar foi Urubus, de Carla Bessa (Confraria do Vento), que na noite anterior tinha ganhado o Jabuti de Contos. A poesia ficou com 179.Resistência, de Maria Fernanda Elias Maglio (Patuá).
@@ -2319,7 +2319,7 @@ Fontes: https://web.archive.org/web/2021/https://www.bn.gov.br/edital/2020/edita
 
 ### Prêmio Biblioteca Nacional 2021
 
-Formato: 2018–2025 pódio de 1º a 3º. 15 pessoas-autoras; 13% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2021/
+Formato: 2018–2026 pódio de 1º a 3º. 15 pessoas-autoras; 13% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2021/
 
 Pelo segundo ano, a pandemia deixou o prêmio sem a categoria Projeto Gráfico: o edital de 2021 repetiu que, com a Biblioteca fechada e o trabalho remoto, era inviável receber e enviar exemplares aos jurados. Foram oito categorias, com inscrições pela internet, para livros publicados de maio de 2020 a abril de 2021. O resultado saiu em 12 de novembro e a portaria final, em 29 de novembro. O primeiro lugar valia R$ 30 mil; segundo e terceiro, diploma.
 Marcelo Labes, segundo colocado de 2019 e vencedor do Prêmio São Paulo de 2020, ganhou o Machado de Assis com Três porcos (Caiaponte). João Anzanello Carrascoza levou o Clarice Lispector com Tramas de meninos (Alfaguara), 14 histórias de relações familiares e amorosas. Na poesia, venceu Textos para lembrar de ir à praia, de Rodrigo Luiz P. Vianna (Reformatório), com Micheliny Verunschk em segundo.
@@ -2344,7 +2344,7 @@ Fontes: https://web.archive.org/web/2022/https://www.bn.gov.br/edital/2021/edita
 
 ### Prêmio Biblioteca Nacional 2022
 
-Formato: 2018–2025 pódio de 1º a 3º. 17 pessoas-autoras; 53% mulheres (9); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2022/
+Formato: 2018–2026 pódio de 1º a 3º. 17 pessoas-autoras; 53% mulheres (9); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2022/
 
 No ano do Bicentenário da Independência, a FBN abriu o Prêmio Literário só com inscrições pela internet, de 16 de maio a 30 de junho. A categoria Projeto Gráfico ficou de fora pelo terceiro ano: segundo a Biblioteca, que retomava aos poucos o trabalho presencial, julgá-la exige os livros como objetos físicos. Nas oito categorias, o prêmio teve recorde de inscrições, com 1.789 autores e tradutores, e pagou R$ 30 mil a cada vencedor. O resultado final saiu na portaria de 3 de novembro.
 Siameses, de Antonio Geraldo Figueiredo Ferreira (Kotter), venceu o Machado de Assis, com Ieda Magri e Juliano Garcia Pessanha no pódio. O Clarice Lispector foi para Gótico nordestino, de Cristhiano Aguiar (Alfaguara). Na poesia, Alexei Bueno ganhou com O sono dos humildes (Patuá), à frente de A República do Pampa, de Carlos Nejar.
@@ -2369,7 +2369,7 @@ Fontes: https://www.gov.br/bn/pt-br/acesso-a-informacao-2/editais/premio-literar
 
 ### Prêmio Biblioteca Nacional 2023
 
-Formato: 2018–2025 pódio de 1º a 3º. 15 pessoas-autoras; 40% mulheres (6); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2023/
+Formato: 2018–2026 pódio de 1º a 3º. 15 pessoas-autoras; 40% mulheres (6); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2023/
 
 A edição de 2023, na gestão de Marco Lucchesi na presidência da FBN, trouxe a volta do Projeto Gráfico, com envio de exemplares físicos, e uma categoria nova, o Prêmio Akuli, para narrativas de tradição oral de povos originários, ribeirinhos e outras matrizes culturais. O nome homenageia o narrador arekuná cujas histórias, recolhidas por Theodor Koch-Grünberg, alimentaram o Macunaíma de Mário de Andrade. Com isso, o prêmio chegou a dez categorias, de R$ 30 mil cada. O resultado saiu em 1º de novembro, foi oficializado no Diário Oficial em 14 de novembro, e a entrega foi em 8 de dezembro.
 Luciana Hidalgo venceu o Machado de Assis com Penélope dos trópicos (Editora do Silvestre). No conto, a Martelo ficou com os dois primeiros lugares: Desmoronamentos, de Micheliny Verunschk, e Ana à esquerda & outros movimentos, de Antonio Carlos Secchin. Em terceiro veio Educação natural, coletânea póstuma de João Gilberto Noll, morto em 2017, que naquele ano ganhou o Jabuti de Contos. Harsíese, de Jacyntho Lins Brandão (Patuá), levou a poesia.
@@ -2394,7 +2394,7 @@ Fontes: https://agenciabrasil.ebc.com.br/geral/noticia/2023-12/biblioteca-nacion
 
 ### Prêmio Biblioteca Nacional 2024
 
-Formato: 2018–2025 pódio de 1º a 3º. 15 pessoas-autoras; 53% mulheres (8); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2024/
+Formato: 2018–2026 pódio de 1º a 3º. 15 pessoas-autoras; 53% mulheres (8); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2024/
 
 O prêmio comemorou 30 anos em 2024 com doze categorias, todas de R$ 30 mil e sem taxa de inscrição. As novidades foram Ilustração (Prêmio Carybé) e Histórias em Quadrinhos (Prêmio Adolfo Aizen), e o número de inscrições bateu recorde, com mais de 2,8 mil. O resultado prévio saiu em 7 de novembro, o final foi publicado no Diário Oficial em 14 de novembro, e a entrega ficou marcada para 13 de dezembro, no Auditório Machado de Assis, com transmissão pela internet.
 Sodomita, de Alexandre Vidal Porto (Companhia das Letras), venceu o Machado de Assis. Em segundo ficou Caminhando com os mortos, de Micheliny Verunschk, que ganhou o Oceanos de prosa naquele ano. Maria Valéria Rezende levou o Clarice Lispector com Toda palavra dá samba (Dromedário), à frente de O ninho, de Bethânia Pires Amaro, vencedor do Jabuti de Contos. Na poesia, Cabeça de galinha no chão de cimento, de Ricardo Domeneck (Editora 34), venceu aqui e no Jabuti.
@@ -2419,7 +2419,7 @@ Fontes: https://www.publishnews.com.br/materias/2024/11/08/maria-valeria-rezende
 
 ### Prêmio Biblioteca Nacional 2025
 
-Formato: 2018–2025 pódio de 1º a 3º. 15 pessoas-autoras; 53% mulheres (8); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2025/
+Formato: 2018–2026 pódio de 1º a 3º. 15 pessoas-autoras; 53% mulheres (8); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2025/
 
 A FBN anunciou os vencedores de 2025 em 3 de novembro, e a portaria com o resultado final saiu no Diário Oficial de 14 de novembro. Foi o primeiro ano com inscrição pela plataforma gov.br, para livros publicados de maio de 2024 a abril de 2025.
 A Editora 34 venceu as três categorias de prosa e poesia adulta. Beatriz Bracher levou o Machado de Assis com Guerra – I: ofensiva paraguaia e reação aliada, que abre uma trilogia sobre a Guerra do Paraguai feita a partir de relatos de testemunhas; atrás dela vieram dois vencedores de edições anteriores, Evandro Affonso Ferreira e Marcelino Freire. A jornalista Iara Biderman, editora da revista Quatro Cinco Um, ganhou o Clarice Lispector com Tantra e a arte de cortar cebolas, sua estreia na literatura depois de quatro décadas de redação. Leonardo Gandolfi venceu a poesia com Pote de mel e outros poemas.
@@ -2441,6 +2441,34 @@ Fontes: https://quatrocincoum.com.br/noticias/premios-literarios/os-ganhadores-d
 - Prêmio Glória Pondé, 1º lugar: Giraflor e outros jequitinhonhas, de Heloisa Pires Lima (FTD Educação)
 - Prêmio Glória Pondé, 2º lugar: Nossos mitos, de Yaguarê Yamã (Pallas Editora)
 - Prêmio Glória Pondé, 3º lugar: Poesia travessia, de Roseana Murray (Editora do Brasil)
+
+### Prêmio Biblioteca Nacional 2026
+
+Formato: 2018–2026 pódio de 1º a 3º. 18 pessoas-autoras; 61% mulheres (11); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/biblioteca-nacional/2026/
+
+A edição de 2026 teve treze categorias e uma novidade: o Prêmio João do Rio, criado para livros de crônica. Concorreram obras de autores brasileiros publicadas entre maio de 2025 e abril de 2026, com inscrições sem taxa abertas de 8 de junho a 8 de julho e R$ 30 mil para o vencedor de cada categoria. As treze comissões, de três especialistas cada, foram nomeadas pela Portaria FBN nº 72, publicada no Diário Oficial de 26 de agosto.
+A FBN divulgou o resultado em 20 de outubro. No romance venceu Os imortais, de Paulliny Tort (Fósforo); no conto, Recapitulações, de Maria Valéria Rezende, que já levara a categoria em 2024 com Toda palavra dá samba; na poesia, O jardim das oliveiras, de Adélia Prado (Record), vencedora do Prêmio Camões de 2024. Na estreia da crônica, o primeiro lugar foi para Lugares para chorar no Recife e outros, de DJ Dolores. No juvenil venceu U-507, de Roger Mello, e no infantil, Gavião, de Lulu Lima.
+Velho sertão, de Fernanda Rios e Marcelo Tolentino, apareceu duas vezes no resultado: em 3º no infantil e, pelas ilustrações, em 3º no Prêmio Carybé, categoria que fica fora deste recorte.
+Fontes: https://www.gov.br/bn/pt-br/central-de-conteudos/noticias/premio-literario-biblioteca-nacional-2026-tem-inscricoes-abertas-ate-8-de-julho ; https://www.gov.br/bn/pt-br/acesso-a-informacao-2/editais/premio-literario/premio-literario-2026/PORTARIA_FBN_N__71__72__DE_19_e_20__DE_AGOSTO_DE_2026_pg.2.pdf ; https://www.gov.br/bn/pt-br/central-de-conteudos/noticias/fundacao-biblioteca-nacional-divulga-os-vencedores-do-premio-literario-2026 ; https://pt.wikipedia.org/wiki/Ad%C3%A9lia_Prado
+
+- Prêmio Machado de Assis, 1º lugar: Os imortais, de Paulliny Tort (Fósforo)
+- Prêmio Machado de Assis, 2º lugar: Masuaki e/ou Não deixe os cachorros latirem sozinhos, de Lourenço Mutarelli (Companhia das Letras)
+- Prêmio Machado de Assis, 3º lugar: Piscinas russas, de Renata Belmonte (Tusquets Editores)
+- Prêmio Clarice Lispector, 1º lugar: Recapitulações, de Maria Valéria Rezende (Editora 34)
+- Prêmio Clarice Lispector, 2º lugar: Mulheres que amam assombradas, de Sandra Liss (Litteralux)
+- Prêmio Clarice Lispector, 3º lugar: A escuridão do ventre, de Clara Arreguy (Outubro Edições)
+- Prêmio João do Rio, 1º lugar: Lugares para chorar no Recife e outros, de DJ Dolores (Seja Breve Edições)
+- Prêmio João do Rio, 2º lugar: Só bato em cachorro grande, do meu tamanho ou maior que eu, de Cidinha da Silva (Rosa dos Tempos)
+- Prêmio João do Rio, 3º lugar: Não sei se é bom, mas é teu, de Maria Ribeiro (Editora Record)
+- Prêmio Alphonsus de Guimaraens, 1º lugar: O jardim das oliveiras, de Adélia Prado (Editora Record)
+- Prêmio Alphonsus de Guimaraens, 2º lugar: Boris e Marina, de Alberto Martins (Companhia das Letras)
+- Prêmio Alphonsus de Guimaraens, 3º lugar: Os mortos, de Paulo Franchetti (Ateliê Editorial)
+- Prêmio Sylvia Orthof, 1º lugar: Gavião, de Lulu Lima (Mil Caramiolas)
+- Prêmio Sylvia Orthof, 2º lugar: Eletricista, de Augusto Massi (Elo Editora)
+- Prêmio Sylvia Orthof, 3º lugar: Velho sertão, de Fernanda Rios (Pequena Zahar)
+- Prêmio Glória Pondé, 1º lugar: U-507, de Roger Mello (Global)
+- Prêmio Glória Pondé, 2º lugar: Ocupado!, de Paula Fábrio (FTD Educação)
+- Prêmio Glória Pondé, 3º lugar: A história dos nossos amores, de Severino Rodrigues (Globo Livros)
 
 ## Prêmio Sesc de Literatura
 
@@ -2686,7 +2714,7 @@ Fontes: https://www.publishnews.com.br/materias/2023/05/24/airton-souza-e-bethan
 
 ### Prêmio Sesc de Literatura 2024
 
-Formato: 2024–2025 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2024/
+Formato: 2024–2026 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2024/
 
 A 21ª edição foi a da ruptura. Em março de 2024, depois de a Record cobrar publicamente o Sesc pela demissão de Henrique Rodrigues e pelo rumor de uma instância interna que revisaria a escolha dos jurados, o edital saiu sem a editora: os vencedores passariam a ser publicados pela Editora Senac Rio, fim de uma parceria de 20 anos. Vieram também a categoria Poesia, R$ 30 mil para cada vencedor e uma troca de palavras notada pelo mercado: o edital, que antes falava em público adulto, passou a pedir livros "destinados a todos os públicos". O Sesc disse que queria ampliar o público.
 Foram 2.731 inscrições, mais da metade em Poesia. Em 30 de agosto, a comissão final anunciou Bololô: gaiola vazia, de Ricardo Mauricio Gonzaga, docente de artes visuais na Ufes e duas vezes finalista do próprio prêmio em Conto, e A glória dos corpos menores, de Patrícia Lima, de Bauru (SP). Em Poesia, a primeira escolha foi impugnada dias depois, porque Igor Sarapuí já tinha um livro de poesia publicado em 2023; a vitória passou a Contra a parede, de Antonio Veloso Maia, de Niterói, aos 73 anos.
@@ -2698,7 +2726,7 @@ Fontes: https://www.publishnews.com.br/materias/2024/03/21/premio-sesc-de-litera
 
 ### Prêmio Sesc de Literatura 2025
 
-Formato: 2024–2025 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2025/
+Formato: 2024–2026 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2025/
 
 A 22ª edição, a segunda publicada pela Editora Senac Rio, recebeu 2.451 originais: 1.168 de poesia, 684 romances e 599 coletâneas de contos. O resultado saiu em 28 de agosto de 2025, com R$ 30 mil para cada categoria e menções honrosas a três finalistas trabalhadores do comércio, mecanismo criado no ano anterior.
 Em Romance, Goiás marca a estreia na prosa longa de Marcus Groza, de São Paulo, com trajetória em poesia, dramaturgia e encenação: um cão caramelo farejador, de operações de resgate, atravessa a devastação humana e ambiental. Em Conto, Massaranduba, de Abáz, de Salvador, docente da rede municipal de São Paulo que começou a escrever em oficinas em agosto de 2024, reúne histórias de violência, afeto e fé nas periferias. Em Poesia, Escalar cansa, de Leonardo Piana, de Andradas (MG), recorre à mitologia grega. Piana já tinha dois romances, entre eles Sismógrafo, finalista de Melhor Romance de Estreia do Prêmio São Paulo de 2023: o edital exige ineditismo só na categoria em que se concorre.
@@ -2708,4 +2736,17 @@ Fontes: https://www.sesc.com.br/cultura/premio-sesc-de-literatura-anuncia-os-ven
 - Romance, 1º lugar: Goiás, de Marcus Groza
 - Conto, 1º lugar: Massaranduba, de Abáz
 - Poesia, 1º lugar: Escalar cansa, de Leonardo Piana
+
+### Prêmio Sesc de Literatura 2026
+
+Formato: 2024–2026 originais inéditos: romance, conto e poesia, um vencedor cada. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/sesc/2026/
+
+A 23ª edição bateu o recorde de inscrições do prêmio: 2.969 originais, sendo 1.203 de poesia, 960 romances e 806 coletâneas de contos, segundo o Sesc. Como nas edições anteriores, concorreram textos inéditos de quem nunca publicou livro no gênero, inscritos com pseudônimo; cada vencedor recebe R$ 30 mil e tem o livro publicado pela Editora Senac Rio.
+O resultado saiu em 19 de agosto. Em romance venceu A vontade das coisas mortas, de Mariana do Nascimento Ramos, moradora de Brasília, sobre uma professora de literatura que tenta refazer a vida depois de sobreviver a um massacre escolar. Em conto, A replicação do sangue, de Anacã Agra, professor da Universidade Estadual da Paraíba que até então só publicara romances de forma independente. Em poesia, Geografia do desconforto, de Guilherme de Miranda Ramos, de Maceió.
+Cada júri teve dois nomes: Maria Esther Maciel e Itamar Vieira Junior no romance, Miriam Alves e Dau Bastos no conto, Cida Pedrosa e Edimilson de Almeida Pereira na poesia. Os vencedores devem ser apresentados ao público numa cerimônia com noite de autógrafos no fim do ano.
+Fontes: https://www.sesc.com.br/cultura/premio-sesc-de-literatura-anuncia-vencedores-2026/ ; https://www.publishnews.com.br/materias/2026/08/19/premio-sesc-de-literatura-tem-vencedores-de-paraiba-alagoas-e-brasilia
+
+- Romance, 1º lugar: A vontade das coisas mortas, de Mariana do Nascimento Ramos
+- Conto, 1º lugar: A replicação do sangue, de Anacã Agra
+- Poesia, 1º lugar: Geografia do desconforto, de Guilherme de Miranda Ramos
 

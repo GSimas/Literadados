@@ -1,6 +1,6 @@
 // Explorador: panorama e análises (RF-03 a RF-10). Cada função recebe as linhas filtradas e o contexto do painel.
 import * as M from "./metricas.js";
-import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, CATEGORIAS, PREMIOS, NOME_PREMIO, nomesPremios, nomePais, avisoPremios, astGenero, botaoExportarGrafico, BOTAO_TABELA } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, rotulo, css, largura, estilo, cores, textoSobre, tabela, desenhar, vazio, dica, larguraTexto, FOLGA_PAINEL, fyPaineis, alturaPaineis, nomesPaineis, CATEGORIAS, PREMIOS, NOME_PREMIO, nomesPremios, nomePais, avisoPremios, astGenero, botaoExportarGrafico, BOTAO_TABELA } from "./ui.js";
 
 // Vários prêmios no recorte (CA-26.9): cada prêmio vira uma faceta (fy = nome do prêmio), com o próprio n.
 // Taxas de prêmios diferentes nunca se somam. Com um prêmio só, os gráficos ficam como eram.
@@ -39,38 +39,48 @@ export function renderEvolucao(L, { D, ANOS, estado }) {
   const marcos = M.marcosDe(ps, D?.premios ?? []).filter((m) => anosVis.includes(m.ano)).map((m) => ({ ...m, premio_nome: NOME_PREMIO[m.premio] ?? m.premio }));
   if (!dados.length) return vazio(el), tabela($("#t-evolucao"), [], []);
   // Barra com no máximo 26px; a folga é fração da banda, para a barra não sumir com 67 edições no celular (CA-25.3).
-  const banda = (largura(el) - 60) / anosVis.length, folga = Math.max(banda * 0.12, (banda - 26) / 2);
-  const passo = M.passoAnos(anosVis.length, largura(el) - 60);
-  // Rótulos dos marcos em linhas: cada um vai para a primeira linha onde não encosta no anterior (2018 e 2021 ficam perto).
-  // Perto das bordas, o texto se alinha pela ponta para não ser cortado (celular).
-  const fins = [], pos = new Map(), W = largura(el);
-  for (const m of marcos) {
-    const w = m.texto.length * 6.4, x = 40 + (anosVis.indexOf(m.ano) + 0.5) * banda;
-    const ancora = x + w / 2 > W - 4 ? "end" : x - w / 2 < 4 ? "start" : "middle";
-    const ini = ancora === "end" ? x - w : ancora === "start" ? x : x - w / 2;
-    let r = fins.findIndex((fim) => fim < ini - 6);
-    if (r < 0) r = fins.length;
-    fins[r] = ini + w;
-    pos.set(m, { r, ancora });
+  const ML = 50, MR = 20, W = largura(el);
+  const banda = (W - ML - MR) / anosVis.length, folga = Math.max(banda * 0.12, (banda - 26) / 2);
+  const passo = M.passoAnos(anosVis.length, W - ML - MR);
+  // Rótulos dos marcos em linhas, dentro de cada prêmio: cada um vai para a primeira linha onde não encosta no anterior
+  // (2018 e 2021 ficam perto). Perto das bordas, o texto se alinha pela ponta para não ser cortado (celular).
+  const pos = new Map();
+  let linhas = 0;
+  for (const p of new Set(marcos.map((m) => m.premio))) {
+    const fins = [];
+    for (const m of marcos.filter((mm) => mm.premio === p)) {
+      const w = larguraTexto(m.texto, 11), x = ML + (anosVis.indexOf(m.ano) + 0.5) * banda;
+      const ancora = x + w / 2 > W - 4 ? "end" : x - w / 2 < 4 ? "start" : "middle";
+      const ini = ancora === "end" ? x - w : ancora === "start" ? x : x - w / 2;
+      let r = fins.findIndex((fim) => fim < ini - 6);
+      if (r < 0) r = fins.length;
+      fins[r] = ini + w;
+      pos.set(m, { r, ancora });
+    }
+    linhas = Math.max(linhas, fins.length);
   }
-  const rotulosMarcos = fins.flatMap((_, r) => ["start", "middle", "end"].map((ancora) => Plot.text(marcos.filter((m) => pos.get(m).r === r && pos.get(m).ancora === ancora),
+  const rotulosMarcos = d3.range(linhas).flatMap((r) => ["start", "middle", "end"].map((ancora) => Plot.text(marcos.filter((m) => pos.get(m).r === r && pos.get(m).ancora === ancora),
     { x: "ano", ...fy(multi), text: "texto", frameAnchor: "top", textAnchor: ancora, dx: ancora === "end" ? 3 : ancora === "start" ? -3 : 0, dy: -8 - 14 * r, fill: css("--tinta-2"), fontSize: 11 })));
-  const altura = multi ? ps.length * (300 + 14 * fins.length) : 340 + 14 * fins.length;
+  // Acima de cada painel: os marcos e, com vários prêmios, o nome do prêmio por cima deles.
+  const dominio = ps.map((p) => NOME_PREMIO[p] ?? p), sobre = 14 * linhas;
+  const mt = multi ? FOLGA_PAINEL + sobre : 22 + sobre, mb = 30, entre = FOLGA_PAINEL + sobre;
+  const altura = multi ? alturaPaineis(ps.length, 300, { marginTop: mt, marginBottom: mb, folga: entre }) : 340 + sobre;
   desenhar(el, Plot.plot({
-    width: largura(el), height: altura, marginTop: 22 + 14 * fins.length, marginRight: multi ? 110 : 20, style: estilo(),
+    width: W, height: altura, marginTop: mt, marginBottom: mb, marginLeft: ML, marginRight: MR, style: estilo(),
     ariaLabel: multi ? `Composição por edição em barras 100% empilhadas, um painel por prêmio (${ps.length})` : "Composição por edição em barras 100% empilhadas",
     x: { domain: anosVis, label: null, tickFormat: (d) => (d % passo ? "" : String(d)), tickSize: anosVis.length > 30 ? 0 : 6 },
-    y: { label: "% das participações", grid: true, domain: [0, 100] },
-    ...(multi ? { fy: { domain: ps.map((p) => NOME_PREMIO[p] ?? p), label: null, padding: 0.18 } } : {}),
+    y: { label: "% das participações", labelAnchor: "center", grid: true, domain: [0, 100] },
+    ...(multi ? { fy: fyPaineis(dominio, { altura, marginTop: mt, marginBottom: mb, folga: entre }) } : {}),
     color: { ...cores(dim), legend: true, tickFormat: rotulo },
     marks: [
       Plot.ruleX(marcos, { x: "ano", ...fy(multi), stroke: css("--eixo"), strokeWidth: 1 }),
-      ...rotulosMarcos,
       Plot.barY(dados, Plot.stackY({ order: M.ORDEM[dim] }, {
         x: "ano", ...fy(multi), y: "pct", fill: "grupo", insetTop: 1, insetBottom: 1, insetLeft: folga, insetRight: folga, rx: 3,
         channels: { ...(multi ? { Prêmio: "premio_nome" } : {}), Grupo: (d) => rotulo(d.grupo), Participações: "n", Total: "total" },
         tip: { format: { fill: false, x: true, y: (v) => fmtPct(v), fy: false } },
       })),
+      ...rotulosMarcos,
+      ...(multi ? nomesPaineis(dominio, { acima: sobre }) : []),
       Plot.text(lacunas, { x: "ano", ...fy(multi), y: 50, text: () => "sem dados", rotate: -90, fill: css("--muted"), fontSize: 11 }),
       Plot.ruleY([0], { stroke: css("--eixo") }),
     ],
@@ -103,12 +113,22 @@ export function renderFunil(L, { semLista = new Set() } = {}) {
   const etapas = M.ETAPAS.filter((e) => dados.some((x) => x.etapa === e.id)).map((e) => e.rotulo);
   // Rótulo no fim da linha de cada grupo, na última etapa que o prêmio tem.
   const ultimos = ps.flatMap((p) => { const dp = dados.filter((x) => x.premio === p), u = etapas.filter((e) => dp.some((x) => x.rotulo === e)).at(-1); return dp.filter((x) => x.rotulo === u); });
+  const dominio = ps.map((p) => NOME_PREMIO[p] ?? p), painel = 280, mt = multi ? FOLGA_PAINEL : 20, mb = largura(el) < 560 ? 80 : 30;
+  const altura = multi ? alturaPaineis(ps.length, painel, { marginTop: mt, marginBottom: mb }) : 360;
+  // Rótulos de fim de linha afastados ao menos 13px (em pontos de %): grupos com % parecidos não se sobrepõem.
+  const minimo = (13 / (multi ? painel : altura - mt - mb)) * 100;
+  for (const p of ps) {
+    const us = ultimos.filter((x) => x.premio === p).sort((a, b) => b.pct - a.pct);
+    us.forEach((u, i) => { u.yRot = i ? Math.min(u.pct, us[i - 1].yRot - minimo) : u.pct; });
+    const falta = -Math.min(0, ...us.map((u) => u.yRot));
+    us.forEach((u) => { u.yRot += falta; });
+  }
   desenhar(el, Plot.plot({
-    width: largura(el), height: multi ? ps.length * 320 : 360, marginRight: 160, style: estilo(),
+    width: largura(el), height: altura, marginTop: mt, marginBottom: mb, marginLeft: 50, marginRight: 160, style: estilo(),
     ariaLabel: multi ? `Participação de cada grupo por etapa, um painel por prêmio (${ps.length})` : "Participação de cada grupo por etapa",
-    x: { domain: etapas, label: null, padding: 0.3 },
-    y: { label: "% da etapa", grid: true, domain: [0, 100] },
-    ...(multi ? { fy: { domain: ps.map((p) => NOME_PREMIO[p] ?? p), label: null, padding: 0.18 } } : {}),
+    x: { domain: etapas, label: null, padding: 0.3, tickRotate: largura(el) < 560 ? -90 : 0 },
+    y: { label: "% da etapa", labelAnchor: "center", grid: true, domain: [0, 100] },
+    ...(multi ? { fy: fyPaineis(dominio, { altura, marginTop: mt, marginBottom: mb }) } : {}),
     color: { ...cores(dim), legend: true, tickFormat: rotulo },
     marks: [
       Plot.line(dados, { x: "rotulo", y: "pct", ...fy(multi), stroke: "grupo", strokeWidth: 2, curve: "linear" }),
@@ -117,7 +137,8 @@ export function renderFunil(L, { semLista = new Set() } = {}) {
         channels: { ...(multi ? { Prêmio: "premio_nome" } : {}), Grupo: (d) => rotulo(d.grupo), n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` },
         tip: { format: { fill: false, y: (v) => fmtPct(v), fy: false } },
       }),
-      Plot.text(ultimos, { x: "rotulo", y: "pct", ...fy(multi), text: (d) => `${rotulo(d.grupo).split(" (")[0]} ${fmtPct(d.pct)}`, dx: 10, textAnchor: "start", fill: css("--tinta-2"), fontSize: 11 }),
+      Plot.text(ultimos, { x: "rotulo", y: "yRot", ...fy(multi), text: (d) => `${rotulo(d.grupo).split(" (")[0]} ${fmtPct(d.pct)}`, dx: 10, textAnchor: "start", fill: css("--tinta-2"), fontSize: 11 }),
+      ...(multi ? nomesPaineis(dominio) : []),
     ],
   }));
   tabela($("#t-funil"), dados, [...colPremio(multi),
@@ -144,14 +165,18 @@ export function renderSegregacao(L) {
   const cats = CATEGORIAS.filter((c) => s.some((x) => x.categoria === c));
   const estreito = largura(el) < 560;
   // Com vários prêmios, uma coluna de painéis por prêmio: cada linha (categoria) mostra só o que existe naquele prêmio.
+  // O eixo x fica no alto do 1º painel; o nome desse painel vai acima do eixo.
+  const eixo = estreito ? 100 : 40, dominio = ps.map((p) => NOME_PREMIO[p] ?? p), mt = eixo + (multi ? FOLGA_PAINEL : 0), mb = 10;
+  const altura = multi ? alturaPaineis(ps.length, cats.length * 48, { marginTop: mt, marginBottom: mb }) : (estreito ? 110 : 60) + cats.length * 48;
   desenhar(el, Plot.plot({
-    width: largura(el), height: ((estreito ? 110 : 60) + cats.length * 48) * (multi ? ps.length : 1), marginLeft: 104, marginTop: estreito ? 90 : 40,
-    marginRight: multi ? 110 : 20, style: estilo(), ariaLabel: multi ? `Mapa de calor por categoria, um painel por prêmio (${ps.length})` : "Mapa de calor por categoria",
-    x: { label: null, axis: "top", domain: M.INDICADORES.map((i) => i.rotulo), tickRotate: estreito ? -40 : 0 },
+    width: largura(el), height: altura, marginLeft: 104, marginTop: mt, marginBottom: mb,
+    marginRight: 20, style: estilo(), ariaLabel: multi ? `Mapa de calor por categoria, um painel por prêmio (${ps.length})` : "Mapa de calor por categoria",
+    x: { label: null, axis: "top", domain: M.INDICADORES.map((i) => i.rotulo), tickRotate: estreito ? -90 : 0 },
     y: { label: null, domain: cats },
-    ...(multi ? { fy: { domain: ps.map((p) => NOME_PREMIO[p] ?? p), label: null, padding: 0.1 } } : {}),
-    color: { type: "linear", domain: [0, 100], range: [css("--seq-0"), css("--seq-1")], legend: true, label: "%" },
+    ...(multi ? { fy: fyPaineis(dominio, { altura, marginTop: mt, marginBottom: mb }) } : {}),
+    color: { type: "linear", domain: [0, 100], range: [css("--seq-0"), css("--seq-1")], legend: true, label: "%", marginLeft: 12, marginRight: 12 },
     marks: [
+      ...(multi ? nomesPaineis(dominio, { acimaPrimeiro: eixo - 6 }) : []),
       Plot.cell(s, { x: "indicador", y: "categoria", ...fy(multi), fill: "pct", inset: 1.5, rx: 6,
         channels: { ...(multi ? { Prêmio: "premio_nome" } : {}), n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` }, tip: { format: { fill: (v) => fmtPct(v), fy: false } } }),
       Plot.text(s, { x: "indicador", y: "categoria", ...fy(multi), text: (d) => `${fmtPct(d.pct)}\n(${d.n}/${d.total})`, fill: (d) => textoSobre(d.pct / 100), fontSize: 11, lineHeight: 1.1 }),
@@ -191,7 +216,7 @@ export function renderSankey(L, { D }) {
     .on("pointerleave", () => { caminhos.attr("stroke-opacity", 0.42); dica.esconder(); });
   svg.append("g").attr("font-size", 11).attr("fill", css("--tinta")).selectAll("text").data(s.nodes).join("text")
     .attr("x", (d) => (d.x0 < w / 2 ? d.x1 + 6 : d.x0 - 6)).attr("y", (d) => (d.y0 + d.y1) / 2).attr("dy", "0.35em")
-    .attr("text-anchor", (d) => (d.x0 < w / 2 ? "start" : "end")).text((d) => `${d.id.replace(/^(Nasc\.|Editora): /, "")} (${d.value})`);
+    .attr("text-anchor", (d) => (d.x0 < w / 2 ? "start" : "end")).text((d) => d.id.replace(/^(Nasc\.|Editora): /, "") + (w < 520 ? "" : ` (${d.value})`)); // no celular o total colidia com a coluna vizinha (fica na dica e na tabela)
   el.replaceChildren(svg.node(), botaoExportarGrafico());
   tabela($("#t-sankey"), links, [{ rot: "De", k: "source" }, { rot: "Para", k: "target" }, { rot: "Participações", k: "value", num: true }]);
 }
@@ -204,8 +229,9 @@ export function renderIdade(L) {
   const generos = M.ORDEM.genero.filter((g) => dados.some((d) => d.genero === g));
   const medianas = generos.map((g) => ({ genero: g, idade: M.mediana(dados.filter((d) => d.genero === g).map((d) => d.idade)) }));
   desenhar(el, Plot.plot({
-    width: largura(el), height: 90 + generos.length * 120, marginLeft: 130, style: estilo(), ariaLabel: "Idade no ano do prêmio, por gênero",
-    x: { label: "Idade no ano da edição", grid: true },
+    width: largura(el), height: 90 + generos.length * 120, marginLeft: 16 + d3.max(generos, (g) => larguraTexto(rotulo(g))), marginBottom: 40, style: estilo(),
+    ariaLabel: "Idade no ano do prêmio, por gênero",
+    x: { label: "Idade no ano da edição", labelAnchor: "center", grid: true },
     fy: { domain: generos, label: null, tickFormat: rotulo },
     color: { ...cores("genero"), legend: true, tickFormat: rotulo },
     marks: [
@@ -234,7 +260,7 @@ export function renderEditoras(L, { D } = {}) {
   desenhar(el, Plot.plot({
     width: largura(el), height: 40 + e.length * 28, marginLeft: Math.min(210, 8 + d3.max(e, (d) => d.editora.length) * 6.4), style: estilo(),
     ariaLabel: "Editoras com mais indicações",
-    x: { label: "Indicações (obras)", grid: true }, y: { domain: e.map((d) => d.editora), label: null },
+    marginBottom: 40, x: { label: "Indicações (obras)", labelAnchor: "center", grid: true }, y: { domain: e.map((d) => d.editora), label: null },
     color: { domain: ["Premiadas", "Não premiadas"], range: [css("--s1"), css("--s-na")], legend: true },
     marks: [
       Plot.barX(longo, Plot.stackX({ order: ["Premiadas", "Não premiadas"] }, { x: "n", y: "editora", fill: "tipo", insetTop: 4, insetBottom: 4, insetLeft: 1, insetRight: 1, rx: 3, tip: true })),
@@ -250,11 +276,13 @@ export function renderEditoras(L, { D } = {}) {
   // Percentual de grupos editoriais: um painel por prêmio (CA-26.9), nunca a soma das bases.
   const ps = premiosDe(L), multi = ps.length > 1;
   const g = porPremio(L, M.gruposEditoriais);
+  const dominio = ps.map((p) => NOME_PREMIO[p] ?? p), mt = multi ? FOLGA_PAINEL : 20, mb = 40;
+  const altura = multi ? alturaPaineis(ps.length, 80, { marginTop: mt, marginBottom: mb }) : 160;
   desenhar(el2, Plot.plot({
-    width: largura(el2), height: multi ? 40 + ps.length * 120 : 160, marginLeft: 80, marginRight: multi ? 110 : 20, style: estilo(),
+    width: largura(el2), height: altura, marginTop: mt, marginBottom: mb, marginLeft: 80, marginRight: 20, style: estilo(),
     ariaLabel: multi ? `Grupos editoriais e independentes, um painel por prêmio (${ps.length})` : "Grupos editoriais e independentes",
-    x: { label: "% das obras", domain: [0, 100] }, y: { label: null, domain: ["Lista", "Premiadas"] },
-    ...(multi ? { fy: { domain: ps.map((p) => NOME_PREMIO[p] ?? p), label: null } } : {}),
+    x: { label: "% das obras", labelAnchor: "center", domain: [0, 100] }, y: { label: null, domain: ["Lista", "Premiadas"] },
+    ...(multi ? { fy: fyPaineis(dominio, { altura, marginTop: mt, marginBottom: mb }) } : {}),
     color: { domain: ["Grupos editoriais", "Independentes"], range: [css("--s1"), css("--s2")], legend: true },
     marks: [Plot.barX(g, Plot.stackX({ x: "pct", y: "etapa", ...fy(multi), fill: "tipo", insetTop: 8, insetBottom: 8, insetLeft: 1, insetRight: 1, rx: 3,
       channels: { n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` }, tip: { format: { x: (v) => fmtPct(v), fy: false } } }))],
@@ -274,13 +302,16 @@ export function renderJuri(L, { D, estado }) {
   });
   if (!j.length) return vazio(el, "Júri ainda não coletado para as edições do recorte."), tabela($("#t-juri"), [], []);
   const quem = ["Júri", "Lista", "Vencedoras"];
-  const faixa = (d) => `${multi ? `${d.premio_nome} · ` : ""}${d.indicador} · ${d.ano}`;
+  const faixa = (d) => `${multi ? `${d.premio_nome.replace(/^Prêmio /, "")} · ` : ""}${d.indicador} · ${d.ano}`;
+  const faixas = [...new Set(j.map(faixa))], mt = FOLGA_PAINEL, mb = 40;
+  const altura = alturaPaineis(faixas.length, 76, { marginTop: mt, marginBottom: mb });
   desenhar(el, Plot.plot({
-    width: largura(el), height: 70 + new Set(j.map(faixa)).size * 96, marginLeft: 90, marginRight: 210, style: estilo(),
+    width: largura(el), height: altura, marginTop: mt, marginBottom: mb, marginLeft: 90, marginRight: 90, style: estilo(),
     ariaLabel: "Perfil do júri, da lista e das vencedoras",
     x: { label: "%", domain: [0, 100], grid: true }, y: { domain: quem, label: null },
-    fy: { label: null, tickFormat: (d) => d }, color: { domain: quem, range: [css("--s1"), css("--s2"), css("--s3")], legend: true },
+    fy: fyPaineis(faixas, { altura, marginTop: mt, marginBottom: mb }), color: { domain: quem, range: [css("--s1"), css("--s2"), css("--s3")], legend: true },
     marks: [
+      ...nomesPaineis(faixas, { extra: { dx: -86 } }), // a partir da borda esquerda: no celular não cabia depois da margem
       Plot.barX(j, { x: "pct", y: "quem", fy: faixa, fill: "quem", insetTop: 3, insetBottom: 3, rx: 3,
         channels: { n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` }, tip: { format: { x: (v) => fmtPct(v), fy: false } } }),
       Plot.text(j, { x: "pct", y: "quem", fy: faixa, text: (d) => `${fmtPct(d.pct)} (${d.n}/${d.total})`, dx: 6, textAnchor: "start", fill: css("--tinta-2"), fontSize: 11 }),
@@ -301,23 +332,28 @@ export function renderEntrePremios(L, { abrirPerfil } = {}) {
     $("#entre-pessoas").innerHTML = "";
     return vazio(el, "Só um prêmio no recorte."), tabela($("#t-entre-premios"), [], []);
   }
-  const nomes = r.premios.map((p) => NOME_PREMIO[p] ?? p), nome = (p) => NOME_PREMIO[p] ?? p;
+  const nome = (p) => NOME_PREMIO[p] ?? p, curto = (p) => nome(p).replace(/^Prêmio /, ""), nomes = r.premios.map(curto);
   const distintos = new Set(L.filter((l) => etapa === "lista" || l.premiada).map((l) => l.pessoa_id)).size;
   $("#entre-resumo").innerHTML = `<b>${fmt(r.pessoas.length)}</b> de ${fmt(distintos)} pessoas ${rotEtapa} no recorte passaram por mais de um prêmio`
     + ` (${r.premios.map((p) => `${esc(nome(p))}: ${fmt(r.total[p])}`).join("; ")}).`;
-  const dados = r.pares.map((x) => ({ ...x, deN: nome(x.de), paraN: nome(x.para) }));
+  // Nos eixos, o nome sem "Prêmio " ("São Paulo de Literatura"): com ele, os rótulos não cabiam na coluna nem na margem.
+  const dados = r.pares.map((x) => ({ ...x, deN: curto(x.de), paraN: curto(x.para) }));
+  const ml = 12 + d3.max(nomes, (n) => larguraTexto(n)), maxNome = d3.max(nomes, (n) => larguraTexto(n));
+  const larg = Math.max(Math.min(largura(el), ml + nomes.length * 170), ml + nomes.length * 96), inclina = maxNome > (larg - ml) / nomes.length - 8;
   desenhar(el, Plot.plot({
-    width: Math.min(largura(el), 160 + nomes.length * 170), height: 70 + nomes.length * 64, marginLeft: 150, marginTop: 40, style: estilo(),
+    width: larg, height: 70 + nomes.length * 64 + (inclina ? maxNome : 0), marginLeft: ml, marginTop: inclina ? 30 + maxNome : 40, style: estilo(),
     ariaLabel: "Sobreposição entre prêmios: parte das pessoas de cada prêmio que também está no outro",
-    x: { label: null, axis: "top", domain: nomes }, y: { label: null, domain: nomes },
-    color: { type: "linear", domain: [0, 100], range: [css("--seq-0"), css("--seq-1")], legend: true, label: "%" },
+    x: { label: null, axis: "top", domain: nomes, tickRotate: inclina ? -90 : 0 }, y: { label: null, domain: nomes },
+    color: { type: "linear", domain: [0, 100], range: [css("--seq-0"), css("--seq-1")], legend: true, label: "%", marginLeft: 12, marginRight: 12 },
     marks: [
       Plot.cell(dados, { x: "paraN", y: "deN", fill: "pct", inset: 1.5, rx: 6, channels: { n: "n", Base: (d) => `${d.total}${nPequeno(d.total)}` },
         tip: { format: { fill: (v) => fmtPct(v), x: true, y: true } } }),
       Plot.text(dados, { x: "paraN", y: "deN", text: (d) => `${fmtPct(d.pct)}\n(${d.n}/${d.total})`, fill: (d) => textoSobre((d.pct ?? 0) / 100), fontSize: 11, lineHeight: 1.1 }),
     ],
   }));
-  tabela($("#t-entre-premios"), dados, [{ rot: "Prêmio", k: "deN" }, { rot: "Também em", k: "paraN" }, { rot: "n", k: "n", num: true },
+  const svgEntre = el.querySelector("svg[aria-label^='Sobreposição']");
+  if (svgEntre && +svgEntre.getAttribute("width") > largura(el)) svgEntre.style.maxWidth = "none"; // .grafico rola na horizontal
+  tabela($("#t-entre-premios"), dados, [{ rot: "Prêmio", f: (d) => nome(d.de) }, { rot: "Também em", f: (d) => nome(d.para) }, { rot: "n", k: "n", num: true },
     { rot: "Base", k: "total", num: true }, { rot: "%", f: (d) => fmtPct(d.pct) + nPequeno(d.total), num: true }]);
   $("#entre-pessoas").innerHTML = r.pessoas.length
     ? `<div class="tabela-exportavel">${BOTAO_TABELA}<div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Pessoa</th><th scope="col">Nascimento</th><th scope="col">Ordem de chegada</th></tr></thead>
@@ -340,7 +376,7 @@ export function renderRanking(L, { D, abrirPerfil }) {
   desenhar(el, Plot.plot({
     width: largura(el), height: 50 + r.length * 30, marginLeft: Math.min(230, 16 + d3.max(r, (d) => nomeRot(d).length) * 6.6), marginRight: 34, style: estilo(),
     ariaLabel: `Ranking de pessoas por ${ROT_MEDIDA[medida].toLowerCase()}`,
-    x: { label: ROT_MEDIDA[medida], grid: true, tickFormat: "d" }, y: { domain: r.map(nomeRot), label: null },
+    marginBottom: 40, x: { label: ROT_MEDIDA[medida], labelAnchor: "center", grid: true, tickFormat: "d" }, y: { domain: r.map(nomeRot), label: null },
     color: { ...c, legend: true, tickFormat: rotulo },
     marks: [
       Plot.barX(r, { x: medida, y: nomeRot, fill: "genero", insetTop: 4, insetBottom: 4, rx: 3,

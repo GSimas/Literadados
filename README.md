@@ -6,7 +6,7 @@
 </p>
 
 <p align="center"><b>Quem chega aos prêmios literários?</b><br>
-Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem cinco prêmios: Jabuti (1959–2025), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2025) e Sesc de Literatura (2004–2025). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
+Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem cinco prêmios: Jabuti (1959–2025), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2026) e Sesc de Literatura (2004–2026). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
 
 <p align="center">
   <a href="https://literadados.gustavosimas.com"><img alt="Site no ar" src="https://img.shields.io/website?url=https%3A%2F%2Fliteradados.gustavosimas.com&label=literadados.gustavosimas.com&up_message=no%20ar&down_message=fora%20do%20ar"></a>
@@ -35,13 +35,13 @@ Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascim
 
 | | |
 |---|---|
-| Prêmios | **Prêmio Jabuti**: 67 edições (1959–2025; listas públicas de 2000 em diante, antes só os premiados), 1.675 indicações, 1.021 pessoas-autoras. **Prêmio Oceanos**: 23 edições (2003–2025), 1.088 indicações, 642 pessoas-autoras. **Prêmio São Paulo de Literatura**: 18 edições (2008–2025, finalistas), 352 indicações, 263 pessoas-autoras. **Prêmio Biblioteca Nacional**: 30 edições (1995–2025, sem 2003; premiados), 237 indicações, 204 pessoas-autoras. **Prêmio Sesc de Literatura**: 22 edições (2004–2025; vencedores, originais inéditos), 44 indicações, 43 pessoas-autoras |
-| Base toda | 3.396 indicações em 2.839 obras; **1.586 pessoas-autoras** distintas (390 passaram por mais de um prêmio), 132 ilustradoras, 24 organizadoras e 467 juradas (há quem tenha mais de um papel); 486 editoras |
-| Gênero (autoras) | 1.117 com fonte, **427 atribuídos pelo primeiro nome** (marcados com \*), 42 não identificados |
-| Nascimento (autoras) | 951 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
-| Raça declarada (autoras) | 47 autodeclarações públicas ou fontes curadas, 33 pessoas negras (piso). Busca do protocolo completa para 1.252 de 1.586 |
-| Edições | **160 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 39 marcados para revisão humana |
-| Perfis | 994 QIDs do Wikidata, 378 fotos com licença livre, 285 capas |
+| Prêmios | **Prêmio Jabuti**: 67 edições (1959–2025; listas públicas de 2000 em diante, antes só os premiados), 1.675 indicações, 1.021 pessoas-autoras. **Prêmio Oceanos**: 23 edições (2003–2025), 1.088 indicações, 642 pessoas-autoras. **Prêmio São Paulo de Literatura**: 18 edições (2008–2025, finalistas), 352 indicações, 263 pessoas-autoras. **Prêmio Biblioteca Nacional**: 31 edições (1995–2026, sem 2003; premiados), 255 indicações, 218 pessoas-autoras. **Prêmio Sesc de Literatura**: 23 edições (2004–2026; vencedores, originais inéditos), 47 indicações, 46 pessoas-autoras |
+| Base toda | 3.417 indicações em 2.860 obras; **1.597 pessoas-autoras** distintas (391 passaram por mais de um prêmio), 135 ilustradoras, 24 organizadoras e 481 juradas (há quem tenha mais de um papel); 490 editoras |
+| Gênero (autoras) | 1.127 com fonte, **428 atribuídos pelo primeiro nome** (marcados com \*), 42 não identificados |
+| Nascimento (autoras) | 844 com UF no Brasil, 112 nascidas fora do Brasil (com país, quando há fonte) |
+| Raça declarada (autoras) | 47 autodeclarações públicas ou fontes curadas, 33 pessoas negras (piso). Busca do protocolo completa para 1.263 de 1.597 |
+| Edições | **162 textos de contexto** (um por edição), no tom de jornalismo literário, com fontes; 39 marcados para revisão humana |
+| Perfis | 998 QIDs do Wikidata, 378 fotos com licença livre, 285 capas |
 | Fontes citadas | 234 domínios, agrupados na seção Referências |
 | Páginas para buscadores e IAs | 2.710 URLs no `sitemap.xml` (prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos) |
 

@@ -2,7 +2,7 @@
 // Com vários prêmios no recorte (CA-26.9, CA-26.10), cada prêmio tem a sua linha de painéis e o seu bloco em cada ano.
 import * as M from "./metricas.js";
 import { linkEditora } from "./editoras.js";
-import { $, fmt, fmtPct, nPequeno, esc, css, largura, estilo, tabela, vazio, CATEGORIAS, PREMIOS, NOME_PREMIO, desenhar } from "./ui.js";
+import { $, fmt, fmtPct, nPequeno, esc, css, largura, estilo, tabela, vazio, CATEGORIAS, PREMIOS, NOME_PREMIO, desenhar, FOLGA_PAINEL, fyPaineis, alturaPaineis, nomesPaineis } from "./ui.js";
 
 const INDICADORES = [
   { k: "pctMulheres", n: "mulheres", t: "total", rot: "Mulheres", cor: "--s1" },
@@ -24,21 +24,26 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   const longo = e.flatMap((x) => INDICADORES.map((i) => ({ ano: x.ano, premio_nome: x.premio_nome, indicador: i.rot, pct: x[i.k], n: x[i.n], total: x[i.t] })));
   const estreito = largura(el) < 640;
   // Facetas: indicador nas colunas (ou empilhado no celular) e, com vários prêmios, um prêmio por linha.
-  const fyRot = (d) => (estreito ? (multi ? `${d.premio_nome} · ${d.indicador}` : d.indicador) : d.premio_nome);
-  const dominioFy = estreito ? ps.flatMap((p) => INDICADORES.map((i) => (multi ? `${nome(p)} · ${i.rot}` : i.rot))) : ps.map(nome);
+  // No celular o painel junta prêmio e indicador; sem "Prêmio " no começo, o nome cabe na largura.
+  const curto = (n) => n.replace(/^Prêmio /, "");
+  const fyRot = (d) => (estreito ? (multi ? `${curto(d.premio_nome)} · ${d.indicador}` : d.indicador) : d.premio_nome);
+  const dominioFy = estreito ? ps.flatMap((p) => INDICADORES.map((i) => (multi ? `${curto(nome(p))} · ${i.rot}` : i.rot))) : ps.map(nome);
   const temFy = estreito || multi;
   const canais = { ...(estreito ? {} : { fx: "indicador" }), ...(temFy ? { fy: fyRot } : {}) };
   // Marcos só dos prêmios do recorte, repetidos em cada painel do próprio prêmio.
   const marcos = M.marcosDe(ps, D.premios ?? []).filter((m) => anosVis.includes(m.ano))
     .flatMap((m) => INDICADORES.map((i) => ({ ano: m.ano, premio_nome: nome(m.premio), indicador: i.rot })));
   const paineis = estreito ? dominioFy.length : multi ? ps.length : 1;
+  // No celular os painéis empilham com o nome no alto de cada um (dentro do painel, encostava no "100" do eixo).
+  const mt = estreito ? FOLGA_PAINEL : 28, mb = 34;
+  const altura = estreito ? alturaPaineis(paineis, 130, { marginTop: mt, marginBottom: mb }) : 30 + paineis * 200;
   desenhar(el, Plot.plot({
-    width: largura(el), height: estreito ? 40 + paineis * 160 : 30 + paineis * 200, marginTop: 28, marginRight: estreito ? 28 : multi ? 110 : undefined, marginBottom: 34, style: estilo(),
+    width: largura(el), height: altura, marginTop: mt, marginRight: estreito ? 28 : undefined, marginBottom: mb, style: estilo(),
     ariaLabel: `Composição da lista por edição: mulheres, negras (piso) e nascidas no Sudeste${multi ? `, um painel por prêmio (${ps.length})` : ""}`,
     fx: estreito ? undefined : { domain: INDICADORES.map((i) => i.rot), label: null, padding: 0.12 },
-    fy: temFy ? { domain: dominioFy, label: null, axis: estreito ? null : "right" } : undefined,
+    fy: estreito ? fyPaineis(dominioFy, { altura, marginTop: mt, marginBottom: mb }) : temFy ? { domain: dominioFy, label: null, axis: null } : undefined,
     x: { domain: [anosVis[0], anosVis.at(-1)], tickFormat: "d", ticks: 4, label: null },
-    y: { domain: [0, 100], grid: true, label: "%", ticks: 4 },
+    y: { domain: [0, 100], grid: true, label: "%", labelAnchor: estreito ? "center" : undefined, ticks: 4 },
     color: { domain: INDICADORES.map((i) => i.rot), range: INDICADORES.map((i) => css(i.cor)) },
     marks: [
       Plot.ruleX(marcos, { x: "ano", ...canais, stroke: css("--grade"), strokeDasharray: "3,3" }),
@@ -47,8 +52,9 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
       Plot.dot(longo, { x: "ano", y: "pct", ...canais, fill: "indicador", r: 3, stroke: css("--superficie"), strokeWidth: 1.5,
         channels: { ...(multi ? { Prêmio: "premio_nome" } : {}), n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` },
         tip: { format: { fill: false, fx: false, fy: false, y: (v) => fmtPct(v), x: (v) => String(v) } } }),
-      // Em tela estreita os painéis empilham e o nome do painel vai para dentro de cada um (o eixo lateral seria cortado).
-      ...(estreito ? [Plot.text(dominioFy, { fy: (d) => d, text: (d) => d, frameAnchor: "top-left", dx: 4, dy: 2, fill: css("--tinta"), fontWeight: 600, fontSize: 12 })] : []),
+      // Nome do painel: no celular, no alto de cada um; com colunas, dentro da 1ª (no eixo lateral, nomes longos eram cortados).
+      ...(estreito ? nomesPaineis(dominioFy, { extra: { dx: -34 } })
+        : multi ? [Plot.text(dominioFy, { fy: (d) => d, fx: () => INDICADORES[0].rot, text: (d) => d, frameAnchor: "top-left", dx: 4, dy: 2, fill: css("--tinta"), fontWeight: 600, fontSize: 12 })] : []),
       Plot.text(longo, Plot.selectLast({ x: "ano", y: "pct", ...canais, z: (d) => `${d.premio_nome}|${d.indicador}`, text: (d) => fmtPct(d.pct), dy: -10, fill: css("--tinta-2"), fontSize: 11 })),
     ],
   }));
