@@ -108,6 +108,31 @@ export const desenhar = (el, no) => {
 };
 export const vazio = (el, msg = "Sem dados no recorte selecionado.") => { el.innerHTML = `<p class="vazio">${msg}</p>`; };
 
+// Largura de um texto na fonte dos gráficos, para margens que caibam o rótulo inteiro.
+let ctx2d = null;
+export const larguraTexto = (s, px = 12, peso = 400) => {
+  ctx2d ??= document.createElement("canvas").getContext("2d");
+  ctx2d.font = `${peso} ${px}px ${getComputedStyle(document.body).fontFamily}`;
+  return ctx2d.measureText(String(s)).width;
+};
+
+// Vários prêmios (CA-26.9): o nome de cada painel vai no alto dele, alinhado à esquerda. No eixo fy da direita,
+// nomes longos ("Prêmio São Paulo de Literatura") eram cortados pela margem.
+// fyPaineis reserva `folga` px entre um painel e outro; o 1º usa o marginTop do gráfico, que precisa ser ≥ folga.
+export const FOLGA_PAINEL = 34;
+export const fyPaineis = (dominio, { altura, marginTop, marginBottom, folga = FOLGA_PAINEL }) => {
+  const passo = (altura - marginTop - marginBottom + folga) / dominio.length; // painel + folga (banda com paddingOuter 0)
+  return { domain: dominio, label: null, axis: null, paddingOuter: 0, paddingInner: Math.min(0.6, folga / passo) };
+};
+// Altura total para painéis de `painel` px; o inverso de fyPaineis.
+export const alturaPaineis = (n, painel, { marginTop, marginBottom, folga = FOLGA_PAINEL }) => marginTop + marginBottom + n * painel + (n - 1) * folga;
+// `acima`: px a mais entre o nome e o painel (rótulos de marcos, eixo no topo do 1º painel); `extra`: canais a mais (fx).
+export const nomesPaineis = (dominio, { acima = 0, acimaPrimeiro = acima, extra = {} } = {}) => {
+  const t = (ds, a) => Plot.text(ds, { fy: (d) => d, ...extra, text: (d) => d, frameAnchor: "top-left", textAnchor: "start", lineAnchor: "bottom",
+    dy: -10 - a, fill: css("--tinta"), fontWeight: 600, fontSize: 12 }); // -10: acima do rótulo "100" do eixo y, que sobe ~7px
+  return [t(dominio.slice(0, 1), acimaPrimeiro), t(dominio.slice(1), acima)];
+};
+
 // Dica flutuante única para os gráficos desenhados à mão (mapa, Sankey, história).
 export const dica = {
   mostrar(ev, html) {
