@@ -40,5 +40,5 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 ## Optional
 
 - [Texto completo: premiadas de cada edição e contexto](https://literadados.gustavosimas.com/llms-full.txt)
-- [Painel interativo](https://literadados.gustavosimas.com/): gráficos, filtros e a Diadorim
+- [Painel interativo](https://literadados.gustavosimas.com/premios.html): gráficos, filtros e a Diadorim
 

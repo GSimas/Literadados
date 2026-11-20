@@ -15,7 +15,7 @@ function destacar(rotulo, termo) {
   return `${esc(chars.slice(0, ini).join(""))}<mark>${esc(chars.slice(ini, fim).join(""))}</mark>${esc(chars.slice(fim).join(""))}`;
 }
 
-// prefixo: "" no painel; "./" em metodo.html (as rotas #/… vivem no index).
+// prefixo: "" no painel; "premios.html" nas outras páginas (as rotas #/… vivem no painel de prêmios).
 export function montarBusca(D, prefixo = "") {
   const indice = M.indiceBusca(D);
   const campo = $("#busca-global"), lista = $("#busca-resultados");
@@ -25,7 +25,7 @@ export function montarBusca(D, prefixo = "") {
     fechar();
     campo.value = "";
     campo.blur();
-    // "#…" e "?…" (filtro na URL) vivem no index: em metodo.html ganham o prefixo "./".
+    // "#…" e "?…" (filtro na URL) vivem no painel: fora dele ganham o prefixo "premios.html".
     const href = /^[#?]/.test(e.href) && prefixo ? `${prefixo}${e.href}` : e.href;
     if (href.startsWith("#")) { location.hash = href; return; }
     // Filtro na URL (edição de um prêmio, CA-26.12): mescla com os filtros das outras partes, sem apagá-los.

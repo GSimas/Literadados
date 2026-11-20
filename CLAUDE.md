@@ -11,7 +11,7 @@ Plataforma (painel e IA) sobre o perfil demográfico (gênero, raça autodeclara
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py            # CSVs → literadados.duckdb + web/dados.json + páginas estáticas (seo.py); falha se dado inconsistente
-.venv/bin/python server.py           # http://localhost:8000 (só estático; a Diadorim usa OpenRouter + DuckDB-WASM no navegador)
+.venv/bin/python server.py           # http://localhost:8000 = portal; painel de prêmios em /premios.html (só estático; a Diadorim usa OpenRouter + DuckDB-WASM no navegador)
 git push origin main                 # deploy automático (Netlify ligado ao GitHub) em literadados.gustavosimas.com; rode build.py e commite antes. PR ganha prévia de deploy
 .venv/bin/python -m pytest -q        # testes Python
 node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24 não aceita pasta)
@@ -134,3 +134,4 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 - 2026-11-19 — Fontes sem cota que funcionaram: base de prêmios da DGLAB (Camões, júri de todos os anos; paginação por postback ASP.NET, passo a passo no LEIA), banco de prêmios e relatórios em PDF da ABL, arquivo.pt (`textsearch` e replay `id_`; ISO-8859-1 até ~2005), API de etiquetas do Público (`publico.pt/api/list/<etiqueta>?page=N`), PDF "historial" do Prémio LeYa. `web.archive.org` ficou fora do ar a sessão inteira. Capas: Martins Fontes (VTEX) e Estante Virtual (`__INITIAL_STATE__`, imagem em `static.estantevirtual.com.br/book/00/<código>/<código>_detail1.jpg`) deram ~150 de 447; a Travessa recusa a imagem fora do site (403). Regra de título estrita: só igual ou com subtítulo depois de `:`/`-`/`(` ("Andanças" ≠ "Andanças das infâncias").
 - 2026-11-19 — Botão de tema: um clique troca (Automático → Claro → Escuro), sem menu; a troca é só de cores por CSS (`html.trocando-tema`), sem View Transition, que animava um retrato da página inteira. Agentes também usam o navegador do app: confira `tabs_context` e passe `tabId` antes de rodar JS, senão o comando cai na aba deles.
 
+- 2026-11-20 — Portal (D37): o painel de prêmios mudou de `web/index.html` para `web/premios.html`; `index.html` é o portal. Links antigos (`/#/pessoa/…`, `/?panorama=…`) são redirecionados pelo `<script id="rotas-antigas">` do portal, também no `hashchange`: trocar só o hash na mesma aba não recarrega a página, e sem o ouvinte o redirecionamento não roda. Os cartões do portal são gravados pelo build entre `<!-- build:portal -->`.

@@ -124,7 +124,7 @@ class Base:
 
 # ---------- página ----------
 LOGO = '<img class="logo" src="/logo.svg" alt="" width="30" height="30">'
-NAV = [("/", "Painel"), ("/premios/", "Prêmios"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
+NAV = [("/premios.html", "Painel"), ("/premios/", "Prêmios"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
 
 
 def _ld(obj) -> str:
@@ -180,7 +180,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 </main>
 <footer class="rodape">
   <p><b>Literadados</b> · dados abertos sobre quem chega aos prêmios literários de língua portuguesa. Cada número tem fonte; cada pessoa, um perfil.
-  <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/">Painel interativo</a>.</p>
+  <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/premios.html">Painel interativo</a>.</p>
   <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
 </footer>
 </body>
@@ -301,7 +301,7 @@ def pagina_edicao(b, premio, ano):
     navs = " ".join(x for x in [ant and f'<a class="chip-link" href="/premios/{premio}/{ant}/">‹ {ant}</a>', seg and f'<a class="chip-link" href="/premios/{premio}/{seg}/">{seg} ›</a>'] if x)
     corpo = f"""<article class="secao">
 <header class="secao-cab"><p class="sobretitulo">Edição · {e(ed["regime"])}</p><h1>{e(nome)} {ano}</h1>{lead}
-<p class="links-externos">{navs} <a class="chip-link" href="/#/edicao/{premio}/{ano}">Abrir no painel, com gráficos</a> <a class="chip-link" href="{e(ed["fonte"])}" rel="noopener">Fonte oficial</a></p></header>
+<p class="links-externos">{navs} <a class="chip-link" href="/premios.html#/edicao/{premio}/{ano}">Abrir no painel, com gráficos</a> <a class="chip-link" href="{e(ed["fonte"])}" rel="noopener">Fonte oficial</a></p></header>
 {texto}
 <h2>A edição em números</h2>
 {kpis_resumo(r)}
@@ -499,7 +499,7 @@ def pagina_pessoa(b, pid):
         f'<td>{lnk_editora(b, o["editora"])}</td><td>{b.resultado(o)}</td></tr>' for o in obras)
     corpo = f"""<article class="secao pessoa-estatica">
 <header class="secao-cab"><p class="sobretitulo">Pessoa</p><h1>{e(p["nome"])}</h1>{f'<p class="lead">{lead}</p>' if lead else ""}
-<p class="links-externos"><a class="chip-link" href="/#/pessoa/{quote(pid)}">Abrir no painel</a> {" ".join(x for x in externos if x)}</p></header>
+<p class="links-externos"><a class="chip-link" href="/premios.html#/pessoa/{quote(pid)}">Abrir no painel</a> {" ".join(x for x in externos if x)}</p></header>
 {foto}
 <dl class="fatos">
 <dt>Gênero</dt><dd>{gen}</dd>
@@ -586,7 +586,7 @@ def pagina_estado(b, uf):
     corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Estado · {e(u["regiao"])}</p><h1>Nascidos {e(em)} nos prêmios literários</h1>
 <p class="lead">{fmt(r["pessoas"])} pessoas-autoras nasceram {e(em)} ({uf}): {fmt_pct(pct(r["pessoas"], total_br))} das {fmt(total_br)} com UF de nascimento conhecida no Brasil.
 {fmt(prem)} foram premiadas e {fmt(venc)} venceram (1º lugar). Por prêmio: {por_premio}.</p>
-<p class="links-externos"><a class="chip-link" href="/#/uf/{uf}">Abrir no painel, com gráficos</a></p></header>
+<p class="links-externos"><a class="chip-link" href="/premios.html#/uf/{uf}">Abrir no painel, com gráficos</a></p></header>
 {kpis_resumo(r)}
 {NOTA}
 <h2>Quem nasceu {e(em)}</h2>
@@ -669,7 +669,7 @@ def pagina_editora(b, eid, posicao, total_ed):
             f"{fmt(c['premiadas'])} premiada{'' if c['premiadas'] == 1 else 's'}, {fmt(c['vencedoras'])} em 1º lugar. É a {posicao}ª de {fmt(total_ed)} editoras em indicações.")
     corpo = f"""<article class="secao"><header class="secao-cab editora-cab-estatica">{marca_editora(ed, b.logos.get(eid))}<div><p class="sobretitulo">Editora</p><h1>{e(ed["nome"])}</h1>
 <p class="lead">{lead}</p>
-<p class="links-externos"><a class="chip-link" href="/#/editora/{quote(eid)}">Abrir no painel, com gráfico</a></p></div></header>
+<p class="links-externos"><a class="chip-link" href="/premios.html#/editora/{quote(eid)}">Abrir no painel, com gráfico</a></p></div></header>
 {kpis([(e(n), fmt(cp["indicacoes"]), f"indicações ({ap[0]}–{ap[-1]}); {fmt(cp['premiadas'])} premiadas, {fmt(cp['vencedoras'])} em 1º lugar") for n, cp, ap in por_premio])}
 <h2>Quem a editora levou aos prêmios</h2>
 {kpis_resumo(r)}
@@ -873,7 +873,7 @@ def llms(b, qs):
           f"- [Método]({SITE}/metodo.html): fontes, definições, protocolo de raça, cobertura", "", "## Prêmios", ""]
     s += [f"- [{p['nome']}]({SITE}/premios/{p['id']}/)" for p in ativos]
     s += ["", "## Optional", "", f"- [Texto completo: premiadas de cada edição e contexto]({SITE}/llms-full.txt)",
-          f"- [Painel interativo]({SITE}/): gráficos, filtros e a Diadorim", ""]
+          f"- [Painel interativo]({SITE}/premios.html): gráficos, filtros e a Diadorim", ""]
     full = ["# Literadados — texto completo", "", s[2], "", s[4], ""]
     full += ["## Perguntas frequentes", ""]
     for q, a in qs:
@@ -904,7 +904,7 @@ def _sitemap_antigo(web: Path) -> dict:
 
 def _abertura(web: Path, r: dict):
     """Números reais no esqueleto da abertura (CA-27.6): robôs sem JavaScript leem os mesmos números do painel."""
-    idx = web / "index.html"
+    idx = web / "premios.html"
     if not idx.exists():
         return
     neg = None if r["pctNegras"] is None else round(r["pctNegras"] * 10) / 10
@@ -915,6 +915,29 @@ def _abertura(web: Path, r: dict):
               f'        <!-- /build:numeros -->')
     s = idx.read_text(encoding="utf-8")
     novo = re.sub(r"<!-- build:numeros -->.*?<!-- /build:numeros -->", lambda _: trecho, s, flags=re.S)
+    if novo != s:
+        idx.write_text(novo, encoding="utf-8")
+
+
+def _portal(web: Path, b, r: dict):
+    """Cartões do portal com os números de cada módulo (CA-31.2, D37). Módulo sem dado não ganha cartão."""
+    idx = web / "index.html"
+    if not idx.exists():
+        return
+    n_premios = sum(1 for p in b.premios if b.anos(p["id"]))
+    cartoes = []
+    if r["pessoas"]:
+        cartoes.append(
+            '      <a class="cartao-grafico" href="premios.html">\n'
+            '        <span class="cg-sobre">Prêmios literários</span>\n'
+            '        <span class="cg-titulo">Quem chega aos prêmios literários?</span>\n'
+            '        <span class="cg-desc">Gênero, raça autodeclarada e local de nascimento de quem é indicado e premiado.</span>\n'
+            f'        <span class="cg-num"><b>{fmt(r["pessoas"])}</b> pessoas-autoras · <b>{fmt(n_premios)}</b> prêmios</span>\n'
+            '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
+            '      </a>')
+    trecho = "<!-- build:portal -->\n" + "\n".join(cartoes) + "\n      <!-- /build:portal -->"
+    s = idx.read_text(encoding="utf-8")
+    novo = re.sub(r"<!-- build:portal -->.*?<!-- /build:portal -->", lambda _: trecho, s, flags=re.S)
     if novo != s:
         idx.write_text(novo, encoding="utf-8")
 
@@ -960,7 +983,7 @@ def gerar(con, web: Path) -> dict:
             elif arq.is_dir() and not any(arq.iterdir()):
                 arq.rmdir()
 
-    urls = [(f"{SITE}/", None), (f"{SITE}/metodo.html", None)]
+    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), (f"{SITE}/metodo.html", None)]
     for rel in sorted(paginas):
         loc = f"{SITE}/{rel.removesuffix('index.html')}"
         urls.append((loc, hoje if rel in mudou or loc not in antigo else antigo[loc]))
@@ -971,5 +994,7 @@ def gerar(con, web: Path) -> dict:
         arq = web / nome
         if not arq.exists() or arq.read_text(encoding="utf-8") != txt:
             arq.write_text(txt, encoding="utf-8")
-    _abertura(web, resumo(b.autores))
+    r = resumo(b.autores)
+    _abertura(web, r)
+    _portal(web, b, r)
     return paginas

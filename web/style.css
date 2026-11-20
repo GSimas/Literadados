@@ -961,3 +961,11 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .rodape-links { margin: .4rem 0; }
 .edicao-comp h4 { margin: .8rem 0 .2rem; font-size: .85rem; color: var(--tinta-2); font-weight: 600; }
 .vencedoras-lead { padding-left: 1.1rem; margin: .2rem 0 1rem; display: grid; gap: .25rem; }
+
+/* Portal (RF-31, D37): abertura curta e um cartão por módulo, com o número gravado pelo build. */
+.portal-abertura { padding-top: clamp(3rem, 9vh, 6rem); padding-bottom: 0; }
+.portal-abertura h1 { max-width: 18ch; }
+.portal-abertura .hero-lead { max-width: 60ch; margin-bottom: 0; }
+.cg-num { font-size: .9rem; color: var(--tinta-2); }
+.cg-num b { font-family: var(--fonte-titulo); font-size: 1.15rem; color: var(--tinta); }
+.portal-em-breve { margin-top: 1.25rem; }

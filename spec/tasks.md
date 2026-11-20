@@ -249,3 +249,43 @@
 - [x] T31.6 Busca de raça do protocolo para as 181 pessoas novas (`pessoas_raca_premios_1..4.csv`, 160 buscas): 160 completas, 21 parciais (teto), 1 autodeclaração (Paulina Chiziane, negra; trecho conferido no Observador); 4 casos em `revisao_raca.csv` (Edison Carneiro, Gilka Machado, José Craveirinha, Odete Semedo)
 - [x] T31.7 Textos de contexto (RF-28) das 45 edições com livro (LeYa 14, Saramago 13, ABL 18; `contexto/lote_12.csv`, `lote_13.csv`), 10 marcados para revisão
 - [ ] T31.8 Pendências nos LEIA: Machado de Assis 1944 e 1960 (REVISAR), Scliar na Poesia ABL 2000, Clair de Mattos, "Maria José Gomes Santos" (júri Saramago 2001), Isabel Lucas (local de nascimento), finalistas LeYa com título mudado na publicação
+
+## T32 Portal e módulos, etapa 0 (nov/2026, RF-31, D37)
+- [x] T32.0 Spec RF-31 a RF-34 e decisões DB-1 a DB-7 (fechadas em 2026-11-20); design D37 a D40
+- [x] T32.1 `git mv web/index.html web/premios.html`; testes, `seo.py` (`NAV`, links "abrir no painel"), `metodo.html`, sitemap e `llms.txt` apontando para `premios.html`; mesmos números (CA-31.1) 🧪
+- [x] T32.2 Portal `index.html`: script `rotas-antigas` e `test_rotas_antigas_redirecionam`; cartões com números do build (`build:portal`) (CA-31.2, CA-31.3) 🧪👁
+- [ ] T32.3 Cabeçalho com os módulos em todas as páginas, segunda linha com as seções do módulo; `test_cabecalho_igual_em_todas_as_paginas` (CA-31.4) 🧪👁
+- [ ] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
+- [ ] T32.5 Diadorim por módulo: `data-modulo`, `contexto-<módulo>.json`, `banco/modulos.json`, `banco.js` carregando só o módulo (CA-31.7) 🧪
+- [ ] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
+- [ ] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
+
+## T33 Território (nov/2026, RF-32, D38)
+- [ ] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
+- [ ] T33.2 `v_pessoa_municipio`, `v_editora_municipio`, `dados/municipio_casamento.csv`; resolver os avisos de nome sem código (CA-32.3) 🧪
+- [ ] T33.3 Malha municipal por UF (`coleta.py malha`, `web/malha/<UF>.json`) (CA-32.5) 🧪
+- [ ] T33.4 `codigo` em `pessoas[]` do `dados.json`; município no perfil de pessoa liga ao perfil de município 🧪👁
+
+## T34 Módulo Leitura (nov/2026, RF-33, D39)
+- [ ] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪
+- [ ] T34.2 Coleta `alfabetizacao` (Censo 2022, SIDRA) 🧪
+- [ ] T34.3 Coleta `escolas_biblioteca` (Censo Escolar, últimos 10 anos) 🧪
+- [ ] T34.4 Coleta `livrarias_cnpj` e `editoras_cnpj` (Receita, de-para de municípios) 🧪
+- [ ] T34.5 Coleta `leitores` e `livros_por_ano` (Retratos da Leitura, edições publicadas) 🧪
+- [ ] T34.6 `leitura.json`, `leitura/<UF>.json`, `metricas.expandirLeitura` e paridade (CA-33.5, CA-31.8) 🧪
+- [ ] T34.7 `leitura.html`: mapa UF/município, série, recortes, URL, tabela e exportação (CA-33.6, CA-33.7) 🧪👁
+- [ ] T34.8 Perfil de município e bloco de leitura nos perfis de UF e região (CA-32.4) 👁
+- [ ] T34.9 Páginas estáticas `/leitura/`, bloco nas páginas de UF, dados abertos, Método "Leitura" (CA-33.8) 🧪👁
+- [ ] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
+
+## T35 Módulo Mapeamento, Florianópolis (nov/2026, RF-34, D40)
+- [ ] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪
+- [ ] T35.2 `normalizar` lê `dados/coleta/mapeamento/<código>/` depois dos prêmios, com `remocoes.csv`; `test_mapeamento_nao_muda_premios` (CA-34.1) 🧪
+- [ ] T35.3 Protocolo `dados/coleta/mapeamento/4205407/LEIA.md` (definições, fontes, privacidade)
+- [ ] T35.4 Editoras e livrarias: `coleta.py mapeamento candidatas` (CNPJ + OSM), conferência, `livraria.csv` e `editoras.csv` (CA-34.4, CA-34.5)
+- [ ] T35.5 Autoras, autores e obras: vínculo de atuação com fonte, obras verificáveis, pessoas pelo protocolo (`pessoas_floripa_N.csv`) (CA-34.6, CA-34.7)
+- [ ] T35.6 Clubes do livro, com as regras de privacidade (CA-34.8)
+- [ ] T35.7 `mapeamento/4205407.json`, `metricas.resumoMapeamento`; `mapeamento.html` com mapa, listas e perfis; bloco "Em Florianópolis" no `premios.html` (CA-34.9, CA-34.10) 🧪👁
+- [ ] T35.8 Formulário (Netlify Forms) e página de agradecimento; ligar a detecção de formulários no Netlify (mantenedor) (CA-34.11) 👁
+- [ ] T35.9 Páginas estáticas do mapeamento, páginas de pessoa com vínculo, dados abertos (CA-34.12) 🧪
+- [ ] T35.10 Diadorim do módulo Mapeamento 🧪

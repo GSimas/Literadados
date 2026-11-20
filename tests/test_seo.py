@@ -16,10 +16,11 @@ from test_app import RAIZ, _build, _csv, mini  # noqa: F401  (mini é fixture)
 
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
-    """Build dos dados reais num web/ temporário, com uma cópia do index.html (números da abertura) e uma página órfã."""
+    """Build dos dados reais num web/ temporário, com uma cópia do premios.html (números da abertura) e uma página órfã."""
     web = tmp_path_factory.mktemp("site") / "web"
     (web / "pessoas" / "fantasma").mkdir(parents=True)
     (web / "pessoas" / "fantasma" / "index.html").write_text("velha", encoding="utf-8")
+    shutil.copy(RAIZ / "web" / "premios.html", web / "premios.html")
     shutil.copy(RAIZ / "web" / "index.html", web / "index.html")
     build.build(RAIZ / "dados", web.parent / "s.duckdb", web / "dados.json")
     return web
@@ -107,7 +108,7 @@ def test_metadados_e_json_ld(site):  # CA-27.2
         assert '<html lang="pt-BR">' in txt
         assert p.ld and all(x["@context"] == "https://schema.org" for x in p.ld), rel
         assert len(p.meta["description"]) <= 320, rel
-    for arq in ("index.html", "metodo.html"):  # escritos à mão
+    for arq in ("index.html", "premios.html", "metodo.html"):  # escritos à mão
         p = Pagina((RAIZ / "web" / arq).read_text(encoding="utf-8"))
         assert p.canonical and p.meta.get("og:title") and p.ld and p.h1 <= 1
 
@@ -170,7 +171,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
     assert all(pos[b.ed_id[n]] == h["posicao"] for n, h in js_["editoras"].items() if h["indicacoes"])
     # A abertura traz no HTML os números reais do painel (CA-27.6).
     t = js_["total"]
-    idx = (site / "index.html").read_text(encoding="utf-8")
+    idx = (site / "premios.html").read_text(encoding="utf-8")
     assert f"<b>{seo.fmt(t['pessoas'])}</b><span>pessoas-autoras em {seo.fmt(t['indicacoes'])} indicações" in idx
     assert f"(piso: {seo.fmt(t['raca']['negras'])})" in idx and "<b>0</b>" not in idx
 
@@ -178,7 +179,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
 def test_sitemap_estavel_e_textos_para_ias(site):  # CA-27.5
     mapa = (site / "sitemap.xml").read_text(encoding="utf-8")
     locs = re.findall(r"<loc>([^<]+)</loc>", mapa)
-    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
+    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
     antes = {p: p.stat().st_mtime_ns for p in site.rglob("*.html")}
     con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
     # Página que não mudou não é regravada e mantém o lastmod; página que mudou ganha a data de hoje.
@@ -237,3 +238,15 @@ def test_build_falha_contexto_invalido(mini, linha):  # CA-28.3
     _contexto(mini, [linha])
     with pytest.raises((build.BuildError, duckdb.Error)):
         _build(mini)
+
+
+def test_portal_numeros_do_build(site):  # CA-31.2, D37
+    """O portal traz o cartão de cada módulo com dado, com os números gravados pelo build; sem JSON de dados."""
+    idx = (site / "index.html").read_text(encoding="utf-8")
+    con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
+    b = seo.Base(con)
+    r = seo.resumo(b.autores)
+    n = sum(1 for p in b.premios if b.anos(p["id"]))
+    assert f'<b>{seo.fmt(r["pessoas"])}</b> pessoas-autoras · <b>{seo.fmt(n)}</b> prêmios' in idx
+    assert idx.count('class="cartao-grafico"') == 1  # Leitura e Mapeamento ainda sem dado: sem cartão
+    assert "dados.json" not in idx and 'href="premios.html"' in idx

@@ -588,11 +588,11 @@ FIXAM_UM_PREMIO = [
 def test_textos_de_plataforma():  # CA-26.15
     """Texto genérico não cita um prêmio; nome de prêmio no HTML só junto de uma regra dele ("no Jabuti, …", "… do Oceanos:")."""
     web = RAIZ / "web"
-    for arq in [web / "index.html", web / "metodo.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
+    for arq in [web / "index.html", web / "premios.html", web / "metodo.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
         txt = arq.read_text(encoding="utf-8")
         for padrao in FIXAM_UM_PREMIO:
             assert not re.search(padrao, txt), f"{arq.name}: {padrao}"
-    for arq in ["index.html", "metodo.html"]:
+    for arq in ["index.html", "premios.html", "metodo.html"]:
         txt = re.sub(r"<span data-premios-texto>[^<]*</span>", "", (web / arq).read_text(encoding="utf-8"))  # lista vinda dos dados
         txt = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", "", txt, flags=re.S)
         for m in re.finditer(r"(?:Prêmio )?(?:Jabuti|Oceanos)", txt):
@@ -603,7 +603,7 @@ def test_textos_de_plataforma():  # CA-26.15
 def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
     """O painel abre na série completa: nenhum texto fixa 2010–2025 como o período do painel."""
     web = RAIZ / "web"
-    for arq in ["index.html", "metodo.html", *[p.name for p in web.glob("*.js")]]:
+    for arq in ["index.html", "premios.html", "metodo.html", *[p.name for p in web.glob("*.js")]]:
         txt = (web / arq).read_text(encoding="utf-8")
         for proibido in ("Prêmio Jabuti 2010–2025", "2010–2025 · 16 edições", "Entre 2010 e 2025", "Recorte completo: 2010–2025", "Dezesseis edições", "D.recorte"):
             assert proibido not in txt, f"{arq}: {proibido}"
@@ -655,3 +655,19 @@ def test_conjunto_da_obra_checagens(mini, kw, erro):  # CA-30.1
     _com_distincao(mini, **kw)
     with pytest.raises(build.BuildError, match=erro):
         _build(mini)
+
+
+def test_rotas_antigas_redirecionam():  # CA-31.3, D37
+    """O script do portal manda links antigos do painel (hash de rota, âncora de seção, filtro na URL) para premios.html."""
+    html = (RAIZ / "web" / "index.html").read_text(encoding="utf-8")
+    script = re.search(r'<script id="rotas-antigas">(.*?)</script>', html, re.S).group(1)
+    casos = [("", "", None), ("", "#conteudo", None), ("", "#modulos", None),
+             ("", "#/pessoa/conceicao-evaristo", "premios.html#/pessoa/conceicao-evaristo"),
+             ("", "#/grafico/funil", "premios.html#/grafico/funil"), ("", "#panorama", "premios.html#panorama"),
+             ("?panorama=2015-2025~Poesia", "", "premios.html?panorama=2015-2025~Poesia"),
+             ("?funil=2019-2025", "#/edicao/jabuti/2019", "premios.html?funil=2019-2025#/edicao/jabuti/2019")]
+    js = "const casos = " + json.dumps(casos) + ";\nconst saida = casos.map(([search, hash]) => { let destino = null;\n" \
+         "  const location = { search, hash, replace: (u) => { destino = u; } };\n" + script + "\n  return destino; });\n" \
+         "console.log(JSON.stringify(saida));"
+    out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+    assert json.loads(out) == [c[2] for c in casos]
