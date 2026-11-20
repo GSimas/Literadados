@@ -969,3 +969,7 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .cg-num { font-size: .9rem; color: var(--tinta-2); }
 .cg-num b { font-family: var(--fonte-titulo); font-size: 1.15rem; color: var(--tinta); }
 .portal-em-breve { margin-top: 1.25rem; }
+/* Cabeçalho comum (CA-31.4, D37): os módulos abrem a navegação, separados das seções da página. */
+.nav a.modulo { color: var(--tinta); font-weight: 600; }
+.nav a.modulo[aria-current="page"], .nav a[aria-current="page"] { color: var(--link); background: var(--marca-suave); }
+.nav .sep { flex: none; width: 1px; margin: .45rem .35rem; background: var(--borda); }

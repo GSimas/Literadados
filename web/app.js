@@ -123,7 +123,7 @@ function renderAbertura() {
 
 // ---------- navegação: seção atual e progresso (CA-15.2) ----------
 function montarNavegacao() {
-  const links = new Map($$(".nav a").map((a) => [a.getAttribute("href").slice(1), a]));
+  const links = new Map($$(".nav a:not(.modulo)").map((a) => [a.getAttribute("href").slice(1), a]));
   const alvo = {};
   const io = new IntersectionObserver((es) => {
     for (const e of es) {

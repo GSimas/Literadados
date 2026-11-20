@@ -124,7 +124,9 @@ class Base:
 
 # ---------- página ----------
 LOGO = '<img class="logo" src="/logo.svg" alt="" width="30" height="30">'
-NAV = [("/premios.html", "Painel"), ("/premios/", "Prêmios"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
+# Módulos (D37): os mesmos links, na mesma ordem, no cabeçalho de toda página (test_cabecalho_igual_em_todas_as_paginas).
+MODULOS = [("/premios.html", "Prêmios")]
+NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
 
 
 def _ld(obj) -> str:
@@ -136,7 +138,8 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
     trilha = [("Início", "/"), *migalhas]
     ld = [*ld, {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + c} for i, (n, c) in enumerate(trilha)]}] if migalhas else list(ld)
-    nav = "".join(f'<a href="{c}"{" aria-current=\"page\"" if c == atual else ""}>{r}</a>' for c, r in NAV)
+    nav = ("".join(f'<a class="modulo" href="{c}">{r}</a>' for c, r in MODULOS) + '<span class="sep" aria-hidden="true"></span>'
+           + "".join(f'<a href="{c}"{" aria-current=\"page\"" if c == atual else ""}>{r}</a>' for c, r in NAV))
     og_img = imagem or f"{SITE}/og.png"
     migas = ("<nav class=\"migalhas\" aria-label=\"Você está em\"><ol>" + "".join(
         f'<li><a href="{c}">{e(n)}</a></li>' if i < len(trilha) - 1 else f'<li aria-current="page">{e(n)}</li>' for i, (n, c) in enumerate(trilha))
@@ -172,7 +175,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 <header class="barra">
   <a class="marca" href="/" aria-label="Literadados, início">{LOGO}
     <span class="marca-texto">Litera<em>dados</em></span></a>
-  <nav class="nav" aria-label="Seções">{nav}</nav>
+  <nav class="nav" aria-label="Módulos e seções">{nav}</nav>
 </header>
 <main id="conteudo" class="pagina-estatica">
 {migas}

@@ -671,3 +671,17 @@ def test_rotas_antigas_redirecionam():  # CA-31.3, D37
          "console.log(JSON.stringify(saida));"
     out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
     assert json.loads(out) == [c[2] for c in casos]
+
+
+def test_cabecalho_igual_em_todas_as_paginas():  # CA-31.4, D37
+    """Páginas escritas à mão e geradas têm os mesmos módulos, na mesma ordem, e cada módulo se marca na própria página."""
+    import seo
+    esperado = [c.lstrip("/") for c, _ in seo.MODULOS]
+    web = RAIZ / "web"
+    for arq in ["index.html", "premios.html", "metodo.html", "404.html", "premios/index.html", "pessoas/index.html"]:
+        txt = (web / arq).read_text(encoding="utf-8")
+        nav = re.search(r'<nav class="nav"[^>]*>(.*?)</nav>', txt, re.S).group(1)
+        assert [h.lstrip("/") for h in re.findall(r'<a class="modulo" href="([^"]+)"', nav)] == esperado, arq
+    for c, _ in seo.MODULOS:
+        txt = (web / c.lstrip("/")).read_text(encoding="utf-8")
+        assert f'<a class="modulo" href="{c.lstrip("/")}" aria-current="page">' in txt, c
