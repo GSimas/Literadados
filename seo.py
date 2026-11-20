@@ -517,6 +517,7 @@ def pagina_pessoa(b, pid):
 {("<h2>Conjunto da obra</h2><p class=\"muted pequeno\">Prêmio pela trajetória, sem livro concorrendo; fica fora das contas por livro.</p><ul>" + "".join(f'<li>{e(d["nome_original"])} {d["ano"]} <span class="muted pequeno">({e(b.nome_premio[d["premio_id"]])})</span> {link_fonte(d["fonte"].split(" ; ")[0])}</li>' for d in dist) + "</ul>") if dist else ""}
 {("<h2>Júri</h2><ul>" + "".join(f'<li><a href="/premios/{j["premio_id"]}/{j["ano"]}/">{e(b.nome_premio[j["premio_id"]])} {j["ano"]}</a> — {e(j["nome_original"])}</li>' for j in jur)
   + "".join(f'<li>{e(j["nome_original"])} {j["ano"]} <span class="muted pequeno">(conjunto da obra)</span></li>' for j in jur_dist) + "</ul>") if jur or jur_dist else ""}
+{bloco_mapeamento_pessoa(b, pid)}
 <p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com a fonte. <a href="/metodo.html">Método</a>.</p>
 </article>"""
     pessoa = {"@type": "Person", "name": p["nome"], "url": f"{SITE}/pessoas/{quote(pid)}/"}
@@ -1011,7 +1012,7 @@ def paginas_mapeamento(con, web: Path) -> dict:
 <h2>Livrarias e sebos</h2><ul>{"".join(li(f"{base}livrarias/{l['id']}/", l["nome"], f"{TIPO_LIV_M[l['tipo']]} · {l.get('bairro') or ''} · {SIT_M[l['situacao']]}") for l in M["livrarias"])}</ul>
 <h2>Clubes do livro</h2><ul>{"".join(li(f"{base}clubes/{c['id']}/", c["nome"], f"{c['formato']} · {SIT_M[c['situacao']]}") for c in M["clubes"])}</ul>
 <h2>Editoras</h2><ul>{"".join(f'<li>{e(x["nome"])} <span class="muted">{e(x["tipo"])} · {SIT_M[x["situacao"]]}</span></li>' for x in M["editoras"])}</ul>
-<h2>Autoras e autores</h2><ul>{"".join(f'<li><a href="/pessoas/{quote(p["id"])}/">{e(p["nome"])}</a> <span class="muted">{"nasceu na cidade" if p.get("nasceu") else ""}{" · " if p.get("nasceu") and p.get("atua") else ""}{"vive ou trabalha na cidade" if p.get("atua") else ""}</span></li>' for p in M["pessoas"])}</ul>
+<h2>Autoras e autores</h2><ul>{"".join(f'<li><a href="{f"/pessoas/{quote(p['id'])}/" if p.get("nos_premios") else f"{base}pessoas/{quote(p['id'])}/"}">{e(p["nome"])}</a> <span class="muted">{"nasceu na cidade" if p.get("nasceu") else ""}{" · " if p.get("nasceu") and p.get("atua") else ""}{"vive ou trabalha na cidade" if p.get("atua") else ""}</span></li>' for p in M["pessoas"])}</ul>
 </article>"""
         ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": f"Cena literária de {M['nome']}", "url": f"{SITE}{base}", "inLanguage": "pt-BR",
                "about": {"@type": "City", "name": M["nome"]}}]
@@ -1033,6 +1034,9 @@ def paginas_mapeamento(con, web: Path) -> dict:
             paginas[f"mapeamento/{cid}/livrarias/{l['id']}/index.html"] = pagina(f"{base}livrarias/{l['id']}/", f"{l['nome']} ({TIPO_LIV_M[l['tipo']].lower()}, {M['nome']}) | Literadados",
                 f"{l['nome']}: {TIPO_LIV_M[l['tipo']].lower()} em {M['nome']}, {SIT_M[l['situacao']]}. Endereço, site e fonte no mapeamento literário do Literadados.",
                 corpo, [ldl], [("Mapeamento", "/mapeamento/"), (M["nome"], base), (l["nome"], f"{base}livrarias/{l['id']}/")], "/mapeamento/")
+        for p in M["pessoas"]:
+            if not p.get("nos_premios"):  # quem está nos prêmios já tem /pessoas/<id>/, com o bloco do mapeamento
+                paginas[f"mapeamento/{cid}/pessoas/{p['id']}/index.html"] = pagina_pessoa_mapeada(M, cid, p)
         for c in M["clubes"]:
             local = {"livraria": "numa livraria", "biblioteca": "numa biblioteca", "cafe": "num café", "espaco_publico": "em espaço público", "casa": "em casa (sem endereço publicado)", "online": "on-line"}[c["local_tipo"]]
             corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Clube do livro · {e(c["formato"])}</p><h1>{e(c["nome"])}</h1>
@@ -1052,6 +1056,39 @@ def paginas_mapeamento(con, web: Path) -> dict:
                                                   corpo, [{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Mapeamento literário", "url": f"{SITE}/mapeamento/"}],
                                                   [("Mapeamento", "/mapeamento/")], "/mapeamento/")
     return paginas
+
+
+def bloco_mapeamento_pessoa(b, pid) -> str:
+    """Vínculo da pessoa com município mapeado, na página dela (CA-34.12)."""
+    con = getattr(b, "con", None)
+    if con is None:
+        return ""
+    rs = con.execute("""SELECT v.municipio, t.nome, list(DISTINCT v.tipo ORDER BY v.tipo) FROM v_pessoa_mapeada m
+                        JOIN v_vinculo v ON v.entidade = 'pessoa' AND v.entidade_id = m.pessoa_id AND v.municipio = m.municipio
+                        JOIN territorio t ON t.codigo = v.municipio WHERE m.pessoa_id = ? GROUP BY ALL ORDER BY 2""", [pid]).fetchall()
+    rot = {"nascimento": "nasceu na cidade", "atuacao": "vive ou trabalha na cidade"}
+    return "".join(f'<h2>Mapeamento literário</h2><p><a href="/mapeamento/{slug_cidade(n)}/">{e(n)}</a>: {e(" · ".join(rot[x] for x in tipos))}. '
+                   f'<a href="/mapeamento.html#/pessoa/{quote(pid)}">Abrir no mapeamento</a>.</p>' for _, n, tipos in rs)
+
+
+def pagina_pessoa_mapeada(M, cid, p) -> str:
+    """Página de quem só está no mapeamento (CA-34.12): vínculo com fonte, obras; mesmas regras de raça e gênero (CA-27.3)."""
+    base = f"/mapeamento/{cid}/pessoas/{p['id']}/"
+    obras = [o for o in M["obras"] if any(a[0] == p["id"] for a in o.get("autoria", []))]
+    vinc = [x for x in [p.get("nasceu") and f'nasceu em {e(M["nome"])} ({link_fonte(p.get("nascimento_fonte"))})',
+                        p.get("atua") and f'vive ou trabalha em {e(M["nome"])} ({link_fonte(p.get("atuacao_fonte"))})'] if x]
+    raca = (f'{e(p["raca"])}: “{e(p.get("raca_trecho") or "")}” {link_fonte(p.get("raca_fonte"))}' if p.get("raca") not in (None, "sem_declaracao")
+            else "sem declaração pública (não quer dizer branca)")
+    genero = {"mulher": "Mulher", "homem": "Homem", "nao_binario": "Não binária"}.get(p.get("genero"), "Não identificado") + (" *" if p.get("genero_evidencia") == "atribuicao" else "")
+    corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Mapeamento literário · {e(M["nome"])}</p><h1>{e(p["nome"])}</h1>
+<p class="lead">{" · ".join(vinc)}.</p>
+<p class="links-externos"><a class="chip-link" href="/mapeamento.html#/pessoa/{quote(p['id'])}">Abrir no painel</a></p></header>
+<dl class="ficha"><dt>Gênero</dt><dd>{genero}</dd><dt>Raça declarada</dt><dd>{raca}</dd>{f"<dt>Nascimento</dt><dd>{p['ano_nascimento']}</dd>" if p.get("ano_nascimento") else ""}</dl>
+<h2>Obras no cadastro</h2><ul>{"".join(f'<li>{e(o["titulo"])}{f" ({o["ano_publicacao"]})" if o.get("ano_publicacao") else ""}{f" · {e(o["editora"])}" if o.get("editora") else ""}</li>' for o in obras)}</ul>
+<p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado (*). Encontrou um erro ou quer sair do mapeamento? Use o formulário em <a href="/mapeamento.html#sugerir">Sugerir</a>.</p></article>"""
+    ld = [{"@context": "https://schema.org", "@type": "ProfilePage", "url": f"{SITE}{base}", "mainEntity": {"@type": "Person", "name": p["nome"], "url": f"{SITE}{base}"}}]
+    return pagina(base, f"{p['nome']} ({M['nome']}) | Literadados", f"{p['nome']}: autora ou autor ligado a {M['nome']} no mapeamento literário do Literadados, com obras e fonte.",
+                  corpo, ld, [("Mapeamento", "/mapeamento/"), (M["nome"], f"/mapeamento/{cid}/"), (p["nome"], base)], "/mapeamento/")
 
 
 def slug_cidade(nome: str) -> str:

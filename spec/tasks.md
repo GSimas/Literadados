@@ -258,7 +258,7 @@
 - [x] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
 - [x] T32.5 Diadorim por módulo: `data-modulo`, `contexto-<módulo>.json` (tabelas, views e prompt), `banco.js` carregando só o módulo (CA-31.7) 🧪
 - [x] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
-- [ ] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
+- [x] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
 
 ## T33 Território (nov/2026, RF-32, D38)
 - [x] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
@@ -279,13 +279,21 @@
 - [x] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
 
 ## T35 Módulo Mapeamento, Florianópolis (nov/2026, RF-34, D40)
-- [ ] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪
-- [ ] T35.2 `normalizar` lê `dados/coleta/mapeamento/<código>/` depois dos prêmios, com `remocoes.csv`; `test_mapeamento_nao_muda_premios` (CA-34.1) 🧪
-- [ ] T35.3 Protocolo `dados/coleta/mapeamento/4205407/LEIA.md` (definições, fontes, privacidade)
-- [ ] T35.4 Editoras e livrarias: `coleta.py mapeamento candidatas` (CNPJ + OSM), conferência, `livraria.csv` e `editoras.csv` (CA-34.4, CA-34.5)
-- [ ] T35.5 Autoras, autores e obras: vínculo de atuação com fonte, obras verificáveis, pessoas pelo protocolo (`pessoas_floripa_N.csv`) (CA-34.6, CA-34.7)
-- [ ] T35.6 Clubes do livro, com as regras de privacidade (CA-34.8)
-- [ ] T35.7 `mapeamento/4205407.json`, `metricas.resumoMapeamento`; `mapeamento.html` com mapa, listas e perfis; bloco "Em Florianópolis" no `premios.html` (CA-34.9, CA-34.10) 🧪👁
-- [ ] T35.8 Formulário (Netlify Forms) e página de agradecimento; ligar a detecção de formulários no Netlify (mantenedor) (CA-34.11) 👁
-- [ ] T35.9 Páginas estáticas do mapeamento, páginas de pessoa com vínculo, dados abertos (CA-34.12) 🧪
-- [ ] T35.10 Diadorim do módulo Mapeamento 🧪
+- [x] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪
+- [x] T35.2 `normalizar` lê `dados/coleta/mapeamento/<código>/` depois dos prêmios, com `remocoes.csv`; `test_mapeamento_nao_muda_premios` (CA-34.1) 🧪
+- [x] T35.3 Protocolo `dados/coleta/mapeamento/4205407/LEIA.md` (definições, fontes, privacidade)
+- [x] T35.4 Editoras e livrarias: `coleta.py mapeamento candidatas` (CNPJ + OSM), conferência, `livraria.csv` e `editoras.csv` (CA-34.4, CA-34.5)
+- [x] T35.5 Autoras, autores e obras: vínculo de atuação com fonte, obras verificáveis, pessoas pelo protocolo (`pessoas_floripa_N.csv`) (CA-34.6, CA-34.7)
+- [x] T35.6 Clubes do livro, com as regras de privacidade (CA-34.8)
+- [x] T35.7 `mapeamento/4205407.json`, `metricas.resumoMapeamento`; `mapeamento.html` com mapa, listas e perfis; bloco "Em Florianópolis" no `premios.html` (CA-34.9, CA-34.10) 🧪👁
+- [ ] T35.8 Formulário (Netlify Forms) e página de agradecimento (feitos e conferidos no navegador); falta o mantenedor ligar a detecção de formulários no painel do Netlify (CA-34.11) 👁
+- [x] T35.9 Páginas estáticas do mapeamento, páginas de pessoa com vínculo, dados abertos (CA-34.12) 🧪
+- [x] T35.10 Diadorim do módulo Mapeamento 🧪
+
+## T36 Pendências de conferência humana do mapeamento e da leitura (nov/2026)
+- [ ] T36.1 Florianópolis, livrarias: Livros & Livros (CCE/UFSC) e Paulus seguem abertas? Saraiva do Villa Romana fechou? Sebo Mafalda: número da loja; 74 candidatas em `dados/coleta/mapeamento/4205407/candidatas.csv`
+- [ ] T36.2 Florianópolis, editoras: Asinha como selo da Ases da Literatura ou editora à parte; sede só pelo CNPJ (Arquétipos, Draft, Pandion, NilaPress, Traços & Capturas)
+- [ ] T36.3 Florianópolis, pessoas: Franklin Cascaes (nasceu em Itaguaçu, então São José, hoje Florianópolis continental); vínculos de atuação de figuras históricas (Péricles Prade, Crispim Mira, Horácio Nunes Pires, Nicolau Nagib Nahas, Victor Márcio Konder); raça de Cruz e Sousa, Antonieta de Barros, Ildefonso Juvenal e Trajano Margarida (descrições de terceiros, REVISAR; conferir o Literafro quando voltar); ficha de Michelli Provensi pode misturar duas pessoas
+- [ ] T36.4 Florianópolis, clubes: "Trilogia da Terra" e "Entre Páginas e Sinal" contam como encontros recorrentes? Página do clube Lygia Bojunga (FCC) a conferir; Leia Mulheres Floripa
+- [ ] T36.5 Retratos da Leitura: conferir as leituras de gráfico listadas em `dados/coleta/leitura/LEIA.md` (2015 p. 56 × p. 64; escolaridade 2007 e 2011; 2019 pp. 22, 23, 28; 2024 pp. 18, 19)
+- [ ] T36.6 `São Estêvão (BA)` em `dados/municipio_casamento.csv`: conferir a fonte de nascimento

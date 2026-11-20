@@ -86,7 +86,8 @@ def checar(con):
                               WHERE c.categoria <> 'Conjunto da obra' ORDER BY ALL"""):
         erros.append(f"{r['premio_id']} {r['ano']} {r['nome_original']}: distinção fora de uma categoria de conjunto da obra")
     # Antologia creditada só ao organizador é válida (design D14); obra sem nenhum dos dois, não.
-    for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador'))"):
+    for r in _linhas(con, """SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador')
+                                                          UNION SELECT obra_id FROM mapeamento_autoria WHERE papel IN ('autor', 'organizador'))"""):
         erros.append(f"obra sem autor nem organizador: {r['id']}")
     # Nome de editora é a chave do perfil de editora no painel (D33): dois ids com o mesmo nome = duplicata a unificar.
     for r in _linhas(con, "SELECT nome, string_agg(id, ', ' ORDER BY id) AS ids FROM editora GROUP BY nome HAVING COUNT(*) > 1 ORDER BY nome"):

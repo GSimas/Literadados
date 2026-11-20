@@ -26,7 +26,8 @@ function renderNumeros() {
   $("#mapa-cidade").textContent = MP.nome;
   $("#mapa-verificado").textContent = `Mapeados até agora · conferido até ${data(R.verificadoAte)}${R.aConferir ? ` · ${fmt(R.aConferir)} registro(s) a conferir (mais de 12 meses)` : ""}.`;
   const card = (rot, val, det) => `<div class="kpi"><div class="rot">${rot}</div><div class="val">${val}</div><div class="det">${det}</div></div>`;
-  const tipos = Object.entries(R.livrariasPorTipo).map(([t, n]) => `${fmt(n)} ${TIPO_LIV[t].toLowerCase()}${n > 1 && t !== "online" ? "s" : ""}`).join(" · ");
+  const PLURAL = { geral: "livrarias", sebo: "sebos", especializada: "livrarias especializadas", cafe_livraria: "cafés-livraria", online: "livrarias on-line" };
+  const tipos = Object.entries(R.livrariasPorTipo).map(([t, n]) => `${fmt(n)} ${n > 1 ? PLURAL[t] : TIPO_LIV[t].toLowerCase()}`).join(" · ");
   $("#mapa-kpis").innerHTML = card("Livrarias ativas mapeadas", fmt(R.livrariasAtivas), tipos || "–")
     + card("Clubes do livro", fmt(R.clubesAtivos), `ativos; ${fmt(R.clubes)} no cadastro`)
     + card("Editoras", fmt(R.editorasAtivas), `ativas; ${fmt(R.editoras)} no cadastro`)
