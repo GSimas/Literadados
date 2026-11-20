@@ -290,6 +290,54 @@ FROM v_participacao
 WHERE papel = 'autor'
 GROUP BY premio, ano;
 
+-- ========== Módulo Leitura (RF-33, D39) ==========
+-- Catálogo de indicadores (dados/indicador.csv, editado à mão). limitacoes vai para o Método.
+CREATE TABLE indicador (
+  id          TEXT PRIMARY KEY,
+  nome        TEXT NOT NULL,
+  definicao   TEXT NOT NULL,
+  unidade     TEXT NOT NULL CHECK (unidade IN ('percentual','contagem','media')),
+  tipo_fonte  TEXT NOT NULL CHECK (tipo_fonte IN ('censo','registro_administrativo','pesquisa_amostral')),
+  nivel       TEXT NOT NULL CHECK (nivel IN ('brasil','regiao','uf','municipio')),  -- nível territorial mais fino
+  fonte_nome  TEXT NOT NULL,
+  fonte_url   TEXT NOT NULL CHECK (fonte_url LIKE 'http%'),
+  limitacoes  TEXT NOT NULL,
+  ordem       INTEGER NOT NULL UNIQUE
+);
+
+-- Vocabulário fixo de recortes (CA-33.2). Cor ou raça: as categorias do IBGE, autodeclaração de quem respondeu;
+-- 'negra' só quando a fonte publica preta e parda juntas.
+CREATE TABLE recorte (
+  dimensao   TEXT NOT NULL CHECK (dimensao IN ('total','sexo','cor_raca','faixa_etaria','situacao','escolaridade','rede')),
+  categoria  TEXT NOT NULL,
+  rotulo     TEXT NOT NULL,
+  ordem      INTEGER NOT NULL,
+  PRIMARY KEY (dimensao, categoria)
+);
+
+-- Um valor por indicador, território, ano e recorte (dados/indicador_valor/<indicador>.csv). suprimido = a fonte não publica
+-- ou marca o valor como não confiável: valor vazio, mostrado como "não publicado pela fonte", nunca como zero (CA-33.3).
+CREATE TABLE indicador_valor (
+  indicador_id  TEXT NOT NULL REFERENCES indicador(id),
+  territorio    TEXT NOT NULL REFERENCES territorio(codigo),
+  ano           INTEGER NOT NULL,
+  dimensao      TEXT NOT NULL,
+  categoria     TEXT NOT NULL,
+  valor         DOUBLE,
+  numerador     DOUBLE,
+  denominador   DOUBLE,
+  amostra       INTEGER,
+  margem        DOUBLE,
+  suprimido     BOOLEAN NOT NULL DEFAULT false,
+  fonte_url     TEXT NOT NULL CHECK (fonte_url LIKE 'http%'),
+  PRIMARY KEY (indicador_id, territorio, ano, dimensao, categoria),
+  FOREIGN KEY (dimensao, categoria) REFERENCES recorte (dimensao, categoria),
+  CHECK (suprimido OR valor IS NOT NULL),
+  CHECK (NOT suprimido OR valor IS NULL),
+  CHECK (numerador IS NULL OR denominador IS NULL OR numerador <= denominador),
+  CHECK (margem IS NULL OR margem >= 0)
+);
+
 -- Código IBGE do município de nascimento e da sede (CA-32.3, D38): calculado, não gravado em pessoa.csv/editora.csv
 -- (que aplicar_pessoas e normalizar reescrevem). Casa por nome sem acento, caixa e pontuação, dentro da UF; exceções em municipio_casamento.
 CREATE VIEW v_pessoa_municipio AS
@@ -309,6 +357,21 @@ LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u 
   ON mc.municipio IS NULL AND t.sigla = e.uf_sede
  AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(e.municipio_sede)), '[^a-z0-9]', '', 'g')
 WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+-- Indicador com nome, unidade, território e, para contagem, por 100 mil habitantes (população do Censo 2022; regra no SQL, D13).
+CREATE VIEW v_indicador AS
+SELECT v.indicador_id AS indicador, i.nome AS indicador_nome, i.unidade, i.tipo_fonte,
+       v.territorio, t.nome AS territorio_nome, t.tipo AS territorio_tipo,
+       CASE t.tipo WHEN 'municipio' THEN u.sigla WHEN 'uf' THEN t.sigla END AS uf,
+       v.ano, v.dimensao, v.categoria, r.rotulo AS categoria_rotulo,
+       v.valor, v.numerador, v.denominador, v.amostra, v.margem, v.suprimido,
+       CASE WHEN i.unidade = 'contagem' AND t.populacao_2022 > 0 THEN round(v.valor / t.populacao_2022 * 100000, 2) END AS por_100mil,
+       v.fonte_url
+FROM indicador_valor v
+JOIN indicador i ON i.id = v.indicador_id
+JOIN territorio t ON t.codigo = v.territorio
+LEFT JOIN territorio u ON u.codigo = t.pai
+JOIN recorte r ON r.dimensao = v.dimensao AND r.categoria = v.categoria;
 
 INSERT INTO uf (uf, nome, regiao) VALUES
   ('AC','Acre','Norte'), ('AP','Amapá','Norte'), ('AM','Amazonas','Norte'), ('PA','Pará','Norte'),

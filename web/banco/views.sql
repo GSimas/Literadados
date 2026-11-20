@@ -75,3 +75,17 @@ LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u 
   ON mc.municipio IS NULL AND t.sigla = e.uf_sede
  AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(e.municipio_sede)), '[^a-z0-9]', '', 'g')
 WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+CREATE VIEW v_indicador AS
+SELECT v.indicador_id AS indicador, i.nome AS indicador_nome, i.unidade, i.tipo_fonte,
+       v.territorio, t.nome AS territorio_nome, t.tipo AS territorio_tipo,
+       CASE t.tipo WHEN 'municipio' THEN u.sigla WHEN 'uf' THEN t.sigla END AS uf,
+       v.ano, v.dimensao, v.categoria, r.rotulo AS categoria_rotulo,
+       v.valor, v.numerador, v.denominador, v.amostra, v.margem, v.suprimido,
+       CASE WHEN i.unidade = 'contagem' AND t.populacao_2022 > 0 THEN round(v.valor / t.populacao_2022 * 100000, 2) END AS por_100mil,
+       v.fonte_url
+FROM indicador_valor v
+JOIN indicador i ON i.id = v.indicador_id
+JOIN territorio t ON t.codigo = v.territorio
+LEFT JOIN territorio u ON u.codigo = t.pai
+JOIN recorte r ON r.dimensao = v.dimensao AND r.categoria = v.categoria;

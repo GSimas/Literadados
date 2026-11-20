@@ -440,12 +440,15 @@ def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categor
 # ---------- banco no navegador (CA-12.4, RNF-07, D26) ----------
 # O DuckDB-WASM recria o banco a partir dos Parquet + views.sql; aqui o DuckDB do Python faz o mesmo caminho.
 
-def _banco_do_navegador(web: Path):
+def _banco_do_navegador(web: Path, modulo: str = "premios"):
+    """Como banco.js: só as tabelas e as views do módulo (D37)."""
     con = duckdb.connect()
-    for t in json.loads((web / "contexto-premios.json").read_text(encoding="utf-8"))["tabelas"]:
+    ctx = json.loads((web / f"contexto-{modulo}.json").read_text(encoding="utf-8"))
+    for t in ctx["tabelas"]:
         con.execute(f"CREATE TABLE {t} AS SELECT * FROM read_parquet('{web / 'banco' / f'{t}.parquet'}')")
     for v in [x.strip() for x in (web / "banco" / "views.sql").read_text(encoding="utf-8").split(";\n") if x.strip()]:
-        con.execute(v)
+        if re.search(r"CREATE VIEW (\w+)", v).group(1) in ctx["views"]:
+            con.execute(v)
     return con
 
 

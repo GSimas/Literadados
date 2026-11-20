@@ -818,7 +818,161 @@ def malha_municipios():
     print(f"27 UFs em web/malha/ ({total // 1024} KB no total)")
 
 
+# ---------- módulo Leitura (RF-33, D39) ----------
+CACHE = Path.home() / "Library" / "Caches" / "literadados"
+CAMPOS_VALOR = ["indicador_id", "territorio", "ano", "dimensao", "categoria", "valor", "numerador", "denominador", "amostra", "margem", "suprimido", "fonte_url"]
+
+
+def _territorios():
+    """{código: linha} de dados/territorio.csv e a cadeia de pais de cada município (UF, região, BR)."""
+    t = {l["codigo"]: l for l in csv.DictReader((DADOS / "territorio.csv").open(encoding="utf-8"))}
+    return t
+
+
+def _gravar_valores(indicador: str, linhas: list[dict]):
+    pasta = DADOS / "indicador_valor"
+    pasta.mkdir(exist_ok=True)
+    linhas.sort(key=lambda l: (len(l["territorio"]) if l["territorio"] != "BR" else 0, l["territorio"], int(l["ano"]), l["dimensao"], l["categoria"]))
+    with (pasta / f"{indicador}.csv").open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=CAMPOS_VALOR)
+        w.writeheader()
+        w.writerows({c: l.get(c, "") for c in CAMPOS_VALOR} | {"suprimido": "true" if l.get("suprimido") else "false"} for l in linhas)
+    print(f"{indicador}: {len(linhas)} valores em dados/indicador_valor/{indicador}.csv")
+
+
+def _somar_acima(t: dict, por_mun: dict) -> dict:
+    """{(município, chave): [num, den]} → acrescenta UF, região e BR somando numerador e denominador (registro e censo)."""
+    tot = dict(por_mun)
+    for (m, k), (n, d) in por_mun.items():
+        uf = t[m]["pai"]
+        for c in (uf, t[uf]["pai"], "BR"):
+            a = tot.setdefault((c, k), [0, 0])
+            a[0] += n
+            a[1] += d
+    return tot
+
+
+SIDRA_ALFA = "https://servicodados.ibge.gov.br/api/v3/agregados/9542/periodos/2022/variaveis/950?localidades={nivel}%5Ball%5D&classificacao=59%5B93024,1023%5D%7C{cls}"
+RECORTES_ALFA = {  # dimensão → (classificação SIDRA, {categoria SIDRA: categoria do Literadados})
+    "total": ("2%5B6794%5D", {"6794": "total"}),
+    "sexo": ("2%5B4,5%5D", {"4": "homens", "5": "mulheres"}),
+    "cor_raca": ("86%5B2776,2777,2778,2779,2780%5D", {"2776": "branca", "2777": "preta", "2778": "amarela", "2779": "parda", "2780": "indigena"}),
+    "faixa_etaria": ("287%5B93086,93087,2999,9482,9483,9484,3000%5D",
+                     {"93086": "15-19", "93087": "20-24", "2999": "25-34", "9482": "35-44", "9483": "45-54", "9484": "55-64", "3000": "65+"}),
+}
+
+
+def _leitura_alfabetizacao():
+    """Censo 2022 (SIDRA 9542): pessoas de 15 anos ou mais, total e alfabetizadas, por município, UF, região e Brasil."""
+    linhas = []
+    for dim, (cls, cats) in RECORTES_ALFA.items():
+        for nivel in ("N1", "N2", "N3", "N6"):
+            url = SIDRA_ALFA.format(nivel=nivel, cls=cls)
+            par = {}
+            for res in _json(url)[0]["resultados"]:
+                alfa = "1023" in res["classificacoes"][0]["categoria"]
+                cat = next(c for cl in res["classificacoes"][1:] for c in cl["categoria"] if c in cats)
+                for s in res["series"]:
+                    loc = s["localidade"]["id"]
+                    par.setdefault((loc, cats[cat]), {})["alfa" if alfa else "total"] = s["serie"]["2022"]
+            for (loc, cat), v in par.items():
+                total, alfa = v.get("total"), v.get("alfa")
+                territorio = "BR" if nivel == "N1" else loc
+                fonte = f"https://sidra.ibge.gov.br/tabela/9542#{dim}"
+                if total in ("X", "..") or alfa in ("X", ".."):  # sigilo ou não disponível na fonte
+                    linhas.append({"indicador_id": "alfabetizacao", "territorio": territorio, "ano": "2022", "dimensao": dim, "categoria": cat,
+                                   "suprimido": True, "fonte_url": fonte})
+                    continue
+                total, alfa = int(total) if total not in ("-", None) else 0, int(alfa) if alfa not in ("-", None) else 0
+                if not total:  # ninguém nesse grupo no município: não há taxa
+                    continue
+                linhas.append({"indicador_id": "alfabetizacao", "territorio": territorio, "ano": "2022", "dimensao": dim, "categoria": cat,
+                               "valor": round(100 * alfa / total, 2), "numerador": alfa, "denominador": total, "fonte_url": fonte})
+    _gravar_valores("alfabetizacao", linhas)
+
+
+def _leitura_escolas_biblioteca():
+    """Censo Escolar (microdados do INEP, em CACHE/censo_escolar/<ano>.zip): escolas em atividade com biblioteca ou sala de leitura."""
+    import zipfile
+    t = _territorios()
+    linhas = []
+    for arq in sorted((CACHE / "censo_escolar").glob("*.zip")):
+        ano = arq.stem
+        z = zipfile.ZipFile(arq)
+        membro = next(n for n in z.namelist() if re.search(rf"microdados_ed_basica_{ano}\.csv$", n, re.I))
+        with z.open(membro) as f:
+            leitor = csv.reader((l.decode("latin-1") for l in f), delimiter=";")
+            cab = next(leitor)
+            i_mun, i_dep, i_sit, i_bib = (cab.index(c) for c in ("CO_MUNICIPIO", "TP_DEPENDENCIA", "TP_SITUACAO_FUNCIONAMENTO", "IN_BIBLIOTECA_SALA_LEITURA"))
+            por = {}
+            for r in leitor:
+                if r[i_sit] != "1" or r[i_mun] not in t:  # só escolas em atividade
+                    continue
+                tem = r[i_bib] == "1"
+                for rede in ("total", "privada" if r[i_dep] == "4" else "publica"):
+                    a = por.setdefault((r[i_mun], rede), [0, 0])
+                    a[0] += tem
+                    a[1] += 1
+        url = f"https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_{ano}.zip"  # o arquivo do ano, na fonte
+        for (c, rede), (n, d) in _somar_acima(t, por).items():
+            linhas.append({"indicador_id": "escolas_biblioteca", "territorio": c, "ano": ano, "dimensao": "total" if rede == "total" else "rede",
+                           "categoria": rede, "valor": round(100 * n / d, 2), "numerador": n, "denominador": d, "fonte_url": url})
+        print(f"  {ano}: {sum(d for (c, r), (n, d) in por.items() if r == 'total')} escolas em atividade")
+    _gravar_valores("escolas_biblioteca", linhas)
+
+
+CNAE_LIVRARIA, CNAE_EDITORA = {"4761001"}, {"5811500", "5821200"}
+
+
+def _leitura_cnpj():
+    """Estabelecimentos ativos do CNPJ (CACHE/cnpj/estab_*.csv, já filtrados pelos CNAEs; baixar.sh) por município do IBGE.
+    O município da Receita usa o código do SIAFI/TOM: de-para pelo nome + UF, exceções em dados/coleta/leitura/cnpj_municipios.csv."""
+    t = _territorios()
+    norm = lambda s: re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFKD", s.lower()).encode("ascii", "ignore").decode())
+    ibge = {(norm(l["nome"]), t[l["pai"]]["sigla"]): c for c, l in t.items() if l["tipo"] == "municipio"}
+    receita = {c: n for c, n in csv.reader((CACHE / "cnpj" / "municipios.csv").open(encoding="latin-1"), delimiter=";")}
+    excecoes = {}
+    arq_exc = DADOS / "coleta" / "leitura" / "cnpj_municipios.csv"
+    if arq_exc.exists():
+        excecoes = {l["codigo_receita"]: l["codigo_ibge"] for l in csv.DictReader(arq_exc.open(encoding="utf-8"))}
+    por, sem, mes = {}, set(), "2026-11"
+    for arq in sorted((CACHE / "cnpj").glob("estab_*.csv")):
+        for r in csv.reader(arq.open(encoding="latin-1"), delimiter=";"):
+            if len(r) < 21 or r[5] != "02":  # só ativas
+                continue
+            ind = "livrarias_cnpj" if r[11] in CNAE_LIVRARIA else "editoras_cnpj" if r[11] in CNAE_EDITORA else None
+            if not ind or r[19] == "EX":
+                continue
+            cod = excecoes.get(r[20]) or ibge.get((norm(receita.get(r[20], "")), r[19]))
+            if not cod:
+                sem.add((r[20], receita.get(r[20]), r[19]))
+                continue
+            por.setdefault(ind, {}).setdefault((cod, "total"), [0, 0])[0] += 1
+    if sem:
+        raise SystemExit("municípios da Receita sem código do IBGE (acrescente em dados/coleta/leitura/cnpj_municipios.csv):\n  "
+                         + "\n  ".join(f"{c} {n} ({u})" for c, n, u in sorted(sem, key=str)))
+    url = f"https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/consultas/dados-publicos-cnpj#{mes}"
+    for ind, p in por.items():
+        tot = _somar_acima(t, p)
+        _gravar_valores(ind, [{"indicador_id": ind, "territorio": c, "ano": mes[:4], "dimensao": "total", "categoria": "total",
+                               "valor": n, "fonte_url": url} for (c, _), (n, _d) in tot.items()])
+
+
+def _leitura_retratos():
+    """Retratos da Leitura: dados/coleta/leitura/retratos.csv (transcrição com página) → indicador_valor de leitores e livros_por_ano."""
+    for ind in ("leitores", "livros_por_ano"):
+        linhas = [{**l, "indicador_id": ind} for l in csv.DictReader((DADOS / "coleta" / "leitura" / "retratos.csv").open(encoding="utf-8"))
+                  if l["indicador"] == ind]
+        _gravar_valores(ind, linhas)
+
+
+def leitura():
+    """coleta.py leitura <fonte>: alfabetizacao · escolas_biblioteca · cnpj · retratos."""
+    {"alfabetizacao": _leitura_alfabetizacao, "escolas_biblioteca": _leitura_escolas_biblioteca,
+     "cnpj": _leitura_cnpj, "retratos": _leitura_retratos}[sys.argv[2]]()
+
+
 if __name__ == "__main__":
-    {"normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
+    {"leitura": leitura, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
      "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto,
      "territorio": territorio, "malha_municipios": malha_municipios}[sys.argv[1]]()

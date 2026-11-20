@@ -8,6 +8,15 @@ const MODELO = "openrouter/free";
 const RODADAS = 6;
 const CHAVE = "or_chave";
 const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios", "conjunto-da-obra"];
+// Módulo da página (CA-31.7, D37): sugestões, links e a regra de resposta seca mudam por módulo.
+const MODULO = () => globalThis.document?.body?.dataset?.modulo ?? "premios";
+export const SUGESTOES_LEITURA = [
+  "Qual a taxa de alfabetização em Santa Catarina, por cor ou raça?",
+  "Quais municípios do Nordeste têm a menor taxa de alfabetização?",
+  "Como mudou a parcela de escolas públicas com biblioteca ou sala de leitura de 2015 a 2024?",
+  "Quantas livrarias com CNPJ ativo há por 100 mil habitantes em cada UF?",
+  "Qual a porcentagem de leitores por região na última Retratos da Leitura?",
+];
 export const SUGESTOES = [
   "Quantos autores pretos nascidos em São Paulo chegaram às listas em Contos, em cada prêmio?",
   "Quem chegou à lista de mais de um prêmio?",
@@ -78,6 +87,13 @@ Nunca cite nomes de tabelas, views ou colunas (v_participacao, pessoa, categoria
 quem lê não conhece o banco. Fale das coisas pelo nome comum (lista do Jabuti, lista do Oceanos, perfil da pessoa, estado de nascimento).
 - Estados e regiões: [Minas Gerais](#/uf/MG), [Nordeste](#/regiao/Nordeste).`;
 
+const REGRAS_LINK_LEITURA = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
+- Municípios: [Florianópolis](#/municipio/4205407), com o código do IBGE exato vindo de uma consulta. Estados: [Santa Catarina](#/uf/SC).
+- Método do módulo: [Método da Leitura](metodo.html#leitura).
+- Fontes externas: a URL da coluna fonte_url das linhas que sustentam a resposta.
+Nunca invente URL nem código: use só o que vier das consultas. Diga o ano e a fonte de todo número; mostre n (amostra) ou numerador e denominador.
+Nunca cite nomes de tabelas, views ou colunas como fonte nem no texto: fale das coisas pelo nome comum (Censo 2022, Censo Escolar, Retratos da Leitura).`;
+
 // ---------- "Onde conferir" (CA-12.5): referências montadas pelo próprio Literadados, não pelo modelo ----------
 // Tira do texto o bloco "Fontes:" do modelo (que às vezes lista tabelas) e devolve só links válidos: os do modelo,
 // mais os derivados das consultas (pessoas, UFs, regiões, URLs de fonte, o gráfico ligado ao assunto) e o Método.
@@ -128,7 +144,7 @@ const FERRAMENTAS = [{
 // ---------- Markdown mínimo e seguro (texto escapado; links só para o painel, metodo.html ou https) ----------
 export function hrefSeguro(u) {
   const h = String(u).trim();
-  if (/^#\/(pessoa|obra)\/[\w-]+$/.test(h)) return h;
+  if (/^#\/(pessoa|obra)\/[\w-]+$/.test(h) || /^#\/municipio\/\d{7}$/.test(h)) return h;
   if (/^#\/uf\/[A-Z]{2}$/.test(h) || /^#\/regiao\/(Norte|Nordeste|Sudeste|Sul|Centro-Oeste)$/.test(h)) return h;
   if (/^#\/grafico\/([\w-]+)$/.test(h)) return JANELAS.includes(h.split("/")[2]) ? h : null;
   if (/^#[\w-]+$/.test(h) || /^metodo\.html(#[\w-]+)?$/.test(h)) return h;
@@ -230,7 +246,7 @@ async function prompt() {
   if (sistema) return sistema;
   const r = await fetch(arquivoContexto());
   if (!r.ok) throw new Error(`Não achei o contexto do Literadados (${arquivoContexto()}). Rode python build.py.`);
-  sistema = `${PERSONA}\n\n${REGRAS_LINK}\n\n${(await r.json()).sistema}`;
+  sistema = `${PERSONA}\n\n${MODULO() === "leitura" ? REGRAS_LINK_LEITURA : REGRAS_LINK}\n\n${(await r.json()).sistema}`;
   return sistema;
 }
 
@@ -282,7 +298,7 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
     mensagens.push(msg);
     if (!msg.tool_calls?.length) {
       const texto = msg.content ?? "";
-      if (consultas.length && respostaSeca(texto)) {
+      if (MODULO() === "premios" && consultas.length && respostaSeca(texto)) {  // detalhe por pessoa: só no módulo Prêmios
         if (!insistiu && i < RODADAS - 2) {
           insistiu = true;
           aoPasso({ tipo: "rodada", texto: "Resposta seca demais: pedindo contexto ao modelo" });
@@ -373,7 +389,7 @@ export function montarDiadorim() {
     botao.focus();
   };
 
-  $("#diadorim-sugestoes").innerHTML = SUGESTOES.map((s) => `<button type="button">${esc(s)}</button>`).join("");
+  $("#diadorim-sugestoes").innerHTML = (MODULO() === "leitura" ? SUGESTOES_LEITURA : SUGESTOES).map((s) => `<button type="button">${esc(s)}</button>`).join("");
   apresentar();
   mostrarModelo();
   estadoLogin();
