@@ -730,3 +730,76 @@ def test_contexto_e_banco_por_modulo():  # CA-31.7, D37
     for pag in ["premios.html"]:
         m = re.search(r'<body data-modulo="(\w+)"', (web / pag).read_text(encoding="utf-8")).group(1)
         assert (web / f"contexto-{m}.json").exists(), pag
+
+
+# ---------- RF-32 território (D38) ----------
+
+def test_territorio_completo():  # CA-32.1
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    n = dict(con.execute("SELECT tipo, COUNT(*) FROM territorio GROUP BY tipo").fetchall())
+    assert n["pais"] == 1 and n["regiao"] == 5 and n["uf"] == 27 and n["municipio"] >= 5570
+    assert con.execute("SELECT nome, pai FROM territorio WHERE codigo = '4205407'").fetchone() == ("Florianópolis", "42")
+    assert con.execute("SELECT COUNT(*) FROM territorio WHERE tipo = 'municipio' AND populacao_2022 IS NULL").fetchone()[0] <= 1
+    soma = con.execute("SELECT SUM(populacao_2022) FROM territorio WHERE tipo = 'uf'").fetchone()[0]
+    assert soma == con.execute("SELECT populacao_2022 FROM territorio WHERE codigo = 'BR'").fetchone()[0]
+
+
+COD_UF = {sigla: cod for cod, sigla in __import__("coleta").IBGE_UF.items()}
+
+
+def _territorio_mini(d: Path):
+    _csv(d / "territorio.csv", [
+        {"codigo": "BR", "tipo": "pais", "nome": "Brasil", "sigla": "BR", "pai": "", "populacao_2022": "1"},
+        *[{"codigo": str(i), "tipo": "regiao", "nome": n, "sigla": "", "pai": "BR", "populacao_2022": "1"}
+          for i, n in enumerate(["Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"], 1)],
+        *[{"codigo": COD_UF[s], "tipo": "uf", "nome": n, "sigla": s, "pai": r, "populacao_2022": ""}
+          for s, n, r in (l.split(",") for l in UFS_MINI)],
+        {"codigo": "4205407", "tipo": "municipio", "nome": "Florianópolis", "sigla": "", "pai": "42", "populacao_2022": "1"},
+        {"codigo": "3550308", "tipo": "municipio", "nome": "São Paulo", "sigla": "", "pai": "35", "populacao_2022": "1"},
+    ])
+
+
+UFS_MINI = [f"{s},{n},{ {'Norte': '1', 'Nordeste': '2', 'Sudeste': '3', 'Sul': '4', 'Centro-Oeste': '5'}[r]}" for s, n, r in [
+    ("AC", "Acre", "Norte"), ("AP", "Amapá", "Norte"), ("AM", "Amazonas", "Norte"), ("PA", "Pará", "Norte"), ("RO", "Rondônia", "Norte"),
+    ("RR", "Roraima", "Norte"), ("TO", "Tocantins", "Norte"), ("AL", "Alagoas", "Nordeste"), ("BA", "Bahia", "Nordeste"), ("CE", "Ceará", "Nordeste"),
+    ("MA", "Maranhão", "Nordeste"), ("PB", "Paraíba", "Nordeste"), ("PE", "Pernambuco", "Nordeste"), ("PI", "Piauí", "Nordeste"),
+    ("RN", "Rio Grande do Norte", "Nordeste"), ("SE", "Sergipe", "Nordeste"), ("DF", "Distrito Federal", "Centro-Oeste"), ("GO", "Goiás", "Centro-Oeste"),
+    ("MT", "Mato Grosso", "Centro-Oeste"), ("MS", "Mato Grosso do Sul", "Centro-Oeste"), ("ES", "Espírito Santo", "Sudeste"), ("MG", "Minas Gerais", "Sudeste"),
+    ("RJ", "Rio de Janeiro", "Sudeste"), ("SP", "São Paulo", "Sudeste"), ("PR", "Paraná", "Sul"), ("RS", "Rio Grande do Sul", "Sul"), ("SC", "Santa Catarina", "Sul")]]
+
+
+def test_codigo_municipio_pessoas_e_editoras(mini):  # CA-32.3
+    """Código do município calculado por nome sem acento e caixa dentro da UF; exceção em municipio_casamento; nada muda em v_participacao."""
+    _territorio_mini(mini)
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[0]["municipio_nascimento"], linhas[1]["municipio_nascimento"] = "Mooca", "FLORIANOPOLIS"
+    _csv(mini / "pessoa.csv", linhas)
+    _csv(mini / "municipio_casamento.csv", [{"municipio": "Mooca", "uf": "SP", "codigo": "3550308", "observacao": "bairro de São Paulo"}])
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert dict(con.execute("SELECT * FROM v_pessoa_municipio").fetchall()) == {"a": "3550308", "b": "4205407"}
+    assert dict(con.execute("SELECT * FROM v_editora_municipio").fetchall()) == {"ed": "3550308"}
+    assert build.municipios_sem_codigo(con) == []
+
+
+def test_build_falha_territorio(mini):  # CA-32.1, CA-32.2
+    _territorio_mini(mini)
+    _csv(mini / "municipio_casamento.csv", [{"municipio": "X", "uf": "SP", "codigo": "9999999", "observacao": "teste"}])
+    with pytest.raises(build.BuildError, match="municipio_casamento"):
+        _build(mini)
+    (mini / "municipio_casamento.csv").unlink()
+    linhas = [l for l in csv.DictReader((mini / "territorio.csv").open(encoding="utf-8")) if l["codigo"] != "42"]  # SC some
+    _csv(mini / "territorio.csv", linhas)
+    with pytest.raises(build.BuildError, match="27 UFs|nível acima|uf SC"):
+        _build(mini)
+
+
+def test_malha_municipal():  # CA-32.5
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    por_uf = {}
+    for c, uf in con.execute("SELECT m.codigo, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio'").fetchall():
+        por_uf.setdefault(uf, set()).add(c)
+    for uf, cods in por_uf.items():
+        g = json.loads((RAIZ / "web" / "malha" / f"{uf}.json").read_text(encoding="utf-8"))
+        malha = {f["properties"]["codigo"] for f in g["features"]}
+        assert len(cods - malha) <= 1, uf  # município instalado depois da malha (Boa Esperança do Norte, MT)

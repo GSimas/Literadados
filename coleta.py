@@ -764,6 +764,61 @@ def contexto():
         print(f"  REVISAR {r}")
 
 
+IBGE_LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
+IBGE_POP = "https://servicodados.ibge.gov.br/api/v3/agregados/4709/periodos/2022/variaveis/93?localidades={nivel}%5Ball%5D"
+CAMPOS_TERRITORIO = ["codigo", "tipo", "nome", "sigla", "pai", "populacao_2022"]
+
+
+def territorio():
+    """Brasil, regiões, UFs e municípios com os códigos do IBGE e a população do Censo 2022 (RF-32, D38) → dados/territorio.csv.
+    Códigos não colidem entre níveis: BR, região com 1 dígito, UF com 2, município com 7."""
+    pop = {}
+    for nivel in ("N1", "N2", "N3", "N6"):
+        for s in _json(IBGE_POP.format(nivel=nivel))[0]["resultados"][0]["series"]:
+            pop[(nivel, s["localidade"]["id"])] = s["serie"]["2022"]
+    linhas = [{"codigo": "BR", "tipo": "pais", "nome": "Brasil", "sigla": "BR", "pai": "", "populacao_2022": pop[("N1", "1")]}]
+    regioes, ufs = {}, {}
+    for m in _json(IBGE_LOCALIDADES):
+        uf = (m.get("microrregiao") or m["regiao-imediata"]["regiao-intermediaria"])
+        uf = uf["mesorregiao"]["UF"] if "mesorregiao" in uf else uf["UF"]
+        regioes[str(uf["regiao"]["id"])] = uf["regiao"]["nome"]
+        ufs[str(uf["id"])] = (uf["sigla"], uf["nome"], str(uf["regiao"]["id"]))
+        # Município instalado depois do Censo 2022 (Boa Esperança do Norte, MT) não tem população própria: fica vazia.
+        linhas.append({"codigo": str(m["id"]), "tipo": "municipio", "nome": m["nome"], "sigla": "", "pai": str(uf["id"]),
+                       "populacao_2022": pop.get(("N6", str(m["id"])), "")})
+    linhas += [{"codigo": c, "tipo": "regiao", "nome": n, "sigla": "", "pai": "BR", "populacao_2022": pop[("N2", c)]} for c, n in regioes.items()]
+    linhas += [{"codigo": c, "tipo": "uf", "nome": n, "sigla": s, "pai": r, "populacao_2022": pop[("N3", c)]} for c, (s, n, r) in ufs.items()]
+    ordem = {"pais": 0, "regiao": 1, "uf": 2, "municipio": 3}
+    linhas.sort(key=lambda l: (ordem[l["tipo"]], l["codigo"]))
+    with (DADOS / "territorio.csv").open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=CAMPOS_TERRITORIO)
+        w.writeheader()
+        w.writerows(linhas)
+    print(f"{len(regioes)} regiões, {len(ufs)} UFs, {sum(l['tipo'] == 'municipio' for l in linhas)} municípios "
+          f"({sum(1 for l in linhas if l['tipo'] == 'municipio' and not l['populacao_2022'])} sem população do Censo 2022)")
+
+
+def malha_municipios():
+    """Malha municipal por UF (CA-32.5, D38): web/malha/<UF>.json, com o código do município em properties.codigo."""
+    pasta = RAIZ / "web" / "malha"
+    pasta.mkdir(exist_ok=True)
+
+    def arred(c):
+        return [round(c[0], 3), round(c[1], 3)] if isinstance(c[0], (int, float)) else [arred(x) for x in c]
+
+    total = 0
+    for cod, uf in sorted(IBGE_UF.items(), key=lambda x: x[1]):
+        g = _json(f"https://servicodados.ibge.gov.br/api/v3/malhas/estados/{cod}?" + urllib.parse.urlencode(
+            {"formato": "application/vnd.geo+json", "qualidade": "minima", "intrarregiao": "municipio"}))
+        feats = [{"type": "Feature", "properties": {"codigo": f["properties"]["codarea"]},
+                  "geometry": {"type": f["geometry"]["type"], "coordinates": arred(f["geometry"]["coordinates"])}} for f in g["features"]]
+        (pasta / f"{uf}.json").write_text(json.dumps({"type": "FeatureCollection", "fonte": "IBGE, API de malhas v3 (qualidade mínima)",
+                                                      "features": sorted(feats, key=lambda f: f["properties"]["codigo"])}, separators=(",", ":")), encoding="utf-8")
+        total += (pasta / f"{uf}.json").stat().st_size
+    print(f"27 UFs em web/malha/ ({total // 1024} KB no total)")
+
+
 if __name__ == "__main__":
     {"normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
-     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto}[sys.argv[1]]()
+     "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto,
+     "territorio": territorio, "malha_municipios": malha_municipios}[sys.argv[1]]()

@@ -57,3 +57,21 @@ SELECT
 FROM v_participacao
 WHERE papel = 'autor'
 GROUP BY premio, ano;
+
+CREATE VIEW v_pessoa_municipio AS
+SELECT p.id AS pessoa_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM pessoa p
+LEFT JOIN municipio_casamento mc ON mc.municipio = p.municipio_nascimento AND mc.uf = p.uf_nascimento
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = p.uf_nascimento
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(p.municipio_nascimento)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+CREATE VIEW v_editora_municipio AS
+SELECT e.id AS editora_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM editora e
+LEFT JOIN municipio_casamento mc ON mc.municipio = e.municipio_sede AND mc.uf = e.uf_sede
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = e.uf_sede
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(e.municipio_sede)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;

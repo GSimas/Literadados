@@ -261,10 +261,10 @@
 - [ ] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
 
 ## T33 Território (nov/2026, RF-32, D38)
-- [ ] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
-- [ ] T33.2 `v_pessoa_municipio`, `v_editora_municipio`, `dados/municipio_casamento.csv`; resolver os avisos de nome sem código (CA-32.3) 🧪
-- [ ] T33.3 Malha municipal por UF (`coleta.py malha`, `web/malha/<UF>.json`) (CA-32.5) 🧪
-- [ ] T33.4 `codigo` em `pessoas[]` do `dados.json`; município no perfil de pessoa liga ao perfil de município 🧪👁
+- [x] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
+- [x] T33.2 `v_pessoa_municipio`, `v_editora_municipio`, `dados/municipio_casamento.csv`; resolver os avisos de nome sem código (CA-32.3) 🧪
+- [x] T33.3 Malha municipal por UF (`coleta.py malha`, `web/malha/<UF>.json`) (CA-32.5) 🧪
+- [ ] T33.4 Município no perfil de pessoa liga ao perfil de município (vai com T34.8; o código sai de `pessoa-municipio.json`, carregado só no perfil, porque o `dados.json` já tem 992 KB) 🧪👁
 
 ## T34 Módulo Leitura (nov/2026, RF-33, D39)
 - [ ] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪

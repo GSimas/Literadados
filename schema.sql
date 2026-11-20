@@ -27,6 +27,30 @@ CREATE TABLE premio (
   fonte        TEXT NOT NULL
 );
 
+-- Território comum dos módulos (RF-32, D38): códigos do IBGE; os níveis não colidem (BR · região 1 dígito · UF 2 · município 7).
+-- Gerado por coleta.py territorio. A tabela uf (sigla, EX) continua servindo ao módulo Prêmios; o build confere as duas.
+CREATE TABLE territorio (
+  codigo          TEXT PRIMARY KEY,
+  tipo            TEXT NOT NULL CHECK (tipo IN ('pais','regiao','uf','municipio')),
+  nome            TEXT NOT NULL,
+  sigla           TEXT,                       -- UF ('SC') e país ('BR')
+  pai             TEXT,                       -- nível acima: município → UF → região → BR
+  populacao_2022  INTEGER,                    -- Censo 2022; vazio só para município instalado depois do Censo
+  CHECK ((tipo = 'pais') = (pai IS NULL)),
+  CHECK (tipo <> 'uf' OR sigla IS NOT NULL),
+  CHECK (tipo <> 'municipio' OR regexp_full_match(codigo, '[0-9]{7}'))
+);
+
+-- Nome de município da base que não casa com o IBGE pelo nome (grafia antiga, bairro, distrito): decisão humana (CA-32.3).
+-- codigo vazio = não é município (a fonte só dá o estado) ou não achado; observacao diz qual.
+CREATE TABLE municipio_casamento (
+  municipio   TEXT NOT NULL,
+  uf          TEXT NOT NULL,
+  codigo      TEXT REFERENCES territorio(codigo),
+  observacao  TEXT NOT NULL,
+  PRIMARY KEY (municipio, uf)
+);
+
 CREATE TABLE pessoa (
   id                    TEXT PRIMARY KEY,
   nome                  TEXT NOT NULL,        -- como aparece nos créditos
@@ -265,6 +289,26 @@ SELECT
 FROM v_participacao
 WHERE papel = 'autor'
 GROUP BY premio, ano;
+
+-- Código IBGE do município de nascimento e da sede (CA-32.3, D38): calculado, não gravado em pessoa.csv/editora.csv
+-- (que aplicar_pessoas e normalizar reescrevem). Casa por nome sem acento, caixa e pontuação, dentro da UF; exceções em municipio_casamento.
+CREATE VIEW v_pessoa_municipio AS
+SELECT p.id AS pessoa_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM pessoa p
+LEFT JOIN municipio_casamento mc ON mc.municipio = p.municipio_nascimento AND mc.uf = p.uf_nascimento
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = p.uf_nascimento
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(p.municipio_nascimento)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+CREATE VIEW v_editora_municipio AS
+SELECT e.id AS editora_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM editora e
+LEFT JOIN municipio_casamento mc ON mc.municipio = e.municipio_sede AND mc.uf = e.uf_sede
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = e.uf_sede
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(e.municipio_sede)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
 
 INSERT INTO uf (uf, nome, regiao) VALUES
   ('AC','Acre','Norte'), ('AP','Amapá','Norte'), ('AM','Amazonas','Norte'), ('PA','Pará','Norte'),

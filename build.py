@@ -12,7 +12,7 @@ import duckdb
 import seo
 
 RAIZ = Path(__file__).parent
-TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
+TABELAS = ["territorio", "municipio_casamento", "premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado", "distincao"]  # ordem das FKs
 
 
@@ -91,6 +91,20 @@ def checar(con):
     for r in _linhas(con, "SELECT premio_id, ano, fontes FROM edicao_contexto ORDER BY ALL"):
         if any(not u.strip().startswith("http") for u in r["fontes"].split(" ; ")):
             erros.append(f"{r['premio_id']} {r['ano']}: texto de contexto com fonte que não é URL")
+    # Território (CA-32.1, D38): 27 UFs, 5 regiões, todo município numa UF; a tabela uf do módulo Prêmios bate com territorio.
+    if con.execute("SELECT COUNT(*) FROM territorio").fetchone()[0]:
+        n = dict(con.execute("SELECT tipo, COUNT(*) FROM territorio GROUP BY tipo").fetchall())
+        if n.get("uf") != 27 or n.get("regiao") != 5 or n.get("pais") != 1:
+            erros.append(f"territorio: esperado 1 país, 5 regiões e 27 UFs; veio {n}")
+        for (c,) in con.execute("""SELECT m.codigo FROM territorio m LEFT JOIN territorio u ON u.codigo = m.pai
+                                   WHERE m.tipo <> 'pais' AND (u.codigo IS NULL OR u.tipo <> CASE m.tipo WHEN 'municipio' THEN 'uf' WHEN 'uf' THEN 'regiao' ELSE 'pais' END)
+                                   ORDER BY 1""").fetchall():
+            erros.append(f"territorio {c}: nível acima inexistente ou errado")
+        for r in _linhas(con, """SELECT u.uf, u.nome, u.regiao, u.populacao_2022, t.nome AS t_nome, r.nome AS t_regiao, t.populacao_2022 AS t_pop
+                                 FROM uf u LEFT JOIN territorio t ON t.tipo = 'uf' AND t.sigla = u.uf LEFT JOIN territorio r ON r.codigo = t.pai
+                                 WHERE u.uf <> 'EX' ORDER BY u.uf"""):
+            if (r["nome"], r["regiao"]) != (r["t_nome"], r["t_regiao"]) or (r["populacao_2022"] and r["populacao_2022"] != r["t_pop"]):
+                erros.append(f"uf {r['uf']}: difere de territorio ({r['nome']}/{r['regiao']}/{r['populacao_2022']} × {r['t_nome']}/{r['t_regiao']}/{r['t_pop']})")
     # Colocação repetida é legítima (empates: Livro do Ano Não Ficção 2016, 3º lugar de Contos 2014);
     # o total de premiadas já é conferido contra vagas_premio acima.
     if erros:
@@ -469,6 +483,25 @@ def main():
     for arq in sorted((RAIZ / "dados" / "coleta").glob("*/casamentos_revisar.csv")):
         n = sum(1 for _ in arq.open(encoding="utf-8")) - 1
         print(f"ATENÇÃO: {n} casamento(s) de pessoa para conferir em {arq.relative_to(RAIZ)} (decida em casamentos.csv)")
+    # Município da base sem código do IBGE e sem decisão em municipio_casamento (CA-32.3, D38).
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    for m, uf in municipios_sem_codigo(con):
+        print(f"ATENÇÃO: município sem código do IBGE: {m} ({uf}); decida em dados/municipio_casamento.csv")
+
+
+def municipios_sem_codigo(con) -> list[tuple]:
+    """Nomes de município (nascimento e sede, no Brasil) que não casam com territorio nem têm decisão em municipio_casamento."""
+    return con.execute("""
+        SELECT DISTINCT municipio_nascimento, uf_nascimento FROM pessoa
+        WHERE municipio_nascimento IS NOT NULL AND uf_nascimento IS NOT NULL AND uf_nascimento <> 'EX'
+          AND id NOT IN (SELECT pessoa_id FROM v_pessoa_municipio)
+          AND (municipio_nascimento, uf_nascimento) NOT IN (SELECT municipio, uf FROM municipio_casamento)
+        UNION
+        SELECT DISTINCT municipio_sede, uf_sede FROM editora
+        WHERE municipio_sede IS NOT NULL AND uf_sede IS NOT NULL AND uf_sede <> 'EX'
+          AND id NOT IN (SELECT editora_id FROM v_editora_municipio)
+          AND (municipio_sede, uf_sede) NOT IN (SELECT municipio, uf FROM municipio_casamento)
+        ORDER BY ALL""").fetchall()
 
 
 if __name__ == "__main__":
