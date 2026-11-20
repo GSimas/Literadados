@@ -57,7 +57,8 @@ def _paginas(web):
 
 def test_paginas_geradas(site):  # CA-27.1
     con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
-    pessoas = {r[0] for r in con.execute("SELECT pessoa_id FROM v_participacao UNION SELECT pessoa_id FROM jurado").fetchall()}
+    # quem só tem distinção pelo conjunto da obra também ganha página (CA-30.5)
+    pessoas = {r[0] for r in con.execute("SELECT pessoa_id FROM v_participacao UNION SELECT pessoa_id FROM jurado UNION SELECT pessoa_id FROM distincao").fetchall()}
     edicoes = {f"{p}/{a}" for p, a in con.execute("SELECT DISTINCT premio, ano FROM v_participacao").fetchall()}
     ufs = {r[0] for r in con.execute("SELECT DISTINCT uf_nascimento FROM v_participacao WHERE papel = 'autor' AND uf_nascimento <> 'EX'").fetchall()}
     eds = {r[0] for r in con.execute("SELECT DISTINCT e.id FROM v_participacao v JOIN editora e ON e.nome = v.editora WHERE v.papel = 'autor'").fetchall()}
@@ -68,6 +69,8 @@ def test_paginas_geradas(site):  # CA-27.1
     assert {f"editoras/{x}/index.html" for x in eds} <= set(pags)  # CA-29.3
     assert {"premios/index.html", "premios/jabuti/index.html", "pessoas/index.html", "estados/index.html", "perguntas/index.html", "dados-abertos/index.html", "editoras/index.html"} <= set(pags)
     assert not (site / "pessoas" / "fantasma").exists()  # quem saiu da base sai do site
+    for (pid,) in con.execute("SELECT pessoa_id FROM distincao LIMIT 3").fetchall():  # CA-30.5
+        assert "<h2>Conjunto da obra</h2>" in pags[f"pessoas/{pid}/index.html"]
     premios = {e.split("/")[0] for e in edicoes}
     assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6  # nada além disso (6 listas)
 

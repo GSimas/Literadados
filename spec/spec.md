@@ -11,7 +11,7 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 
 | Dentro | Fora (por enquanto) |
 |---|---|
-| Prêmio Jabuti, edições 1959–2025 (série completa; listas públicas de indicados de 2000 em diante), o padrão do painel; Prêmio Oceanos, 2003–2025 (todas as listas públicas, categorias Geral, Romance, Poesia, Contos, Prosa e o Grande Prêmio como Livro do Ano), RF-26 | Prêmio da Biblioteca Nacional, São Paulo de Literatura e outros (próximos, DA-1); prêmios pelo conjunto da obra (DA-2) |
+| Prêmio Jabuti, edições 1959–2026 (série completa; listas públicas de indicados de 2000 em diante), o padrão do painel; Prêmio Oceanos, 2003–2025 (todas as listas públicas, categorias Geral, Romance, Poesia, Contos, Prosa e o Grande Prêmio como Livro do Ano), RF-26 | Prêmios ainda não coletados (lista em `dados/coleta/premios_candidatos.md`). Prêmio São Paulo, Biblioteca Nacional, Sesc, LeYa, José Saramago, ABL e Camões estão na base (RF-26); o conjunto da obra (Camões, Machado de Assis) entra à parte, sem misturar com as métricas por livro (RF-30) |
 | Romance (Romance Literário a partir de 2020), Contos (Contos e Crônicas até 2017; "Conto" a partir de 2018), Crônica (desde 2018), Poesia, Infantil, Juvenil, **Infantil e Juvenil (só 2018, quando foram fundidas)**, Livro do Ano | Romance de Entretenimento; Infantil Digital; Escritor Estreante; categorias de ilustração e não ficção (exceto Livro do Ano) |
 | Autores e ilustradores das obras; organizadores (registrados, fora das contagens); jurados | Tradutores, editores, prêmios de inovação |
 | Estado = **UF de nascimento** | Estado de residência |
@@ -44,7 +44,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 
 ### RF-03 Panorama
 - **CA-03.1 🧪👁** Cartões com: indicações, pessoas, obras, % mulheres, **piso** de % negros (com "pelo menos"), cobertura de raça, número de UFs de nascimento distintas (de 27) e número de editoras.
-- **CA-03.2 👁** Faixa de cobertura temporal mostra, para 1959–2025, quais edições têm dados coletados.
+- **CA-03.2 👁** Faixa de cobertura temporal mostra, para todo o período da base (hoje 1959–2026), quais edições têm dados coletados.
 
 ### RF-04 Evolução temporal
 - **CA-04.1 👁** Barras 100% empilhadas por edição, para a dimensão escolhida (gênero, raça declarada ou região de nascimento) e a etapa escolhida (lista ou premiadas).
@@ -94,7 +94,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-16.3 👁** A rolagem encaixa em cada passo (scroll-snap). Com `prefers-reduced-motion`, não há encaixe nem animação. Há um link para pular a história, e os passos funcionam com teclado.
 
 ### RF-17 Linha do tempo
-- **CA-17.1 👁** Linha do tempo 1959–2025 com os marcos do prêmio e, por edição, as obras vencedoras de cada categoria (autoria, editora), com acesso ao perfil de quem venceu.
+- **CA-17.1 👁** Linha do tempo de todo o período (hoje 1959–2026) com os marcos do prêmio e, por edição, as obras vencedoras de cada categoria (autoria, editora), com acesso ao perfil de quem venceu.
 - **CA-17.2 🧪👁** Por edição, a composição da lista (% mulheres, piso de % negras, % Sudeste, com n) em pequenos gráficos alinhados à linha do tempo.
 
 ### RF-18 Referências
@@ -106,7 +106,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-19.3 👁** Nenhum link azul sublinhado: nomes de pessoas, fontes, links externos e referências aparecem como chips clicáveis. Links dentro de texto corrido usam a cor da marca, com sublinhado animado no hover.
 - **CA-19.4 👁** Abertura: o fundo é um carrossel contínuo de fotos livres em faixas que correm em sentidos opostos, com pontos e brilho animados de leve. Os números da abertura contam até o valor.
 - **CA-19.5 👁** Logotipo próprio (um hexágono de sete células de dados, sem referência a um prêmio) no cabeçalho, com iluminação das células no hover e no foco. O mesmo logotipo aparece no README e no ícone da aba.
-- **CA-19.6 👁** O tema é escolhido num botão de ícone de **tamanho fixo**, que abre um menu pequeno (Claro, Escuro, Automático), e o ícone mostra o tema ativo.
+- **CA-19.6 👁** O tema é trocado num botão de ícone de **tamanho fixo**, sem menu: **cada clique passa ao próximo tema** (Automático → Claro → Escuro → Automático), o ícone e o rótulo acessível mostram o tema ativo, e a troca não desloca a rolagem da página.
 - **CA-19.8 👁** Dicas (balões) dos gráficos entram e saem com fade, tanto as do Observable Plot quanto as dos gráficos feitos à mão (mapa, Sankey, história).
 - **CA-19.9 👁** Em todo gráfico, o elemento sob o mouse (barra, célula, ponto, UF, fluxo) fica em destaque e os demais do mesmo gráfico ficam mais transparentes. Ao sair do gráfico, tudo volta ao normal.
 - **CA-19.10 👁** Todo bloco (cartões de número, cartões de gráfico, cartões da linha do tempo, passos da história, blocos de método e referências) ganha um brilho de fundo no hover, um foco de luz na cor da marca que acompanha o ponteiro, e a borda e a sombra acendem junto.
@@ -137,7 +137,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-24.3 🧪👁** A capa no perfil inclina em perspectiva 3D acompanhando o cursor, com espessura de livro e retorno suave ao sair. O crédito fica imóvel e legível. Toque e preferência por movimento reduzido mantêm a capa estática; navegação e alternativa tipográfica continuam funcionando.
 
 ### RF-25 Série histórica (1959–2009)
-- **CA-25.1 🧪** A base cobre 1959–2025. De 1959 a 2009 entram os premiados das categorias do recorte, cruzados no site oficial, na página "Edições anteriores" da CBL (Wayback, 2010) e na Wikipédia por edição; listas públicas de indicados só quando achadas completas em fonte da época. Categorias antigas mapeadas para as atuais (Contos/Crônicas/Novelas → Contos; Infantil ou juvenil → Infantil e Juvenil; Livro do Ano Ficção/Não Ficção e Melhor Livro de Ficção → Livro do Ano); Autor Revelação, Ilustração e as demais ficam fora. Editora só com fonte da época.
+- **CA-25.1 🧪** A base cobre 1959–2026. De 1959 a 2009 entram os premiados das categorias do recorte, cruzados no site oficial, na página "Edições anteriores" da CBL (Wayback, 2010) e na Wikipédia por edição; listas públicas de indicados só quando achadas completas em fonte da época. Categorias antigas mapeadas para as atuais (Contos/Crônicas/Novelas → Contos; Infantil ou juvenil → Infantil e Juvenil; Livro do Ano Ficção/Não Ficção e Melhor Livro de Ficção → Livro do Ano); Autor Revelação, Ilustração e as demais ficam fora. Editora só com fonte da época.
 - **CA-25.2 🧪👁** Toda parte abre na **série completa, do primeiro ao último ano coletado** (hoje 1959–2026): abertura, história guiada, panorama, cada janela de gráfico, galeria de autores, perfis de pessoa, livro e lugar, busca e Diadorim. Os filtros recortam qualquer período dentro da série (por exemplo, 2010–2025), e só o recorte diferente do padrão vai para a URL. Quando o recorte inclui edições sem lista pública (1959–1999), o resumo do filtro avisa quantas.
 - **CA-25.3 👁** Onde a série mistura edições com e sem lista pública, o painel diz isso: a história (passo "Da lista ao 1º lugar"), o funil e a linha do tempo explicam que, antes de 2000, a "lista" é só a dos premiados. Marcos da linha do tempo e da evolução incluem 1993 (pódio de 1º a 3º) e 2000 (listas públicas na base). Eixos com dezenas de edições mostram rótulos de 5 em 5 ou de 10 em 10 anos, e as barras não somem no celular.
 - **CA-25.4 🧪👁** Indicações sem editora conhecida (série histórica sem fonte da época) não aparecem como uma "editora" no ranking de editoras: ficam fora da lista, e o gráfico informa quantas são.
@@ -174,12 +174,26 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 
 - **CA-26.18 🧪** **Prêmio Sesc de Literatura** (2004–2025, `premio_id = 'sesc'`, Sesc Departamento Nacional): premia **originais inéditos** de autores estreantes no gênero, inscritos com pseudônimo. A tabela `premio` ganha `obras` (`publicadas` ou `ineditas`), e todo texto que apresenta o prêmio (Método, página do prêmio, prompt da Diadorim, formato na história) diz que ele julga inéditos. Categorias: Romance (2004–), Conto (`Contos`, 2006–) e Poesia (2024–). Só os vencedores têm nome público (`etapa_lista = premiados`); os finalistas de 2012–2013 saíram só com pseudônimo e ficam fora. A indicação fica sem editora (concorreu como original); a editora que publicou o livro depois vai em `observacao`. A edição de 2026 (vencedores de agosto/2026) fica para quando os outros prêmios tiverem 2026.
 
+- **CA-26.19 🧪** **Prémio LeYa** (2008–, `premio_id = 'leya'`, grupo LeYa, abrangência lusófona, `obras = ineditas`): romance inédito inscrito com pseudônimo. Entram o vencedor e os **finalistas identificados por título e autor** (quando o livro saiu depois com o nome da pessoa ou a autoria foi revelada, com fonte); `etapa_lista = finalistas` com `vagas_lista` vazio (a lista é **parcial**: nenhuma edição tem todos os finalistas identificados; o número anunciado fica em `observacao`), ou `premiados` quando não houve lista. Anos sem vencedor ficam fora. A indicação fica sem editora; a editora que publicou depois vai em `observacao`.
+- **CA-26.20 🧪** **Prémio Literário José Saramago** (1999–, `premio_id = 'saramago'`, Fundação Círculo de Leitores, lusófono, autor jovem): até 2019 premiava livro publicado, desde 2022 premia romance inédito. `edicao.obras` (`publicadas`/`ineditas`, vazio = o valor do prêmio) guarda isso por edição, e os textos do prêmio (Método, página do prêmio, prompt da Diadorim) dizem desde quando ele julga inéditos. Vencedores e finalistas identificados, como no LeYa.
+- **CA-26.21 🧪** **Prêmios da Academia Brasileira de Letras** (`premio_id = 'abl'`, nacional): os prêmios por livro do recorte — Ficção (`Prosa`), Poesia (`Poesia`), Literatura Infantojuvenil (`Infantil e Juvenil`) e os prêmios por livro criados em 2026 — com o nome do prêmio em `nome_original` e só os premiados (`etapa_lista = premiados`); e o **Prêmio Machado de Assis** (conjunto da obra, RF-30).
+- **CA-26.22 🧪** **Prêmio Camões** (1989–, `premio_id = 'camoes'`, Portugal e Brasil, lusófono): só conjunto da obra (RF-30), com o júri onde publicado. Não tem indicação de livro: fica fora das partes do painel por livro e aparece no perfil da pessoa, na janela Conjunto da obra, na busca de pessoas e na Diadorim.
+
 **Decisões** (fechadas em 2026-10-16; o desenho de cada uma está em D31)
 - **DA-1 Prêmios e ordem:** o Oceanos (ex-Portugal Telecom) é o piloto. Depois vêm o Prêmio Literário da Biblioteca Nacional e o Prêmio São Paulo de Literatura. As categorias ficam nos gêneros do recorte atual, mais `Geral` para categoria única. Período, formato e listas de cada prêmio são conferidos com fonte na coleta.
-- **DA-2 Conjunto da obra:** prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) ficam fora (ver §6).
+- **DA-2 Conjunto da obra** (revista em 2026-11-19, decisão do mantenedor): prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) **entram como um tipo à parte** (RF-30): registrados por pessoa, sem livro, e nunca somados às métricas por livro.
 - **DA-3 Autores de fora do Brasil:** entram. A pessoa ganha país de nascimento (`BR` para quem tem UF), e a geografia ganha a dimensão "país"; o mapa continua sendo do Brasil. Raça segue o mesmo protocolo de autodeclaração, e o Método avisa que os termos seguem as categorias do IBGE.
 - **DA-4 Visão padrão** (revista em 2026-10-16): o painel abre com **todos os prêmios**; cada filtro tem o seletor de prêmio para recortar um ou vários. Com mais de um prêmio, os gráficos de taxa usam facetas por prêmio (CA-26.9). A História guiada e os perfis de lugar têm o mesmo padrão (todos), com seletor na história. A ordem dos prêmios (coluna `ordem`) só define a ordem de listas e facetas e a coleta, não um prêmio "principal".
 - **DA-5 Identidade** (revista em 2026-10-16): o Literadados é uma plataforma de prêmios literários, não de um prêmio. Título ("Quem chega aos prêmios literários?"), descrição, rodapés, placeholder da Diadorim, busca e textos dos gráficos falam de prêmios em geral; regra que é de um prêmio só (formatos, anos sem lista pública, júri divulgado) aparece com o nome do prêmio. O logotipo perde o jabuti e fica com as células de dados.
+
+### RF-30 Conjunto da obra
+> DA-2 revista em 2026-11-19. Desenho: D36.
+
+- **CA-30.1 🧪** A tabela `distincao` (prêmio, ano, `nome_original`, pessoa, fonte) guarda quem recebeu um prêmio pelo conjunto da obra. Cada distinção pertence a uma `categoria_edicao` com `categoria = 'Conjunto da obra'` e `etapa_lista = premiados`, o que deixa o júri na tabela `jurado` de sempre. O build falha se uma categoria de conjunto da obra tiver indicação de livro, se uma distinção estiver em outra categoria ou se o número de distinções diferir de `vagas_premio`.
+- **CA-30.2 🧪** As distinções ficam **fora** de `v_participacao` e de toda métrica por livro (lista, finalistas, premiadas, funil, editoras, ranking, abertura). O `dados.json` as leva à parte (`distincoes`, com os prêmios só de distinção em `premios_distincao`); categorias, júris e edições de conjunto da obra não entram nas listas usadas pelas partes por livro.
+- **CA-30.3 🧪👁** Janela **Conjunto da obra**: por prêmio, quem foi distinguido (ano, nome, link para o perfil) e a composição das pessoas distinguidas por gênero, raça declarada (piso) e região ou país de nascimento, com n, um prêmio por linha, sem somar prêmios.
+- **CA-30.4 👁** O perfil de pessoa lista as distinções junto da trajetória ("Prêmio Camões 2019, conjunto da obra"), e a pessoa distinguida sem livro indicado também tem perfil e aparece na busca. O perfil de edição de um prêmio que tem as duas coisas (ABL) mostra a distinção do ano.
+- **CA-30.5 🧪** Diadorim: view `v_distincao` (prêmio, ano, pessoa e os mesmos atributos de pessoa de `v_participacao`), e o prompt diz que distinção não é indicação de livro e não se soma a ela. As páginas estáticas de pessoa listam as distinções.
 
 ### RF-27 Encontrável por buscadores e IAs (SEO, AEO, GEO)
 O painel é desenhado por JavaScript e os perfis vivem em rotas `#/...`, que buscadores e robôs de IA não indexam. O build gera, a partir dos mesmos dados, páginas estáticas que esses robôs leem sem JavaScript, e cada uma leva ao painel. Desenho: D32.
@@ -253,4 +267,3 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 | Tema das obras (hipótese do "tema obrigatório") | Exige sinopses e classificação revisada |
 | Efeito do prêmio nas visualizações da Wikipédia | Fase 2; exige coleta de séries de visualizações |
 | Outros prêmios | Saiu desta lista: virou o RF-26 |
-| Prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) | Não há livro concorrendo; misturá-los ao funil e às métricas por obra confunde (DA-2). Se entrarem, vão para uma tabela `distincao` à parte (D31) |

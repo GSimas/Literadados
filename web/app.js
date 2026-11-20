@@ -2,7 +2,7 @@
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
 import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
-import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios } from "./explorar.js";
+import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios, renderConjuntoObra } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
 import { carregarMalha, montarControlesMapa, renderMapa } from "./mapa.js";
@@ -87,9 +87,12 @@ function periodosPremios(L) {
   const um = PREMIOS.length === 1;
   return PREMIOS.filter((p) => anos.has(p)).map((p) => {
     const a = [...anos.get(p)].sort((x, y) => x - y);
-    const nome = um ? nomesPremios([p]) : nomesPremios([p]).replace(/^Prêmio\s+/, "");
+    const nome = um ? nomesPremios([p]) : M.nomeCurto(nomesPremios([p]));
     return `${nome} ${a[0]}–${a.at(-1)} (${fmt(a.length)} edições)`;
-  }).join(" · ");
+  }).concat((D.premios_distincao ?? []).map((p) => { // só conjunto da obra (RF-30): período das distinções, à parte
+    const a = (D.distincoes ?? []).filter((d) => d.premio === p.id).map((d) => d.ano);
+    return a.length ? `${M.nomeCurto(p.nome)} ${Math.min(...a)}–${Math.max(...a)} (conjunto da obra)` : "";
+  }).filter(Boolean)).join(" · ");
 }
 function renderAbertura() {
   const L0 = M.filtrar(D.participacao, padrao()), H = M.historia(L0);
@@ -152,6 +155,7 @@ const JANELAS = {
   "linha-do-tempo": [renderLinhaDoTempo], geografia: [renderMapa, renderSankey], evolucao: [renderEvolucao], funil: [renderFunil],
   segregacao: [renderSegregacao], idade: [renderIdade], editoras: [renderEditoras], ranking: [renderRanking], juri: [renderJuri],
   "entre-premios": [renderEntrePremios],
+  "conjunto-da-obra": [renderConjuntoObra], // sem filtro de parte (RF-30): não está em PARTES
 };
 // Desenha uma parte com o seu filtro e atualiza o resumo do recorte na barra dela.
 function renderParte(parte) {
@@ -177,10 +181,13 @@ function avisarFalha(parte, falhou) {
   aviso = Object.assign(document.createElement("p"), { className: "vazio falha-parte" });
   aviso.setAttribute("role", "alert");
   aviso.innerHTML = `Não foi possível desenhar esta parte com o recorte atual. <button type="button" class="chip-link">Tentar de novo</button>`;
-  aviso.querySelector("button").addEventListener("click", () => renderParte(parte));
+  aviso.querySelector("button").addEventListener("click", () => renderJanela(parte));
   (raiz.querySelector(":scope > .secao-cab") ?? raiz.firstElementChild).after(aviso);
 }
-const renderJanela = (id) => renderParte(id);
+const renderJanela = (id) => {
+  if (PARTES.includes(id)) return renderParte(id);
+  try { JANELAS[id].forEach((f) => f(ctx)); avisarFalha(id, false); } catch (e) { console.error(id, e); avisarFalha(id, true); }
+};
 const janelasAbertas = () => Object.keys(JANELAS).filter((id) => $(`#${id}`).open);
 function fecharJanela(dlg) {
   fecharAnimado(dlg, () => dlg.close());
@@ -265,7 +272,7 @@ function renderNotaGenero() {
 function renderTudo() {
   renderParte("panorama");
   renderParte("autores");
-  for (const id of janelasAbertas()) renderParte(id); // janelas fechadas desenham ao abrir (CA-20.3)
+  for (const id of janelasAbertas()) renderJanela(id); // janelas fechadas desenham ao abrir (CA-20.3)
 }
 for (const id of ["#evo-dim", "#evo-etapa"]) $(id).addEventListener("change", () => renderEvolucao(linhasDe("evolucao"), ctxDe("evolucao")));
 $("#funil-dim").addEventListener("change", () => renderFunil(linhasDe("funil"), ctxDe("funil")));
@@ -284,6 +291,7 @@ $("#entre-etapa").addEventListener("click", (e) => {
 });
 // Entre prêmios só existe com dois prêmios ou mais na base (CA-26.11).
 $("[data-janela=\"entre-premios\"]").hidden = PREMIOS.length < 2;
+$("[data-janela=\"conjunto-da-obra\"]").hidden = !D.distincoes?.length;
 
 montarFiltros();
 $$("select").forEach(melhorarSelect);

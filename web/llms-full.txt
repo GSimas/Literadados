@@ -1,6 +1,6 @@
 # Literadados — texto completo
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura): gênero, raça autodeclarada e UF de nascimento de 1.597 pessoas-autoras em 3.407 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura, Prémio LeYa, Prémio Literário José Saramago, Prêmios da Academia Brasileira de Letras): gênero, raça autodeclarada e UF de nascimento de 1.665 pessoas-autoras em 3.586 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
@@ -8,35 +8,35 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 
 ### Quantas pessoas chegaram aos prêmios literários reunidos no Literadados?
 
-1.597 pessoas-autoras, em 3.407 indicações: Prêmio Jabuti, 1959–2025 (67 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2026 (31 edições); Prêmio Sesc de Literatura, 2004–2026 (23 edições). 391 delas passaram por mais de um prêmio.
+1.665 pessoas-autoras, em 3.586 indicações: Prêmio Jabuti, 1959–2026 (68 edições); Prêmio Oceanos, 2003–2025 (23 edições); Prêmio São Paulo de Literatura, 2008–2025 (18 edições); Prêmio Biblioteca Nacional, 1995–2026 (31 edições); Prêmio Sesc de Literatura, 2004–2026 (23 edições); Prémio LeYa, 2008–2025 (14 edições); Prémio Literário José Saramago, 1999–2024 (13 edições); Prêmios da Academia Brasileira de Letras, 1999–2026 (18 edições). 429 delas passaram por mais de um prêmio.
 
 ### Qual a participação de mulheres nos prêmios literários?
 
-Na base inteira, 36% das pessoas-autoras são mulheres (576 de 1.597). No Prêmio Jabuti: 36% na lista (366 de 1.021) e 34% no 1º lugar (92 de 274). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 33% na lista (71 de 218) e 28% no 1º lugar (33 de 116). No Prêmio Sesc de Literatura: 26% na lista (12 de 46) e 26% no 1º lugar (12 de 46). Para 428 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
+Na base inteira, 36% das pessoas-autoras são mulheres (598 de 1.665). No Prêmio Jabuti: 36% na lista (381 de 1.054) e 34% no 1º lugar (94 de 280). No Prêmio Oceanos: 33% na lista (213 de 642) e 29% no 1º lugar (9 de 31). No Prêmio São Paulo de Literatura: 41% na lista (107 de 263) e 43% no 1º lugar (17 de 40). No Prêmio Biblioteca Nacional: 33% na lista (71 de 218) e 28% no 1º lugar (33 de 116). No Prêmio Sesc de Literatura: 26% na lista (12 de 46) e 26% no 1º lugar (12 de 46). No Prémio LeYa: 24% na lista (9 de 37) e 14% no 1º lugar (2 de 14). No Prémio Literário José Saramago: 15% na lista (2 de 13) e 15% no 1º lugar (2 de 13). No Prêmios da Academia Brasileira de Letras: 27% na lista (16 de 59) e 27% no 1º lugar (16 de 59). Para 438 pessoas, o gênero foi atribuído pelo primeiro nome, sem fonte.
 
 ### Quantos autores negros chegaram aos prêmios literários?
 
-Pelo menos 33 das 1.597 pessoas-autoras (2,1%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.550 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 24 de 1.021. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 218. No Prêmio Sesc de Literatura: pelo menos 0 de 46.
+Pelo menos 34 das 1.665 pessoas-autoras (2,0%) se declararam publicamente negras, pretas ou pardas. É um piso: 1.617 pessoas não têm autodeclaração pública encontrada, e isso não quer dizer que sejam brancas. No Prêmio Jabuti: pelo menos 25 de 1.054. No Prêmio Oceanos: pelo menos 14 de 642. No Prêmio São Paulo de Literatura: pelo menos 6 de 263. No Prêmio Biblioteca Nacional: pelo menos 2 de 218. No Prêmio Sesc de Literatura: pelo menos 0 de 46. No Prémio LeYa: pelo menos 1 de 37. No Prémio Literário José Saramago: pelo menos 0 de 13. No Prêmios da Academia Brasileira de Letras: pelo menos 2 de 59.
 
 ### Quem mais venceu o Prêmio Jabuti?
 
-Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Jabuti foi Marina Colasanti (6 vezes em 1º lugar, 8 prêmios); Ruy Castro (5 vezes em 1º lugar, 5 prêmios); Rubem Fonseca (4 vezes em 1º lugar, 6 prêmios); Moacyr Scliar (4 vezes em 1º lugar, 6 prêmios); Ricardo Azevedo (4 vezes em 1º lugar, 6 prêmios).
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmio Jabuti foi Marina Colasanti (6 vezes em 1º lugar, 8 prêmios); Ruy Castro (6 vezes em 1º lugar, 6 prêmios); Rubem Fonseca (4 vezes em 1º lugar, 6 prêmios); Moacyr Scliar (4 vezes em 1º lugar, 6 prêmios); Ricardo Azevedo (4 vezes em 1º lugar, 6 prêmios).
 
 ### Quantas mulheres venceram o Prêmio Jabuti?
 
-92 das 274 pessoas que venceram (1º lugar) o Prêmio Jabuti nas categorias do recorte são mulheres (34%). A primeira vitória de uma mulher foi em 1959: Isa Silveira Leal, em Literatura Juvenil, com Glorinha.
+94 das 280 pessoas que venceram (1º lugar) o Prêmio Jabuti nas categorias do recorte são mulheres (34%). A primeira vitória de uma mulher foi em 1959: Isa Silveira Leal, em Literatura Juvenil, com Glorinha.
 
 ### De que estados vêm os autores premiados no Prêmio Jabuti?
 
-Entre as 331 pessoas premiadas no Prêmio Jabuti com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (105, 32%), Rio de Janeiro (70, 21%), Minas Gerais (51, 15%), Rio Grande do Sul (28, 8,5%), Bahia (15, 4,5%).
+Entre as 334 pessoas premiadas no Prêmio Jabuti com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (105, 31%), Rio de Janeiro (70, 21%), Minas Gerais (53, 16%), Rio Grande do Sul (28, 8,4%), Bahia (16, 4,8%).
 
-### Quem venceu o Prêmio Jabuti 2025?
+### Quem venceu o Prêmio Jabuti 2026?
 
-No Prêmio Jabuti 2025, venceram (1º lugar): Romance Literário: Vento em setembro, de Tony Bellotto (Companhia das Letras); Conto: Dores em salva, de Elimário Cardozo (Editora Patuá); Crônica: O ouvidor do Brasil: 99 vezes Tom Jobim, de Ruy Castro (Companhia das Letras); Poesia: Respiro, de Armando Freitas Filho (Companhia das Letras); Infantil: Estações, de Daniel Munduruku; ilustração de Marilda Castanha (Editora Moderna); Juvenil: O silêncio de Kazuki, de Alessandro Fonseca, André Kondo (Telucazu Edições); Livro do Ano: O ouvidor do Brasil: 99 vezes Tom Jobim, de Ruy Castro (Companhia das Letras). Veja a edição completa.
+No Prêmio Jabuti 2026, venceram (1º lugar): Romance Literário: Meridiana, de Eliana Alves Cruz (Companhia das Letras); Conto: Massaranduba, de Abáz (Senac Rio); Crônica: Viagem no país da crônica, de Humberto Werneck (Tinta-da-china Brasil); Poesia: Boris e Marina, de Alberto Martins (Companhia das Letras); Infantil: A letra, de Leo Cunha, Raquel Matsushita (Maralto Edições); Juvenil: A única da sala, de Tathyana Viana; ilustração de Amanda Lobos (FTD Educação); Livro do Ano: Trincheira tropical: a Segunda Guerra Mundial no Rio, de Ruy Castro (Companhia das Letras). Veja a edição completa.
 
 ### Quais editoras mais ganham o Prêmio Jabuti?
 
-Contando as obras premiadas no Prêmio Jabuti com editora conhecida: Companhia das Letras (60), Editora Record (34), Cosac Naify (18), Editora Moderna (9), Objetiva (9). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
+Contando as obras premiadas no Prêmio Jabuti com editora conhecida: Companhia das Letras (63), Editora Record (34), Cosac Naify (18), Editora Moderna (9), Objetiva (9). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
 
 ### Quem mais venceu o Prêmio Oceanos?
 
@@ -113,6 +113,62 @@ Entre as 32 pessoas premiadas no Prêmio Sesc de Literatura com UF de nascimento
 ### Quem venceu o Prêmio Sesc de Literatura 2026?
 
 No Prêmio Sesc de Literatura 2026, venceram (1º lugar): Romance: A vontade das coisas mortas, de Mariana do Nascimento Ramos; Conto: A replicação do sangue, de Anacã Agra; Poesia: Geografia do desconforto, de Guilherme de Miranda Ramos. Veja a edição completa.
+
+### Quem mais venceu o Prémio LeYa?
+
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prémio LeYa foi António Tavares (1 vez em 1º lugar, 1 prêmio); João Pinto Coelho (1 vez em 1º lugar, 1 prêmio); José Carlos Barros (1 vez em 1º lugar, 1 prêmio); Afonso Reis Cabral (1 vez em 1º lugar, 1 prêmio); Carla Pais (1 vez em 1º lugar, 1 prêmio).
+
+### Quantas mulheres venceram o Prémio LeYa?
+
+2 das 14 pessoas que venceram (1º lugar) o Prémio LeYa nas categorias do recorte são mulheres (14%). A primeira vitória de uma mulher foi em 2013: Gabriela Ruivo Trindade, em Prémio LeYa, com Uma outra voz.
+
+### De que estados vêm os autores premiados no Prémio LeYa?
+
+Entre as 3 pessoas premiadas no Prémio LeYa com UF de nascimento no Brasil, as que mais aparecem nasceram em Bahia (1, 33%), Minas Gerais (1, 33%), Paraná (1, 33%).
+
+### Quem venceu o Prémio LeYa 2025?
+
+No Prémio LeYa 2025, venceram (1º lugar): Prémio LeYa: A Sombra das Árvores no Inverno, de Carla Pais. Veja a edição completa.
+
+### Quem mais venceu o Prémio Literário José Saramago?
+
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prémio Literário José Saramago foi Adriana Lisboa (1 vez em 1º lugar, 1 prêmio); Afonso Reis Cabral (1 vez em 1º lugar, 1 prêmio); Andréa del Fuego (1 vez em 1º lugar, 1 prêmio); Bruno Vieira Amaral (1 vez em 1º lugar, 1 prêmio); Francisco Mota Saraiva (1 vez em 1º lugar, 1 prêmio).
+
+### Quantas mulheres venceram o Prémio Literário José Saramago?
+
+2 das 13 pessoas que venceram (1º lugar) o Prémio Literário José Saramago nas categorias do recorte são mulheres (15%). A primeira vitória de uma mulher foi em 2003: Adriana Lisboa, em Prémio Literário José Saramago, com Sinfonia em Branco.
+
+### De que estados vêm os autores premiados no Prémio Literário José Saramago?
+
+Entre as 4 pessoas premiadas no Prémio Literário José Saramago com UF de nascimento no Brasil, as que mais aparecem nasceram em São Paulo (3, 75%), Rio de Janeiro (1, 25%).
+
+### Quem venceu o Prémio Literário José Saramago 2024?
+
+No Prémio Literário José Saramago 2024, venceram (1º lugar): Prémio Literário José Saramago: Morramos ao menos no porto, de Francisco Mota Saraiva. Veja a edição completa.
+
+### Quais editoras mais ganham o Prémio Literário José Saramago?
+
+Contando as obras premiadas no Prémio Literário José Saramago com editora conhecida: QuidNovi (PT) (2), Caminho (PT) (1), Companhia das Letras (1), Cotovia (PT) (1), Círculo de Leitores (PT) (1). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
+
+### Quem mais venceu o Prêmios da Academia Brasileira de Letras?
+
+Nas categorias do recorte, quem mais venceu (1º lugar) o Prêmios da Academia Brasileira de Letras foi Ana Miranda (2 vezes em 1º lugar, 2 prêmios); Manoel de Barros (2 vezes em 1º lugar, 2 prêmios); Adélia Prado (1 vez em 1º lugar, 1 prêmio); Adriano Espínola (1 vez em 1º lugar, 1 prêmio); Afonso Félix de Sousa (1 vez em 1º lugar, 1 prêmio).
+
+### Quantas mulheres venceram o Prêmios da Academia Brasileira de Letras?
+
+16 das 59 pessoas que venceram (1º lugar) o Prêmios da Academia Brasileira de Letras nas categorias do recorte são mulheres (27%). A primeira vitória de uma mulher foi em 2000: Dora Ferreira da Silva, em Prêmio ABL de Poesia, com Poesia Reunida.
+
+### De que estados vêm os autores premiados no Prêmios da Academia Brasileira de Letras?
+
+Entre as 51 pessoas premiadas no Prêmios da Academia Brasileira de Letras com UF de nascimento no Brasil, as que mais aparecem nasceram em Rio de Janeiro (12, 24%), Minas Gerais (9, 18%), São Paulo (8, 16%), Rio Grande do Sul (6, 12%), Maranhão (4, 7,8%).
+
+### Quem venceu o Prêmios da Academia Brasileira de Letras 2026?
+
+No Prêmios da Academia Brasileira de Letras 2026, venceram (1º lugar): Prêmio Guimarães Rosa: Meridiana, de Eliana Alves Cruz (Companhia das Letras); Prêmio Manuel Bandeira: Noite obscena, de Fabrício Oliveira (Mondrongo). Veja a edição completa.
+
+### Quais editoras mais ganham o Prêmios da Academia Brasileira de Letras?
+
+Contando as obras premiadas no Prêmios da Academia Brasileira de Letras com editora conhecida: Editora Record (9), Companhia das Letras (3), Rocco (3), 7Letras (2), Nova Fronteira (2). Obras premiadas sem editora conhecida da época (comuns antes de 2000) ficam fora da conta.
 
 ### Como o Literadados sabe a raça de cada pessoa?
 
@@ -1300,7 +1356,7 @@ Fontes: https://pt.wikipedia.org/wiki/60.º_Prêmio_Jabuti ; https://pt.wikipedi
 
 ### Prêmio Jabuti 2019
 
-Formato: 2019–2025 vencedor único. 60 pessoas-autoras; 43% mulheres (26); pelo menos 2 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2019/
+Formato: 2019–2026 vencedor único. 60 pessoas-autoras; 43% mulheres (26); pelo menos 2 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2019/
 
 Depois da turbulência de 2018, o Jabuti fez ajustes sob o novo curador, Pedro Almeida: Infantil e Juvenil voltaram a ser categorias separadas, e o prêmio ganhou duas etapas de listas, dez semifinalistas em 3 de outubro e cinco finalistas em 31 de outubro. Foram 2.103 inscrições. A cerimônia aconteceu em 28 de novembro, no Auditório Ibirapuera, com R$ 5 mil para cada vencedor e R$ 100 mil para o Livro do Ano.
 O prêmio principal saiu da categoria Humanidades, fora do recorte literário deste painel: Uma História da Desigualdade, de Pedro H. G. Ferreira de Souza. O ponto alto da noite foi a homenagem a Conceição Evaristo como Personalidade Literária; a autora disse que não lhe interessava ser a primeira, e sim abrir caminhos.
@@ -1317,7 +1373,7 @@ Fontes: https://pt.wikipedia.org/wiki/61.º_Prêmio_Jabuti ; https://www.publish
 
 ### Prêmio Jabuti 2020
 
-Formato: 2019–2025 vencedor único. 61 pessoas-autoras; 44% mulheres (27); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2020/
+Formato: 2019–2026 vencedor único. 61 pessoas-autoras; 44% mulheres (27); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2020/
 
 A pandemia de covid-19 atravessou a 62ª edição. O prazo de inscrições foi estendido até o fim de maio, e no mesmo mês o curador Pedro Almeida renunciou depois de publicar nas redes um texto que minimizava as mortes da pandemia, o que gerou uma carta de protesto com mais de 5 mil assinaturas. A edição também criou a categoria Romance de Entretenimento, e a antiga Romance passou a se chamar Romance Literário.
 Os dez finalistas saíram em 22 de outubro e os cinco finalistas em 5 de novembro. A cerimônia de 26 de novembro foi virtual, apresentada por Maju Coutinho, com homenagem a Adélia Prado.
@@ -1334,7 +1390,7 @@ Fontes: https://pt.wikipedia.org/wiki/62.º_Prêmio_Jabuti ; https://www.publish
 
 ### Prêmio Jabuti 2021
 
-Formato: 2019–2025 vencedor único. 95 pessoas-autoras; 46% mulheres (44); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2021/
+Formato: 2019–2026 vencedor único. 95 pessoas-autoras; 46% mulheres (44); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2021/
 
 Ainda sob a pandemia, o 63º Jabuti teve cerimônia digital, transmitida pelo canal da CBL em 25 de novembro, com homenagem a Ignácio de Loyola Brandão. As inscrições cresceram para cerca de 3,4 mil obras, e dois eixos mudaram de nome: Ensaios virou Não Ficção, e Livro passou a se chamar Produção Editorial.
 O Livro do Ano, com prêmio de R$ 100 mil, foi para um livro infantil: Sagatrissuinorana, com texto de João Luiz Guimarães e ilustrações de Nelson Cruz, publicado pela ÔZé. A obra reconta a fábula dos três porquinhos em diálogo com Guimarães Rosa e usa a história como metáfora dos rompimentos de barragens em Mariana e Brumadinho.
@@ -1351,7 +1407,7 @@ Fontes: https://www.opovo.com.br/vidaearte/2021/11/26/premio-jabuti-2021-sagatri
 
 ### Prêmio Jabuti 2022
 
-Formato: 2019–2025 vencedor único. 65 pessoas-autoras; 43% mulheres (28); pelo menos 5 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2022/
+Formato: 2019–2026 vencedor único. 65 pessoas-autoras; 43% mulheres (28); pelo menos 5 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2022/
 
 Em 2022, o Jabuti voltou a ser entregue com público. A cerimônia da 64ª edição foi em 24 de novembro, no Theatro Municipal de São Paulo, depois de uma disputa que reuniu 4.920 obras. O curador Marcos Marcionilo foi mantido, e o jornalista Rodrigo Casarin entrou no Conselho Curador. A homenageada como Personalidade Literária foi a filósofa Sueli Carneiro, que viu no prêmio um reconhecimento às lutas de pessoas negras.
 O Livro do Ano ficou com a poesia de novo: Também Guardamos Pedras Aqui, de Luiza Romão, publicado pela Nós, venceu a categoria Poesia e o prêmio principal. Em Romance Literário, uma das categorias mais disputadas, todos os finalistas eram mulheres, e Micheliny Verunschk venceu com O Som do Rugido da Onça.
@@ -1368,7 +1424,7 @@ Fontes: https://www.agazeta.com.br/hz/cultura/tambem-guardamos-pedras-aqui-de-lu
 
 ### Prêmio Jabuti 2023
 
-Formato: 2019–2025 vencedor único. 69 pessoas-autoras; 48% mulheres (33); pelo menos 3 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2023/
+Formato: 2019–2026 vencedor único. 69 pessoas-autoras; 48% mulheres (33); pelo menos 3 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2023/
 
 A inteligência artificial chegou ao Jabuti em 2023. Sem regra sobre o assunto, a curadoria desclassificou uma obra da categoria Ilustração por uso de IA, caso que levaria o regulamento seguinte a proibir livros feitos com essas ferramentas. A 65ª edição, já sob curadoria de Hubert Alquéres, criou a categoria Escritor Estreante, e a entrega foi em 5 de dezembro, no Theatro Municipal de São Paulo, com homenagem a Pedro Bandeira.
 O Livro do Ano foi para Engenheiro Fantasma, de Fabrício Corsaletti, vencedor de Poesia; desde a reforma de 2018, era a quarta vez em cinco anos que um livro de poemas levava o prêmio principal. A Companhia das Letras saiu com sete estatuetas.
@@ -1385,7 +1441,7 @@ Fontes: https://www.publishnews.com.br/materias/2023/12/05/premio-jabuti-2023-pr
 
 ### Prêmio Jabuti 2024
 
-Formato: 2019–2025 vencedor único. 64 pessoas-autoras; 39% mulheres (25); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2024/
+Formato: 2019–2026 vencedor único. 64 pessoas-autoras; 39% mulheres (25); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2024/
 
 Depois do caso de 2023, o regulamento da 66ª edição passou a proibir a inscrição de obras produzidas com inteligência artificial, salvo em citações para estudo ou crítica. O prêmio também se reorganizou: as categorias de ciências migraram para o Jabuti Acadêmico, e surgiram Escritor Estreante - Poesia, Educação, Negócios e Saúde e Bem-Estar. Foram 4.170 inscrições, com semifinalistas em 24 de outubro e finalistas em 5 de novembro. A cerimônia, em 19 de novembro, no Auditório Ibirapuera, homenageou Marina Colasanti.
 O Livro do Ano foi Sempre Paris, de Rosa Freire d'Aguiar, memórias dos anos da autora como correspondente na Europa, que já tinha vencido Crônica. Além da estatueta dourada, ela recebeu R$ 70 mil e uma viagem à Feira de Frankfurt.
@@ -1402,7 +1458,7 @@ Fontes: https://pt.wikipedia.org/wiki/66.º_Prêmio_Jabuti ; https://tvtnews.com
 
 ### Prêmio Jabuti 2025
 
-Formato: 2019–2025 vencedor único. 66 pessoas-autoras; 26% mulheres (17); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2025/
+Formato: 2019–2026 vencedor único. 66 pessoas-autoras; 26% mulheres (17); pelo menos 4 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2025/
 
 Com o Rio de Janeiro escolhido pela Unesco como Capital Mundial do Livro, o Jabuti saiu de São Paulo pela primeira vez: a cerimônia da 67ª edição foi em 27 de outubro, no Theatro Municipal do Rio, apresentada por Marisa Orth e Silvio Guindane. Houve ainda um prêmio especial para projetos de fomento à leitura realizados na cidade. Foram 4.530 inscrições em 23 categorias, com semifinalistas em 25 de setembro e finalistas em 7 de outubro. A homenageada foi Ana Maria Machado.
 Ruy Castro levou o Livro do Ano com O Ouvidor do Brasil: 99 Vezes Tom Jobim, também vencedor de Crônica, e ganhou R$ 70 mil e uma viagem à Feira do Livro de Londres. Tony Bellotto venceu Romance Literário com Vento em Setembro, os dois pela Companhia das Letras. A cobertura do PublishNews notou a maioria de homens entre os vencedores e a presença de editoras de pequeno e médio porte.
@@ -1416,6 +1472,23 @@ Fontes: https://pt.wikipedia.org/wiki/67.º_Prêmio_Jabuti ; https://www.publish
 - Infantil, 1º lugar: Estações, de Daniel Munduruku (Editora Moderna)
 - Juvenil, 1º lugar: O silêncio de Kazuki, de Alessandro Fonseca, André Kondo (Telucazu Edições)
 - Livro do Ano, 1º lugar: O ouvidor do Brasil: 99 vezes Tom Jobim, de Ruy Castro (Companhia das Letras)
+
+### Prêmio Jabuti 2026
+
+Formato: 2019–2026 vencedor único. 63 pessoas-autoras; 40% mulheres (25); pelo menos 5 pessoas negras. Página: https://literadados.gustavosimas.com/premios/jabuti/2026/
+
+Depois de um ano no Rio, o Jabuti voltou a São Paulo: a cerimônia da 68ª edição foi em 27 de outubro, na Sala São Paulo, dois dias depois do segundo turno da eleição presidencial, e a plateia se manifestou mais de uma vez pela democracia. A CBL recebeu 4.675 inscrições; os semifinalistas saíram em 29 de setembro e os finalistas em 14 de outubro. A edição estreou a categoria Incentivo à Leitura – Cultura Digital, para criadores de conteúdo sobre livros, e abriu o Livro do Ano também às categorias de escritor estreante. Lygia Bojunga foi a Personalidade Literária.
+Ruy Castro levou o Livro do Ano pela segunda vez seguida, agora com Trincheira tropical, vencedor de Biografia e Reportagem, categoria fora do recorte deste painel. Em Romance Literário, Eliana Alves Cruz venceu com Meridiana, pela Companhia das Letras, numa lista de onze semifinalistas, sinal provável de empate na nota de corte.
+Abáz repetiu no Jabuti o troféu de Conto que Massaranduba já tinha recebido no Prêmio Sesc, quando ainda era original inédito. Humberto Werneck ganhou Crônica com Viagem no país da crônica, e Alberto Martins, Poesia, com Boris e Marina. A letra, de Leo Cunha e Raquel Matsushita, venceu Infantil, e A única da sala, de Tathyana Viana, pela FTD, Juvenil.
+Fontes: https://www.publishnews.com.br/materias/2026/10/27/premio-jabuti-2026-vencedores/ ; https://www.publishnews.com.br/materias/2026/10/14/premio-jabuti-anuncia-os-finalistas-das-23-categorias-de-2026/ ; https://www.publishnews.com.br/materias/2026/09/29/premio-jabuti-2026-veja-os-dez-semifinalistas-de-cada-categoria/ ; https://www.premiojabuti.com.br/jabuti/premiados-por-edicao/premiacao/?ano=2026
+
+- Romance Literário, 1º lugar: Meridiana, de Eliana Alves Cruz (Companhia das Letras)
+- Conto, 1º lugar: Massaranduba, de Abáz (Senac Rio)
+- Crônica, 1º lugar: Viagem no país da crônica, de Humberto Werneck (Tinta-da-china Brasil)
+- Poesia, 1º lugar: Boris e Marina, de Alberto Martins (Companhia das Letras)
+- Infantil, 1º lugar: A letra, de Leo Cunha, Raquel Matsushita (Maralto Edições)
+- Juvenil, 1º lugar: A única da sala, de Tathyana Viana (FTD Educação)
+- Livro do Ano, 1º lugar: Trincheira tropical: a Segunda Guerra Mundial no Rio, de Ruy Castro (Companhia das Letras)
 
 ## Prêmio Oceanos
 
@@ -2749,4 +2822,541 @@ Fontes: https://www.sesc.com.br/cultura/premio-sesc-de-literatura-anuncia-venced
 - Romance, 1º lugar: A vontade das coisas mortas, de Mariana do Nascimento Ramos
 - Conto, 1º lugar: A replicação do sangue, de Anacã Agra
 - Poesia, 1º lugar: Geografia do desconforto, de Guilherme de Miranda Ramos
+
+## Prémio LeYa
+
+Organizador: Grupo LeYa. Página: https://literadados.gustavosimas.com/premios/leya/
+
+### Prémio LeYa 2008
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas → 1 vencedor; finalistas não publicados (só o número). 5 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2008/
+
+O Prêmio LeYa nasceu no mesmo ano que o grupo editorial português que lhe dá nome, criado no início de 2008 e dono de casas como Caminho, Dom Quixote e Texto. A proposta: 100 mil euros, o maior valor entre os prêmios da língua, para um romance inédito, inscrito sob pseudônimo, com o envelope da identidade aberto só depois da decisão. Um júri de Portugal, Angola, Moçambique e Brasil, presidido pelo poeta Manuel Alegre e com Carlos Heitor Cony, Pepetela, Nuno Júdice, José Carlos Seabra Pereira, Lourenço do Rosário e Rita Chaves, leu os finalistas.
+Concorreram 448 originais, e o júri escolheu em outubro O Rastro do Jaguar, de Murilo Carvalho, jornalista brasileiro que recebeu o telefonema de Lisboa no meio da floresta amazônica, onde fazia filmagens. O romance passa-se no Brasil da segunda metade do século XIX, com a Guerra do Paraguai ao fundo. O troféu foi entregue em abril de 2009 pelo presidente Cavaco Silva.
+A LeYa anunciou oito finalistas, seis brasileiros e dois portugueses segundo a imprensa, mas não publicou a lista. A base reconstrói parte dela pelos livros que saíram depois, como os de Alaor Barbosa, Alejandro Reyes e Artur Portela.
+Fontes: https://arquivo.pt/wayback/20190321010440/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2008/ ; https://www.publico.pt/2021/12/02/culturaipsilon/noticia/proprietarios-grupo-leya-estarao-tentar-vender-totalidade-accoes-1987260 ; https://www.publico.pt/culturaipsilon/noticia/joao-ricardo-pedro-vence-premio-leya-2011-1517083 ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: O Rastro do Jaguar, de Murilo Carvalho
+
+### Prémio LeYa 2009
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas → 1 vencedor; finalistas não publicados (só o número). 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2009/
+
+Na segunda edição, o Prêmio LeYa atravessou o Índico. Em 13 de outubro de 2009, o júri, o mesmo do ano de estreia e de novo presidido por Manuel Alegre, deu os 100 mil euros a O Olho de Hertzog, do historiador e escritor moçambicano João Paulo Borges Coelho. Foram 201 originais a concurso e 11 finalistas, que não chegaram a ser divulgados.
+O romance acompanha um oficial alemão que circula disfarçado pela Lourenço Marques de 1919, no rescaldo da Primeira Guerra, e a ata do júri destacou como o livro recupera os combates na fronteira do antigo Tanganica, as primeiras greves de trabalhadores e o nascimento do nacionalismo moçambicano na imprensa. Alegre resumiu a busca do título como uma metáfora do destino individual e coletivo.
+A entrega teve peso diplomático: em 4 de março de 2010, na Embaixada de Portugal em Maputo, o autor recebeu o troféu das mãos do presidente Armando Guebuza, diante do primeiro-ministro português José Sócrates. Dos outros finalistas, a base identifica André Gago e Vasco Luís Curado, cujos livros saíram depois por editoras do grupo.
+Fontes: https://arquivo.pt/wayback/20190321010446/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2009/ ; https://www.publico.pt/culturaipsilon/noticia/premio-leya-para-mocambicano-joao-paulo-borges-coelho-1405003 ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: O Olho de Hertzog, de João Paulo Borges Coelho
+
+### Prémio LeYa 2011
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2011/
+
+O LeYa chegou a 2011 depois de um vazio: em novembro de 2010, o júri decidiu por unanimidade não atribuir o prêmio, por considerar que nenhum dos originais estava à altura. No ano seguinte, com José Castello no lugar de Carlos Heitor Cony, concorreram 162 romances, e em 18 de outubro a escolha, por maioria, recaiu sobre O Teu Rosto Será o Último, de João Ricardo Pedro.
+Era um estreante absoluto: engenheiro eletrotécnico de 38 anos, morador de Lisboa, sem nenhum livro publicado, que disse ao Público ter concorrido porque acreditava na vitória. O júri descreveu o romance como um conjunto de histórias autônomas que compõem um painel inquietante do Portugal contemporâneo. O país vivia então o primeiro ano do resgate financeiro internacional, e o livro, lançado em 2012, foi apresentado pela LeYa como o segundo mais vendido daquele ano em Portugal.
+A LeYa passou a divulgar no site os finalistas, ainda só pelos pseudônimos: foram cinco. Além do vencedor, a base identifica Bruno Margo, cujo Sandokan & Bakunine saiu pela Teorema.
+Fontes: https://arquivo.pt/wayback/20190321010518/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2011/ ; https://arquivo.pt/wayback/20150417095723/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/premio-leya-2010/ ; https://www.publico.pt/culturaipsilon/noticia/joao-ricardo-pedro-vence-premio-leya-2011-1517083 ; https://www.publico.pt/cultura/noticia/premio-leya-1577709 ; https://arquivo.pt/wayback/20190321010511/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2011/
+
+- Prémio LeYa, 1º lugar: O Teu Rosto Será o Último, de João Ricardo Pedro
+
+### Prémio LeYa 2012
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 6 pessoas-autoras; 33% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2012/
+
+A edição de 2012 foi decidida mais tarde que as outras: o júri reuniu-se em Alfragide nos dias 13 e 14 de dezembro e anunciou o resultado na segunda-feira seguinte, 17. Mais de 270 originais chegaram de sete países, de Angola ao Canadá, e a escolha, por maioria, foi Debaixo de Algum Céu, de Nuno Camarneiro, físico natural da Figueira da Foz que tinha passado pelo CERN e já publicara um romance pela própria LeYa.
+O livro se passa num prédio à beira-mar entre o Natal e o Ano Novo, e o júri o leu como um romance de espaço e uma alegoria do mundo contemporâneo. Camarneiro contou ao Público que só decidiu concorrer depois de terminar o texto, que via como uma exploração da ideia de purgatório.
+Dos sete finalistas, divulgados por número e pseudônimo, a base identifica seis, contando o vencedor: Ana Margarida de Carvalho, Cristina Drios, Hugo Gonçalves, José Carlos Barros e Pedro Guilherme-Moreira, todos publicados depois por editoras do grupo. Barros voltaria para vencer em 2021.
+Fontes: https://arquivo.pt/wayback/20190321010557/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2012/ ; https://www.publico.pt/cultura/noticia/premio-leya-1577709 ; https://arquivo.pt/wayback/20190321010543/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2012/ ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: Debaixo de Algum Céu, de Nuno Camarneiro
+
+### Prémio LeYa 2013
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 4 pessoas-autoras; 25% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2013/
+
+Em 15 de outubro de 2013, Manuel Alegre abriu o envelope e telefonou a Gabriela Ruivo Trindade, portuguesa radicada em Londres, para contar que Uma Outra Voz tinha vencido. Só então o júri soube que era o primeiro romance de uma autora inédita. Segundo a LeYa, foi a edição mais concorrida e internacional até ali, com 491 originais de 14 países.
+O livro conta a história de uma família de Estremoz do século XIX até hoje, a várias vozes, e mistura fotografias e documentos à ficção, com a emigração para a África muito antes da guerra colonial ao fundo. Alegre ligou a escolha ao momento do país, dizendo ver na criatividade literária uma resposta das pessoas em tempo de crise. Foi a primeira mulher a ganhar o prêmio, e a única até 2025.
+A partir desse ano a LeYa passou a publicar os títulos dos sete finalistas, ainda com pseudônimo. A base identifica três além da vencedora: António Tavares, que venceria dois anos depois, Norberto Morais, com O Pecado de Porto Negro, depois na lista do Oceanos de 2016, e Carlos Campaniço.
+Fontes: https://www.publico.pt/2013/10/15/culturaipsilon/noticia/gabriela-ruivo-trindade-vence-premio-leya-1609157 ; https://www.publico.pt/2014/10/17/culturaipsilon/noticia/afonso-reis-cabral-vence-premio-leya-2014-1673223 ; https://arquivo.pt/wayback/20190321010609/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2013/ ; https://www.publico.pt/2025/11/19/culturaipsilon/noticia/premio-leya-2025-carla-pais-2155141
+
+- Prémio LeYa, 1º lugar: Uma outra voz, de Gabriela Ruivo Trindade
+
+### Prémio LeYa 2014
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 4 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2014/
+
+O júri reuniu-se em 16 e 17 de outubro de 2014 na sede da LeYa, em Alfragide, e escolheu por unanimidade O Meu Irmão entre 361 originais de 14 países. Na abertura do envelope apareceu o nome de Afonso Reis Cabral, de 24 anos, revisor e coordenador editorial, trineto de Eça de Queiroz, que disse ao Público não ver na genealogia a explicação para a escrita.
+O romance trata da relação entre dois irmãos, um deles com síndrome de Down, e o júri elogiou a forma objetiva e sem sentimentalismo com que o tema é trabalhado, aliviada por momentos de poesia e de humor. Era o primeiro romance que o autor dava por terminado, depois de três anos de trabalho. Cinco anos mais tarde, ele ganharia também o Prêmio José Saramago, com Pão de Açúcar.
+Dos cinco finalistas publicados com título e pseudônimo, a base identifica quatro. João Pinto Coelho, com o original que viraria Perguntem a Sarah Gross, voltaria para vencer em 2017; Pedro Marta Santos e Nuno Gomes Garcia também tiveram os livros publicados depois, com títulos mudados.
+Fontes: https://arquivo.pt/wayback/20190321010626/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2014/ ; https://www.publico.pt/2014/10/17/culturaipsilon/noticia/afonso-reis-cabral-vence-premio-leya-2014-1673223 ; https://arquivo.pt/wayback/20190321010636/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2014/ ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: O Meu Irmão, de Afonso Reis Cabral
+
+### Prémio LeYa 2015
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 4 pessoas-autoras; 50% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2015/
+
+Em 13 de outubro de 2015, depois de dois dias de reunião em Alfragide, o júri deu por unanimidade o LeYa a O Coro dos Defuntos, de António Tavares. Nascido em Angola em 1960, formado em Direito em Coimbra e então vice-presidente da Câmara Municipal da Figueira da Foz, o autor começara a escrever romances aos 52 anos e já tinha sido finalista em 2013.
+O livro se passa numa aldeia da Beira entre 1968 e o 25 de Abril de 1974, sem protagonista único, como um coro. Segundo o Observador, foi escrito em dois meses. O júri destacou a forma como o romance faz correr em paralelo o percurso do país e o mundo rural, com suas crenças e lendas, até o anúncio da revolução, alternando a aldeia com a emigração para a Suíça e os Estados Unidos.
+Os cinco finalistas saíram com título e pseudônimo, e a base identifica quatro. Isabel Rio Novo, com o original que se tornaria O Rio do Esquecimento, depois na lista do Oceanos de 2017, Susana Piedade e Paulo M. Morais voltariam a ser finalistas em anos seguintes.
+Fontes: https://arquivo.pt/wayback/20190321010656/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2015/ ; https://observador.pt/2015/10/13/antonio-tavares-vence-premio-leya-2015/ ; https://arquivo.pt/wayback/20190321010646/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2015/ ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: O Coro dos Defuntos, de António Tavares
+
+### Prémio LeYa 2017
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2017/
+
+O LeYa voltou em 2017 depois de mais um ano em branco: em 2016, o júri voltou a considerar fracos os originais e não deu o prêmio. Na edição seguinte apresentaram-se 400 originais de 18 países, 192 deles de Portugal, e cinco chegaram à final. O anúncio foi feito em 20 de outubro, na sede do grupo em Alfragide.
+Venceu Os Loucos da Rua Mazur, de João Pinto Coelho, que já fora finalista em 2014 com o original de Perguntem a Sarah Gross. O romance se passa na Polônia antes da Segunda Guerra, e o júri, ainda presidido por Manuel Alegre, escreveu que o livro "não cede ao facilitismo do romance histórico" ao tratar de violência com motivação política, étnica e religiosa. O livro esteve depois na lista do Oceanos de 2018.
+Era a última edição do júri original quase completo, com Pepetela, José Castello e Rita Chaves. Entre os finalistas, a base identifica Nuno Amado e Isabel Rio Novo, de novo na final.
+Fontes: https://www.dn.pt/artes/interior/premio-leya-8858923.html ; https://arquivo.pt/wayback/20190321010729/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2017/ ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: Os loucos da rua Mazur, de João Pinto Coelho
+
+### Prémio LeYa 2018
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 1 pessoas-autoras; 0% mulheres (0); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2018/
+
+No décimo aniversário, o LeYa mudou o júri: saíram Pepetela, José Castello e Rita Chaves, e entraram a poeta angolana Ana Paula Tavares, a crítica portuguesa Isabel Lucas e o editor brasileiro Paulo Werneck. Em 17 de outubro de 2018, entre 348 originais de 13 países e sete finalistas, a escolha unânime foi Torto Arado, de Itamar Vieira Junior. Manuel Alegre presidiu, mas não votou, por não ter lido todas as obras, e notou que nunca houvera tantos finalistas de fora de Portugal: dois moçambicanos e três brasileiros.
+O júri justificou a escolha pela forma como o livro aborda o Brasil rural e a violência sobre as mulheres numa sociedade patriarcal. Werneck destacou que o vencedor vinha de fora do eixo Rio-São Paulo. O autor, geógrafo baiano de 39 anos, estava naquele mesmo ano na lista do Jabuti de Conto com A Oração do Carrasco.
+Lançado no Brasil pela Todavia em 2019, Torto Arado teria uma trajetória rara: venceu o Jabuti de Romance e o Oceanos em 2020. Dos outros seis finalistas, a LeYa só divulgou os títulos.
+Fontes: https://arquivo.pt/wayback/20190321010756/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/vencedor-2018/ ; https://www.publico.pt/2018/10/17/culturaipsilon/noticia/torto-arado-e-o-romance-vencedor-do-premio-leya-1847876 ; https://arquivo.pt/wayback/20190321010747/http://leya.pt/pt/gca/areas-de-actividade/premio-leya/finalistas-2018/
+
+- Prémio LeYa, 1º lugar: Torto arado, de Itamar Vieira Junior
+
+### Prémio LeYa 2021
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas (número divulgado, lista não achada) → 1 vencedor. 4 pessoas-autoras; 50% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2021/
+
+O LeYa de 2021 encerrou três anos sem vencedor. Em 2019, o júri não atribuiu o prêmio pela terceira vez; em abril de 2020, a pandemia levou o grupo a suspendê-lo, entre outros motivos porque o envio digital revelaria a identidade dos autores. Em janeiro de 2021, a LeYa anunciou a volta com metade do valor, 50 mil euros, e os originais do ano anterior foram aproveitados.
+Em 7 de dezembro, entre 732 originais de 20 países e 14 selecionados para o júri, a escolha unânime foi As Pessoas Invisíveis, de José Carlos Barros, poeta, arquiteto paisagista, ex-deputado e finalista do próprio prêmio em 2012. O romance atravessa a história recente de Portugal desde os anos 1940. A pandemia apareceu na própria reunião: Lourenço do Rosário fez um protesto contra a proibição de voos da União Europeia para Moçambique e a África Austral, e a semana trazia ainda notícias de que os donos do grupo tentavam vendê-lo.
+Dos 14 finalistas, a base identifica três, todos publicados em 2022: Graça Videira Lopes, Mário Lúcio Sousa e Susana Piedade. Os livros de Sousa e Piedade estiveram depois na lista do Oceanos de 2023.
+Fontes: https://observador.pt/2021/12/07/jose-carlos-costa-barros-e-o-vencedor-do-premio-leya-2021/ ; https://www.publico.pt/2021/01/07/culturaipsilon/noticia/leya-retoma-atribuicao-premio-literario-reduz-valor-50-mil-euros-1945409 ; https://www.publico.pt/2019/10/29/culturaipsilon/noticia/terceira-desde-criacao-premio-leya-nao-atribuido-1891812 ; https://www.publico.pt/2021/12/02/culturaipsilon/noticia/proprietarios-grupo-leya-estarao-tentar-vender-totalidade-accoes-1987260 ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: As Pessoas Invisíveis, de José Carlos Barros
+
+### Prémio LeYa 2022
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas (número divulgado, lista não achada) → 1 vencedor. 2 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2022/
+
+Depois do recorde de 2021, que somara os originais da edição suspensa, o LeYa de 2022 recebeu 218 romances, de Portugal, Brasil, Moçambique, Japão e mais cinco países. Em 26 de outubro, Manuel Alegre anunciou a decisão unânime do mesmo júri do ano anterior: A Arte de Driblar Destinos, de Celso José da Costa.
+O vencedor vinha de outra área: matemático brasileiro nascido no Paraná em 1949, doutor com tese em geometria diferencial. O júri descreveu o livro como uma saga familiar do interior do Brasil, centrada na formação de um jovem em meio a dificuldades, oscilando entre o picaresco e o trágico. Foi a terceira vitória brasileira em onze edições premiadas, num prêmio que valia agora 50 mil euros e seguia como o maior para romances inéditos em língua portuguesa.
+A LeYa não divulgou a lista de finalistas nesse ano, nem o número. A base registra um, Paulo M. Morais, cujo A Boneca Despida saiu depois anunciado como finalista de 2022.
+Fontes: https://observador.pt/2022/10/26/celso-jose-da-costa-e-o-vencedor-do-premio-leya-2022/ ; https://arquivo.pt/wayback/20221027000000/https://www.tsf.pt/portugal/cultura/celso-jose-da-costa-vence-premio-leya-2022-com-a-arte-de-driblar-15288956.html ; https://www.continente.pt/produto/a-boneca-despida-de-paulo-m.-morais-7778051.html
+
+- Prémio LeYa, 1º lugar: A Arte de Driblar Destinos, de Celso José da Costa
+
+### Prémio LeYa 2023
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 3 pessoas-autoras; 67% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2023/
+
+A edição de 2023 bateu o recorde de participação: 907 originais de 14 países, sobretudo de Portugal, Brasil, Angola e Moçambique. O júri ganhou um nome novo, a jornalista e historiadora brasileira Josélia Aguiar, ex-curadora da Flip e biógrafa de Jorge Amado, no lugar de Paulo Werneck. Reunido em 13 e 14 de novembro em Alfragide, decidiu por unanimidade premiar Não Há Pássaros Aqui, de Victor Vidal.
+Era a primeira obra de Victor Vidal, que tinha 32 anos, formação em História da Arte e dava aulas no Rio de Janeiro. Manuel Alegre destacou a escrita corrente, adequada a uma história de grande violência e de segredos escondidos no cotidiano. Foi a segunda vitória brasileira seguida, e o livro chegaria em 2025 à lista do Oceanos.
+A LeYa publicou os seis finalistas com título e pseudônimo. A base identifica três autorias: além da obra vencedora, Coração-Castelo, de Raquel Ochoa, e Passagem Noturna, de Leonor Sampaio da Silva, publicados depois. Foi também a última edição com Nuno Júdice, jurado desde a primeira.
+Fontes: https://arquivo.pt/wayback/20231114205149/https://www.leya.com/premio-leya ; https://arquivo.pt/wayback/20231121191240/https://dn.pt/cultura/autor-brasileiro-victor-vidal-vence-premio-leya-17335918.html ; https://www.noticiasaominuto.com/cultura/2763687/inedito-de-miguel-esteves-cardoso-e-premio-leya-nas-novidades-de-abril ; https://www.leya.com/fotos/editor2/premio_leya_v7.pdf
+
+- Prémio LeYa, 1º lugar: Não há pássaros aqui, de Victor Vidal
+
+### Prémio LeYa 2024
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2024/
+
+Em 2024, o ano dos 50 anos do 25 de Abril, o LeYa premiou um romance que caminha para a revolução. Pés de Barro, de Nuno Miguel Silva Duarte, venceu numa edição de novo recorde: 1.123 originais de 15 países, 708 deles do Brasil, o país com mais candidaturas. O anúncio foi feito em 6 de novembro, em Alfragide.
+O livro acompanha a construção da primeira ponte sobre o Tejo e um pátio de Alcântara nos anos 1960, entre a formação de um exército de operários e as primeiras partidas para a guerra colonial. Manuel Alegre, ainda na presidência, disse que o romance se encaminha para o anúncio metafórico do 25 de Abril. O autor, publicitário de Sintra de 52 anos, com cerca de 30 de carreira, estava, segundo a LeYa, em choque com a notícia.
+O júri tinha agora seis nomes: Nuno Júdice, jurado desde 2008, morrera em março. Dos oito finalistas publicados com título e pseudônimo, só a autoria do vencedor é conhecida na base.
+Fontes: https://www.timeout.pt/lisboa/pt/noticias/nuno-miguel-silva-duarte-e-o-vencedor-da-edicao-mais-concorrida-dos-premios-leya-110624 ; https://arquivo.pt/wayback/20250306000421/https://www.leya.com/premio-leya ; https://www.publico.pt/2024/11/06/culturaipsilon/noticia/premio-leya-2024-pes-barro-nuno-miguel-silva-duarte-2110164 ; https://pt.wikipedia.org/wiki/Nuno_J%C3%BAdice
+
+- Prémio LeYa, 1º lugar: Pés de Barro, de Nuno Miguel Silva Duarte
+
+### Prémio LeYa 2025
+
+Formato: romance inédito com pseudónimo; pré-seleção editorial interna → finalistas publicados no site (pseudónimo; título a partir de 2013) → 1 vencedor. 1 pessoas-autoras; 100% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/leya/2025/
+
+O LeYa de 2025 foi decidido em 19 de novembro, depois de dois dias de reunião, e por unanimidade: A Sombra das Árvores no Inverno, de Carla Pais. Nascida em 1979 e moradora de Paris, a autora já tinha outros romances publicados, entre eles Um Cão Deitado à Fossa, que recebeu o Prêmio Cidade de Almada e o Prêmio SPA. Segundo o Público, o original fora recusado por outras editoras pela dureza do tema. Foi a segunda mulher a vencer o prêmio, doze anos depois de Gabriela Ruivo Trindade.
+Manuel Alegre destacou a elegância da escrita e a forma como o enredo traz situações de atualidade europeia ligadas à imigração vinda da África e do Médio Oriente. O Brasil voltou a liderar as inscrições, com 933 originais, seguido de Portugal, com 416, e Moçambique, com 31.
+O júri de seis nomes incluía Ana Paula Tavares, que naquele ano recebera o Prêmio Camões. Dos seis finalistas, publicados com título e pseudônimo, só a autoria da vencedora é conhecida. Com esta edição, o prêmio somava 14 romances distinguidos em 18 edições.
+Fontes: https://www.leya.com/pagina/premio-leya ; https://www.rtp.pt/noticias/cultura/escritora-carla-pais-vence-premio-leya-2025_n1699251 ; https://www.publico.pt/2025/11/19/culturaipsilon/noticia/premio-leya-2025-carla-pais-2155141
+
+- Prémio LeYa, 1º lugar: A Sombra das Árvores no Inverno, de Carla Pais
+
+## Prémio Literário José Saramago
+
+Organizador: Fundação Círculo de Leitores e Fundação José Saramago. Página: https://literadados.gustavosimas.com/premios/saramago/
+
+### Prémio Literário José Saramago 1999
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/1999/
+
+Um ano depois de José Saramago se tornar o primeiro escritor de língua portuguesa a receber o Nobel, a Fundação Círculo de Leitores criou um prêmio com o nome dele para celebrar a distinção e estimular jovens autores: ficção de autores de até 35 anos, com livro publicado em país lusófono. A primeira edição, em outubro de 1999, coincidiu com um momento de visibilidade dos autores portugueses no exterior, que editores atribuíam justamente ao Nobel.
+O vencedor foi Paulo José Miranda, de 34 anos, com Natureza Morta, publicado pela Cotovia em 1998 e inspirado na figura do compositor João Domingos Bomtempo. Ele recebeu a notícia em Istambul, onde morava então, por telefone do editor André Jorge.
+Do júri desta estreia, a base só conhece um nome: a escritora brasileira Nélida Piñon, que veio a Portugal para a decisão. O prêmio nunca divulgou finalistas, e por isso a edição aparece aqui só com o vencedor. Vinte e cinco anos depois, Miranda voltaria ao prêmio como jurado.
+Fontes: https://arquivo.pt/wayback/19991012192607/https://jnoticias.pt/eddia/cultura7.htm ; https://arquivo.pt/wayback/20010309130615/https://browser.pt/byblos/gazetabyblos_005.asp ; https://arquivo.pt/wayback/20051008213855/https://lusa.pt/print.asp?id=sir-7385844
+
+- Prémio Literário José Saramago, 1º lugar: Natureza Morta, de Paulo José Miranda (Cotovia (PT))
+
+### Prémio Literário José Saramago 2001
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2001/
+
+A segunda edição do Prêmio José Saramago, ainda valendo cinco mil contos às vésperas do euro, recebeu 300 livros de autores de até 35 anos publicados em 1999 e 2000. Em 8 de outubro de 2001, na sede do Círculo de Leitores em Lisboa, o vencedor foi anunciado: Nenhum Olhar, de José Luís Peixoto, editado pela Temas e Debates.
+Peixoto tinha 26 anos, era natural de Galveias, no concelho de Ponte de Sor, e tinha dado aulas no ensino secundário. O próprio Saramago esteve na cerimônia e, segundo a Lusa, admitiu ainda não ter terminado o livro, mas disse que o jovem autor escrevia muitíssimo bem e que não havia mal em escrever livros tristes. O premiado contou que só acreditou na vitória no momento do anúncio e que preparava um novo romance para o ano seguinte.
+O júri incluía Nélida Piñon, José Eduardo Agualusa, Vasco Graça Moura, Maria de Santa Cruz e Manuel Frias Martins, a quem coube o elogio do vencedor. Como em todas as edições, não houve lista de finalistas divulgada. Peixoto viria a ganhar o Oceanos em 2016, com Galveias.
+Fontes: https://arquivo.pt/wayback/20011130165715/https://oninet.pt/news/content/noticias/entretenimento/-showarticle/?id=47945&fonte=lusa&cat=cultura ; https://arquivo.pt/wayback/20011016125113/https://diariodoalentejo.pt/neticias-bin/artigos.php?f=ma&e=1016&a=3bc6afde516a2
+
+- Prémio Literário José Saramago, 1º lugar: Nenhum Olhar, de José Luís Peixoto (Temas e Debates (PT))
+
+### Prémio Literário José Saramago 2003
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 100% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2003/
+
+Em 28 de outubro de 2003, o Prêmio José Saramago saiu pela primeira vez de Portugal e foi pela primeira vez a uma mulher: a brasileira Adriana Lisboa, com Sinfonia em Branco, publicado pela Rocco em 2001. O valor já era de 25 mil euros. Segundo o Público, o júri decidiu por unanimidade, e um dos jurados contou que a autora já tinha estado numa lista interna de finalistas na edição anterior, nunca divulgada.
+Nascida no Rio de Janeiro em 1970, Adriana Lisboa tinha sido flautista, cantora e professora de música antes de se dedicar à escrita, e aquele era seu segundo romance. O livro gira em torno de duas irmãs e de um drama familiar de assédio sexual. Saramago disse ter ficado perturbado com a carga da história, vinda de alguém tão jovem, e chamou a autora de grande promessa. Ela lembrou ter descoberto Memorial do Convento no Rio, em 1989.
+O júri reuniu Nélida Piñon, Vasco Graça Moura, Pilar del Río, José Eduardo Agualusa, Maria de Santa Cruz e Manuel Frias Martins, sob a presidência de Guilhermina Gomes. Duas décadas depois, Adriana Lisboa voltaria ao prêmio como jurada.
+Fontes: https://arquivo.pt/wayback/20031031192706/https://jornal.publico.pt/2003/10/29/sotexto/cultura/c02.html
+
+- Prémio Literário José Saramago, 1º lugar: Sinfonia em Branco, de Adriana Lisboa (Rocco)
+
+### Prémio Literário José Saramago 2005
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2005/
+
+A quarta edição do Prêmio José Saramago foi decidida entre 43 livros e entregue em 8 de outubro de 2005, num hotel de Lisboa, na presença do próprio Nobel. O vencedor, Jerusalém, de Gonçalo M. Tavares, chegava com currículo: no ano anterior já tinha recebido o Prêmio LER/Millennium BCP.
+Nascido em Angola em 1970, Tavares escrevia ficção, ensaio, poesia e teatro e já acumulava distinções como o Prêmio Branquinho da Fonseca e o Prêmio Revelação de Poesia da Associação Portuguesa de Escritores. Jerusalém seguiria acumulando prêmios: em 2007 venceu também o prêmio que hoje se chama Oceanos.
+O júri, presidido por Guilhermina Gomes, teve Nélida Piñon, José Eduardo Agualusa, Pilar del Río e Vasco Graça Moura. O livro saiu primeiro pelo Círculo de Leitores, em 2004, e no ano seguinte pela Caminho; a base registra a primeira edição, já que não se sabe qual foi inscrita. Como sempre no prêmio, só o vencedor foi anunciado.
+Fontes: https://arquivo.pt/wayback/20051008213855/https://lusa.pt/print.asp?id=sir-7385844 ; https://arquivo.pt/wayback/20060407080916/https://instituto-camoes.pt/cvc/novasescritas/goncalomtavares/goncalomtavares1.html
+
+- Prémio Literário José Saramago, 1º lugar: Jerusalém, de Gonçalo M. Tavares (Círculo de Leitores (PT))
+
+### Prémio Literário José Saramago 2007
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2007/
+
+A quinta edição do Prêmio José Saramago, em outubro de 2007, foi para O Remorso de Baltazar Serapião, de Valter Hugo Mãe, publicado em 2006 pela QuidNovi e escolhido por unanimidade. O romance tivera passagem discreta pelas livrarias, e o autor disse ao Diário de Notícias que já não esperava nada dele.
+Na cerimônia, Saramago foi efusivo e comparou o livro a um tsunami linguístico e estilístico, estranhando que tivesse passado quase despercebido. A história se passa na Idade Média e acompanha Baltazar e Ermesinda num mundo miserável, submetido ao senhor da terra, numa linguagem reinventada para aquele tempo, o que o júri destacou na justificativa.
+O júri foi formado por Guilhermina Gomes, Nélida Piñon, Pilar del Río, Ana Paula Tavares e Vasco Graça Moura. O autor disse esperar que o prêmio, de 25 mil euros, levasse o livro a mais leitores. Cinco anos depois, Valter Hugo Mãe venceria o Oceanos com A Máquina de Fazer Espanhóis, e em 2022 voltaria ao Saramago como jurado.
+Fontes: https://arquivo.pt/wayback/20091003013140/https://oeiras-a-ler.blogspot.com/2007/10/valter-hugo-me-vence-prmio-jos-saramago.html ; https://www.publico.pt/2022/11/14/culturaipsilon/noticia/escritor-brasileiro-rafael-gallo-vence-premio-jose-saramago-2022-2027684
+
+- Prémio Literário José Saramago, 1º lugar: O Remorso de Baltazar Serapião, de Valter Hugo Mãe (QuidNovi (PT))
+
+### Prémio Literário José Saramago 2009
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2009/
+
+Em 17 de outubro de 2009, a sexta edição do Prêmio José Saramago foi anunciada na Escritaria, em Penafiel, com o Nobel presente. Venceu As Três Vidas, terceiro romance de João Tordo, editado pela QuidNovi e escolhido entre 36 autores de até 35 anos.
+Tordo, nascido em Lisboa em 1975, formado em Filosofia e com passagem pelo jornalismo, disse sentir o peso de ter o nome associado ao de Saramago. O escritor, por sua vez, aconselhou o premiado a cuidar da linguagem, que para ele era a maior parte da boa literatura. O romance acompanha um homem envolvido numa trama de acontecimentos mundiais a partir de uma quinta perto de Santiago do Cacém.
+O júri teve Guilhermina Gomes na presidência, Ana Paula Tavares, Nélida Piñon, Pilar del Río e Vasco Graça Moura, e uma declaração de voto de Manuel Frias Martins nas atas. Naquele outono anunciou-se que o prêmio passaria a alternar entre Portugal e Espanha já a partir de 2010, o que não aconteceu: a edição seguinte veio em 2011, bienal e lusófona. As Três Vidas esteve depois na lista do Oceanos de 2011.
+Fontes: https://arquivo.pt/wayback/20091225042801/https://diariodigital.sapo.pt/news.asp?section_id=188&id_news=415972 ; https://arquivo.pt/wayback/20091219175825/https://portaldaliteratura.com/noticias.php?id=237 ; https://arquivo.pt/wayback/20091218042739/https://directgroup.pt/imprensa/notcias/todas-as-notcias/prmio-jos-saramago
+
+- Prémio Literário José Saramago, 1º lugar: As três vidas, de João Tordo (QuidNovi (PT))
+
+### Prémio Literário José Saramago 2011
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 100% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2011/
+
+A sétima edição do Prêmio José Saramago foi a primeira sem o patrono, morto em junho de 2010. Em 25 de outubro de 2011, na sede do grupo BertrandCírculo, em Lisboa, o prêmio foi entregue pelo secretário de Estado da Cultura, Francisco José Viegas, à brasileira Andréa del Fuego, por Os Malaquias, publicado pela Língua Geral em 2010. A decisão foi unânime.
+Paulistana nascida em 1975, com passagem pela publicidade e pelo cinema, Andréa del Fuego tinha estreado em 2004 com contos, e Os Malaquias era o seu primeiro romance, inspirado na história da própria família. Na cerimônia, disse que jamais teria imaginado ganhar o prêmio. Depois de Adriana Lisboa, em 2003, era a segunda autora brasileira a vencer.
+O livro já tinha circulado nas listas brasileiras daquele ano: esteve entre os finalistas do Prêmio São Paulo de Literatura e na lista do Jabuti de Romance de 2011. O júri, presidido por Guilhermina Gomes, teve Nélida Piñon, Ana Paula Tavares, Pilar del Río e Vasco Graça Moura, mais três nomes escolhidos pela presidência.
+Fontes: https://arquivo.pt/wayback/20120127210900/https://publico.pt/cultura/e-o-premio-jose-saramago-2011-e--1518176 ; https://arquivo.pt/wayback/20141030045224/https://ler.blogs.sapo.pt/823219.html
+
+- Prémio Literário José Saramago, 1º lugar: Os Malaquias, de Andréa del Fuego (Língua Geral)
+
+### Prémio Literário José Saramago 2013
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2013/
+
+Em 5 de novembro de 2013, na Casa dos Bicos, sede da Fundação José Saramago em Lisboa, a oitava edição do prêmio foi para o angolano Ondjaki, de 36 anos, com Os Transparentes, publicado pela Caminho em 2012 e escolhido por unanimidade. "Este prémio não é meu, este prémio é de Angola", disse o autor ao agradecer.
+O romance retrata a Luanda contemporânea e, para o júri, leva o leitor a uma crioulização radical e criativa da língua portuguesa. Ana Paula Tavares, poeta angolana, fez o elogio da obra, que considerou um livro de maturidade, e Vasco Graça Moura viu nele uma das vias possíveis da língua na sua variante angolana. Ondjaki já tinha vencido o Jabuti Juvenil em 2010, com AvóDezanove e o Segredo do Soviético.
+O júri, presidido por Guilhermina Gomes, teve ainda Nélida Piñon, Pilar del Río e Vasco Graça Moura, além de Manuel Frias Martins, Maria de Santa Cruz e Nazaré Gomes dos Santos. Foi a última edição com Graça Moura, jurado desde 2001.
+Fontes: https://www.publico.pt/cultura/noticia/premio-jose-saramago-2013-atribuido-1611412
+
+- Prémio Literário José Saramago, 1º lugar: Os Transparentes, de Ondjaki (Caminho (PT))
+
+### Prémio Literário José Saramago 2015
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2015/
+
+Em 20 de outubro de 2015, na sede da Fundação José Saramago, Bruno Vieira Amaral recebeu o prêmio pelo seu romance de estreia, As Primeiras Coisas, publicado pela Quetzal em 2013, quando ele tinha 35 anos, a idade-limite. No agradecimento, dedicou o prêmio aos vizinhos do bairro onde cresceu, o Vale da Amoreira, na Moita, e lembrou os presos políticos em Angola, entre eles Luaty Beirão.
+O livro cria o bairro Amélia, inspirado na margem sul de Lisboa, e chegava ao Saramago depois de já ter recebido o Prêmio Fernando Namora e o Prêmio PEN Clube de Narrativa. Ana Paula Tavares fez o elogio da obra, e António Mega Ferreira falou no mapa de um subúrbio melancólico.
+O júri, presidido por Guilhermina Gomes, teve Ana Paula Tavares, António Mega Ferreira, Nélida Piñon e Pilar del Río, e contou com um comitê executivo formado por Manuel Frias Martins, Nazaré Gomes dos Santos e Paula Cristina Costa. Amaral ficaria em segundo lugar no Oceanos de 2018 e seria jurado do próprio Saramago em 2022.
+Fontes: https://www.publico.pt/culturaipsilon/noticia/-premio-jose-saramago-2015-1711754
+
+- Prémio Literário José Saramago, 1º lugar: As Primeiras Coisas, de Bruno Vieira Amaral (Quetzal (PT))
+
+### Prémio Literário José Saramago 2017
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2017/
+
+A décima edição do Prêmio José Saramago, anunciada em 25 de outubro de 2017 na sede da Fundação José Saramago, foi para A Resistência, de Julián Fuks, paulistano nascido em 1981, filho de pais argentinos. O romance, lançado pela Companhia das Letras no Brasil em 2015 e em Portugal no ano seguinte, conta a história do irmão adotado do narrador, numa família marcada pelo exílio.
+O livro chegava ao Saramago já consagrado no Brasil: tinha vencido o Jabuti de Romance e o Livro do Ano em 2016, ficado em segundo no Oceanos e entrado na lista do Prêmio São Paulo. No agradecimento, Fuks lembrou que Saramago o fez rir e chorar e que tratou a escrita como forma de resistência. O ministro da Cultura, Luís Filipe de Castro Mendes, esteve presente.
+O júri teve Ana Paula Tavares, António Mega Ferreira, Manuel Frias Martins, Paula Cristina Costa, Nazaré Gomes dos Santos, Nélida Piñon e Pilar del Río. Como a base registra a primeira edição do livro, a brasileira, a obra aparece com editora do Brasil, embora não se saiba qual edição foi inscrita.
+Fontes: https://arquivo.pt/wayback/20171025192933/https://dn.pt/artes/interior/brasileiro-julian-fuks-vence-premio-jose-saramago-com-romance-a-resistencia-8870810.html ; https://www.publico.pt/2017/10/25/culturaipsilon/noticia/premio-literario-jose-saramago-para-julian-fuks-1790178
+
+- Prémio Literário José Saramago, 1º lugar: A Resistência, de Julián Fuks (Companhia das Letras)
+
+### Prémio Literário José Saramago 2019
+
+Formato: 1999–2019 livro publicado: um romance ou novela de autor até 35 anos à data da publicação, 1ª edição nos dois anos anteriores em país lusófono; só o vencedor é anunciado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2019/
+
+Em 8 de outubro de 2019, na Casa dos Bicos, o Prêmio José Saramago foi para Pão de Açúcar, de Afonso Reis Cabral, publicado pela Dom Quixote em setembro de 2018. O romance parte de um caso real: o assassinato de Gisberta, uma mulher transexual, no Porto, em 2006, depois de agressões cometidas por adolescentes. Para Ana Paula Tavares, o livro tira do esquecimento o que jornais e relatórios policiais trataram de forma parcial.
+Aos 29 anos, Reis Cabral somava ao Saramago o LeYa de 2014, conquistado com O Meu Irmão. No discurso, criticou leituras que julgam os livros pelos bons sentimentos de quem os escreve. Manuel Frias Martins fez o elogio da obra, que também esteve na lista do Oceanos daquele ano.
+Foi a última edição dedicada a livros já publicados, ainda com limite de 35 anos e 25 mil euros. O júri, presidido por Guilhermina Gomes, teve Ana Paula Tavares, António Mega Ferreira, Nélida Piñon e Pilar del Río. Em 2021, a pandemia adiou a edição seguinte, que voltaria em 2022 com outras regras.
+Fontes: https://observador.pt/2019/10/08/afonso-reis-cabral-vence-premio-literario-jose-saramago/ ; https://www.rtp.pt/noticias/cultura/afonso-reis-cabral-vence-o-premio-jose-saramago-com-o-romance-pao-de-acucar_n1177844 ; https://www.publico.pt/2021/11/24/culturaipsilon/noticia/premio-jose-saramago-vai-passar-valer-40-mil-euros-1986251 ; https://www.publico.pt/2022/11/14/culturaipsilon/noticia/escritor-brasileiro-rafael-gallo-vence-premio-jose-saramago-2022-2027684
+
+- Prémio Literário José Saramago, 1º lugar: Pão de Açúcar, de Afonso Reis Cabral (Dom Quixote (PT))
+
+### Prémio Literário José Saramago 2022
+
+Formato: 2022– romance inédito (inscrição com pseudónimo) de autor até 40 anos; só o vencedor é revelado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2022/
+
+O Prêmio José Saramago voltou em 2022, ano do centenário do escritor, transformado. Desde novembro de 2021, passou a premiar romances inéditos, inscritos com pseudônimo, de autores de até 40 anos, com 40 mil euros e publicação pela Porto Editora e pela Globo Livros. O júri final passou a ser formado por vencedores anteriores: José Luís Peixoto, Gonçalo M. Tavares, Valter Hugo Mãe, João Tordo e Bruno Vieira Amaral, com Guilhermina Gomes, Pilar del Río e Nélida Piñon como membro honorário.
+Em 14 de novembro, no Centro Cultural de Belém, venceu Dor Fantasma, do brasileiro Rafael Gallo, inscrito como Pestana. Gallo contou que já tinha concorrido em 2017 com Rebentar, aos 35 anos, e achava que nunca mais poderia tentar; as novas regras lhe deram uma última chance. Rebentar tinha ganhado o Prêmio São Paulo de Literatura em 2016, e o livro de contos Réveillon e Outros Dias, o Prêmio Sesc em 2012.
+Bruno Vieira Amaral, em nome do júri, justificou a escolha. Publicado em 2023, Dor Fantasma ficaria em terceiro lugar no Prêmio Biblioteca Nacional daquele ano.
+Fontes: https://www.publico.pt/2022/11/14/culturaipsilon/noticia/escritor-brasileiro-rafael-gallo-vence-premio-jose-saramago-2022-2027684 ; https://www.publico.pt/2021/11/24/culturaipsilon/noticia/premio-jose-saramago-vai-passar-valer-40-mil-euros-1986251
+
+- Prémio Literário José Saramago, 1º lugar: Dor fantasma, de Rafael Gallo
+
+### Prémio Literário José Saramago 2024
+
+Formato: 2022– romance inédito (inscrição com pseudónimo) de autor até 40 anos; só o vencedor é revelado. 1 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/saramago/2024/
+
+A 13.ª edição do Prêmio José Saramago foi entregue em 19 de novembro de 2024 no grande auditório do Centro Cultural de Belém, a mesma sala onde o Estado português homenageara Saramago em 1998, ano do Nobel. Venceu Morramos ao Menos no Porto, romance inédito de Francisco Mota Saraiva, que a Porto Editora lançaria em 2025, e a Globo Livros no Brasil.
+Nascido em Coimbra em 1988, jurista e consultor, Mota Saraiva tinha recebido uma bolsa de criação literária da Direção-Geral do Livro em 2021, e o seu primeiro romance, Aqui Onde Canto e Ardo, ganhara o Prêmio Revelação Agustina Bessa-Luís em 2023 e chegaria à lista do Oceanos em 2025. Adriana Lisboa, jurada desta edição, falou de um estilo muito próprio, quase um idioma particular.
+O júri reuniu dois vencedores anteriores, Adriana Lisboa e Paulo José Miranda, além de Pilar del Río, Guilhermina Gomes na presidência e Lídia Jorge como membro honorário. Como nas edições de inéditos, só o vencedor foi revelado, e o número exato de candidaturas não foi divulgado.
+Fontes: https://www.dn.pt/cultura/escritor-portugues-francisco-mota-saraiva-vence-premio-jose-saramago-2024 ; https://jornaleconomico.sapo.pt/?p=1239030
+
+- Prémio Literário José Saramago, 1º lugar: Morramos ao menos no porto, de Francisco Mota Saraiva
+
+## Prêmios da Academia Brasileira de Letras
+
+Organizador: Academia Brasileira de Letras (ABL). Página: https://literadados.gustavosimas.com/premios/abl/
+
+### Prêmios da Academia Brasileira de Letras 1999
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/1999/
+
+Em 1999 começa a série dos prêmios por livro da Academia Brasileira de Letras registrados nesta base. O banco de prêmios da ABL traz, além do Machado de Assis, dado pela trajetória, láureas de ficção, poesia, ensaio e literatura infantojuvenil, todas decididas por comissões de acadêmicos, sem inscrição nem lista pública de finalistas.
+Fernando Sabino, autor de O encontro marcado, recebeu o Machado de Assis em 20 de julho, numa solenidade na sede da Academia, no Rio, e anunciou que doaria os R$ 40 mil do prêmio a crianças carentes. Uma nota da Folha registrou que Nauro Machado seria premiado em poesia no mesmo dia, pela Antologia poética.
+Em ficção, venceu Sergio Faraco, com Dançar tango em Porto Alegre (L&PM); o banco da ABL grafa o título de outro modo, como Danças tango em Buenos Aires, e a base segue a edição do livro. O prêmio infantojuvenil coube a Mauricio de Sousa por A Turma da Mônica, que é o nome da série de quadrinhos, não de um volume específico. O ensaio premiado foi o de Cláudio Veiga sobre Philéas Lebesgue.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=1999&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/fsp/ilustrad/fq21079924.htm ; http://www1.folha.uol.com.br/fsp/ilustrad/fq02079909.htm
+
+- Prêmio ABL de Ficção, 1º lugar: Dançar tango em Porto Alegre, de Sergio Faraco (L&PM Editores)
+- Prêmio ABL de Poesia, 1º lugar: Antologia poética, de Nauro Machado
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: A Turma da Mônica, de Mauricio de Sousa
+
+### Prêmios da Academia Brasileira de Letras 2000
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 4 pessoas-autoras; 25% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2000/
+
+O baiano Antônio Torres, autor de Essa terra, foi o escolhido da ABL em julho de 2000 para o Prêmio Machado de Assis, de R$ 50 mil, dado pelo conjunto da obra. A Folha antecipou o nome dias antes da votação em plenário, que os acadêmicos tratavam como formalidade, e a escolha foi confirmada em 13 de julho.
+Nos prêmios por livro, a poesia foi dividida entre Dora Ferreira da Silva, pela Poesia reunida (Topbooks), livro que também aparece na lista do Jabuti daquele ano, e Moacyr Scliar, por Singular plural. O segundo caso intriga: Scliar é conhecido como prosador, e nenhuma fonte além do banco da própria Academia, e de cópias dele, confirma esse livro de poemas. A ficção ficou com Mosaico em branco e preto, de Clair de Mattos, nome que só aparece no banco da ABL e não deve ser confundido com Cyro de Mattos. Manoel de Barros levou o prêmio infantojuvenil com Exercícios de ser criança. No ensaio, o premiado foi Nelson Mello e Souza.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2000&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/fsp/ilustrad/fq1107200029.htm ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u2024.shtml ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u1975.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Mosaico em branco e preto, de Clair de Mattos
+- Prêmio ABL de Poesia, 1º lugar: Poesia Reunida, de Dora Ferreira da Silva (TopBooks)
+- Prêmio ABL de Poesia, 1º lugar: Singular plural, de Moacyr Scliar
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Exercícios de ser criança, de Manoel de Barros
+
+### Prêmios da Academia Brasileira de Letras 2001
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2001/
+
+Um ano depois de receber o Hans Christian Andersen, o mais importante prêmio internacional de literatura infantil, Ana Maria Machado ganhou em 2001 o Machado de Assis, concedido pela ABL ao conjunto da obra. Nos anos seguintes, ela apareceria com frequência do outro lado da mesa, em comissões julgadoras da Academia.
+Na ficção, o sergipano Marcos Santarrita venceu com Mares do Sul (Record), romance passado na região de Ilhéus, onde revoltas de escravizados muçulmanos malês desafiam os senhores de engenho entre o fim do século XVIII e o início do XIX. A Folha registrou que o livro foi um dos primeiros romances brasileiros publicados em folhetim na internet. Nascido em Aracaju e criado no sul da Bahia, Santarrita era também tradutor de Stendhal, Conrad e Henry James.
+Luiz de Miranda ganhou a poesia com Trilogia do azul, do mar, da madrugada e da ventania... (Sulina), livro que também estava na lista do Jabuti de 2001, e Ruth Rocha levou o infantojuvenil com sua adaptação da Odisseia de Homero. O banco da ABL registra ainda o prêmio de ensaio para Octavio Ianni.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2001&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u15476.shtml ; https://pt.wikipedia.org/wiki/Ana_Maria_Machado
+
+- Prêmio ABL de Ficção, 1º lugar: Mares do Sul, de Marcos Santarrita (Editora Record)
+- Prêmio ABL de Poesia, 1º lugar: Trilogia do azul, do mar, da madrugada e da ventania..., de Luiz de Miranda (Sulina)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Odisseia, de Ruth Rocha
+
+### Prêmios da Academia Brasileira de Letras 2002
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 4 pessoas-autoras; 25% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2002/
+
+Julho de 2002 agitou a Academia: no dia 25, Paulo Coelho, autor de O alquimista, foi eleito para uma cadeira da ABL; a Folha lembrava que, segundo o site oficial do escritor, ele já vendera 37 milhões de exemplares no mundo. No mesmo ano, o Prêmio Machado de Assis, dado pelo conjunto da obra, coube a Wilson Martins.
+Os prêmios por livro de 2002 são conhecidos quase só pelo banco de prêmios da própria Academia. A ficção ficou com Invasões no carrossel, de Rui Mourão. A poesia foi dividida entre Chamados e escolhidos, de Afonso Félix de Sousa, e O signo da serpente, de Fernando Ferreira de Loanda; a pt.wikipedia situa o prêmio de Afonso Félix de Sousa em 2001, talvez pelo ano do livro. Roseana Murray venceu o infantojuvenil com Jardins; o banco credita também Roger Mello, que ilustrou o livro e entra na base como ilustrador. O ensaio premiado foi Tobias Barreto e a filosofia alemã, de Newton Sucupira.
+Sem cobertura de imprensa localizada para esses prêmios, o retrato da edição fica restrito aos nomes e títulos.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2002&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u25975.shtml ; https://pt.wikipedia.org/wiki/Afonso_F%C3%A9lix_de_Sousa
+
+- Prêmio ABL de Ficção, 1º lugar: Invasões no carrossel, de Rui Mourão
+- Prêmio ABL de Poesia, 1º lugar: Chamados e escolhidos, de Afonso Félix de Sousa
+- Prêmio ABL de Poesia, 1º lugar: O signo da serpente, de Fernando Ferreira de Loanda
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Jardins, de Roseana Murray
+
+### Prêmios da Academia Brasileira de Letras 2003
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 5 pessoas-autoras; 20% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2003/
+
+Os prêmios da ABL de 2003 foram anunciados em 12 de junho e entregues em 17 de julho, no Salão Nobre do Petit Trianon, sede da Academia no Rio. O Machado de Assis, de R$ 75 mil, pelo conjunto da obra, foi para o poeta, crítico e memorialista carioca Antonio Carlos Villaça. No ensaio, venceu Elio Gaspari, com A ditadura envergonhada e A ditadura escancarada.
+Foi um ano de prêmios divididos. Na ficção, Ana Miranda, por Dias e Dias (Companhia das Letras), e Bernardo Ajzenberg, por A gaiola de Faraday (Rocco); a Folha lembrou que Ajzenberg era então ombudsman do jornal. O livro de Ana Miranda também venceu o Jabuti de romance daquele ano. Na poesia, dividiram o prêmio Fabrício Carpinejar, com Biografia de uma árvore, e Antonio Carlos Secchin, com Todos os ventos (Nova Fronteira), que já levara o prêmio de poesia da Biblioteca Nacional em 2002. Ziraldo ficou com o infantojuvenil por Menina Nina. A pt.wikipedia põe o prêmio de Carpinejar em 2004, mas o banco da ABL e a Folha dão 2003.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2003&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u34027.shtml ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u34326.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: A gaiola de Faraday, de Bernardo Ajzenberg (Rocco)
+- Prêmio ABL de Ficção, 1º lugar: Dias e Dias, de Ana Miranda (Companhia das Letras)
+- Prêmio ABL de Poesia, 1º lugar: Biografia de uma árvore, de Fabrício Carpinejar
+- Prêmio ABL de Poesia, 1º lugar: Todos os ventos, de Antonio Carlos Secchin (Nova Fronteira)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Menina Nina, de Ziraldo
+
+### Prêmios da Academia Brasileira de Letras 2004
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 5 pessoas-autoras; 20% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2004/
+
+O Prêmio Machado de Assis de 2004, pelo conjunto da obra, foi para o piauiense Francisco de Assis Brasil, que não deve ser confundido com o gaúcho Luiz Antonio de Assis Brasil. Foi também o ano em que Marcos Santarrita, vencedor de ficção em 2001, voltou ao banco de prêmios da ABL, agora pelo conjunto de seu trabalho como tradutor.
+A edição repetiu os empates de 2003. A ficção foi dividida entre João Gilberto Noll, por Mínimos, múltiplos, comuns (W11), e Cantos de outono, de Ruy Câmara (Record), romance sobre a vida de Lautréamont. A poesia ficou com Astrid Cabral, por Raso d'água, e Alexei Bueno, pela Poesia reunida (Nova Fronteira). Bartolomeu Campos de Queirós venceu o infantojuvenil com Até o passarinho passa.
+Os mesmos livros circularam no Jabuti daquele ano: o de Noll venceu em Contos, a Poesia reunida de Alexei Bueno em Poesia, e os de Ruy Câmara e Bartolomeu Campos de Queirós estavam nas listas de Romance e de Infantil e Juvenil. No ensaio, a Academia premiou Wanderley Guilherme dos Santos.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2004&field_tipo_de_premio_tid=All ; https://pt.wikipedia.org/wiki/Francisco_de_Assis_Almeida_Brasil
+
+- Prêmio ABL de Ficção, 1º lugar: Cantos de Outono, de Ruy Câmara (Editora Record)
+- Prêmio ABL de Ficção, 1º lugar: Mínimos, Múltiplos, Comuns, de João Gilberto Noll (W11)
+- Prêmio ABL de Poesia, 1º lugar: Poesia Reunida, de Alexei Bueno (Nova Fronteira)
+- Prêmio ABL de Poesia, 1º lugar: Raso d'água, de Astrid Cabral
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Até o Passarinho Passa, de Bartolomeu Campos de Queirós
+
+### Prêmios da Academia Brasileira de Letras 2005
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 4 pessoas-autoras; 50% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2005/
+
+A ABL comemorou 108 anos em 20 de julho de 2005 entregando o Machado de Assis ao poeta e crítico Ferreira Gullar, pelo conjunto da obra, com R$ 75 mil. Os vencedores dos prêmios por livro, escolhidos por comissões de acadêmicos entre obras do ano anterior, receberam R$ 36 mil cada. O orador da sessão foi Alfredo Bosi.
+Cristovão Tezza venceu em ficção com O fotógrafo (Rocco), romance que também ficou em terceiro no Jabuti de 2005 e apareceu na lista do Portugal Telecom; 21 anos depois, o mesmo Tezza receberia o Machado de Assis. Na poesia, o prêmio foi novamente dividido, entre Neide Archanjo, por Todas as horas e antes (A Girafa), segunda colocada no Jabuti, e Vera Lúcia de Oliveira, por A chuva nos ruídos; a premiada é a poeta radicada em Perugia, não a pesquisadora Vera Lúcia de Oliveira Lins. Rogério Andrade Barbosa levou o infantojuvenil com Contos africanos para crianças brasileiras, e Mário Chamie, o de ensaio, crítica e história literária.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2005&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u52094.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: O Fotógrafo, de Cristovão Tezza (Rocco)
+- Prêmio ABL de Poesia, 1º lugar: A chuva nos ruídos, de Vera Lúcia de Oliveira
+- Prêmio ABL de Poesia, 1º lugar: Todas as Horas e Antes, de Neide Archanjo (A Girafa)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Contos africanos para crianças brasileiras, de Rogério Andrade Barbosa
+
+### Prêmios da Academia Brasileira de Letras 2006
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2006/
+
+Em 2006 a Academia divulgou seus prêmios aos poucos. Em 27 de abril, conferiu o de poesia a Elegia de agosto e outros poemas, de Ruy Espinheira Filho (Bertrand Brasil), escolhido por comissão presidida por Lêdo Ivo, com Ivan Junqueira e Antonio Carlos Secchin como relatores; o livro também foi segundo colocado no Jabuti daquele ano. Em junho, a comissão de Nélida Piñon, Ana Maria Machado e Moacyr Scliar deu o de ficção a Olho de rei, de Edgard Telles Ribeiro (Record), parecer acolhido por unanimidade no plenário. O romance acompanha um francês que foge do nazismo para o Brasil e trabalha como garçom, cabeleireiro e camareiro de um senador; terminaria o ano em terceiro no Jabuti de romance.
+Rui de Oliveira, autor e ilustrador, venceu o infantojuvenil com Cartas lunares (Record), também na lista do Jabuti; o banco da ABL grafa o nome como Rio de Oliveira. O Machado de Assis, pelo conjunto da obra, foi para César Leal. O banco registra ainda prêmios de ensaio, tradução e história e ciências sociais.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2006&field_tipo_de_premio_tid=All ; https://www.academia.org.br/noticias/premio-abl-de-poesia2006-e-dado-ao-livro-elegia-de-agosto-e-outros-poemas-de-ruy-espinheira ; http://www1.folha.uol.com.br/folha/ilustrada/ult90u61111.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Olho de Rei, de Edgard Telles Ribeiro (Editora Record)
+- Prêmio ABL de Poesia, 1º lugar: Elegia de Agosto, de Ruy Espinheira Filho (Bertrand Brasil)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Cartas Lunares, de Rui de Oliveira (Editora Record)
+
+### Prêmios da Academia Brasileira de Letras 2007
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 4 pessoas-autoras; 25% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2007/
+
+A ABL divulgou os vencedores de 2007 no início de junho. O Machado de Assis, pelo conjunto da obra, foi para o ensaísta Roberto Cavalcanti de Albuquerque, e os prêmios por livro pagaram R$ 36 mil a cada vencedor.
+Rubem Fonseca ganhou em ficção com os contos de Ela e as outras; o parecer da comissão destacou os flagrantes da vida urbana, com seu ritmo, sua violência e suas desigualdades. Oito anos depois, ele próprio receberia o Machado de Assis. A poesia foi mais uma vez dividida, entre Alberto da Cunha Melo, por O cão dos olhos amarelos, e Adriano Espínola, por Praia provisória. No infantojuvenil, a comissão premiou Quando eu era pequena, de Adélia Prado, e observou que era a primeira incursão da poeta no livro infantil, obra encontrada entre seus textos. Adélia voltaria a ser premiada pela Academia em 2024, com o Machado de Assis. Francisco Weffort levou o prêmio de ensaio com Formação do pensamento político brasileiro.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2007&field_tipo_de_premio_tid=All ; https://www.academia.org.br/noticias/academia-brasileira-de-letras-divulga-vencedores-dos-premios-abl-2007
+
+- Prêmio ABL de Ficção, 1º lugar: Ela e as outras, de Rubem Fonseca
+- Prêmio ABL de Poesia, 1º lugar: O cão dos olhos amarelos, de Alberto da Cunha Melo
+- Prêmio ABL de Poesia, 1º lugar: Praia provisória, de Adriano Espínola
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Quando eu era pequena, de Adélia Prado
+
+### Prêmios da Academia Brasileira de Letras 2008
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 0% mulheres (0); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2008/
+
+Os prêmios da ABL de 2008 saíram em duas levas. Em 5 de junho, a Academia anunciou seis categorias, entre elas o Machado de Assis, de R$ 100 mil, para o romancista mineiro Autran Dourado, pelo conjunto da obra. Uma semana depois vieram o de ensaio, para Laurentino Gomes por 1808, sobre a vinda da corte portuguesa ao Brasil, e o de cinema. Ao todo, oito prêmios seriam entregues em 17 de julho, quando a ABL completava 111 anos.
+Na ficção, venceu José Alcides Pinto, com Tempo dos mortos. A poesia ficou com Izacyl Guimarães Ferreira, por Discurso urbano. O infantojuvenil foi para O olho bom do menino, do escritor indígena Daniel Munduruku. A lista se completava com tradução, dividida entre Agenor Soares dos Santos e Leonardo Fróes, e com o Prêmio Francisco Alves, voltado à educação e à língua portuguesa.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2008&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2008/06/411870-academia-brasileira-de-letras-divulga-premios-de-ensaio-e-cinema.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Tempo dos mortos, de José Alcides Pinto
+- Prêmio ABL de Poesia, 1º lugar: Discurso urbano, de Izacyl Guimarães Ferreira
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: O olho bom do menino, de Daniel Munduruku
+
+### Prêmios da Academia Brasileira de Letras 2009
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2009/
+
+Em 7 de maio de 2009, uma comissão presidida por Marcos Vilaça, com Lêdo Ivo, Nélida Piñon, Alberto da Costa e Silva e Moacyr Scliar, escolheu o catarinense Salim Miguel para o Machado de Assis, de R$ 100 mil, pelo conjunto da obra. Os demais prêmios valiam R$ 50 mil cada; somados, chegavam a R$ 450 mil, segundo o PublishNews. A entrega foi marcada para 23 de julho, no Petit Trianon.
+Silviano Santiago venceu em ficção com o romance Heranças (Rocco), que naquele ano também esteve nas listas do Jabuti e do São Paulo de Literatura e foi finalista do Portugal Telecom; quatro anos depois, ele receberia o Machado de Assis. Denise Emmer levou a poesia com Lampadário (7Letras), que o banco da ABL grafa por engano como Lamparádio. No infantojuvenil, o premiado foi Cordelinho, de Francisco de Salles Araújo, que reúne duas histórias em versos de cordel; vindo da Paraíba para o Rio, ele era membro da Academia Brasileira de Literatura de Cordel. A comissão elogiou também as xilogravuras de Ciro Fernandes, que entra na base como ilustrador.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2009&field_tipo_de_premio_tid=All ; https://www.academia.org.br/noticias/abl-divulga-premios-literarios-de-2009 ; https://www.publishnews.com.br/materias/2009/07/22/27741-academia-entrega-r-450-mil-em-premios
+
+- Prêmio ABL de Ficção, 1º lugar: Heranças, de Silviano Santiago (Rocco)
+- Prêmio ABL de Poesia, 1º lugar: Lampadário, de Denise Emmer (7Letras)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Cordelinho, de Francisco de Salles Araújo
+
+### Prêmios da Academia Brasileira de Letras 2010
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2010/
+
+Os vencedores de 2010 foram anunciados no início de junho, para entrega em 20 de julho, no 113º aniversário da ABL. O crítico literário Benedito Nunes recebeu o Machado de Assis, pelo conjunto da obra: diploma, R$ 100 mil e um pequeno busto de Machado feito pelo escultor Mário Agostinelli. Os prêmios por livro pagavam R$ 50 mil.
+Ana Maria Machado, João Ubaldo Ribeiro e Luiz Paulo Horta escolheram em ficção Outra vida (Alfaguara), de Rodrigo Lacerda, romance breve que já fora segundo colocado no prêmio da Biblioteca Nacional e terminaria o ano em segundo no Portugal Telecom. Arnaldo Niskier, Murilo Melo Filho e Cícero Sandroni deram o infantojuvenil a Marginal à esquerda (RHJ), da escritora e ilustradora mineira Angela Lago, também segunda colocada no Jabuti. Em poesia, Lêdo Ivo, Affonso Arinos de Mello Franco e Alberto da Costa e Silva premiaram A máquina das mãos (7Letras), do maranhense Ronaldo Costa Fernandes. É o único ano da base com as comissões de todos os prêmios divulgadas.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2010&field_tipo_de_premio_tid=All ; https://www.publishnews.com.br/materias/2010/06/07/58167-premio-abl-anuncia-vencedores ; https://www.academia.org.br/noticias/abl-concede-ao-critico-literario-benedito-nunes-o-premio-machado-de-assis-de-2010
+
+- Prêmio ABL de Ficção, 1º lugar: Outra Vida, de Rodrigo Lacerda (Alfaguara)
+- Prêmio ABL de Poesia, 1º lugar: A máquina das mãos, de Ronaldo Costa Fernandes (7Letras)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Marginal à Esquerda, de Angela Lago (RHJ Livros)
+
+### Prêmios da Academia Brasileira de Letras 2011
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2011/
+
+Em 16 de junho de 2011 a ABL anunciou os vencedores do ano. O historiador Carlos Guilherme Mota, professor da USP e diretor-fundador do Instituto de Estudos Avançados da universidade, ficou com o Machado de Assis, de R$ 100 mil, pelo conjunto da obra; os demais premiados receberiam R$ 30 mil cada, em julho, na sede da Academia, no Rio.
+A escritora e tradutora Elvira Vigna venceu em ficção com o romance Nada a dizer (Companhia das Letras), finalista do Portugal Telecom daquele ano. A poesia foi para Salgado Maranhão, com A cor da palavra (Imago), livro que estivera na lista do Jabuti de 2010. No infantojuvenil, o premiado foi Ferreira Gullar, com Zoologia bizarra: seis anos depois do Machado de Assis, o poeta voltava a ser premiado pela Academia, agora por um livro para crianças. Sergio Flaksman levou a tradução com O amante de Lady Chatterley, de D. H. Lawrence, e Ronaldes de Melo e Souza, o ensaio.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2011&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2011/06/931168-historiador-carlos-guilherme-mota-vence-premio-da-abl.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Nada a dizer, de Elvira Vigna (Companhia das Letras)
+- Prêmio ABL de Poesia, 1º lugar: A Cor da Palavra, de Salgado Maranhão (Imago Editora)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Zoologia bizarra, de Ferreira Gullar
+
+### Prêmios da Academia Brasileira de Letras 2012
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2012/
+
+O resultado de ficção de 2012 escapou antes da hora: em 31 de maio, a Record informou à imprensa que O senhor do lado esquerdo, de Alberto Mussa, era o escolhido, e a ABL confirmou, dizendo que o anúncio oficial só viria com todas as categorias definidas. O júri foi formado por Ana Maria Machado, então presidente da Academia, Nélida Piñon e João Ubaldo Ribeiro. O romance, um thriller sobre o assassinato de um secretário da Presidência num prostíbulo carioca em 1913, já vencera o prêmio da Biblioteca Nacional.
+Em 6 de junho saiu o Machado de Assis, pelo conjunto da obra, para o contista curitibano Dalton Trevisan, que no mesmo ano recebeu o Camões. A Folha chamou a láurea de "Machado de Assis 2011"; o banco e o relatório da ABL a registram em 2012. Manoel de Barros, premiado no infantojuvenil em 2000, levou desta vez a poesia, com Escritos em verbal de ave (LeYa), e Marisa Lajolo venceu o infantojuvenil com O poeta do exílio.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2012&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2012/05/1098387-editora-divulga-vencedor-de-premio-da-abl-antes-da-instituicao.shtml ; http://www1.folha.uol.com.br/ilustrada/2012/06/1101207-dalton-trevisan-vence-premio-da-abl-e-leva-r-100-mil.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: O senhor do lado esquerdo, de Alberto Mussa (Editora Record)
+- Prêmio ABL de Poesia, 1º lugar: Escritos em verbal de ave, de Manoel de Barros (LeYa)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: O poeta do exílio, de Marisa Lajolo
+
+### Prêmios da Academia Brasileira de Letras 2013
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 3 pessoas-autoras; 33% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2013/
+
+Em 2 de julho de 2013, a ABL anunciou o Machado de Assis para o mineiro Silviano Santiago, romancista, contista e crítico, que receberia R$ 100 mil pelo conjunto da obra; os demais vencedores ganhariam R$ 50 mil cada, na cerimônia de 18 de julho, na sede da Academia. Quatro anos antes, Santiago vencera ali o prêmio de ficção com Heranças.
+Lya Luft ficou com o prêmio de ficção, romance, teatro e conto por O tigre na sombra. Em poesia, venceu Antonio Cicero, com Porventura (Record), que no mesmo ano foi terceiro no Jabuti e finalista do Portugal Telecom. O infantojuvenil coube a Luiz Raul Machado, por As 17 cores do branco. Nas outras categorias, o ensaio foi dividido entre Pedro Meira Monteiro e Lúcia Bettencourt; Caetano Galindo levou a tradução, pelo Ulysses de James Joyce, e Sidney Chalhoub, a de história e ciências sociais, com A força da escravidão.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2013&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2013/07/1304918-escritor-silviano-santiago-e-o-vencedor-do-premio-machado-de-assis-da-abl.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: O tigre na sombra, de Lya Luft
+- Prêmio ABL de Poesia, 1º lugar: Porventura, de Antonio Cicero (Editora Record)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: As 17 cores do branco, de Luiz Raul Machado
+
+### Prêmios da Academia Brasileira de Letras 2014
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 4 pessoas-autoras; 50% mulheres (2); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2014/
+
+O cientista político pernambucano Vamireh Chacon, professor emérito da Universidade de Brasília, foi anunciado em 7 de julho de 2014 como vencedor do Machado de Assis, pelo conjunto da obra, com R$ 100 mil. A entrega, com R$ 50 mil para os vencedores das demais categorias, foi marcada para 17 de julho, na sede da ABL, no Rio.
+Luiz Vilela venceu em ficção com a coletânea de contos Você verá (Record), segunda colocada em Contos no Jabuti do mesmo ano. A poesia foi para Gabriel Nascente, por A biografia da cinza (Kelps). O infantojuvenil teve prêmio dividido, o único empate da categoria entre 1999 e 2015: Tatiana Salem Levy, por Tanto mar (Record), e Mirna Pinsky, por Um menino, sua amiga, um fichário e dois preás (FTD). Entre os demais premiados estavam João Cezar de Castro Rocha, em ensaio, com um estudo sobre Machado de Assis, e Lilia Moritz Schwarcz, em história e ciências sociais.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2014&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2014/07/1482515-cientista-politico-vamireh-chacon-vence-premio-machado-de-assis.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Você Verá, de Luiz Vilela (Editora Record)
+- Prêmio ABL de Poesia, 1º lugar: A biografia da cinza, de Gabriel Nascente (Editora Kelps)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Tanto mar, de Tatiana Salem Levy (Editora Record)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: Um menino, sua amiga, um fichário e dois preás, de Mirna Pinsky (FTD Educação)
+
+### Prêmios da Academia Brasileira de Letras 2015
+
+Formato: 1999–2015 prêmios por gênero e Machado de Assis. 2 pessoas-autoras; 50% mulheres (1); pelo menos 0 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2015/
+
+A edição de 2015 foi a última com prêmios por gênero: no ano seguinte, a Academia passou a conceder apenas o Machado de Assis, e os prêmios por livro só voltariam em 2026. Em 16 de julho, Rubem Fonseca, aos 90 anos, fez uma rara aparição pública no país para receber o Machado de Assis, de R$ 100 mil, pelo conjunto da obra. Nunca se candidatou à ABL e, perguntado por quê, definiu-se como "um homem idiossincrático", segundo a Folha. Recusou entrevistas, mas posou para fotos e selfies, inclusive com acadêmicos.
+Ana Miranda, premiada em ficção em 2003, voltou a vencer com Musa praguejadora: a vida de Gregório de Matos (Record), livro que também estava na lista do Portugal Telecom. Nelson Cruz, autor e ilustrador, ficou com o infantojuvenil por O livro do acaso. A poesia não teve premiado naquele ano.
+Fontes: https://www.academia.org.br/academia/premios?field_ano_value=2015&field_tipo_de_premio_tid=All ; http://www1.folha.uol.com.br/ilustrada/2015/07/1656807-sou-um-homem-idiossincratico-afirma-rubem-fonseca-na-abl.shtml ; http://www1.folha.uol.com.br/ilustrada/2016/07/1789569-ignacio-de-loyola-brandao-vence-premio-da-abl-por-conjunto-da-obra.shtml
+
+- Prêmio ABL de Ficção, 1º lugar: Musa praguejadora: a vida de Gregório de Matos, de Ana Miranda (Editora Record)
+- Prêmio ABL de Literatura Infantojuvenil, 1º lugar: O livro do acaso, de Nelson Cruz
+
+### Prêmios da Academia Brasileira de Letras 2026
+
+Formato: 2026– Machado de Assis e prêmios por livro (Guimarães Rosa, Manuel Bandeira). 2 pessoas-autoras; 50% mulheres (1); pelo menos 1 pessoas negras. Página: https://literadados.gustavosimas.com/premios/abl/2026/
+
+Dez anos depois de concentrar tudo no Machado de Assis, a ABL voltou a premiar livros em 2026, com três prêmios novos para obras publicadas em primeira edição em 2025. Nesta edição inaugural, os vencedores foram escolhidos diretamente pelos acadêmicos. O resultado saiu na noite de 12 de junho, e a entrega foi marcada para 23 de julho, nos 129 anos da Academia.
+Eliana Alves Cruz foi a primeira vencedora do Prêmio Guimarães Rosa, de ficção, com Meridiana (Companhia das Letras), romance narrado pelas vozes de uma família negra que troca a favela por um condomínio de classe média; a comissão o chamou de "odisseia, ou anti-odisseia". Meses depois, o livro venceria também o Jabuti de Romance Literário. O baiano Fabrício Oliveira levou o Prêmio Manuel Bandeira, de poesia, com Noite obscena (Mondrongo). O terceiro prêmio novo, Euclides da Cunha, de humanidades, foi para Caetano Galindo e fica fora do recorte deste painel. Não houve prêmio infantojuvenil.
+O Machado de Assis, pela trajetória, ficou com Cristovão Tezza, que a ABL já premiara em ficção em 2005.
+Fontes: https://www.publishnews.com.br/materias/2026/06/15/eliana-alves-cruz-vence-premio-guimaraes-rosa-da-abl-com-meridiana ; https://www.publishnews.com.br/materias/2026/06/19/cristovao-tezza-recebe-o-premio-machado-de-assis-2026-pelo-conjunto-da-obra
+
+- Prêmio Guimarães Rosa, 1º lugar: Meridiana, de Eliana Alves Cruz (Companhia das Letras)
+- Prêmio Manuel Bandeira, 1º lugar: Noite obscena, de Fabrício Oliveira (Mondrongo)
 

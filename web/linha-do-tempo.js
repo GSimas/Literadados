@@ -10,7 +10,7 @@ const INDICADORES = [
   { k: "pctSudeste", n: "sudeste", t: "comUF", rot: "Nascidas no Sudeste", cor: "--s3" },
 ];
 // Rótulo curto do regime no cartão do ano; regime sem rótulo curto aparece como veio dos dados.
-const ROT_REGIME = { "1959–1992 vencedor por categoria": "vencedor único", "1993–2009 pódio": "pódio 1º–3º", "2010–2017 pódio": "pódio 1º–3º", "2018 transição": "transição", "2019–2025 vencedor único": "vencedor único" };
+const ROT_REGIME = { "1959–1992 vencedor por categoria": "vencedor único", "1993–2009 pódio": "pódio 1º–3º", "2010–2017 pódio": "pódio 1º–3º", "2018 transição": "transição", "2019–2026 vencedor único": "vencedor único" };
 
 export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) {
   // Edição sem lista pública (no Jabuti, 1959–1999; CA-25.3): as participações são só dos premiados. Chave "<prêmio>|<ano>".
@@ -25,7 +25,7 @@ export function renderLinhaDoTempo(L, { D, ANOS, estado, semLista: SEM_LISTA }) 
   const estreito = largura(el) < 640;
   // Facetas: indicador nas colunas (ou empilhado no celular) e, com vários prêmios, um prêmio por linha.
   // No celular o painel junta prêmio e indicador; sem "Prêmio " no começo, o nome cabe na largura.
-  const curto = (n) => n.replace(/^Prêmio /, "");
+  const curto = (n) => M.nomeCurto(n);
   const fyRot = (d) => (estreito ? (multi ? `${curto(d.premio_nome)} · ${d.indicador}` : d.indicador) : d.premio_nome);
   const dominioFy = estreito ? ps.flatMap((p) => INDICADORES.map((i) => (multi ? `${curto(nome(p))} · ${i.rot}` : i.rot))) : ps.map(nome);
   const temFy = estreito || multi;

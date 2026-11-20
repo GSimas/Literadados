@@ -491,6 +491,10 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
 /* Ícone do tema troca com uma rotação curta. */
 #tema svg { transition: transform var(--dur-3) var(--curva-mola); }
 #tema:hover svg { transform: rotate(-20deg); }
+/* Troca de tema (tema.js): só as cores fazem transição, sem mexer em posição nem tamanho (CA-19.6). */
+html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.trocando-tema *::after {
+  transition-property: background-color, color, border-color, fill, stroke, outline-color, box-shadow !important;
+  transition-duration: var(--dur-2) !important; transition-timing-function: var(--curva) !important; }
 
 
 /* Página de método e referências (D18) */

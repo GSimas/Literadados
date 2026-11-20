@@ -30,7 +30,7 @@ export function definirDados(D) {
   CATEGORIAS.splice(0, CATEGORIAS.length, ...ORDEM_CATEGORIAS.filter((c) => presentes.has(c)),
     ...[...presentes].filter((c) => !ORDEM_CATEGORIAS.includes(c)).sort((a, b) => a.localeCompare(b, "pt-BR")));
   PREMIOS.splice(0, PREMIOS.length, ...(D.premios ?? []).map((p) => p.id));
-  for (const p of D.premios ?? []) NOME_PREMIO[p.id] = p.nome;
+  for (const p of [...(D.premios ?? []), ...(D.premios_distincao ?? [])]) NOME_PREMIO[p.id] = p.nome;
 }
 // Gráfico que junta prêmios (contagens, medianas, fluxos; CA-26.9): com mais de um prêmio no recorte, um aviso logo
 // antes do gráfico diz quantas participações vêm de cada um. Com um prêmio só, o aviso some.
@@ -57,7 +57,7 @@ export const nomePais = (iso) => { try { return (iso && PAISES?.of(iso)) || iso 
 export function nomesPremios(ids = PREMIOS) {
   const ns = ids.map((p) => NOME_PREMIO[p] ?? p);
   if (ns.length > 2) return `${ns.length} prêmios`;
-  return ns.length === 2 && ns.every((n) => /^Prêmio\s/.test(n)) ? `Prêmios ${ns.map((n) => n.replace(/^Prêmio\s+/, "")).join(" e ")}` : ns.join(" e ");
+  return ns.length === 2 && ns.every((n) => /^Prêmio\s/.test(n)) ? `Prêmios ${ns.map(M.nomeCurto).join(" e ")}` : ns.join(" e ");
 }
 // "no Prêmio Jabuti" com um prêmio só; "nos prêmios" com vários (títulos e rótulos de participação).
 export const noPremio = (ids = PREMIOS) => (ids.length === 1 ? `no ${NOME_PREMIO[ids[0]] ?? ids[0]}` : "nos prêmios");

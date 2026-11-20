@@ -29,6 +29,21 @@ JOIN autoria a        ON a.obra_id = o.id AND a.premio_id = i.premio_id  -- cré
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;
 
+CREATE VIEW v_distincao AS
+SELECT
+  d.premio_id AS premio, pr.nome AS premio_nome, d.ano, d.nome_original,
+  p.id AS pessoa_id, p.nome,
+  p.genero, COALESCE(p.genero_evidencia = 'atribuicao', FALSE) AS genero_atribuido,
+  p.raca, p.raca_busca, p.raca IN ('preta','parda','negra') AS negra,
+  p.uf_nascimento,
+  CASE WHEN p.uf_nascimento <> 'EX' THEN 'BR' ELSE p.pais_nascimento END AS pais_nascimento,
+  u.regiao AS regiao_nascimento,
+  d.ano - p.ano_nascimento AS idade_no_premio
+FROM distincao d
+JOIN premio pr ON pr.id = d.premio_id
+JOIN pessoa p  ON p.id = d.pessoa_id
+LEFT JOIN uf u ON u.uf = p.uf_nascimento;
+
 CREATE VIEW v_cobertura AS
 SELECT
   premio,

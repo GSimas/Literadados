@@ -47,6 +47,13 @@ export const MARCOS = [
   // Sesc (dados/coleta/sesc/LEIA.md): originais inéditos de estreantes
   { premio: "sesc", ano: 2006, texto: "Categoria Conto" },
   { premio: "sesc", ano: 2024, texto: "Categoria Poesia" },
+  // LeYa (dados/coleta/leya/LEIA.md): romance inédito; sem vencedor em 2010, 2016 e 2019; suspenso em 2020
+  { premio: "leya", ano: 2021, texto: "Volta depois da pausa" },
+  // Saramago (dados/coleta/saramago/LEIA.md): livro publicado até 2019, inédito desde 2022
+  { premio: "saramago", ano: 2022, texto: "Originais inéditos" },
+  // ABL (dados/coleta/abl/LEIA.md): prêmios por gênero de 1999 a 2015 e de novo em 2026
+  { premio: "abl", ano: 1999, texto: "Prêmios por gênero" },
+  { premio: "abl", ano: 2026, texto: "Guimarães Rosa e Manuel Bandeira" },
 ];
 // Formato do pódio de cada prêmio, para textos que juntam ou comparam prêmios (sempre ditos com o nome do prêmio, DA-5).
 export const FORMATOS = {
@@ -54,6 +61,9 @@ export const FORMATOS = {
   sesc: "premia originais inéditos de autores estreantes (não livros publicados), com um vencedor por categoria: romance desde 2004, conto desde 2006 e poesia desde 2024",
   "biblioteca-nacional": "um vencedor por categoria até 2008 (em 2004, um prêmio único; em 2003, nenhum), pódio de 1º a 3º em 2009–2011, só o vencedor em 2012–2016, três finalistas em 2017 e pódio de novo desde 2018; só autores brasileiros, inscritos pelo próprio autor",
   "sao-paulo": "um vencedor por categoria, só romance: Melhor Romance do Ano e Melhor Romance de Estreia (de 2013 a 2018, a estreia dividida em até 40 e mais de 40 anos)",
+  abl: "só os premiados, escolhidos por comissão de acadêmicos, sem lista pública: ficção, poesia e literatura infantojuvenil de 1999 a 2015 (com empates), e os prêmios Guimarães Rosa e Manuel Bandeira em 2026; o Prêmio Machado de Assis, pelo conjunto da obra, fica à parte",
+  leya: "premia um romance inédito por ano, inscrito com pseudônimo; a lista é parcial (só os finalistas cuja autoria foi revelada depois) e não houve vencedor em 2010, 2016 e 2019",
+  saramago: "só o vencedor é anunciado, um romance de autor jovem por edição (bienal); livro publicado até 2019 e original inédito desde 2022",
   oceanos: "o pódio teve 3 ou 4 premiados até 2022 (de 2012 a 2014, um vencedor por categoria e o Grande Prêmio); desde 2023, um vencedor em prosa e outro em poesia",
 };
 // Marcos dos prêmios escolhidos (premios = null: todos). Com a lista da base (D.premios), cada prêmio criado depois do
@@ -65,6 +75,9 @@ export const marcosDe = (premios, base = []) => {
   return [...MARCOS.filter((m) => sel.includes(m.premio)), ...inicios.filter((i) => !MARCOS.some((m) => m.premio === i.premio && m.ano === i.ano))];
 };
 
+// Nome curto do prêmio para eixos, facetas e listas: "Prêmio Jabuti" → "Jabuti", "Prémio Literário José Saramago" →
+// "José Saramago", "Prêmios da Academia Brasileira de Letras" → "Academia Brasileira de Letras".
+export const nomeCurto = (nome) => String(nome ?? "").replace(/^Pr[êé]mios?\s+(Literário\s+)?((da|de|do)\s+)?/u, "");
 const pct = (n, d) => (d ? (100 * n) / d : null);
 const contar = (arr, chave) => {
   const m = new Map();
@@ -75,7 +88,7 @@ const distintos = (arr, chave) => new Set(arr.map(chave)).size;
 
 // Junta ao dados.json as partes de outros prêmios (dados-<prêmio>.json, CA-26.14, build.dividir): cada parte traz a
 // participação do prêmio e as pessoas, obras, editoras e mídias que ainda não vieram. Devolve D (alterado).
-export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura"];
+export const CHAVES_PARTES = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura", "distincoes"];
 export function juntar(D, partes = []) {
   for (const p of partes) for (const k of CHAVES_PARTES) if (p[k]?.length) D[k] = [...(D[k] ?? []), ...p[k]];
   return D;
@@ -627,17 +640,22 @@ export function indiceBusca(D) {
   const ls = D.participacao.filter((l) => l.papel !== "organizador");
   const porPessoaId = groupBy(ls, (l) => l.pessoa_id), porObra = groupBy(ls, (l) => l.obra_id);
   const jurados = new Set(D.jurados.map((j) => j.pessoa_id));
+  // Conjunto da obra (RF-30, CA-30.4): quem só tem distinção (ou só foi júri dela) também é achado.
+  const distinguidas = groupBy(D.distincoes ?? [], (d) => d.pessoa_id);
+  for (const d of D.distincoes ?? []) for (const j of d.juri ?? []) jurados.add(j);
   // Vários prêmios (CA-26.12): edições e livros dizem de que prêmio são; "Prêmio Oceanos" → "Oceanos".
   // padrao: só para descompactar (o JSON omite o 1º prêmio da ordem); não é prêmio principal (DA-4).
   const premios = D.premios ?? [], padrao = premios[0]?.id, multi = premios.length > 1;
-  const curto = (id) => (premios.find((p) => p.id === id)?.nome ?? id ?? "").replace(/^Prêmio\s+/, "");
+  const curto = (id) => nomeCurto(premios.find((p) => p.id === id)?.nome ?? id ?? "");
   const e = [];
   const add = (tipo, rotulo, sub, href, extra = "") => e.push({ tipo, rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) });
   for (const p of D.pessoas) {
     const pl = porPessoaId.get(p.id);
-    if (!pl && !jurados.has(p.id)) continue;
+    const dl = distinguidas.get(p.id);
+    if (!pl && !dl && !jurados.has(p.id)) continue;
     const n = new Set((pl ?? []).map((l) => `${l.premio}|${l.ano}|${l.nome_original}|${l.obra_id}`)).size;
-    add("Pessoa", p.nome, [p.uf_nascimento === "EX" ? paisOuExterior(p.pais_nascimento) : p.uf_nascimento, p.ano_nascimento, n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : "jurado(a)"].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
+    const papel = n ? `${n} indicaç${n > 1 ? "ões" : "ão"}` : dl ? dl.map((d) => `${d.nome_original} ${d.ano}`).join(", ") : "jurado(a)";
+    add("Pessoa", p.nome, [p.uf_nascimento === "EX" ? paisOuExterior(p.pais_nascimento) : p.uf_nascimento, p.ano_nascimento, papel].filter(Boolean).join(" · "), `#/pessoa/${p.id}`);
   }
   for (const o of D.obras) {
     const ol = porObra.get(o.id);
@@ -795,4 +813,28 @@ export function perfilEditora(linhas, nome) {
     maisPublicados: [...autoresPorPessoa].map(([id, n]) => ({ id, nome: nomes.get(id), indicacoes: n }))
       .sort((a, b) => b.indicacoes - a.indicacoes || a.nome.localeCompare(b.nome, "pt-BR")).slice(0, 12),
   };
+}
+
+// Conjunto da obra (RF-30, CA-30.3): por prêmio, quem foi distinguido e a composição das pessoas distintas por gênero,
+// raça (negras como piso) e região de nascimento, com n. À parte das indicações de livro: nunca entra nas outras contas.
+export function distincoes(D) {
+  const ordem = [...(D.premios ?? []), ...(D.premios_distincao ?? [])].map((p) => p.id), padrao = D.premios?.[0]?.id ?? null;
+  const pessoa = new Map((D.pessoas ?? []).map((p) => [p.id, p])), regiao = new Map((D.ufs ?? []).map((u) => [u.uf, u.regiao]));
+  const out = [];
+  for (const [premio, ds] of groupBy(D.distincoes ?? [], (d) => d.premio ?? padrao)) {
+    const ps = [...new Set(ds.map((d) => d.pessoa_id))].map((id) => {
+      const p = pessoa.get(id) ?? {};
+      return { genero: p.genero ?? "nao_identificado", raca: p.raca ?? "sem_declaracao", negra: !!p.negra,
+               regiao_nascimento: regiao.get(p.uf_nascimento) ?? null, genero_atribuido: p.genero_evidencia === "atribuicao" };
+    });
+    const composicao = Object.fromEntries(Object.keys(ORDEM).map((dim) => {
+      const c = contar(ps, (p) => grupo(p, dim));
+      return [dim, ORDEM[dim].map((g) => ({ grupo: g, n: c.get(g) ?? 0, total: ps.length, pct: pct(c.get(g) ?? 0, ps.length) }))];
+    }));
+    const lista = ds.map((d) => ({ ano: d.ano, nome_original: d.nome_original, pessoa_id: d.pessoa_id, nome: pessoa.get(d.pessoa_id)?.nome ?? d.pessoa_id, fonte: d.fonte ?? null }))
+      .sort((a, b) => a.ano - b.ano || a.nome.localeCompare(b.nome, "pt-BR"));
+    out.push({ premio, nomes: [...new Set(ds.map((d) => d.nome_original))], distincoes: ds.length, pessoas: ps.length,
+               generoAtribuido: ps.filter((p) => p.genero_atribuido).length, de: lista[0].ano, ate: lista.at(-1).ano, composicao, lista });
+  }
+  return out.sort((a, b) => ordem.indexOf(a.premio) - ordem.indexOf(b.premio));
 }

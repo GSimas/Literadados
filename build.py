@@ -13,7 +13,7 @@ import seo
 
 RAIZ = Path(__file__).parent
 TABELAS = ["premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
-           "categoria_edicao", "indicacao", "jurado"]  # ordem das FKs
+           "categoria_edicao", "indicacao", "jurado", "distincao"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -58,7 +58,7 @@ def checar(con):
         SELECT c.premio_id, c.ano, c.nome_original, c.vagas_lista, c.vagas_curta, c.vagas_premio,
                COUNT(i.obra_id) AS n, SUM(i.lista_curta) AS n_curta, COUNT(i.colocacao) AS n_premio
         FROM categoria_edicao c LEFT JOIN indicacao i USING (premio_id, ano, nome_original)
-        WHERE (c.premio_id, c.ano) IN (SELECT DISTINCT premio_id, ano FROM indicacao)
+        WHERE (c.premio_id, c.ano) IN (SELECT DISTINCT premio_id, ano FROM indicacao) AND c.categoria <> 'Conjunto da obra'
         GROUP BY ALL ORDER BY c.premio_id, c.ano, c.nome_original"""):
         rotulo = f"{r['premio_id']} {r['ano']} {r['nome_original']}"
         if r["vagas_lista"] is not None and r["n"] != r["vagas_lista"]:
@@ -67,6 +67,20 @@ def checar(con):
             erros.append(f"{rotulo}: {r['n_curta'] or 0} finalistas, esperado {r['vagas_curta']}")
         if r["n_premio"] != r["vagas_premio"]:
             erros.append(f"{rotulo}: {r['n_premio']} premiadas, esperado {r['vagas_premio']}")
+    # Conjunto da obra (RF-30, CA-30.1): só distinção, nunca indicação de livro, e o número de premiados bate com as vagas.
+    for r in _linhas(con, """
+        SELECT c.premio_id, c.ano, c.nome_original, c.vagas_premio, COUNT(d.pessoa_id) AS n,
+               (SELECT COUNT(*) FROM indicacao i WHERE (i.premio_id, i.ano, i.nome_original) = (c.premio_id, c.ano, c.nome_original)) AS livros
+        FROM categoria_edicao c LEFT JOIN distincao d USING (premio_id, ano, nome_original)
+        WHERE c.categoria = 'Conjunto da obra' GROUP BY ALL ORDER BY ALL"""):
+        rotulo = f"{r['premio_id']} {r['ano']} {r['nome_original']}"
+        if r["livros"]:
+            erros.append(f"{rotulo}: conjunto da obra com {r['livros']} indicação(ões) de livro")
+        if r["n"] != r["vagas_premio"]:
+            erros.append(f"{rotulo}: {r['n']} distinções, esperado {r['vagas_premio']}")
+    for r in _linhas(con, """SELECT d.premio_id, d.ano, d.nome_original FROM distincao d JOIN categoria_edicao c USING (premio_id, ano, nome_original)
+                              WHERE c.categoria <> 'Conjunto da obra' ORDER BY ALL"""):
+        erros.append(f"{r['premio_id']} {r['ano']} {r['nome_original']}: distinção fora de uma categoria de conjunto da obra")
     # Antologia creditada só ao organizador é válida (design D14); obra sem nenhum dos dois, não.
     for r in _linhas(con, "SELECT id FROM obra WHERE id NOT IN (SELECT obra_id FROM autoria WHERE papel IN ('autor', 'organizador'))"):
         erros.append(f"obra sem autor nem organizador: {r['id']}")
@@ -103,7 +117,7 @@ def fontes(con) -> list[dict]:
     """URLs de todas as fontes da base, contadas por domínio e agrupadas (RF-18)."""
     urls = []
     for sql in ["SELECT fonte FROM premio", "SELECT fonte FROM edicao",
-                "SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado",
+                "SELECT fonte FROM indicacao", "SELECT fonte FROM categoria_edicao", "SELECT fonte FROM jurado", "SELECT fonte FROM distincao",
                 "SELECT genero_fonte FROM pessoa", "SELECT raca_fonte FROM pessoa", "SELECT nascimento_fonte FROM pessoa"]:
         for (v,) in con.execute(sql).fetchall():
             urls += [u.strip() for u in (v or "").split(" ; ") if u.strip().startswith("http")]
@@ -166,16 +180,23 @@ def _tem_miniatura(pessoa_id: str) -> bool:
 
 def exportar(con) -> dict:
     anos_coletados = [r["ano"] for r in _linhas(con, "SELECT DISTINCT ano FROM indicacao ORDER BY ano")]
-    premios = _linhas(con, "SELECT * EXCLUDE (fonte, ordem) FROM premio ORDER BY ordem")
+    # Prêmios com indicação de livro (o painel por livro); os que só têm conjunto da obra vão à parte (RF-30, CA-30.2).
+    so_distincao = "id NOT IN (SELECT premio_id FROM indicacao) AND id IN (SELECT premio_id FROM distincao)"
+    premios = _linhas(con, f"SELECT * EXCLUDE (fonte, ordem) FROM premio WHERE NOT ({so_distincao}) ORDER BY ordem")
+    premios_distincao = _linhas(con, f"SELECT * EXCLUDE (fonte, ordem) FROM premio WHERE {so_distincao} ORDER BY ordem")
+    LIVRO = "categoria <> 'Conjunto da obra'"
     padrao = [premios[0]["id"]] if premios else [None]  # 1º da ordem: no JSON, `premio` só aparece quando é outro (economia; o painel abre com todos, DA-4)
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "anos": [min(anos_coletados), max(anos_coletados)],  # série completa: toda parte do painel abre nela (CA-25.2, D30)
         "anos_coletados": anos_coletados,
         "premios": premios,
+        "premios_distincao": premios_distincao,
         # Participação compacta (design D13): atributos de pessoa e obra ficam uma vez em pessoas/obras/editoras,
         # e o navegador remonta as linhas de v_participacao com metricas.expandir.
-        "edicoes": _sem_nulos(_linhas(con, "SELECT NULLIF(premio_id, ?) AS premio, ano, regime FROM edicao ORDER BY premio_id, ano", padrao)),
+        "edicoes": _sem_nulos(_linhas(con, f"""SELECT NULLIF(premio_id, ?) AS premio, ano, regime, obras FROM edicao
+                                              WHERE (premio_id, ano) IN (SELECT premio_id, ano FROM categoria_edicao WHERE {LIVRO})
+                                              ORDER BY premio_id, ano""", padrao)),
         # Editora da indicação (CA-26.6), compacta: ausente = a mesma de obras[].editora_id; "" = sem editora conhecida
         # nesta indicação, embora a obra tenha uma; outro valor = a edição que concorreu.
         "participacao": _sem_nulos(_linhas(con, """SELECT NULLIF(v.premio, ?) AS premio, v.ano, v.nome_original, v.obra_id, v.pessoa_id,
@@ -192,10 +213,18 @@ def exportar(con) -> dict:
                                           raca IN ('preta','parda','negra') AS negra, raca_evidencia, raca_fonte,
                                           raca_trecho, raca_busca, ano_nascimento, municipio_nascimento, uf_nascimento,
                                           pais_nascimento, nascimento_fonte FROM pessoa ORDER BY nome"""))),
-        "jurados": _sem_nulos(_linhas(con, """SELECT NULLIF(j.premio_id, ?) AS premio, j.ano, c.categoria, j.pessoa_id FROM jurado j
-                                   JOIN categoria_edicao c USING (premio_id, ano, nome_original) ORDER BY j.premio_id, j.ano, c.categoria, j.pessoa_id""", padrao)),
-        "categorias": _sem_nulos(_linhas(con, """SELECT NULLIF(premio_id, ?) AS premio, * EXCLUDE (premio_id, fonte) FROM categoria_edicao
-                                                 ORDER BY premio_id, ano, categoria, nome_original""", padrao)),
+        "jurados": _sem_nulos(_linhas(con, f"""SELECT NULLIF(j.premio_id, ?) AS premio, j.ano, c.categoria, j.pessoa_id FROM jurado j
+                                   JOIN categoria_edicao c USING (premio_id, ano, nome_original) WHERE {LIVRO}
+                                   ORDER BY j.premio_id, j.ano, c.categoria, j.pessoa_id""", padrao)),
+        "categorias": _sem_nulos(_linhas(con, f"""SELECT NULLIF(premio_id, ?) AS premio, * EXCLUDE (premio_id, fonte) FROM categoria_edicao
+                                                 WHERE {LIVRO} ORDER BY premio_id, ano, categoria, nome_original""", padrao)),
+        # Conjunto da obra (RF-30, D36): fora de participacao; o júri vai junto de cada distinção.
+        "distincoes": [{k: v for k, v in d.items() if v is not None and v != []} for d in _linhas(con, """
+                       SELECT NULLIF(d.premio_id, ?) AS premio, d.ano, d.nome_original, d.pessoa_id,
+                              split_part(d.fonte, ' ; ', 1) AS fonte,
+                              list(j.pessoa_id ORDER BY j.pessoa_id) FILTER (WHERE j.pessoa_id IS NOT NULL) AS juri
+                       FROM distincao d LEFT JOIN jurado j USING (premio_id, ano, nome_original)
+                       GROUP BY d.premio_id, d.ano, d.nome_original, d.pessoa_id, d.fonte ORDER BY d.premio_id, d.ano, d.pessoa_id""", padrao)],
         "editoras": _linhas(con, "SELECT * FROM editora ORDER BY nome"),
         "ufs": _linhas(con, "SELECT * FROM uf ORDER BY uf"),
         "cobertura": _sem_nulos(_linhas(con, "SELECT NULLIF(premio, ?) AS premio, * EXCLUDE (premio) FROM v_cobertura ORDER BY v_cobertura.premio, ano", padrao)),
@@ -227,7 +256,8 @@ def contextos(con) -> dict:
 def varios_premios(con) -> int:
     """Pessoas (autoria de qualquer papel ou júri) em mais de um prêmio (CA-26.5)."""
     return con.execute("""WITH x AS (SELECT DISTINCT pessoa_id, premio FROM v_participacao
-                                    UNION SELECT DISTINCT pessoa_id, premio_id FROM jurado)
+                                    UNION SELECT DISTINCT pessoa_id, premio_id FROM jurado
+                                    UNION SELECT DISTINCT pessoa_id, premio_id FROM distincao)
                           SELECT COUNT(*) FROM (SELECT pessoa_id FROM x GROUP BY pessoa_id HAVING COUNT(*) > 1)""").fetchone()[0]
 
 
@@ -247,9 +277,22 @@ def prompt_sistema(con) -> str:
     periodo = lambda de, ate: str(de) if de == ate else f"{de}–{ate}"
     for r in _linhas(con, "SELECT premio_id, regime, MIN(ano) AS de, MAX(ano) AS ate FROM edicao GROUP BY ALL ORDER BY premio_id, de"):
         regimes.setdefault(r["premio_id"], []).append(f"{r['regime']} ({periodo(r['de'], r['ate'])})")
-    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}{', ORIGINAIS INÉDITOS de autores estreantes (não são livros do mercado; não compare com os outros sem dizer isso)' if p['obras'] == 'ineditas' else ''}): "
+    # Edições que julgaram inéditos num prêmio de livros publicados (CA-26.20: Saramago desde 2022).
+    ineditas = {r["premio_id"]: r["anos"] for r in _linhas(con, """SELECT premio_id, string_agg(ano::VARCHAR, ', ' ORDER BY ano) AS anos
+                                                                    FROM edicao WHERE obras = 'ineditas' GROUP BY 1""")}
+    def obras(p):
+        if p["obras"] == "ineditas":
+            return ", ORIGINAIS INÉDITOS (não são livros do mercado; não compare com os outros sem dizer isso)"
+        return f", ORIGINAIS INÉDITOS nas edições {ineditas[p['id']]}" if p["id"] in ineditas else ""
+    recorte = "\n".join(f"  - {p['nome']} (premio = '{p['id']}', {p['organizador']}, {'lusófono' if p['abrangencia'] == 'lusofono' else 'nacional'}{obras(p)}): "
                         f"{p['de']}–{p['ate']}, {p['edicoes']} edições, categorias {p['cats']}. Formatos: {'; '.join(regimes.get(p['id'], []))}."
                         for p in premios)
+    # Conjunto da obra (RF-30, CA-30.5): v_distincao, à parte de v_participacao.
+    dist = _linhas(con, """SELECT d.premio_id, pr.nome, d.nome_original, MIN(d.ano) AS de, MAX(d.ano) AS ate, COUNT(*) AS n
+                           FROM distincao d JOIN premio pr ON pr.id = d.premio_id GROUP BY ALL ORDER BY MIN(pr.ordem), d.nome_original""")
+    regra_distincao = ("- Conjunto da obra (prêmio por pessoa, sem livro) fica em v_distincao, NUNCA em v_participacao: "
+                       + "; ".join(f"{d['nome_original']} ({d['nome']}, premio = '{d['premio_id']}', {periodo(d['de'], d['ate'])}, {d['n']} distinções)" for d in dist)
+                       + ". Não some distinções a indicações de livro; para perguntas sobre esses prêmios, consulte v_distincao (mesmas colunas de pessoa).\n") if dist else ""
     # DA-4/DA-5 (revistas): a plataforma é de prêmios, sem prêmio padrão; sem prêmio na pergunta, todos, lado a lado.
     regra_premios = ("""- Vários prêmios: se a pergunta não citar prêmio, responda sobre todos os prêmios da base, como o painel, e diga isso.
   Mostre cada prêmio com o próprio n e % (GROUP BY premio): nunca some ou faça média de percentuais de prêmios diferentes
@@ -267,7 +310,7 @@ Use a ferramenta consultar_sql para obter qualquer número; nunca responda núme
 Regras de análise:
 - Recorte da base, por prêmio (coluna premio de v_participacao; regime de cada edição em edicao):
 {recorte}
-{regra_premios}- Se a pergunta envolver edições fora desses períodos, diga que ainda não foram coletadas.
+{regra_premios}{regra_distincao}- Se a pergunta envolver edições fora desses períodos, diga que ainda não foram coletadas.
 - Conte autores com papel = 'autor', salvo se a pergunta citar ilustradores. Organizadores (papel = 'organizador') nunca contam como autores.
 - "Estado" ou "de SP" etc. significa UF de nascimento (uf_nascimento). Região = regiao_nascimento. Quem nasceu fora do Brasil tem
   uf_nascimento = 'EX', regiao_nascimento = 'Exterior' e pais_nascimento com o código ISO 3166-1 (PT, AO, MZ…); pais_nascimento = 'BR' para quem tem UF.
@@ -307,7 +350,7 @@ def exportar_banco(con, web: Path):
     (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
 
 
-PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura"]  # = metricas.CHAVES_PARTES
+PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura", "distincoes"]  # = metricas.CHAVES_PARTES
 
 
 def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
@@ -315,13 +358,13 @@ def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
     categorias, júri, cobertura, fontes); cada outro prêmio vai para dados-<id>.json, com a participação dele e as pessoas,
     obras, editoras e mídias que ainda não estavam em arquivo anterior. O navegador junta tudo (metricas.juntar).
     Com um prêmio só, nada muda. Devolve (base, {nome do arquivo: parte})."""
-    if len(payload.get("premios", [])) < 2:
+    if len(payload.get("premios", [])) + len(payload.get("premios_distincao", [])) < 2:
         return payload, {}
     vistos = {k: set() for k in ("pessoas", "obras", "editoras")}
     obra_ed = {o["id"]: o.get("editora_id") for o in payload["obras"]}
 
-    def recorte(linhas, jurados=()):
-        ps = {l["pessoa_id"] for l in linhas} | {j["pessoa_id"] for j in jurados}
+    def recorte(linhas, jurados=(), distincoes=()):
+        ps = {l["pessoa_id"] for l in linhas} | {j["pessoa_id"] for j in jurados} | {p for d in distincoes for p in [d["pessoa_id"], *d.get("juri", [])]}
         os_ = {l["obra_id"] for l in linhas}
         eds = {e for l in linhas for e in (l.get("editora_id") or None, obra_ed.get(l["obra_id"])) if e}
         novos = {"pessoas": ps - vistos["pessoas"], "obras": os_ - vistos["obras"], "editoras": eds - vistos["editoras"]}
@@ -333,12 +376,13 @@ def dividir(payload: dict, prefixo: str = "dados") -> tuple[dict, dict]:
                 "editoras": [e for e in payload["editoras"] if e["id"] in novos["editoras"]],
                 "midia": [m for m in payload["midia"] if m["pessoa_id"] in novos["pessoas"]]}
 
-    outros = [p["id"] for p in payload["premios"][1:]]
+    outros = [p["id"] for p in payload["premios"][1:] + payload.get("premios_distincao", [])]
     # Júri, categorias, edições e cobertura de cada prêmio também vão para a parte dele (e as pessoas do júri junto).
     do = lambda chave, p: [x for x in payload[chave] if x.get("premio") == p]
-    por_premio = lambda p: {k: do(k, p) for k in ("jurados", "categorias", "edicoes", "cobertura")}
-    base = {**payload, **por_premio(None), **recorte([l for l in payload["participacao"] if "premio" not in l], do("jurados", None))}
-    partes = {f"{prefixo}-{p}.json": {"premio": p, **por_premio(p), **recorte([l for l in payload["participacao"] if l.get("premio") == p], do("jurados", p))}
+    por_premio = lambda p: {k: do(k, p) for k in ("jurados", "categorias", "edicoes", "cobertura", "distincoes")}
+    base = {**payload, **por_premio(None), **recorte([l for l in payload["participacao"] if "premio" not in l], do("jurados", None), do("distincoes", None))}
+    partes = {f"{prefixo}-{p}.json": {"premio": p, **por_premio(p),
+                                       **recorte([l for l in payload["participacao"] if l.get("premio") == p], do("jurados", p), do("distincoes", p))}
               for p in outros}
     return {**base, "partes": list(partes)}, partes
 

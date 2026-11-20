@@ -433,7 +433,7 @@ test("edições sem lista pública por prêmio; marcos só dos prêmios do recor
   ];
   assert.deepEqual([...M.edicoesSemLista(cats, "jabuti")].sort(), ["jabuti|1990", "jabuti|2017", "oceanos|2016"]);
   assert.ok(M.marcosDe(["oceanos"]).every((m) => m.premio === "oceanos"));
-  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), ["biblioteca-nacional", "jabuti", "oceanos", "sao-paulo", "sesc"]); // null = todos (DA-4)
+  assert.deepEqual([...new Set(M.marcosDe(null).map((m) => m.premio))].sort(), [...new Set(M.MARCOS.map((m) => m.premio))].sort()); // null = todos (DA-4); não fixa a lista: cresce a cada prêmio
 });
 test("porPais: nascidas fora por país, sem país e sem local separados (DA-3)", () => {
   const r = M.porPais([...LP, L({ premio: "oceanos", ano: 2018, categoria: "Geral", nome_original: "Geral", obra_id: "x3", pessoa_id: "f", genero: "homem", uf_nascimento: "EX", regiao_nascimento: "Exterior" }),
@@ -509,4 +509,39 @@ test("perfilEditora: indicações como no gráfico de editoras, posição e pess
   assert.equal(a.maisPublicados[0].id, "a");
   const b = M.perfilEditora(ls, "Ed B");
   assert.equal(b.posicao, 2); assert.equal(b.indicacoes, 1);
+});
+
+test("conjunto da obra: pessoas distintas por prêmio, negras como piso e nada de livro (CA-30.3)", () => {
+  const D = {
+    premios: [{ id: "jabuti" }, { id: "abl" }], premios_distincao: [{ id: "camoes" }],
+    ufs: [{ uf: "BA", regiao: "Nordeste" }, { uf: "EX", regiao: "Exterior" }],
+    pessoas: [{ id: "a", nome: "A", genero: "mulher", raca: "negra", negra: true, uf_nascimento: "BA" },
+              { id: "b", nome: "B", genero: "homem", raca: "sem_declaracao", negra: false, uf_nascimento: "EX", genero_evidencia: "atribuicao" },
+              { id: "c", nome: "C", genero: "homem", raca: "sem_declaracao", negra: false }],
+    distincoes: [{ premio: "camoes", ano: 2001, nome_original: "Prêmio Camões", pessoa_id: "b" },
+                 { premio: "camoes", ano: 1999, nome_original: "Prêmio Camões", pessoa_id: "a" },
+                 { premio: "abl", ano: 2010, nome_original: "Prêmio Machado de Assis", pessoa_id: "a" },
+                 { premio: "abl", ano: 2012, nome_original: "Prêmio Machado de Assis", pessoa_id: "a" },
+                 { premio: "abl", ano: 2013, nome_original: "Prêmio Machado de Assis", pessoa_id: "c" }],
+  };
+  const r = M.distincoes(D);
+  assert.deepEqual(r.map((x) => x.premio), ["abl", "camoes"]); // ordem dos prêmios, não do arquivo
+  const abl = r[0], camoes = r[1];
+  assert.equal(abl.distincoes, 3);
+  assert.equal(abl.pessoas, 2); // quem foi distinguida duas vezes conta uma
+  assert.deepEqual(abl.composicao.genero.find((g) => g.grupo === "mulher"), { grupo: "mulher", n: 1, total: 2, pct: 50 });
+  assert.equal(abl.composicao.regiao.find((g) => g.grupo === "sem dado").n, 1);
+  assert.equal(camoes.composicao.raca.find((g) => g.grupo === "negra").n, 1);
+  assert.equal(camoes.composicao.regiao.find((g) => g.grupo === "Exterior").n, 1);
+  assert.equal(camoes.generoAtribuido, 1);
+  assert.deepEqual([camoes.de, camoes.ate, camoes.lista[0].nome], [1999, 2001, "A"]);
+  assert.deepEqual(M.distincoes({ premios: [], pessoas: [] }), []);
+});
+
+test("nome curto de prêmio para eixos e listas", () => {
+  assert.equal(M.nomeCurto("Prêmio Jabuti"), "Jabuti");
+  assert.equal(M.nomeCurto("Prémio LeYa"), "LeYa");
+  assert.equal(M.nomeCurto("Prémio Literário José Saramago"), "José Saramago");
+  assert.equal(M.nomeCurto("Prêmios da Academia Brasileira de Letras"), "Academia Brasileira de Letras");
+  assert.equal(M.nomeCurto("Prêmio São Paulo de Literatura"), "São Paulo de Literatura");
 });

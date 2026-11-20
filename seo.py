@@ -88,9 +88,13 @@ class Base:
         self.edicoes = _linhas(con, "SELECT * FROM edicao ORDER BY premio_id, ano")
         self.edicao = {(x["premio_id"], x["ano"]): x for x in self.edicoes}
         self.cats = {(c["premio_id"], c["ano"], c["nome_original"]): c for c in _linhas(con, "SELECT * FROM categoria_edicao")}
-        self.jurados = _linhas(con, """SELECT j.premio_id, j.ano, j.nome_original, c.categoria, j.pessoa_id, p.nome FROM jurado j
-                                       JOIN categoria_edicao c USING (premio_id, ano, nome_original) JOIN pessoa p ON p.id = j.pessoa_id
-                                       ORDER BY j.premio_id, j.ano, c.categoria, p.nome""")
+        jur = _linhas(con, """SELECT j.premio_id, j.ano, j.nome_original, c.categoria, j.pessoa_id, p.nome FROM jurado j
+                              JOIN categoria_edicao c USING (premio_id, ano, nome_original) JOIN pessoa p ON p.id = j.pessoa_id
+                              ORDER BY j.premio_id, j.ano, c.categoria, p.nome""")
+        # Conjunto da obra (RF-30, CA-30.5): distinções e o júri delas ficam à parte das páginas de edição por livro.
+        self.jurados = [j for j in jur if j["categoria"] != "Conjunto da obra"]
+        self.juri_dist = [j for j in jur if j["categoria"] == "Conjunto da obra"]
+        self.distincoes = _linhas(con, "SELECT premio_id, ano, nome_original, pessoa_id, fonte FROM distincao ORDER BY premio_id, ano, pessoa_id")
         self.pessoas = {p["id"]: p for p in _linhas(con, "SELECT * FROM pessoa ORDER BY nome")}
         self.midia = {m["pessoa_id"]: m for m in _linhas(con, "SELECT * FROM pessoa_midia")}
         self.fotos = {f["pessoa_id"]: f for f in _linhas(con, "SELECT * FROM pessoa_foto")}  # direitos reservados (D34)
@@ -100,7 +104,8 @@ class Base:
         self.ed_id = {x["nome"]: i for i, x in self.editoras.items()}  # nomes únicos (D33)
         self.contexto = {(c["premio_id"], c["ano"]): c for c in _linhas(con, "SELECT * FROM edicao_contexto")}
         self.com_dados = sorted({(l["premio"], l["ano"]) for l in self.part}, key=lambda k: ([p["id"] for p in self.premios].index(k[0]), k[1]))
-        presentes = {l["pessoa_id"] for l in self.part} | {j["pessoa_id"] for j in self.jurados}
+        presentes = ({l["pessoa_id"] for l in self.part} | {j["pessoa_id"] for j in self.jurados}
+                     | {d["pessoa_id"] for d in self.distincoes} | {j["pessoa_id"] for j in self.juri_dist})
         self.ids = [i for i in self.pessoas if i in presentes]
 
     def de(self, premio=None, ano=None, linhas=None):
@@ -371,7 +376,7 @@ def pagina_premio(b, p):
     pm = primeira_mulher(b, pid)
     corpo = f"""<article class="secao">
 <header class="secao-cab"><p class="sobretitulo">Prêmio · {e(p["organizador"])}</p><h1>{e(nome)}</h1>
-<p class="lead">{e(nome)}, organizado por {e(p["organizador"])} desde {p["ano_inicio"]}, {"aberto a autores de toda a língua portuguesa" if p["abrangencia"] == "lusofono" else "prêmio nacional"}{" que premia originais inéditos de autores estreantes, e não livros já publicados — compare com os outros prêmios com cuidado" if p.get("obras") == "ineditas" else ""}.
+<p class="lead">{e(nome)}, organizado por {e(p["organizador"])} desde {p["ano_inicio"]}, {"aberto a autores de toda a língua portuguesa" if p["abrangencia"] == "lusofono" else "prêmio nacional"}{" que premia originais inéditos, e não livros já publicados — compare com os outros prêmios com cuidado" if p.get("obras") == "ineditas" else f" que premia originais inéditos desde {ineditas[0]} (antes, livros publicados)" if (ineditas := sorted(x["ano"] for x in b.edicoes if x["premio_id"] == p["id"] and x.get("obras") == "ineditas")) else ""}.
 O Literadados reúne {fmt(len(anos))} edições ({anos[0]}–{anos[-1]}) nas categorias {", ".join(cats)}: {fmt(r["pessoas"])} pessoas-autoras em {fmt(r["indicacoes"])} indicações.</p>
 <p class="links-externos"><a class="chip-link" href="/?panorama=~p:{pid}#panorama">Abrir no painel</a> <a class="chip-link" href="{e(p["fonte"])}" rel="noopener">Site oficial</a></p></header>
 <h2>Quem chega, quem é premiado, quem vence</h2>
@@ -436,14 +441,16 @@ def pagina_pessoa(b, pid):
     p, m = b.pessoas[pid], b.midia.get(pid, {})
     ls = [l for l in b.part if l["pessoa_id"] == pid]
     jur = [j for j in b.jurados if j["pessoa_id"] == pid]
+    dist = [d for d in b.distincoes if d["pessoa_id"] == pid]
+    jur_dist = [j for j in b.juri_dist if j["pessoa_id"] == pid]
     obras = sorted(obras_de(b, ls), key=lambda o: (o["ano"], o["premio"], ordem_cat(o["categoria"])))
     pap = {(o["premio"], o["ano"], o["nome_original"], o["obra_id"]): [x for x in ("autor", "ilustrador", "organizador") if pid in o[x]] for o in obras}
     contam = [o for o in obras if "organizador" not in pap[(o["premio"], o["ano"], o["nome_original"], o["obra_id"])] or len(pap[(o["premio"], o["ano"], o["nome_original"], o["obra_id"])]) > 1]
     premiadas = [o for o in contam if o["colocacao"]]
     vitorias = [o for o in contam if o["colocacao"] == 1]
-    premios_ids = list(dict.fromkeys([o["premio"] for o in obras] + [j["premio_id"] for j in jur]))
+    premios_ids = list(dict.fromkeys([o["premio"] for o in obras] + [j["premio_id"] for j in jur + jur_dist] + [d["premio_id"] for d in dist]))
     nomes_premios = " e no ".join(b.nome_premio[x] for x in premios_ids)
-    anos = sorted({o["ano"] for o in obras} | {j["ano"] for j in jur})
+    anos = sorted({o["ano"] for o in obras} | {j["ano"] for j in jur + jur_dist} | {d["ano"] for d in dist})
     nasc = lugar(p)
     ident = ", ".join(x for x in [nasc, str(p["ano_nascimento"]) if p["ano_nascimento"] else ""] if x)
     partes = []
@@ -452,8 +459,11 @@ def pagina_pessoa(b, pid):
         if premiadas:
             partes.append(f"recebeu {fmt(len(premiadas))} prêmio{'' if len(premiadas) == 1 else 's'}"
                           + (f", {fmt(len(vitorias))} deles em 1º lugar" if vitorias and len(premiadas) > 1 else " em 1º lugar" if vitorias else ""))
-    if jur:
-        partes.append(f"integrou o júri {fmt(len(jur))} vez{'' if len(jur) == 1 else 'es'}")
+    if dist:
+        partes.append("recebeu " + " e ".join(f"o {d['nome_original']} ({d['ano']})" for d in dist) + ", pelo conjunto da obra")
+    if jur or jur_dist:
+        n = len(jur) + len(jur_dist)
+        partes.append(f"integrou o júri {fmt(n)} vez{'' if n == 1 else 'es'}")
     lead = (f"<b>{e(p['nome'])}</b>{f' ({e(ident)})' if ident else ''} " + ", ".join(partes[:-1]) + (" e " if len(partes) > 1 else "") + partes[-1]
             + f" no {e(nomes_premios)}" + (f", entre {anos[0]} e {anos[-1]}" if len(anos) > 1 else f", em {anos[0]}") + ".") if partes else ""
     # Gênero (CA-27.3): atribuído = marcado; sem fonte nem atribuição = não identificado.
@@ -498,7 +508,9 @@ def pagina_pessoa(b, pid):
 </dl>
 {f'''<h2>Nos prêmios</h2><div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Ano</th><th scope="col">Prêmio</th><th scope="col">Categoria</th><th scope="col">Obra</th><th scope="col">Editora</th><th scope="col">Resultado</th></tr></thead>
 <tbody>{linhas_t}</tbody></table></div>''' if obras else ""}
-{("<h2>Júri</h2><ul>" + "".join(f'<li><a href="/premios/{j["premio_id"]}/{j["ano"]}/">{e(b.nome_premio[j["premio_id"]])} {j["ano"]}</a> — {e(j["nome_original"])}</li>' for j in jur) + "</ul>") if jur else ""}
+{("<h2>Conjunto da obra</h2><p class=\"muted pequeno\">Prêmio pela trajetória, sem livro concorrendo; fica fora das contas por livro.</p><ul>" + "".join(f'<li>{e(d["nome_original"])} {d["ano"]} <span class="muted pequeno">({e(b.nome_premio[d["premio_id"]])})</span> {link_fonte(d["fonte"].split(" ; ")[0])}</li>' for d in dist) + "</ul>") if dist else ""}
+{("<h2>Júri</h2><ul>" + "".join(f'<li><a href="/premios/{j["premio_id"]}/{j["ano"]}/">{e(b.nome_premio[j["premio_id"]])} {j["ano"]}</a> — {e(j["nome_original"])}</li>' for j in jur)
+  + "".join(f'<li>{e(j["nome_original"])} {j["ano"]} <span class="muted pequeno">(conjunto da obra)</span></li>' for j in jur_dist) + "</ul>") if jur or jur_dist else ""}
 <p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com a fonte. <a href="/metodo.html">Método</a>.</p>
 </article>"""
     pessoa = {"@type": "Person", "name": p["nome"], "url": f"{SITE}/pessoas/{quote(pid)}/"}
@@ -515,10 +527,12 @@ def pagina_pessoa(b, pid):
         pessoa["birthPlace"] = {"@type": "Place", "name": nasc + ("" if p["uf_nascimento"] == "EX" else ", Brasil")}
     if img_url:
         pessoa["image"] = img_url
-    if premiadas:
-        pessoa["award"] = [f"{b.nome_premio[o['premio']]} {o['ano']} — {o['nome_original']}, {o['colocacao']}º lugar" for o in premiadas]
+    if premiadas or dist:
+        pessoa["award"] = ([f"{b.nome_premio[o['premio']]} {o['ano']} — {o['nome_original']}, {o['colocacao']}º lugar" for o in premiadas]
+                           + [f"{d['nome_original']} {d['ano']} (conjunto da obra)" for d in dist])
     ld = [{"@context": "https://schema.org", "@type": "ProfilePage", "url": f"{SITE}/pessoas/{quote(pid)}/", "inLanguage": "pt-BR", "mainEntity": pessoa}]
-    desc = (f"{p['nome']}: " + (f"{fmt(len(contam))} indicações e {fmt(len(premiadas))} prêmios" if contam else "júri")
+    desc = (f"{p['nome']}: " + (f"{fmt(len(contam))} indicações e {fmt(len(premiadas))} prêmios" if contam
+                                 else ", ".join(f"{d['nome_original']} {d['ano']}" for d in dist) if dist else "júri")
             + f" no {nomes_premios} ({anos[0]}{'–' + str(anos[-1]) if len(anos) > 1 else ''}). Obras, editoras, nascimento, gênero e raça declarada, com fontes.")
     return pagina(f"/pessoas/{quote(pid)}/", f"{p['nome']} nos prêmios literários | Literadados", desc, corpo, ld,
                   [("Pessoas", "/pessoas/"), (p["nome"], f"/pessoas/{quote(pid)}/")], "/pessoas/", "profile", img_url)
@@ -536,12 +550,13 @@ def pagina_pessoas(b):
         for i in o["autor"]:
             contagem[i][0] += 1
             contagem[i][1] += bool(o["colocacao"])
+    distinguidas = {d["pessoa_id"] for d in b.distincoes}
     grupos = defaultdict(list)
     for i in b.ids:
         grupos[_inicial(b.pessoas[i]["nome"])].append(i)
     letras = sorted(grupos)
     secoes = "".join(f'<section id="letra-{l}"><h2>{l}</h2><ul class="colunas-lista">' + "".join(
-        f'<li>{lnk_pessoa(b, i)} <span class="muted pequeno">{fmt(contagem[i][0]) + " ind." if contagem[i][0] else "júri"}{" · " + fmt(contagem[i][1]) + " prêmio" + ("s" if contagem[i][1] > 1 else "") if contagem[i][1] else ""}</span></li>'
+        f'<li>{lnk_pessoa(b, i)} <span class="muted pequeno">{fmt(contagem[i][0]) + " ind." if contagem[i][0] else "conjunto da obra" if i in distinguidas else "júri"}{" · " + fmt(contagem[i][1]) + " prêmio" + ("s" if contagem[i][1] > 1 else "") if contagem[i][1] else ""}</span></li>'
         for i in sorted(grupos[l], key=lambda x: b.pessoas[x]["nome"].lower())) + "</ul></section>" for l in letras)
     corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Pessoas</p><h1>Pessoas de A a Z</h1>
 <p class="lead">As {fmt(len(b.ids))} pessoas da base — autoria, ilustração, organização e júri — com perfil, fontes e a trajetória em cada prêmio.</p>

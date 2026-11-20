@@ -22,7 +22,9 @@ function indexarEtapas(D) {
 // Seção de participações: com um prêmio só, "No Prêmio X"; com vários, "Nos prêmios" e o prêmio em cada item (CA-26.10).
 const tituloPremios = (ps) => { const t = noPremio(ps.length ? ps : PREMIOS); return t[0].toUpperCase() + t.slice(1); };
 const selo = (multi, p) => (multi ? ` · <span class="selo-premio">${esc(NOME_PREMIO[p] ?? p)}</span>` : "");
-const premiosDe = (...listas) => PREMIOS.filter((p) => listas.some((ls) => ls.some((l) => (l.premio ?? PREMIOS[0]) === p)));
+// Prêmios por livro e, depois, os que só têm conjunto da obra (RF-30): NOME_PREMIO tem os dois.
+const premiosDe = (...listas) => [...PREMIOS, ...Object.keys(NOME_PREMIO).filter((p) => !PREMIOS.includes(p))]
+  .filter((p) => listas.some((ls) => ls.some((l) => (l.premio ?? PREMIOS[0]) === p)));
 
 export function montarPessoas(ctx) {
   $("#busca").addEventListener("input", () => { pagina = 1; ctx.renderPessoas(); });
@@ -134,6 +136,8 @@ export function htmlPerfil(id, { D, midiaPorId }) {
     .sort((a, b) => a.ano - b.ano || a.categoria.localeCompare(b.categoria));
   const org = D.participacao.filter((l) => l.pessoa_id === id && l.papel === "organizador");
   const jur = D.jurados.filter((j) => j.pessoa_id === id);
+  // Conjunto da obra (RF-30, CA-30.4): distinções e júri delas, à parte das indicações de livro.
+  const dist = (D.distincoes ?? []).filter((d) => d.pessoa_id === id), jurDist = (D.distincoes ?? []).filter((d) => d.juri?.includes(id));
   const fonte = (u) => (u ? ` <a class="fonte-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">fonte</a>` : ` <span class="muted pequeno">(sem fonte)</span>`);
   const obras = new Set(ls.map((l) => l.obra_id));
   const coautores = [...new Map(D.participacao.filter((l) => obras.has(l.obra_id) && l.pessoa_id !== id && l.papel !== "organizador")
@@ -145,7 +149,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   const ufLink = p.uf_nascimento && p.uf_nascimento !== "EX" ? `<a class="chip-link" href="#/uf/${esc(p.uf_nascimento)}">${esc(p.uf_nascimento)}</a>`
     : pais && !(p.municipio_nascimento ?? "").includes(pais) ? esc(pais) : "";
   const nasc = [p.municipio_nascimento && esc(p.municipio_nascimento), ufLink, p.ano_nascimento && esc(p.ano_nascimento)].filter(Boolean).join(" · ");
-  const ps = premiosDe(ls, jur, org), multi = ps.length > 1;
+  const ps = premiosDe(ls, jur, org, dist, jurDist), multi = ps.length > 1;
   const links = [
     m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia</a>`,
     p.wikidata && `<a href="https://www.wikidata.org/wiki/${esc(p.wikidata)}" target="_blank" rel="noopener noreferrer">Wikidata ${esc(p.wikidata)}</a>`,
@@ -157,9 +161,9 @@ export function htmlPerfil(id, { D, midiaPorId }) {
       <div>${foto(p, m, { w: 480 })}${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
       <div>
         <p class="sobretitulo">${[ls.some((l) => l.papel === "autor") ? "Autor(a)" : ls.length ? "Ilustrador(a)" : org.length ? "Organizador(a)" : "",
-          jur.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^j/, "J")}</p>
+          dist.length ? "distinção pelo conjunto da obra" : "", jur.length || jurDist.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^./, (c) => c.toUpperCase())}</p>
         <h2 id="perfil-nome">${esc(p.nome)}</h2>
-        <p>${fmt(ls.length)} indicaç${ls.length === 1 ? "ão" : "ões"} · ${premios ? `${premios} prêmio${premios > 1 ? "s" : ""}` : "sem prêmio"}${vit ? ` · <b>${vezes(vit)} 1º lugar</b>` : ""}${multi ? `<br><span class="muted">em ${esc(nomesPremios(ps))}</span>` : ""}</p>
+        <p>${ls.length || !dist.length ? `${fmt(ls.length)} indicaç${ls.length === 1 ? "ão" : "ões"} · ${premios ? `${premios} prêmio${premios > 1 ? "s" : ""}` : "sem prêmio"}${vit ? ` · <b>${vezes(vit)} 1º lugar</b>` : ""}` : ""}${dist.length ? `${ls.length ? " · " : ""}<b>${dist.map((d) => `${esc(d.nome_original)} ${d.ano}`).join(", ")}</b> <span class="muted">(conjunto da obra)</span>` : ""}${multi ? `<br><span class="muted">em ${esc(nomesPremios(ps))}</span>` : ""}</p>
         <div class="links-externos">${links}</div>
       </div>
     </header>
@@ -184,6 +188,9 @@ export function htmlPerfil(id, { D, midiaPorId }) {
           <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a>${l.editora ? ` <span class="muted">(${linkEditora(l.editora, D)})</span>` : ""}<br>
           <span class="${l.premiada ? "" : "muted"}">${l.vencedora ? "★ " : ""}${resultado(l)}${l.papel !== "autor" ? ` · ${esc(l.papel)}` : ""}</span></li>`]),
           ...jur.map((j) => [j.ano, 1, `<li style="--i:IDX"><span class="ano">${j.ano}</span>${selo(multi, j.premio ?? PREMIOS[0])} · jurado(a) de ${esc(j.categoria)}</li>`]),
+          ...dist.map((d) => [d.ano, 0, `<li class="premio" style="--i:IDX"><span class="ano">${d.ano}</span>${selo(multi, d.premio ?? PREMIOS[0])}${multi && d.nome_original === NOME_PREMIO[d.premio ?? PREMIOS[0]] ? "" : ` · ${esc(d.nome_original)}`}<br>
+          <span>★ distinção pelo conjunto da obra</span>${d.fonte ? fonte(d.fonte) : ""}</li>`]),
+          ...jurDist.map((d) => [d.ano, 1, `<li style="--i:IDX"><span class="ano">${d.ano}</span>${selo(multi, d.premio ?? PREMIOS[0])} · jurado(a)${multi && d.nome_original === NOME_PREMIO[d.premio ?? PREMIOS[0]] ? "" : ` do ${esc(d.nome_original)}`} <span class="muted pequeno">(conjunto da obra)</span></li>`]),
           ...org.map((l) => [l.ano, 2, `<li style="--i:IDX"><span class="ano">${l.ano}</span>${selo(multi, l.premio)} · organizou <a href="#/obra/${esc(l.obra_id)}"><i>${esc(l.titulo)}</i></a> <span class="muted pequeno">(fora das contagens)</span></li>`]),
         ].sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(([, , h], i) => h.replace("--i:IDX", `--i:${i}`)).join("")}</ol>
       </section>

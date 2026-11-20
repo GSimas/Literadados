@@ -234,7 +234,7 @@ def test_dados_reais_passam_no_build(tmp_path):
 def _regime_antigo(ano: int) -> str:
     """A regra que era um CASE em v_participacao antes da etapa 0 (D31)."""
     return ("1959–1992 vencedor por categoria" if ano <= 1992 else "1993–2009 pódio" if ano <= 2009
-            else "2010–2017 pódio" if ano <= 2017 else "2018 transição" if ano == 2018 else "2019–2025 vencedor único")
+            else "2010–2017 pódio" if ano <= 2017 else "2018 transição" if ano == 2018 else "2019–2026 vencedor único")
 
 
 def test_etapa0_so_jabuti(tmp_path):  # CA-26.1, CA-26.2: a migração para premio_id não muda o Jabuti
@@ -243,7 +243,8 @@ def test_etapa0_so_jabuti(tmp_path):  # CA-26.1, CA-26.2: a migração para prem
     # O Jabuti continua sendo o padrão e o mesmo de antes, com ou sem outros prêmios na base.
     assert ("jabuti", "Prêmio Jabuti") in con.execute("SELECT DISTINCT premio, premio_nome FROM v_participacao").fetchall()
     anos = dict(con.execute("SELECT ano, regime FROM edicao WHERE premio_id = 'jabuti'").fetchall())
-    assert set(anos) == set(range(1959, 2026)) and all(r == _regime_antigo(a) for a, r in anos.items())
+    fim = max(int(r["ano"]) for r in csv.DictReader((RAIZ / "dados" / "coleta" / "jabuti" / "edicoes.csv").open(encoding="utf-8")))  # cresce a cada edição nova
+    assert set(anos) == set(range(1959, fim + 1)) and all(r == _regime_antigo(a) for a, r in anos.items())
     assert p["premios"][0]["id"] == "jabuti"
     n_jabuti = con.execute("SELECT COUNT(*) FROM v_participacao WHERE premio = 'jabuti'").fetchone()[0]
     assert sum("premio" not in l for l in p["participacao"]) == n_jabuti  # padrão fica fora do JSON
@@ -610,3 +611,47 @@ def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
     prompt = build.prompt_sistema(duckdb.connect(str(tmp_path / "p.duckdb"), read_only=True))
     assert "Período padrão: a série completa de cada prêmio" in prompt and "usam 2010–2025" not in prompt
     assert "o padrão do painel" not in prompt  # sem prêmio padrão (DA-4 revista): sem prêmio na pergunta, todos
+
+
+# ---------- RF-30 Conjunto da obra ----------
+
+def _com_distincao(d: Path, n_vagas="1", distincoes=(("a",),), indicacao_na_categoria=False):
+    """Prêmio só de conjunto da obra ('cam'), com as distinções dadas."""
+    _csv(d / "premio.csv", list(csv.DictReader((d / "premio.csv").open(encoding="utf-8")))
+         + [{"id": "cam", "nome": "Prêmio Cam", "organizador": "X", "ano_inicio": "1989", "abrangencia": "lusofono", "ordem": "2", "fonte": "http://x"}])
+    _csv(d / "edicao.csv", list(csv.DictReader((d / "edicao.csv").open(encoding="utf-8")))
+         + [{"premio_id": "cam", "ano": "2001", "regime": "conjunto da obra", "fonte": "http://x"}])
+    _csv(d / "categoria_edicao.csv", list(csv.DictReader((d / "categoria_edicao.csv").open(encoding="utf-8")))
+         + [{"premio_id": "cam", "ano": "2001", "nome_original": "Prêmio Cam", "categoria": "Conjunto da obra", "vagas_lista": "", "vagas_curta": "",
+             "vagas_premio": n_vagas, "etapa_lista": "premiados", "fonte": "http://x"}])
+    _csv(d / "distincao.csv", [{"premio_id": "cam", "ano": "2001", "nome_original": "Prêmio Cam", "pessoa_id": p, "fonte": "http://x"} for (p,) in distincoes])
+    _csv(d / "jurado.csv", [{"premio_id": "cam", "ano": "2001", "nome_original": "Prêmio Cam", "pessoa_id": "b", "fonte": "http://x"}])
+    if indicacao_na_categoria:
+        _csv(d / "autoria.csv", list(csv.DictReader((d / "autoria.csv").open(encoding="utf-8")))
+             + [{"premio_id": "cam", "obra_id": "o1", "pessoa_id": "a", "papel": "autor"}])
+        _csv(d / "indicacao.csv", list(csv.DictReader((d / "indicacao.csv").open(encoding="utf-8")))
+             + [{"premio_id": "cam", "ano": "2001", "nome_original": "Prêmio Cam", "obra_id": "o1", "lista_curta": "", "colocacao": "1", "editora_id": "ed", "fonte": "http://x"}])
+
+
+def test_conjunto_da_obra_a_parte(mini):  # CA-30.1, CA-30.2
+    antes = _build(mini)["participacao"]
+    _com_distincao(mini)
+    p = _build(mini)
+    assert p["participacao"] == antes  # distinção nunca vira linha de livro
+    assert [x["id"] for x in p["premios"]] == ["jabuti"] and [x["id"] for x in p["premios_distincao"]] == ["cam"]
+    assert p["distincoes"] == [{"premio": "cam", "ano": 2001, "nome_original": "Prêmio Cam", "pessoa_id": "a", "fonte": "http://x", "juri": ["b"]}]
+    assert all(c["categoria"] != "Conjunto da obra" for c in p["categorias"]) and not any(j.get("premio") == "cam" for j in p["jurados"])
+    assert not any(e.get("premio") == "cam" for e in p["edicoes"])
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT premio, pessoa_id, genero, negra FROM v_distincao").fetchall() == [("cam", "a", "mulher", True)]
+    j = json.loads((mini.parent / "t.json").read_text(encoding="utf-8"))
+    parte = json.loads((mini.parent / "t-cam.json").read_text(encoding="utf-8"))  # prêmio só de distinção ganha parte própria
+    assert "t-cam.json" in j["partes"] and len(parte["distincoes"]) == 1 and {x["id"] for x in parte["pessoas"]} <= {"a", "b"}
+
+
+@pytest.mark.parametrize("kw,erro", [({"n_vagas": "2"}, "distinções, esperado 2"),
+                                     ({"indicacao_na_categoria": True}, "conjunto da obra com 1 indicação")])
+def test_conjunto_da_obra_checagens(mini, kw, erro):  # CA-30.1
+    _com_distincao(mini, **kw)
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)

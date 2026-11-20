@@ -18,7 +18,7 @@ function listaCategorias(linhas) {
     .map((c) => (c === "Livro do Ano" ? livroDoAno : c === "Geral" ? "categoria única" : c.toLocaleLowerCase("pt-BR")));
   return ns.length > 1 ? `${ns.slice(0, -1).join(", ")} e ${ns.at(-1)}` : ns[0] ?? "";
 }
-const curto = (p) => (NOME_PREMIO[p] ?? p).replace(/^Prêmio\s+/, "");
+const curto = (p) => M.nomeCurto(NOME_PREMIO[p] ?? p);
 // "no Jabuti, 1959–1999": edições sem lista pública de indicados, por prêmio, só dos prêmios do recorte.
 function semListaTexto(semLista, premios) {
   return premios.map((p) => {

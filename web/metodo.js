@@ -42,8 +42,14 @@ if (lista) $$("[data-premios-texto]").forEach((el) => { el.textContent = lista; 
 if (premios.length && $("#metodo-premios")) {
   const regimes = d3.rollups(D.edicoes ?? [], (v) => ({ de: d3.min(v, (x) => x.ano), ate: d3.max(v, (x) => x.ano) }), (x) => x.premio ?? padrao, (x) => x.regime);
   const porP = new Map(regimes);
-  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${premios.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; prêmio de literatura em língua portuguesa (quem pode concorrer mudou com os anos)" : ""}${p.obras === "ineditas" ? "; premia <b>originais inéditos</b>, não livros publicados" : ""}):
-    ${(porP.get(p.id) ?? []).map(([r, x]) => (/^\d{4}/.test(r) ? esc(r) : `${esc(r)} (${x.de === x.ate ? x.de : `${x.de}–${x.ate}`})`)).join("; ")}.</li>`).join("")}</ul>`; // regime que já começa pelo período não repete os anos
+  // Edições de inéditos num prêmio de livros publicados (CA-26.20) e conjunto da obra (RF-30), por prêmio.
+  const ineditas = d3.rollup((D.edicoes ?? []).filter((e) => e.obras === "ineditas"), (v) => v.map((e) => e.ano).sort(), (e) => e.premio ?? padrao);
+  const dist = d3.rollups(D.distincoes ?? [], (v) => ({ de: d3.min(v, (x) => x.ano), ate: d3.max(v, (x) => x.ano), n: v.length }), (x) => x.premio ?? padrao, (x) => x.nome_original);
+  const porDist = new Map(dist);
+  const todos = [...premios, ...(D.premios_distincao ?? [])];
+  $("#metodo-premios").innerHTML = `<h3>Prêmios da base</h3><ul>${todos.map((p) => `<li><b>${esc(p.nome)}</b> (${esc(p.organizador ?? "")}${p.abrangencia === "lusofono" ? "; prêmio de literatura em língua portuguesa (quem pode concorrer mudou com os anos)" : ""}${p.obras === "ineditas" ? "; premia <b>originais inéditos</b>, não livros publicados" : ineditas.has(p.id) ? `; premia <b>originais inéditos</b> desde ${ineditas.get(p.id)[0]}` : ""}):
+    ${[...(porP.get(p.id) ?? []).map(([r, x]) => (/^\d{4}/.test(r) ? esc(r) : `${esc(r)} (${x.de === x.ate ? x.de : `${x.de}–${x.ate}`})`)),
+       ...(porDist.get(p.id) ?? []).map(([n, x]) => `${esc(n)}, pelo <b>conjunto da obra</b> (${x.de}–${x.ate}, ${x.n} distinções; fora das contas por livro)`)].join("; ")}.</li>`).join("")}</ul>`; // regime que já começa pelo período não repete os anos
 }
 
 // Revelação ao rolar, como no painel (CA-19.1).

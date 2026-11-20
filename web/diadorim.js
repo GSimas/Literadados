@@ -7,7 +7,7 @@ const OPENROUTER = "https://openrouter.ai";
 const MODELO = "openrouter/free";
 const RODADAS = 6;
 const CHAVE = "or_chave";
-const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios"];
+const JANELAS = ["linha-do-tempo", "geografia", "evolucao", "funil", "segregacao", "idade", "editoras", "ranking", "juri", "entre-premios", "conjunto-da-obra"];
 export const SUGESTOES = [
   "Quantos autores pretos nascidos em São Paulo chegaram às listas em Contos, em cada prêmio?",
   "Quem chegou à lista de mais de um prêmio?",
@@ -69,7 +69,8 @@ const REGRAS_LINK = `Referências (obrigatório): termine toda resposta com uma 
   (UF de nascimento e fluxo região → editora → resultado), [Evolução](#/grafico/evolucao) (composição por edição),
   [Funil](#/grafico/funil) (lista → finalistas → premiadas → vencedoras), [Categorias](#/grafico/segregacao) (índice de Duncan),
   [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Ranking](#/grafico/ranking) (mais premiados e indicados), [Júri](#/grafico/juri),
-  [Entre prêmios](#/grafico/entre-premios) (quem passa por mais de um prêmio, quando a base tem vários).
+  [Entre prêmios](#/grafico/entre-premios) (quem passa por mais de um prêmio, quando a base tem vários),
+  [Conjunto da obra](#/grafico/conjunto-da-obra) (prêmios pela trajetória, sem livro, como o Camões).
 - Seções: [Panorama](#panorama), [Autores](#autores), [Método](metodo.html#metodologia), [Referências](metodo.html#referencias).
 - Fontes externas: URLs das colunas fonte, genero_fonte, raca_fonte e nascimento_fonte, quando sustentarem a resposta.
 Nunca invente URL nem pessoa_id: use só o que vier das consultas. Mostre o n junto de todo percentual.
@@ -81,6 +82,7 @@ quem lê não conhece o banco. Fale das coisas pelo nome comum (lista do Jabuti,
 // Tira do texto o bloco "Fontes:" do modelo (que às vezes lista tabelas) e devolve só links válidos: os do modelo,
 // mais os derivados das consultas (pessoas, UFs, regiões, URLs de fonte, o gráfico ligado ao assunto) e o Método.
 const GRAFICO_POR_SQL = [
+  [/v_distincao|\bdistincao\b/i, "#/grafico/conjunto-da-obra", "Conjunto da obra"],
   [/premiad|vencedor|finalista|lista_curta|colocacao/i, "#/grafico/funil", "Funil"],
   [/categoria/i, "#/grafico/segregacao", "Categorias"],
   [/editora|grupo_editorial/i, "#/grafico/editoras", "Editoras"],

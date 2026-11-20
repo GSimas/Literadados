@@ -302,7 +302,7 @@ export function renderJuri(L, { D, estado }) {
   });
   if (!j.length) return vazio(el, "Júri ainda não coletado para as edições do recorte."), tabela($("#t-juri"), [], []);
   const quem = ["Júri", "Lista", "Vencedoras"];
-  const faixa = (d) => `${multi ? `${d.premio_nome.replace(/^Prêmio /, "")} · ` : ""}${d.indicador} · ${d.ano}`;
+  const faixa = (d) => `${multi ? `${M.nomeCurto(d.premio_nome)} · ` : ""}${d.indicador} · ${d.ano}`;
   const faixas = [...new Set(j.map(faixa))], mt = FOLGA_PAINEL, mb = 40;
   const altura = alturaPaineis(faixas.length, 76, { marginTop: mt, marginBottom: mb });
   desenhar(el, Plot.plot({
@@ -332,7 +332,7 @@ export function renderEntrePremios(L, { abrirPerfil } = {}) {
     $("#entre-pessoas").innerHTML = "";
     return vazio(el, "Só um prêmio no recorte."), tabela($("#t-entre-premios"), [], []);
   }
-  const nome = (p) => NOME_PREMIO[p] ?? p, curto = (p) => nome(p).replace(/^Prêmio /, ""), nomes = r.premios.map(curto);
+  const nome = (p) => NOME_PREMIO[p] ?? p, curto = (p) => M.nomeCurto(nome(p)), nomes = r.premios.map(curto);
   const distintos = new Set(L.filter((l) => etapa === "lista" || l.premiada).map((l) => l.pessoa_id)).size;
   $("#entre-resumo").innerHTML = `<b>${fmt(r.pessoas.length)}</b> de ${fmt(distintos)} pessoas ${rotEtapa} no recorte passaram por mais de um prêmio`
     + ` (${r.premios.map((p) => `${esc(nome(p))}: ${fmt(r.total[p])}`).join("; ")}).`;
@@ -394,4 +394,40 @@ export function renderRanking(L, { D, abrirPerfil }) {
     <th class="num" scope="col">Posição</th><th scope="col">Pessoa</th><th scope="col">UF nasc.</th><th class="num" scope="col">Prêmios</th><th class="num" scope="col">1º lugares</th><th class="num" scope="col">Indicações</th></tr></thead>
     <tbody>${r.map((p) => `<tr><td class="num">${p.posicao}º</td><td><button type="button" class="link-pessoa" data-pessoa="${esc(p.id)}">${esc(p.nome)}</button></td>
       <td>${esc(p.uf_nascimento === "EX" ? M.paisOuExterior(p.pais_nascimento) : p.uf_nascimento ?? "–")}</td><td class="num">${p.premios}</td><td class="num">${p.vitorias}</td><td class="num">${p.participacoes}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+
+// Conjunto da obra (RF-30, CA-30.3): sem filtro de parte (não há livro, período nem categoria por livro). Uma linha por
+// prêmio, composição das pessoas distintas com n; nunca soma prêmios. A lista leva ao perfil.
+export function renderConjuntoObra({ D, abrirPerfil }) {
+  const r = M.distincoes(D), resumo = $("#conjunto-resumo");
+  const nome = (p) => NOME_PREMIO[p] ?? p, curto = (p) => M.nomeCurto(nome(p));
+  const DIMS = [["genero", "Gênero", "#g-conjunto-genero"], ["raca", "Raça declarada", "#g-conjunto-raca"], ["regiao", "Região de nascimento", "#g-conjunto-regiao"]];
+  if (!r.length) {
+    resumo.textContent = "Nenhum prêmio pelo conjunto da obra na base.";
+    for (const [, , sel] of DIMS) vazio($(sel), "Sem dados.");
+    $("#conjunto-lista").innerHTML = "";
+    return;
+  }
+  const atrib = r.reduce((s, x) => s + x.generoAtribuido, 0);
+  resumo.innerHTML = r.map((x) => `<b>${esc(x.nomes.join(", "))}</b>${x.nomes.join() === nome(x.premio) ? "" : ` (${esc(nome(x.premio))})`}: ${fmt(x.distincoes)} distinç${x.distincoes > 1 ? "ões" : "ão"} de ${x.de} a ${x.ate}, ${fmt(x.pessoas)} pessoas`).join("; ")
+    + `. Cada prêmio tem o próprio n; os números não se somam aos de livros indicados.${atrib ? ` ${astGenero(true)} ${fmt(atrib)} com gênero atribuído pelo nome.` : ""}`;
+  const faixas = r.map((x) => curto(x.premio)), ml = 12 + d3.max(faixas, (n) => larguraTexto(n));
+  for (const [dim, titulo, sel] of DIMS) {
+    const dados = r.flatMap((x) => x.composicao[dim].filter((g) => g.n).map((g) => ({ ...g, premio: curto(x.premio) })));
+    desenhar($(sel), Plot.plot({
+      width: largura($(sel)), height: 46 + faixas.length * 44, marginLeft: ml, marginRight: 16, style: estilo(),
+      ariaLabel: `${titulo} das pessoas distinguidas pelo conjunto da obra, por prêmio`,
+      x: { label: "%", domain: [0, 100], grid: true, labelAnchor: "center" }, y: { domain: faixas, label: null },
+      color: { ...cores(dim), legend: true, tickFormat: rotulo },
+      marks: [
+        Plot.barX(dados, Plot.stackX({ x: "pct", y: "premio", fill: "grupo", order: M.ORDEM[dim], insetTop: 4, insetBottom: 4,
+          channels: { Grupo: (d) => rotulo(d.grupo), n: "n", Total: (d) => `${d.total}${nPequeno(d.total)}` },
+          tip: { format: { x: (v) => fmtPct(v), fill: false, y: true } } })),
+        Plot.ruleX([0], { stroke: css("--eixo") }),
+      ],
+    }));
+  }
+  $("#conjunto-lista").innerHTML = r.map((x) => `<h3>${esc(x.nomes.join(", "))} <span class="muted pequeno">${esc(nome(x.premio))} · ${x.de}–${x.ate}</span></h3>
+    <ol class="cronologia">${x.lista.map((d, i) => `<li style="--i:${i}"><span class="ano">${d.ano}</span> · <button type="button" class="link-pessoa" data-pessoa="${esc(d.pessoa_id)}">${esc(d.nome)}</button>${x.nomes.length > 1 ? ` <span class="muted pequeno">(${esc(d.nome_original)})</span>` : ""}</li>`).join("")}</ol>`).join("");
+  if (abrirPerfil) $("#conjunto-lista").onclick = (e) => { const b = e.target.closest("[data-pessoa]"); if (b) abrirPerfil(b.dataset.pessoa); };
 }

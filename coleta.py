@@ -1,5 +1,5 @@
 """Ferramentas de coleta (PLANO_COLETA.md). Uso:
-  python coleta.py normalizar   # dados/premio.csv + dados/coleta/<premio>/{edicoes,categorias_edicao,lista_*,jurados_*}.csv → dados/*.csv (preserva enriquecimentos)
+  python coleta.py normalizar   # dados/premio.csv + dados/coleta/<premio>/{edicoes,categorias_edicao,lista_*,jurados_*,homenageados}.csv → dados/*.csv (preserva enriquecimentos)
   python coleta.py wikidata     # pré-preenche gênero/nascimento de pessoas sem QID; candidatos em dados/coleta/wikidata_candidatos.csv
   python coleta.py aplicar_pessoas  # incorpora dados/coleta/pessoas_*.csv (pesquisa de nascimento e raça)
   python coleta.py verificar    # confere se cada raca_trecho aparece na página de raca_fonte
@@ -31,11 +31,12 @@ CAMPOS = {
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
     "obra": ["id", "titulo", "editora_id", "ano_publicacao"],
     "autoria": ["premio_id", "obra_id", "pessoa_id", "papel"],
-    "edicao": ["premio_id", "ano", "regime", "fonte"],
+    "edicao": ["premio_id", "ano", "regime", "obras", "fonte"],
     "edicao_contexto": ["premio_id", "ano", "texto", "fontes", "revisar"],
     "categoria_edicao": ["premio_id", "ano", "nome_original", "categoria", "vagas_lista", "vagas_curta", "vagas_premio", "etapa_lista", "fonte"],
     "indicacao": ["premio_id", "ano", "nome_original", "obra_id", "lista_curta", "colocacao", "editora_id", "fonte"],
     "jurado": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
+    "distincao": ["premio_id", "ano", "nome_original", "pessoa_id", "fonte"],
     "obra_capa": ["obra_id", "capa_url", "fonte", "pagina"],
     "pessoa_foto": ["pessoa_id", "foto_url", "pagina", "fonte"],
 }
@@ -68,7 +69,7 @@ CAMPOS_REVISAR = ["nome", "pessoa_id", "motivo", "wikidata_base", "premios_base"
 def normalizar():
     pessoas = {p["id"]: p for p in ler("pessoa")}
     editoras = {e["id"]: e for e in ler("editora")}
-    obras, autoria, indicacoes, jurados = {}, set(), {}, {}
+    obras, autoria, indicacoes, jurados, distincoes = {}, set(), {}, {}, {}
 
     # Coedição: vale a 1ª editora. "A / B" e "A | B" sempre ("S/A" é sufixo: só " / " com espaços); "A e B", "A - B" e
     # "A, B" só quando TODAS as partes já são editoras conhecidas, porque " e " também está em nomes ("Cultura e Barbárie").
@@ -108,7 +109,8 @@ def normalizar():
         # Listas: 2010+ primeiro, para os ids de obra dessas edições não mudarem quando entra a série histórica (um título
         # antigo igual recebe o sufixo -ano, não o contrário). Jurados: em ordem de nome.
         fs = glob.glob(str(BRUTO / pr["id"] / padrao))
-        return [Path(f) for f in sorted(fs, key=lambda f: (int(re.search(r"(\d{4})", Path(f).name).group(1)) < 2010, f))]
+        ano = lambda f: int(m.group(1)) if (m := re.search(r"(\d{4})", Path(f).name)) else 9999
+        return [Path(f) for f in sorted(fs, key=lambda f: (ano(f) < 2010, f))]
 
     # 1ª passada: em que prêmios cada nome aparece (listas e júri), para que a revisão independa da ordem de leitura.
     premios_do_nome = {}
@@ -117,7 +119,7 @@ def normalizar():
             for r in csv.DictReader(open(arq, encoding="utf-8")):
                 for n in nomes(r["autores"]) + nomes(r["ilustradores"]) + nomes(r.get("organizadores")):
                     premios_do_nome.setdefault(slug(n), set()).add(pr["id"])
-        for arq in arquivos(pr, "jurados_*.csv"):
+        for arq in arquivos(pr, "jurados_*.csv") + arquivos(pr, "homenageados.csv"):
             for r in csv.DictReader(open(arq, encoding="utf-8")):
                 premios_do_nome.setdefault(slug(r["nome"]), set()).add(pr["id"])
 
@@ -223,7 +225,16 @@ def normalizar():
     gravar("categoria_edicao", cats)
 
     # Um prêmio de cada vez, listas e depois júri: a revisão de um nome vai sempre para o prêmio que chegou depois.
-    for premio_id, arq, tipo in [(pr["id"], a, t) for pr in premios for t in ("lista", "jurados") for a in arquivos(pr, f"{t}_*.csv")]:
+    # Conjunto da obra (RF-30, D36): homenageados.csv (ano, nome_original, nome, fonte_1, fonte_2) → distincao.
+    for premio_id, arq, tipo in [(pr["id"], a, t) for pr in premios for t in ("lista", "homenageados", "jurados")
+                                 for a in arquivos(pr, "homenageados.csv" if t == "homenageados" else f"{t}_*.csv")]:
+        if tipo == "homenageados":
+            for r in csv.DictReader(open(arq, encoding="utf-8")):
+                pid = pessoa(r["nome"], premio_id)
+                distincoes[(premio_id, r["ano"], r["nome_original"], pid)] = {
+                    "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "pessoa_id": pid,
+                    "fonte": " ; ".join(f for f in (r.get("fonte_1"), r.get("fonte_2")) if f)}
+            continue
         if tipo == "jurados":
             for r in csv.DictReader(open(arq, encoding="utf-8")):
                 pid = pessoa(r["nome"], premio_id)
@@ -286,6 +297,7 @@ def normalizar():
     gravar("autoria", [{"premio_id": pr, "obra_id": o, "pessoa_id": p, "papel": t} for pr, o, p, t in sorted(autoria)])
     gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))
     gravar("jurado", sorted(jurados.values(), key=lambda j: (j["premio_id"], j["ano"], j["nome_original"], j["pessoa_id"])))
+    gravar("distincao", sorted(distincoes.values(), key=lambda d: (d["premio_id"], d["ano"], d["nome_original"], d["pessoa_id"])))
     for premio_id, linhas in revisar.items():  # refeito a cada execução; sem pendência, o arquivo some
         arq = BRUTO / premio_id / "casamentos_revisar.csv"
         if linhas:
@@ -296,7 +308,7 @@ def normalizar():
         else:
             arq.unlink(missing_ok=True)
     pendentes = sum(map(len, revisar.values()))
-    print(f"{len(pessoas)} pessoas, {len(editoras)} editoras, {len(obras)} obras, {len(indicacoes)} indicações, {len(jurados)} jurados"
+    print(f"{len(pessoas)} pessoas, {len(editoras)} editoras, {len(obras)} obras, {len(indicacoes)} indicações, {len(jurados)} jurados, {len(distincoes)} distinções"
           + (f"; {pendentes} casamentos de pessoa para revisar (dados/coleta/<premio>/casamentos_revisar.csv)" if pendentes else ""))
 
 

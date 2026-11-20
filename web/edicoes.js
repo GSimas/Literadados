@@ -28,6 +28,9 @@ export function htmlEdicao(premio, ano, { D, linhas, contexto }) {
   const cat = (c) => D.categorias.find((x) => (x.premio ?? PREMIOS[0]) === premio && x.ano === ano && x.nome_original === c.nome_original);
   const jurados = (c) => D.jurados.filter((j) => (j.premio ?? PREMIOS[0]) === premio && j.ano === ano && j.categoria === c.categoria)
     .map((j) => ({ id: j.pessoa_id, nome: D.pessoas.find((x) => x.id === j.pessoa_id)?.nome ?? j.pessoa_id }));
+  // Conjunto da obra do mesmo ano (RF-30, CA-30.4), à parte dos livros.
+  const nomeDe = (id) => D.pessoas.find((x) => x.id === id)?.nome ?? id;
+  const dist = (D.distincoes ?? []).filter((d) => (d.premio ?? PREMIOS[0]) === premio && d.ano === ano);
   const resultado = (o, c) => (o.colocacao ? `${o.colocacao}º lugar` : o.lista_curta === 1 ? "finalista" : ROT_ETAPA[cat(c)?.etapa_lista] ?? "lista");
   const kpi = (rot, val, det = "") => `<div class="kpi"><div class="rot">${rot}</div><div class="val">${val}</div><div class="det">${det}</div></div>`;
   const a = p.antes;
@@ -41,7 +44,7 @@ export function htmlEdicao(premio, ano, { D, linhas, contexto }) {
       <div>
         <p class="sobretitulo">Edição · ${esc(p.regime ?? "")}</p>
         <h2 id="perfil-nome">${esc(nome)} ${ano}</h2>
-        <p>${fmt(p.obras)} obras e ${fmt(p.pessoas)} pessoas-autoras em ${fmt(p.categorias.length)} categoria${p.categorias.length > 1 ? "s" : ""} do recorte.</p>
+        <p>${fmt(p.obras)} obra${p.obras === 1 ? "" : "s"} e ${fmt(p.pessoas)} pessoa${p.pessoas === 1 ? "" : "s"}-autora${p.pessoas === 1 ? "" : "s"} em ${fmt(p.categorias.length)} categoria${p.categorias.length > 1 ? "s" : ""} do recorte.</p>
         <div class="links-externos">${navEd(p.anterior, `‹ ${p.anterior}`)}${navEd(p.seguinte, `${p.seguinte} ›`)}
           <a href="/premios/${esc(premio)}/${ano}/">Página permanente</a><a href="#/edicao/${esc(premio)}/${ano}" data-copiar>Link deste perfil</a></div>
       </div>
@@ -70,6 +73,10 @@ export function htmlEdicao(premio, ano, { D, linhas, contexto }) {
             ${o.editora ? `<span class="muted"> · ${linkEditora(o.editora, D)}</span>` : ""}</span></li>`).join("")}</ol>
           ${jur.length ? `<p class="pequeno"><b>Júri:</b> ${pessoas(jur)}</p>` : ""}</section>`;
       }).join("")}
+      ${dist.map((d) => `<section class="edicao-categoria"><h3>${esc(d.nome_original)} <span class="muted pequeno">(conjunto da obra)</span></h3>
+        <p class="muted pequeno">Prêmio pela trajetória, sem livro: fora dos números desta página (RF-30).${d.fonte ? ` <a href="${esc(d.fonte)}" target="_blank" rel="noopener noreferrer">fonte</a>` : ""}</p>
+        <ol class="obras-edicao"><li class="venceu"><span class="resultado">distinção</span><span>${pessoas([{ id: d.pessoa_id, nome: nomeDe(d.pessoa_id) }])}</span></li></ol>
+        ${d.juri?.length ? `<p class="pequeno"><b>Júri:</b> ${pessoas(d.juri.map((id) => ({ id, nome: nomeDe(id) })))}</p>` : ""}</section>`).join("")}
     </div>
   </article>`;
 

@@ -14,7 +14,7 @@ CREATE TABLE uf (
 );
 
 -- Prêmios da base (RF-26, design D31). ordem só ordena listas, facetas e a coleta; o painel abre com todos (DA-4).
--- Prêmios pelo conjunto da obra ficam fora (DA-2): todo prêmio aqui premia livros.
+-- Prêmio pelo conjunto da obra (Camões, Machado de Assis) entra à parte, na tabela distincao (DA-2 revista, RF-30, D36).
 CREATE TABLE premio (
   id           TEXT PRIMARY KEY,               -- slug ('jabuti', 'oceanos')
   nome         TEXT NOT NULL,
@@ -126,7 +126,9 @@ CREATE TABLE autoria (
 CREATE TABLE edicao (
   premio_id  TEXT NOT NULL REFERENCES premio(id),
   ano        INTEGER NOT NULL,
-  regime     TEXT NOT NULL,                   -- ex. '2010–2017 pódio', '2019–2025 vencedor único'
+  regime     TEXT NOT NULL,                   -- ex. '2010–2017 pódio', '2019–2026 vencedor único'
+  -- O que a edição julgou, quando difere do prêmio (CA-26.20): o Saramago premiava livro publicado até 2019 e inédito desde 2022.
+  obras      TEXT CHECK (obras IN ('publicadas','ineditas')),  -- NULL = premio.obras
   fonte      TEXT NOT NULL,
   PRIMARY KEY (premio_id, ano)
 );
@@ -150,7 +152,8 @@ CREATE TABLE categoria_edicao (
   nome_original  TEXT NOT NULL,               -- ex. 'Contos e Crônicas', 'Romance Literário'
   -- Taxonomia comum a todos os prêmios (CA-26.3); 'Geral' = categoria única, com prosa e poesia concorrendo juntas;
   -- 'Prosa' = romance, conto, crônica e dramaturgia juntos, sem poesia (Oceanos 2023 em diante).
-  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano','Geral','Prosa')),
+  -- 'Conjunto da obra' = prêmio por pessoa, sem livro (RF-30): os premiados ficam em distincao, nunca em indicacao.
+  categoria      TEXT NOT NULL CHECK (categoria IN ('Romance','Contos','Poesia','Crônica','Infantil','Juvenil','Infantil e Juvenil','Livro do Ano','Geral','Prosa','Conjunto da obra')),
   vagas_lista    INTEGER,                     -- tamanho da 1ª lista pública (≈10 nos dois regimes)
   vagas_curta    INTEGER,                     -- 2ª lista (≈5); NULL se a edição não teve
   vagas_premio   INTEGER NOT NULL,            -- 3 até 2017, 1 a partir de 2018
@@ -181,6 +184,18 @@ CREATE TABLE jurado (
   premio_id      TEXT NOT NULL,
   ano            INTEGER NOT NULL,
   nome_original  TEXT NOT NULL,
+  pessoa_id      TEXT NOT NULL REFERENCES pessoa(id),
+  fonte          TEXT NOT NULL,
+  PRIMARY KEY (premio_id, ano, nome_original, pessoa_id),
+  FOREIGN KEY (premio_id, ano, nome_original) REFERENCES categoria_edicao(premio_id, ano, nome_original)
+);
+
+-- Prêmio pelo conjunto da obra (RF-30, D36): uma linha por pessoa distinguida. Fica fora de v_participacao e das métricas
+-- por livro; a categoria da edição é 'Conjunto da obra' (o júri continua em jurado).
+CREATE TABLE distincao (
+  premio_id      TEXT NOT NULL,
+  ano            INTEGER NOT NULL,
+  nome_original  TEXT NOT NULL,               -- ex. 'Prêmio Camões', 'Prêmio Machado de Assis'
   pessoa_id      TEXT NOT NULL REFERENCES pessoa(id),
   fonte          TEXT NOT NULL,
   PRIMARY KEY (premio_id, ano, nome_original, pessoa_id),
@@ -218,6 +233,23 @@ LEFT JOIN editora e   ON e.id = i.editora_id  -- a edição que concorreu (CA-26
 JOIN autoria a        ON a.obra_id = o.id AND a.premio_id = i.premio_id  -- crédito do próprio prêmio
 JOIN pessoa p         ON p.id = a.pessoa_id
 LEFT JOIN uf u        ON u.uf = p.uf_nascimento;
+
+-- Conjunto da obra (RF-30, CA-30.5): uma linha por distinção, com os atributos de pessoa de v_participacao.
+-- Não é indicação de livro: nunca some com v_participacao.
+CREATE VIEW v_distincao AS
+SELECT
+  d.premio_id AS premio, pr.nome AS premio_nome, d.ano, d.nome_original,
+  p.id AS pessoa_id, p.nome,
+  p.genero, COALESCE(p.genero_evidencia = 'atribuicao', FALSE) AS genero_atribuido,
+  p.raca, p.raca_busca, p.raca IN ('preta','parda','negra') AS negra,
+  p.uf_nascimento,
+  CASE WHEN p.uf_nascimento <> 'EX' THEN 'BR' ELSE p.pais_nascimento END AS pais_nascimento,
+  u.regiao AS regiao_nascimento,
+  d.ano - p.ano_nascimento AS idade_no_premio
+FROM distincao d
+JOIN premio pr ON pr.id = d.premio_id
+JOIN pessoa p  ON p.id = d.pessoa_id
+LEFT JOIN uf u ON u.uf = p.uf_nascimento;
 
 -- Cobertura por edição: o dashboard mostra isto ao lado de qualquer número demográfico.
 CREATE VIEW v_cobertura AS
