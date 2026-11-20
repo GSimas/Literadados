@@ -19,6 +19,9 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 .venv/bin/python coleta.py wikidata            # candidatos de QID → confirmar → coleta.py aplicar_wikidata
 .venv/bin/python coleta.py verificar           # confere trechos de raça contra as páginas-fonte
 .venv/bin/python coleta.py contexto            # dados/coleta/contexto/lote_*.csv → dados/edicao_contexto.csv (texto de cada edição)
+.venv/bin/python coleta.py territorio | malha_municipios       # território do IBGE (RF-32) e malha municipal por UF
+.venv/bin/python coleta.py leitura <alfabetizacao|escolas_biblioteca|cnpj|retratos>   # módulo Leitura (RF-33); downloads em ~/Library/Caches/literadados/
+.venv/bin/python coleta.py mapeamento          # livrarias.csv/clubes.csv da coleta → dados/livraria.csv e clube.csv (RF-34); obras/editoras/pessoas entram pelo normalizar
 ```
 
 ## Regras inegociáveis

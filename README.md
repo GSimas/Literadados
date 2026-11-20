@@ -95,12 +95,24 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py      # CSVs → literadados.duckdb + web/dados.json + páginas estáticas (falha se o dado for inconsistente)
-.venv/bin/python server.py     # http://localhost:8000 (servidor estático só para desenvolvimento)
+.venv/bin/python server.py     # http://localhost:8000 (portal; prêmios em /premios.html, leitura em /leitura.html, mapeamento em /mapeamento.html)
+```
+
+Coletas dos módulos novos (os downloads brutos ficam em `~/Library/Caches/literadados/`, fora do repositório):
+
+```bash
+.venv/bin/python coleta.py territorio                  # municípios, UFs e regiões do IBGE + população do Censo 2022 → dados/territorio.csv
+.venv/bin/python coleta.py malha_municipios            # malha municipal por UF → web/malha/<UF>.json
+.venv/bin/python coleta.py leitura alfabetizacao       # Censo 2022 (SIDRA 9542) → dados/indicador_valor/alfabetizacao.csv
+.venv/bin/python coleta.py leitura escolas_biblioteca  # microdados do Censo Escolar (INEP) baixados no cache
+.venv/bin/python coleta.py leitura cnpj                # estabelecimentos do CNPJ filtrados pelos CNAEs de livraria e editora
+.venv/bin/python coleta.py leitura retratos            # dados/coleta/leitura/retratos.csv (transcrição com página) → leitores e livros por ano
+.venv/bin/python coleta.py mapeamento                  # dados/coleta/mapeamento/<código>/livrarias.csv e clubes.csv → dados/livraria.csv e clube.csv
 ```
 
 O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador.
 
-**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/edicoes.json`, `web/contexto.json`, `web/banco/*.parquet` e as páginas estáticas, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e push para o `main`. O Netlify está ligado ao repositório e publica `web/` a cada push; PRs ganham prévia de deploy.
+**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/edicoes.json`, `web/leitura.json` (e os arquivos por UF), `web/mapeamento/<município>.json`, `web/contexto-<módulo>.json`, `web/banco/*.parquet` e as páginas estáticas, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e push para o `main`. O Netlify está ligado ao repositório e publica `web/` a cada push; PRs ganham prévia de deploy.
 
 ## Testes
 
