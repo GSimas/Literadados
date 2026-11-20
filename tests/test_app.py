@@ -442,7 +442,7 @@ def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categor
 
 def _banco_do_navegador(web: Path):
     con = duckdb.connect()
-    for t in json.loads((web / "contexto.json").read_text(encoding="utf-8"))["tabelas"]:
+    for t in json.loads((web / "contexto-premios.json").read_text(encoding="utf-8"))["tabelas"]:
         con.execute(f"CREATE TABLE {t} AS SELECT * FROM read_parquet('{web / 'banco' / f'{t}.parquet'}')")
     for v in [x.strip() for x in (web / "banco" / "views.sql").read_text(encoding="utf-8").split(";\n") if x.strip()]:
         con.execute(v)
@@ -457,7 +457,7 @@ def test_banco_do_navegador_igual_ao_build(base, mini, tmp_path):  # CA-12.4: me
     for q in ["SELECT COUNT(*), COUNT(DISTINCT pessoa_id), SUM(premiada::INT) FROM v_participacao", "SELECT * FROM v_cobertura ORDER BY premio, ano",
               "SELECT COUNT(*) FROM pessoa WHERE genero_evidencia = 'atribuicao'"]:
         assert nav.execute(q).fetchall() == orig.execute(q).fetchall(), q
-    ctx = json.loads((tmp_path / "web" / "contexto.json").read_text(encoding="utf-8"))["sistema"]
+    ctx = json.loads((tmp_path / "web" / "contexto-premios.json").read_text(encoding="utf-8"))["sistema"]
     assert "v_participacao" in ctx and "piso" in ctx and "genero_atribuido" in ctx
 
 
@@ -696,3 +696,18 @@ def test_cabecalho_igual_em_todas_as_paginas():  # CA-31.4, D37
     for c, _ in seo.MODULOS:
         txt = (web / c.lstrip("/")).read_text(encoding="utf-8")
         assert f'<a class="modulo" href="{c.lstrip("/")}" aria-current="page">' in txt, c
+
+
+def test_contexto_e_banco_por_modulo():  # CA-31.7, D37
+    """Cada módulo tem contexto-<módulo>.json com as suas tabelas (todas em Parquet), as suas views e o prompt."""
+    web = RAIZ / "web"
+    todas_views = set(re.findall(r"CREATE VIEW (\w+)", (web / "banco" / "views.sql").read_text(encoding="utf-8")))
+    mods = sorted(web.glob("contexto-*.json"))
+    assert [m.stem.removeprefix("contexto-") for m in mods] == sorted(build.modulos_banco(None))
+    for arq in mods:
+        ctx = json.loads(arq.read_text(encoding="utf-8"))
+        assert ctx["sistema"] and all((web / "banco" / f"{t}.parquet").exists() for t in ctx["tabelas"]), arq.name
+        assert set(ctx["views"]) <= todas_views, arq.name
+    for pag in ["premios.html"]:
+        m = re.search(r'<body data-modulo="(\w+)"', (web / pag).read_text(encoding="utf-8")).group(1)
+        assert (web / f"contexto-{m}.json").exists(), pag

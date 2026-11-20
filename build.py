@@ -263,7 +263,7 @@ def varios_premios(con) -> int:
 
 # ---------- banco no navegador (Diadorim, design D26) ----------
 # Regras de análise + DDL que a IA recebe como prompt de sistema (antes montado no server.py).
-def prompt_sistema(con) -> str:
+def prompt_sistema(con, modulo: str = "premios") -> str:
     ddl = (RAIZ / "schema.sql").read_text(encoding="utf-8").split("INSERT INTO uf")[0]
     premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, p.obras, MIN(i.ano) AS de, MAX(i.ano) AS ate,
                                      COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
@@ -339,15 +339,24 @@ Esquema (DuckDB):
 {ddl}"""
 
 
+def modulos_banco(con) -> dict:
+    """Tabelas e views de cada módulo no banco do navegador (CA-31.7, D37). Cada Parquet é um arquivo só em web/banco/;
+    cada página carrega só o que é do seu módulo (<body data-modulo>)."""
+    views = re.findall(r"CREATE VIEW (\w+)", (RAIZ / "schema.sql").read_text(encoding="utf-8"))
+    return {"premios": {"tabelas": ["uf", *TABELAS], "views": views}}
+
+
 def exportar_banco(con, web: Path):
-    """Tabelas em Parquet, views de schema.sql e o prompt da IA: o DuckDB-WASM recria o banco no navegador (D26)."""
+    """Tabelas em Parquet, views de schema.sql e, por módulo, o prompt da IA: o DuckDB-WASM recria o banco no navegador (D26, D37)."""
     pasta = web / "banco"
     pasta.mkdir(parents=True, exist_ok=True)
-    for t in ["uf", *TABELAS]:
+    mods = modulos_banco(con)
+    for t in dict.fromkeys(t for m in mods.values() for t in m["tabelas"]):
         con.execute(f"COPY {t} TO '{pasta / f'{t}.parquet'}' (FORMAT parquet)")
     views = re.findall(r"CREATE VIEW .*?;", (RAIZ / "schema.sql").read_text(encoding="utf-8"), flags=re.S)
     (pasta / "views.sql").write_text("\n\n".join(views) + "\n", encoding="utf-8")
-    (web / "contexto.json").write_text(json.dumps({"tabelas": ["uf", *TABELAS], "sistema": prompt_sistema(con)}, ensure_ascii=False), encoding="utf-8")
+    for m, conf in mods.items():
+        (web / f"contexto-{m}.json").write_text(json.dumps({**conf, "sistema": prompt_sistema(con, m)}, ensure_ascii=False), encoding="utf-8")
 
 
 PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura", "distincoes"]  # = metricas.CHAVES_PARTES

@@ -1,7 +1,7 @@
 // Diadorim, a IA do Literadados (spec RF-12, design D20): chat flutuante no navegador, com login OpenRouter (PKCE)
 // e o modelo openrouter/free. Contexto em contexto.json e SQL num DuckDB que roda no navegador (banco.js, design D26).
 import { $, esc, fecharAnimado, BOTAO_TABELA } from "./ui.js";
-import { consultarSQL } from "./banco.js";
+import { consultarSQL, arquivoContexto } from "./banco.js";
 
 const OPENROUTER = "https://openrouter.ai";
 const MODELO = "openrouter/free";
@@ -228,8 +228,8 @@ async function concluirLogin() {
 let sistema = null;
 async function prompt() {
   if (sistema) return sistema;
-  const r = await fetch("contexto.json");
-  if (!r.ok) throw new Error("Não achei o contexto do Literadados (contexto.json). Rode python build.py.");
+  const r = await fetch(arquivoContexto());
+  if (!r.ok) throw new Error(`Não achei o contexto do Literadados (${arquivoContexto()}). Rode python build.py.`);
   sistema = `${PERSONA}\n\n${REGRAS_LINK}\n\n${(await r.json()).sistema}`;
   return sistema;
 }

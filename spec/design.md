@@ -172,7 +172,7 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
 | 31.1, 31.3 | testes atuais apontando para `premios.html`; `test_rotas_antigas_redirecionam` (script do portal no Node) |
 | 31.2, 31.4, 31.6 | `test_portal_numeros_do_build`, `test_cabecalho_igual_em_todas_as_paginas`, `test_textos_de_plataforma` (páginas novas e frases de plataforma) |
 | 31.5 | `test_busca_json` (hrefs válidos, sem duplicata com o índice de `premios.html`); `metricas.test.mjs` (`buscar` com entradas de outros módulos) |
-| 31.7, 31.8, 31.9 | `test_contexto_e_banco_por_modulo`, `test_json_real_menor_que_1mb` (todo JSON de abertura), `test_build_falha_diz_o_modulo` |
+| 31.7, 31.8, 31.9 | `test_contexto_e_banco_por_modulo`, `diadorim.test.mjs` (`contexto-premios.json`), `test_json_real_menor_que_1mb` (todo JSON de abertura), `test_build_falha_diz_o_modulo` |
 | 32.1, 32.2, 32.5 | `test_territorio_completo`, `test_build_falha_territorio_inexistente`, `test_uf_bate_com_territorio`, `test_malha_municipal` |
 | 32.3 | `test_codigo_municipio_pessoas_e_editoras` (Florianópolis e um caso de `municipio_casamento.csv`), `test_etapa0_so_jabuti` sem mudança |
 | 33.1, 33.2, 33.3 | `test_build_falha_indicador_*` (sem fonte, território, percentual, recorte, chave repetida, amostral sem amostra), `test_suprimido_sem_valor` |
@@ -276,7 +276,7 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
 
   **Busca (CA-31.5).** O build grava `web/busca.json` com as entradas que não dependem de `dados.json` (`{tipo, rotulo, sub, href}`, `href` absoluto para a página do módulo): municípios, indicadores, livrarias, clubes, pessoas e editoras (nome e UF · ano, para o portal e os outros módulos acharem gente da base). `busca.js` carrega o arquivo no primeiro foco do campo e pontua com o mesmo `metricas.buscar`. Em `premios.html`, o índice rico de `metricas.indiceBusca(D)` continua, e as entradas de `busca.json` com o mesmo `href` são descartadas.
 
-  **Diadorim por módulo (CA-31.7).** `<body data-modulo="premios|leitura|mapeamento">`. O build grava `web/contexto-<módulo>.json` (`build.prompt_sistema(con, modulo)`: regras gerais, regras do módulo e DDL só das tabelas dele) e `web/banco/modulos.json` (`{módulo: {tabelas, views}}`); cada Parquet continua um arquivo só em `web/banco/`. `banco.js` carrega só as tabelas do módulo da página, cria só as views dele e trava a configuração como hoje (D26). O portal não tem Diadorim. Perguntas que cruzam módulos ficam para depois (o território comum já permite).
+  **Diadorim por módulo (CA-31.7).** `<body data-modulo="premios|leitura|mapeamento">`. O build grava `web/contexto-<módulo>.json` (`{tabelas, views, sistema}`, de `build.modulos_banco` e `build.prompt_sistema(con, modulo)`: regras gerais, regras do módulo e DDL só das tabelas dele); cada Parquet continua um arquivo só em `web/banco/`, e `views.sql` tem todas as views (o navegador cria só as do módulo). `banco.js` carrega só as tabelas do módulo da página, cria só as views dele e trava a configuração como hoje (D26). O portal não tem Diadorim. Perguntas que cruzam módulos ficam para depois (o território comum já permite).
 
   **Dados por módulo (CA-31.8).** Prêmios: `dados.json` e partes, como hoje. Leitura: `leitura.json` + `leitura/<UF>.json` (D39). Mapeamento: `mapeamento/<código do município>.json` (D40). `test_json_real_menor_que_1mb` passa a percorrer todo JSON que uma página carrega na abertura.
 

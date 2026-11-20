@@ -30,7 +30,7 @@ test("laço de ferramentas: consulta o banco pelo /api/sql e devolve texto e con
   globalThis.fetch = async (url, opt = {}) => {
     chamadas.push(url);
     const json = (corpo, status = 200) => ({ ok: status < 300, status, json: async () => corpo });
-    if (url === "contexto.json") return json({ sistema: "REGRAS + DDL" });
+    if (url === "contexto-premios.json") return json({ sistema: "REGRAS + DDL" });
     const corpo = JSON.parse(opt.body);
     assert.equal(corpo.model, "openrouter/free");
     assert.match(opt.headers.Authorization, /^Bearer chave-teste$/);
@@ -47,11 +47,11 @@ test("laço de ferramentas: consulta o banco pelo /api/sql e devolve texto e con
   assert.equal(r.contexto, undefined);
   assert.equal(r.consultas.length, 1);
   assert.equal(r.modelo, "x/y:free");
-  assert.deepEqual(chamadas.filter((u) => !u.startsWith("https://")), ["contexto.json", "sql:SELECT 42 AS n"]);
+  assert.deepEqual(chamadas.filter((u) => !u.startsWith("https://")), ["contexto-premios.json", "sql:SELECT 42 AS n"]);
 });
 
 test("chave recusada (401) pede novo login", async () => {
-  globalThis.fetch = async (url) => (url === "contexto.json"
+  globalThis.fetch = async (url) => (url === "contexto-premios.json"
     ? { ok: true, status: 200, json: async () => ({ sistema: "x" }) }
     : { ok: false, status: 401, json: async () => ({}) });
   await assert.rejects(responder("oi", [], "velha"), (e) => e.sair === true);
@@ -76,7 +76,7 @@ test("passos intermediários e modelo escolhido (CA-12.9, CA-12.11)", async () =
   let rodada = 0, modeloPedido = null;
   globalThis.fetch = async (url, opt = {}) => {
     const json = (corpo, status = 200) => ({ ok: status < 300, status, json: async () => corpo });
-    if (url === "contexto.json") return json({ sistema: "x" });
+    if (url === "contexto-premios.json") return json({ sistema: "x" });
     modeloPedido = JSON.parse(opt.body).model;
     return rodada++ === 0
       ? json({ model: "a/b", choices: [{ message: { role: "assistant", tool_calls: [{ id: "t", type: "function", function: { name: "consultar_sql", arguments: '{"sql":"SELECT 1"}' } }] } }] })
@@ -140,7 +140,7 @@ test("laço: resposta só com o número → insiste uma vez → ainda seca → L
   const pedidos = [];
   globalThis.fetch = async (url, opt = {}) => {
     const json = (corpo) => ({ ok: true, status: 200, json: async () => corpo });
-    if (url === "contexto.json") return json({ sistema: "x" });
+    if (url === "contexto-premios.json") return json({ sistema: "x" });
     const corpo = JSON.parse(opt.body);
     pedidos.push(corpo.messages.at(-1));
     return pedidos.length === 1
