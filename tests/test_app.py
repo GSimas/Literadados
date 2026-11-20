@@ -712,7 +712,7 @@ def test_busca_json():  # CA-31.5, D37
     for t, rotulo, sub, href, *_ in J["e"]:
         assert rotulo and 0 <= t < len(J["tipos"]), rotulo
         pagina, _, rota = href.partition("#")
-        assert (web / pagina).exists(), href
+        assert (web / pagina.partition("?")[0]).exists(), href
         if rota.startswith("/pessoa/"):
             assert rota.removeprefix("/pessoa/") in pessoas, href
         if rota.startswith("/editora/"):
@@ -806,3 +806,81 @@ def test_malha_municipal():  # CA-32.5
         g = json.loads((RAIZ / "web" / "malha" / f"{uf}.json").read_text(encoding="utf-8"))
         malha = {f["properties"]["codigo"] for f in g["features"]}
         assert len(cods - malha) <= 1, uf  # município instalado depois da malha (Boa Esperança do Norte, MT)
+
+
+# ---------- RF-33 Leitura (D39) ----------
+
+def test_json_leitura_reconstroi_v_indicador():  # CA-33.5, CA-31.8
+    """expandirLeitura (Node) sobre leitura.json + os arquivos de SC devolve as linhas de v_indicador (Brasil, regiões, UFs e SC)."""
+    web = RAIZ / "web"
+    J = json.loads((web / "leitura.json").read_text(encoding="utf-8"))
+    extras = [{"uf": "SC", "municipios": json.loads((web / "leitura" / "municipios" / "SC.json").read_text(encoding="utf-8"))["municipios"],
+               "valores": json.loads((web / "leitura" / p).read_text(encoding="utf-8"))["valores"]} for p in [f"{x}.json" for x in J["por_uf"] if x.endswith("/SC")]]
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        (tmp / "x.json").write_text(json.dumps(extras), encoding="utf-8")
+        (tmp / "t.mjs").write_text(
+            f"import * as M from {json.dumps((web / 'metricas.js').as_uri())};\nimport {{ readFileSync }} from 'node:fs';\n"
+            f"const J = JSON.parse(readFileSync({json.dumps(str(web / 'leitura.json'))}, 'utf8')), X = JSON.parse(readFileSync({json.dumps(str(tmp / 'x.json'))}, 'utf8'));\n"
+            "console.log(JSON.stringify(M.expandirLeitura(J, X)));", encoding="utf-8")
+        out = subprocess.run(["node", str(tmp / "t.mjs")], capture_output=True, text=True, check=True).stdout
+    obtido = json.loads(out)
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    esperado = build._linhas(con, "SELECT * FROM v_indicador WHERE territorio_tipo <> 'municipio' OR uf = 'SC'")
+    chave = lambda l: (l["indicador"], l["territorio"], l["ano"], l["dimensao"], l["categoria"])
+    obtido, esperado = sorted(obtido, key=chave), sorted(esperado, key=chave)
+    assert len(obtido) == len(esperado) > 1000
+    for o, e in zip(obtido, esperado):
+        assert list(o) == list(e)
+        for k in e:
+            if k == "por_100mil" and e[k] is not None:
+                assert abs(o[k] - e[k]) <= 0.011, (chave(e), k)
+            elif isinstance(e[k], float):
+                assert o[k] == pytest.approx(e[k]), (chave(e), k)
+            else:
+                assert o[k] == e[k], (chave(e), k)
+
+
+def test_leitura_arquivos_menores_que_1mb():  # CA-31.8, RNF-06
+    web = RAIZ / "web"
+    for arq in [web / "leitura.json", *(web / "leitura").rglob("*.json")]:
+        assert arq.stat().st_size < 1_000_000, arq.name
+
+
+def _base_leitura(mini):
+    _territorio_mini(mini)
+    shutil.copy(RAIZ / "dados" / "indicador.csv", mini / "indicador.csv")
+    shutil.copy(RAIZ / "dados" / "recorte.csv", mini / "recorte.csv")
+    (mini / "indicador_valor").mkdir()
+    base = {"indicador_id": "alfabetizacao", "territorio": "4205407", "ano": "2022", "dimensao": "total", "categoria": "total", "valor": "98.6",
+            "numerador": "448", "denominador": "454", "amostra": "", "margem": "", "suprimido": "false", "fonte_url": "https://sidra.ibge.gov.br/tabela/9542"}
+    return base
+
+
+@pytest.mark.parametrize("muda, erro", [
+    ({"fonte_url": ""}, "indicador_valor"),                                   # sem fonte
+    ({"territorio": "9999999"}, "indicador_valor"),                           # território inexistente
+    ({"valor": "130"}, "percentual fora"),                                    # percentual > 100
+    ({"categoria": "outros"}, "indicador_valor"),                             # recorte fora do vocabulário
+    ({"numerador": "", "denominador": ""}, "sem numerador"),                  # censo em % sem numerador e denominador
+    ({"indicador_id": "leitores", "territorio": "BR", "numerador": "", "denominador": ""}, "sem amostra"),  # amostral sem amostra
+    ({"indicador_id": "leitores", "amostra": "100"}, "mais fino"),             # Retratos não desce a município
+])
+def test_build_falha_indicador(mini, muda, erro):  # CA-33.1, CA-33.3
+    linha = {**_base_leitura(mini), **muda}
+    _csv(mini / "indicador_valor" / "x.csv", [linha])
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)
+
+
+def test_build_falha_indicador_chave_repetida_e_suprimido(mini):  # CA-33.1, CA-33.3
+    base = _base_leitura(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [base, base])
+    with pytest.raises(build.BuildError, match="indicador_valor"):
+        _build(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [{**base, "valor": "", "numerador": "", "denominador": "", "suprimido": "true"}])
+    _build(mini)  # suprimido sem valor é válido
+    _csv(mini / "indicador_valor" / "x.csv", [{**base, "suprimido": "true"}])
+    with pytest.raises(build.BuildError, match="indicador_valor"):
+        _build(mini)  # suprimido com valor, não

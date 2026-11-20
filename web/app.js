@@ -14,6 +14,7 @@ import { montarTema } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
 import { htmlLugar } from "./lugares.js";
+import { ligarMunicipios } from "./pessoas.js";
 import { montarExportacao } from "./exportar.js";
 
 // Sem dados não há painel: avisa no lugar dos números da abertura, com botão para tentar de novo, em vez de falhar em silêncio.
@@ -220,6 +221,7 @@ async function rota() {
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });
   if (!r?.html || location.hash !== destino) return;
   $("#perfil-corpo").innerHTML = r.html;
+  ligarMunicipios($("#perfil-corpo"));
   if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
   if (r.desenhar) { await carregarGraficos().catch((e) => console.error(e)); r.desenhar(); } // gráficos do perfil de lugar: depois de abrir, com a largura conhecida

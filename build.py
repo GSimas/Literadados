@@ -515,6 +515,12 @@ def exportar_busca(con, web: Path):
         e.append([1, nome, " · ".join(x for x in (mun, uf) if x and x != "EX"), f"premios.html#/editora/{eid}"])
     for uf, nome, regiao in con.execute("SELECT uf, nome, regiao FROM uf WHERE uf <> 'EX' ORDER BY uf").fetchall():
         e.append([2, nome, f"{uf} · {regiao}", f"premios.html#/uf/{uf}", uf])
+    if con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0]:
+        for cod, nome, uf in con.execute("""SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai
+                                            WHERE m.tipo = 'municipio' ORDER BY m.codigo""").fetchall():
+            e.append([3, nome, uf, f"leitura.html#/municipio/{cod}"])
+        for iid, nome, fonte in con.execute("SELECT id, nome, fonte_nome FROM indicador ORDER BY ordem").fetchall():
+            e.append([4, nome, fonte, f"leitura.html?i={iid}"])
     (web / "busca.json").write_text(json.dumps({"tipos": tipos, "e": e}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 

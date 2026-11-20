@@ -7,6 +7,31 @@ import { obterMalha } from "./mapa.js";
 const ehBR = (u) => u.uf !== "EX";
 
 // tipo: "uf" ou "regiao"; chave: sigla da UF ou nome da região. Devolve { html, desenhar } ou null.
+// Bloco de leitura do perfil de lugar (CA-32.4): o valor mais recente de cada indicador, sem recorte, com fonte e n.
+let leituraJ = null;
+async function blocoLeitura() {
+  const el = document.getElementById("lugar-leitura");
+  if (!el) return;
+  leituraJ ??= fetch("leitura.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const J = await leituraJ;
+  if (!J) return;
+  const t = el.dataset.tipo === "uf" ? J.territorios.find((x) => x.tipo === "uf" && x.sigla === el.dataset.territorio)
+    : J.territorios.find((x) => x.tipo === "regiao" && x.nome === el.dataset.territorio);
+  if (!t) return;
+  const L = M.expandirLeitura(J).filter((l) => l.territorio === t.codigo && l.dimensao === "total");
+  const itens = J.indicadores.map((ind) => {
+    const s = L.filter((l) => l.indicador === ind.id).sort((a, b) => a.ano - b.ano).at(-1);
+    if (!s) return "";
+    const v = s.suprimido ? "não publicado" : ind.unidade === "percentual" ? fmtPct(s.valor) : fmt(s.valor, ind.unidade === "media" ? 2 : 0);
+    const n = s.suprimido ? "" : ind.tipo_fonte === "pesquisa_amostral" ? `amostra ${fmt(s.amostra)}` : ind.unidade === "percentual" ? `${fmt(s.numerador)} de ${fmt(s.denominador)}`
+      : s.por_100mil != null ? `${fmt(s.por_100mil, 1)} por 100 mil hab.` : "";
+    return `<li><b>${esc(ind.nome)}</b>: ${v} <span class="muted pequeno">(${s.ano}${n ? `; ${n}` : ""}; <a href="${esc(s.fonte_url)}" rel="noopener">fonte</a>)</span></li>`;
+  }).join("");
+  if (!itens) return;
+  const link = el.dataset.tipo === "uf" ? `leitura.html?t=${t.codigo}` : "leitura.html";
+  el.innerHTML = `<h3>Leitura e acesso ao livro</h3><ul>${itens}</ul><p><a class="chip-link" href="${link}">Ver no módulo Leitura, com os municípios</a></p>`;
+}
+
 export function htmlLugar(tipo, chave, { D, linhas }) {
   const ufs = D.ufs.filter(ehBR);
   const uf = tipo === "uf" ? ufs.find((u) => u.uf === chave) : null;
@@ -49,12 +74,14 @@ export function htmlLugar(tipo, chave, { D, linhas }) {
       <section><h3>Parcela por categoria</h3><div class="grafico" id="lugar-cats"></div></section>
       ${uf ? "" : `<section><h3>Pessoas-autoras por estado</h3><div class="grafico" id="lugar-ufs"></div>
         <p class="chips">${ufsDoLugar.map((u) => `<a class="chip-link" href="#/uf/${u.uf}">${esc(u.nome)}</a>`).join("")}</p></section>`}
+      <section id="lugar-leitura" data-territorio="${uf ? esc(uf.uf) : esc(chave)}" data-tipo="${uf ? "uf" : "regiao"}"></section>
       <section><h3>Quem nasceu ${uf ? "aqui" : "na região"} (${fmt(pessoas.length)})</h3>
         <p class="chips">${pessoas.map((x) => `<button type="button" class="link-pessoa" data-pessoa="${esc(x.id)}">${esc(x.nome)}${x.vitorias ? " <span aria-hidden='true'>★</span>" : ""}</button>`).join("") || "<span class='muted'>Ninguém no recorte.</span>"}</p></section>
     </div>
   </article>`;
 
   const desenharTudo = () => {
+    blocoLeitura();
     const corpo = document.querySelector(".lugar-corpo");
     const w = (id) => largura(document.getElementById(id));
     // Mini-mapa: o lugar em destaque; as demais UFs levam aos próprios perfis.

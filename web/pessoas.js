@@ -148,7 +148,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   const pais = p.uf_nascimento === "EX" ? (p.pais_nascimento ? nomePais(p.pais_nascimento) : "fora do Brasil") : "";
   const ufLink = p.uf_nascimento && p.uf_nascimento !== "EX" ? `<a class="chip-link" href="#/uf/${esc(p.uf_nascimento)}">${esc(p.uf_nascimento)}</a>`
     : pais && !(p.municipio_nascimento ?? "").includes(pais) ? esc(pais) : "";
-  const nasc = [p.municipio_nascimento && esc(p.municipio_nascimento), ufLink, p.ano_nascimento && esc(p.ano_nascimento)].filter(Boolean).join(" · ");
+  const nasc = [p.municipio_nascimento && `<span data-municipio-de="${esc(id)}">${esc(p.municipio_nascimento)}</span>`, ufLink, p.ano_nascimento && esc(p.ano_nascimento)].filter(Boolean).join(" · ");
   const ps = premiosDe(ls, jur, org, dist, jurDist), multi = ps.length > 1;
   const links = [
     m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia</a>`,
@@ -202,6 +202,20 @@ export function htmlPerfil(id, { D, midiaPorId }) {
 const FONTE_CAPA = { google_books: "Google Books", open_library: "Open Library" };
 // capas.json (build, D34): lido só quando um perfil de livro abre, fora do dados.json (RNF-06).
 let capas = null;
+// Município de nascimento → perfil de município no módulo Leitura (T33.4, D38). O código vem de pessoa-municipio.json, carregado
+// só quando um perfil abre (o dados.json não comporta o código: RNF-06).
+let codigosMunicipio = null;
+export async function ligarMunicipios(raiz) {
+  const alvos = raiz.querySelectorAll("[data-municipio-de]");
+  if (!alvos.length) return;
+  codigosMunicipio ??= fetch("pessoa-municipio.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const cods = await codigosMunicipio;
+  for (const el of alvos) {
+    const c = cods[el.dataset.municipioDe];
+    if (c) el.outerHTML = `<a class="chip-link" href="leitura.html#/municipio/${c}" title="Indicadores de leitura do município">${el.innerHTML}</a>`;
+  }
+}
+
 export async function carregarCapas() {
   capas ??= fetch("capas.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   return capas;

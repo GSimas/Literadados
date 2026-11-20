@@ -57,3 +57,16 @@ if (!movimentoReduzido() && "IntersectionObserver" in window) {
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visivel"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
   $$(".secao-cab, .colunas-texto, .referencias, #t-cobertura").forEach((el) => { el.classList.add("revelar"); io.observe(el); });
 }
+
+// Módulo Leitura (CA-33.4): uma ficha por indicador, de leitura.json (definição, tipo de fonte, nível, anos, limitações, cobertura).
+const L = await fetch("leitura.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+if (L && $("#metodo-leitura")) {
+  const TIPO = { censo: "Censo", registro_administrativo: "Registro administrativo", pesquisa_amostral: "Pesquisa por amostra" };
+  const NIVEL = { municipio: "município", uf: "UF", regiao: "região", brasil: "Brasil" };
+  const cob = new Map(L.cobertura.map((c) => [c.indicador, c]));
+  $("#metodo-leitura").innerHTML = L.indicadores.map((i) => { const c = cob.get(i.id) ?? { anos: [] };
+    return `<div class="cartao"><h3>${esc(i.nome)}</h3><p>${esc(i.definicao)}</p>
+      <p class="pequeno"><b>Fonte:</b> <a href="${esc(i.fonte_url)}" rel="noopener">${esc(i.fonte_nome)}</a> · <b>Tipo:</b> ${TIPO[i.tipo_fonte]} · <b>Nível mais fino:</b> ${NIVEL[i.nivel]}
+      · <b>Anos:</b> ${esc(c.anos.length > 4 ? `${c.anos[0]}–${c.anos.at(-1)} (${c.anos.length})` : c.anos.join(", "))} · <b>Territórios com valor:</b> ${fmt(c.territorios)}</p>
+      <p class="pequeno"><b>Limitações:</b> ${esc(i.limitacoes)}</p></div>`; }).join("");
+}

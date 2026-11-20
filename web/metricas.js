@@ -845,3 +845,58 @@ export function distincoes(D) {
   }
   return out.sort((a, b) => ordem.indexOf(a.premio) - ordem.indexOf(b.premio));
 }
+
+// ---------- módulo Leitura (RF-33, D39) ----------
+// Valores compactos de leitura.json e leitura/<indicador>/<UF>.json:
+// [indicador, território, ano, recorte, fonte, valor, numerador, denominador, amostra, margem]; valor nulo = suprimido.
+// extras: [{ uf, municipios: [[código, nome, população]], valores }]. Devolve as linhas com as colunas de v_indicador.
+export function expandirLeitura(J, extras = []) {
+  const terr = new Map(J.territorios.map((t) => [t.codigo, t]));
+  for (const x of extras) for (const [codigo, nome, populacao_2022] of x.municipios ?? []) terr.set(codigo, { codigo, tipo: "municipio", nome, uf: x.uf, populacao_2022 });
+  const linhas = [];
+  for (const v of [J.valores, ...extras.map((x) => x.valores ?? [])].flat()) {
+    const [ii, codigo, ano, ir, fi, valor = null, numerador = null, denominador = null, amostra = null, margem = null] = v;
+    const ind = J.indicadores[ii], rec = J.recortes[ir], t = terr.get(codigo) ?? { codigo, tipo: "municipio", nome: codigo };
+    const por100 = ind.unidade === "contagem" && valor != null && t.populacao_2022 > 0 ? Math.round((valor / t.populacao_2022) * 1e7) / 100 : null;
+    linhas.push({ indicador: ind.id, indicador_nome: ind.nome, unidade: ind.unidade, tipo_fonte: ind.tipo_fonte, territorio: codigo,
+      territorio_nome: t.nome, territorio_tipo: t.tipo, uf: t.tipo === "municipio" ? t.uf ?? null : t.tipo === "uf" ? t.sigla : null,
+      ano, dimensao: rec.dimensao, categoria: rec.categoria, categoria_rotulo: rec.rotulo, valor, numerador, denominador, amostra, margem,
+      suprimido: valor == null, por_100mil: por100, fonte_url: J.fontes[fi] });
+  }
+  return linhas;
+}
+
+// Estado do painel na URL (CA-33.7): ?i=<indicador>&a=<ano>&r=<dimensão>&t=<território>; o padrão (1º indicador, último ano,
+// total, Brasil) não vai para a URL.
+export function anosLeitura(J, indicador) { return J.cobertura.find((c) => c.indicador === indicador)?.anos ?? []; }
+export function leituraDeTexto(texto, J) {
+  const q = new URLSearchParams(texto ?? "");
+  const ids = J.indicadores.map((x) => x.id);
+  const i = ids.includes(q.get("i")) ? q.get("i") : ids[0];
+  const anos = anosLeitura(J, i), a = +q.get("a");
+  const dims = new Set(J.recortes.map((r) => r.dimensao));
+  return { i, a: anos.includes(a) ? a : anos.at(-1), r: dims.has(q.get("r")) ? q.get("r") : "total", t: q.get("t") || "BR" };
+}
+export function leituraParaTexto(e, J) {
+  const p = leituraDeTexto("", J), padrao = leituraDeTexto(`i=${e.i}`, J), q = new URLSearchParams();
+  if (e.i !== p.i) q.set("i", e.i);
+  if (e.a !== padrao.a) q.set("a", e.a);
+  if (e.r !== "total") q.set("r", e.r);
+  if (e.t !== "BR") q.set("t", e.t);
+  return q.toString();
+}
+// Valores de um indicador num ano e recorte, para os territórios de um nível (UFs do Brasil ou municípios de uma UF).
+export function valoresLeitura(linhas, { indicador, ano, dimensao = "total", categoria = "total", tipo = "uf", uf = null }) {
+  return linhas.filter((l) => l.indicador === indicador && l.ano === ano && l.dimensao === dimensao && l.categoria === categoria
+    && l.territorio_tipo === tipo && (!uf || l.uf === uf));
+}
+export function serieLeitura(linhas, { indicador, territorio, dimensao = "total", categoria = "total" }) {
+  return linhas.filter((l) => l.indicador === indicador && l.territorio === territorio && l.dimensao === dimensao && l.categoria === categoria)
+    .sort((a, b) => a.ano - b.ano);
+}
+// Categorias de um recorte num território e ano, na ordem do vocabulário.
+export function recortesLeitura(linhas, J, { indicador, territorio, ano, dimensao }) {
+  const ordem = new Map(J.recortes.map((r, k) => [`${r.dimensao}|${r.categoria}`, k]));
+  return linhas.filter((l) => l.indicador === indicador && l.territorio === territorio && l.ano === ano && l.dimensao === dimensao)
+    .sort((a, b) => ordem.get(`${a.dimensao}|${a.categoria}`) - ordem.get(`${b.dimensao}|${b.categoria}`));
+}

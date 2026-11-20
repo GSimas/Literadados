@@ -973,3 +973,6 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .nav a.modulo { color: var(--tinta); font-weight: 600; }
 .nav a.modulo[aria-current="page"], .nav a[aria-current="page"] { color: var(--link); background: var(--marca-suave); }
 .nav .sep { flex: none; width: 1px; margin: .45rem .35rem; background: var(--borda); }
+/* Módulo Leitura (D39) */
+.kpi .val.kpi-texto { font-size: 1.25rem; line-height: 1.3; }
+@media (min-width: 900px) { .leitura-controles { justify-content: flex-start; } }

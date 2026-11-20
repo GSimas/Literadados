@@ -73,7 +73,9 @@ def test_paginas_geradas(site):  # CA-27.1
     for (pid,) in con.execute("SELECT pessoa_id FROM distincao LIMIT 3").fetchall():  # CA-30.5
         assert "<h2>Conjunto da obra</h2>" in pags[f"pessoas/{pid}/index.html"]
     premios = {e.split("/")[0] for e in edicoes}
-    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6  # nada além disso (6 listas)
+    inds = {r[0] for r in con.execute("SELECT DISTINCT indicador_id FROM indicador_valor").fetchall()}  # módulo Leitura (CA-33.8)
+    assert {f"leitura/{i}/index.html" for i in inds} <= set(pags) and (not inds or "leitura/index.html" in pags)
+    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6 + (len(inds) + 1 if inds else 0)  # nada além disso
 
 
 def test_marcas_editoras_e_catalogo_separado(site):  # CA-29.4, RNF-06
@@ -179,7 +181,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
 def test_sitemap_estavel_e_textos_para_ias(site):  # CA-27.5
     mapa = (site / "sitemap.xml").read_text(encoding="utf-8")
     locs = re.findall(r"<loc>([^<]+)</loc>", mapa)
-    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
+    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/leitura.html", f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
     antes = {p: p.stat().st_mtime_ns for p in site.rglob("*.html")}
     con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
     # Página que não mudou não é regravada e mantém o lastmod; página que mudou ganha a data de hoje.
@@ -248,5 +250,7 @@ def test_portal_numeros_do_build(site):  # CA-31.2, D37
     r = seo.resumo(b.autores)
     n = sum(1 for p in b.premios if b.anos(p["id"]))
     assert f'<b>{seo.fmt(r["pessoas"])}</b> pessoas-autoras · <b>{seo.fmt(n)}</b> prêmios' in idx
-    assert idx.count('class="cartao-grafico"') == 1  # Leitura e Mapeamento ainda sem dado: sem cartão
+    com_leitura = con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0] > 0
+    assert idx.count('class="cartao-grafico"') == 1 + com_leitura  # módulo sem dado não ganha cartão
+    assert ('href="leitura.html"' in idx) == com_leitura
     assert "dados.json" not in idx and 'href="premios.html"' in idx

@@ -264,19 +264,19 @@
 - [x] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
 - [x] T33.2 `v_pessoa_municipio`, `v_editora_municipio`, `dados/municipio_casamento.csv`; resolver os avisos de nome sem código (CA-32.3) 🧪
 - [x] T33.3 Malha municipal por UF (`coleta.py malha`, `web/malha/<UF>.json`) (CA-32.5) 🧪
-- [ ] T33.4 Município no perfil de pessoa liga ao perfil de município (vai com T34.8; o código sai de `pessoa-municipio.json`, carregado só no perfil, porque o `dados.json` já tem 992 KB) 🧪👁
+- [x] T33.4 Município no perfil de pessoa liga ao perfil de município (vai com T34.8; o código sai de `pessoa-municipio.json`, carregado só no perfil, porque o `dados.json` já tem 992 KB) 🧪👁
 
 ## T34 Módulo Leitura (nov/2026, RF-33, D39)
-- [ ] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪
-- [ ] T34.2 Coleta `alfabetizacao` (Censo 2022, SIDRA) 🧪
-- [ ] T34.3 Coleta `escolas_biblioteca` (Censo Escolar, últimos 10 anos) 🧪
+- [x] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪
+- [x] T34.2 Coleta `alfabetizacao` (Censo 2022, SIDRA) 🧪
+- [x] T34.3 Coleta `escolas_biblioteca` (Censo Escolar, últimos 10 anos) 🧪
 - [ ] T34.4 Coleta `livrarias_cnpj` e `editoras_cnpj` (Receita, de-para de municípios) 🧪
-- [ ] T34.5 Coleta `leitores` e `livros_por_ano` (Retratos da Leitura, edições publicadas) 🧪
-- [ ] T34.6 `leitura.json`, `leitura/<UF>.json`, `metricas.expandirLeitura` e paridade (CA-33.5, CA-31.8) 🧪
-- [ ] T34.7 `leitura.html`: mapa UF/município, série, recortes, URL, tabela e exportação (CA-33.6, CA-33.7) 🧪👁
-- [ ] T34.8 Perfil de município e bloco de leitura nos perfis de UF e região (CA-32.4) 👁
-- [ ] T34.9 Páginas estáticas `/leitura/`, bloco nas páginas de UF, dados abertos, Método "Leitura" (CA-33.8) 🧪👁
-- [ ] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
+- [x] T34.5 Coleta `leitores` e `livros_por_ano` (Retratos da Leitura, edições publicadas) 🧪
+- [x] T34.6 `leitura.json`, `leitura/<UF>.json`, `metricas.expandirLeitura` e paridade (CA-33.5, CA-31.8) 🧪
+- [x] T34.7 `leitura.html`: mapa UF/município, série, recortes, URL, tabela e exportação (CA-33.6, CA-33.7) 🧪👁
+- [x] T34.8 Perfil de município e bloco de leitura nos perfis de UF e região (CA-32.4) 👁
+- [x] T34.9 Páginas estáticas `/leitura/`, bloco nas páginas de UF, dados abertos, Método "Leitura" (CA-33.8) 🧪👁
+- [x] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
 
 ## T35 Módulo Mapeamento, Florianópolis (nov/2026, RF-34, D40)
 - [ ] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪

@@ -15,7 +15,7 @@ from urllib.parse import quote
 SITE = "https://literadados.gustavosimas.com"
 AUTOR = {"@type": "Person", "name": "Gustavo Simas", "url": "https://gustavosimas.com"}
 REPO = "https://github.com/GSimas/Literadados"
-PASTAS = ["premios", "pessoas", "estados", "editoras", "perguntas", "dados-abertos"]  # inteiras geradas: o que não sai de novo é apagado
+PASTAS = ["premios", "pessoas", "estados", "editoras", "perguntas", "dados-abertos", "leitura"]  # inteiras geradas: o que não sai de novo é apagado
 SOLTOS = ["sitemap.xml", "llms.txt", "llms-full.txt"]
 
 ROT_GEN = {"mulher": "Mulher", "homem": "Homem", "nao_binario": "Não binária", "nao_identificado": "Não identificado"}
@@ -123,9 +123,12 @@ class Base:
 
 
 # ---------- página ----------
+COD_UF_IBGE = {"RO": "11", "AC": "12", "AM": "13", "RR": "14", "PA": "15", "AP": "16", "TO": "17", "MA": "21", "PI": "22", "CE": "23", "RN": "24",
+               "PB": "25", "PE": "26", "AL": "27", "SE": "28", "BA": "29", "MG": "31", "ES": "32", "RJ": "33", "SP": "35", "PR": "41", "SC": "42",
+               "RS": "43", "MS": "50", "MT": "51", "GO": "52", "DF": "53"}
 LOGO = '<img class="logo" src="/logo.svg" alt="" width="30" height="30">'
 # Módulos (D37): os mesmos links, na mesma ordem, no cabeçalho de toda página (test_cabecalho_igual_em_todas_as_paginas).
-MODULOS = [("/premios.html", "Prêmios")]
+MODULOS = [("/premios.html", "Prêmios"), ("/leitura.html", "Leitura")]
 NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
 
 
@@ -595,7 +598,8 @@ def pagina_estado(b, uf):
 <h2>Quem nasceu {e(em)}</h2>
 <div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Pessoa</th><th class="num" scope="col">1º lugar</th><th class="num" scope="col">Prêmios</th><th class="num" scope="col">Indicações</th></tr></thead><tbody>
 {"".join(f'<tr><td>{lnk_pessoa(b, i)}</td><td class="num">{v}</td><td class="num">{pr}</td><td class="num">{ind}</td></tr>' for i, v, pr, ind in rk)}
-</tbody></table></div></article>"""
+</tbody></table></div>
+{bloco_leitura_uf(b.con, uf)}</article>"""
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": f"Nascidos {em} nos prêmios literários", "url": f"{SITE}/estados/{uf}/",
            "about": {"@type": "AdministrativeArea", "name": u["nome"], "containedInPlace": {"@type": "Country", "name": "Brasil"}},
            "mainEntity": {"@type": "ItemList", "numberOfItems": len(rk), "itemListElement": [
@@ -812,6 +816,10 @@ TABELAS_DOC = {
     "pessoa_foto": "fotos com direitos reservados, exibidas da fonte (site e página do crédito)",
     "editora_logo": "logotipos oficiais das editoras, exibidos da fonte com crédito e alternativa tipográfica",
     "obra_capa": "capas (Open Library, Google Books, lojas e editoras), com a página de origem", "uf": "unidades da federação, região e população (Censo 2022)",
+    "territorio": "Brasil, regiões, UFs e municípios com os códigos do IBGE e a população do Censo 2022",
+    "indicador": "indicadores de leitura: definição, unidade, tipo de fonte, nível territorial, limitações",
+    "recorte": "vocabulário de recortes dos indicadores (sexo, cor ou raça, faixa etária, escolaridade, rede)",
+    "indicador_valor": "valores dos indicadores por território, ano e recorte, com numerador, denominador, amostra, margem e fonte (um CSV por indicador)",
 }
 
 
@@ -820,7 +828,8 @@ def pagina_dados(b, con):
     anos = [a for _, a in b.com_dados]
     contagens = {t: con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in TABELAS_DOC}
     linhas = "".join(f'<tr><td><code>{t}</code></td><td>{e(d)}</td><td class="num">{fmt(contagens[t])}</td>'
-                     f'<td><a href="/banco/{t}.parquet">Parquet</a> · <a href="{REPO}/blob/main/dados/{t}.csv">CSV</a></td></tr>' for t, d in TABELAS_DOC.items())
+                     f'<td><a href="/banco/{t}.parquet">Parquet</a> · <a href="{REPO}/{"tree/main/dados/indicador_valor" if t == "indicador_valor" else f"blob/main/dados/{t}.csv"}">CSV</a></td></tr>'
+                     for t, d in TABELAS_DOC.items())
     nomes_p = " e ".join(p["nome"] for p in b.premios if b.anos(p["id"]))
     desc = (f"Base aberta sobre quem chega aos prêmios literários de língua portuguesa ({nomes_p}, {min(anos)}–{max(anos)}): "
             f"{fmt(r['pessoas'])} pessoas-autoras em {fmt(r['indicacoes'])} indicações, com gênero, raça autodeclarada e UF de nascimento, cada dado com fonte.")
@@ -872,6 +881,7 @@ def llms(b, qs):
           f"- [Pessoas de A a Z]({SITE}/pessoas/): perfil de cada pessoa, com fontes",
           f"- [Estados]({SITE}/estados/): onde nasceram as pessoas-autoras",
           f"- [Editoras]({SITE}/editoras/): cada editora, com indicações, premiadas e autores publicados",
+          f"- [Leitura]({SITE}/leitura/): indicadores de alfabetização, leitores, escolas com biblioteca, livrarias e editoras por território",
           f"- [Dados abertos]({SITE}/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar",
           f"- [Método]({SITE}/metodo.html): fontes, definições, protocolo de raça, cobertura", "", "## Prêmios", ""]
     s += [f"- [{p['nome']}]({SITE}/premios/{p['id']}/)" for p in ativos]
@@ -895,6 +905,83 @@ def llms(b, qs):
                 full.append(f"- {o['nome_original']}, {o['colocacao']}º lugar: {texto_obra(b, o)}")
             full.append("")
     return "\n".join(s), "\n".join(full)
+
+
+# ---------- módulo Leitura (CA-33.8, D39) ----------
+def _fmt_valor(unidade, v):
+    if v is None:
+        return "não publicado"
+    return f"{fmt_br(v, 1)}%" if unidade == "percentual" else fmt_br(v, 2) if unidade == "media" else fmt(v)
+
+
+def fmt_br(v, casas):
+    return f"{v:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def _n_leitura(r):
+    if r["valor"] is None:
+        return "a fonte não publica"
+    if r["tipo_fonte"] == "pesquisa_amostral":
+        return f"amostra {fmt(r['amostra'])}" + (f" · margem ±{fmt_br(r['margem'], 1)} p.p." if r["margem"] is not None else "")
+    if r["unidade"] == "percentual":
+        return f"{fmt(int(r['numerador']))} de {fmt(int(r['denominador']))}"
+    return f"{fmt_br(r['por_100mil'], 1)} por 100 mil hab." if r.get("por_100mil") is not None else ""
+
+
+def indicadores_leitura(con):
+    return _linhas(con, """SELECT i.*, (SELECT MAX(ano) FROM indicador_valor v WHERE v.indicador_id = i.id) AS ultimo,
+                                  (SELECT list(DISTINCT ano ORDER BY ano) FROM indicador_valor v WHERE v.indicador_id = i.id) AS anos
+                           FROM indicador i WHERE i.id IN (SELECT DISTINCT indicador_id FROM indicador_valor) ORDER BY i.ordem""")
+
+
+def pagina_leitura(con, inds):
+    itens = "".join(f'<section><h2><a href="/leitura/{i["id"]}/">{e(i["nome"])}</a></h2><p>{e(i["definicao"])}</p>'
+                    f'<p class="muted">Fonte: {e(i["fonte_nome"])} · anos: {e(", ".join(str(a) for a in i["anos"]) if len(i["anos"]) <= 4 else f"{i["anos"][0]}–{i["anos"][-1]}")}</p></section>' for i in inds)
+    corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Leitura</p><h1>Indicadores de leitura e acesso ao livro no Brasil</h1>
+<p class="lead">Alfabetização, leitores, escolas com biblioteca, livrarias e editoras, por município, estado e região, com o ano, a fonte e o n de cada número.</p>
+<p class="links-externos"><a class="chip-link" href="/leitura.html">Abrir o painel, com mapa e gráficos</a></p></header>
+{itens}</article>"""
+    ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Indicadores de leitura no Literadados", "url": f"{SITE}/leitura/", "inLanguage": "pt-BR",
+           "mainEntity": {"@type": "ItemList", "itemListElement": [{"@type": "ListItem", "position": k + 1, "url": f"{SITE}/leitura/{i['id']}/", "name": i["nome"]} for k, i in enumerate(inds)]}}]
+    return pagina("/leitura/", "Indicadores de leitura no Brasil por município e estado | Literadados",
+                  "Alfabetização (Censo 2022), escolas com biblioteca (Censo Escolar), livrarias e editoras (CNPJ) e leitores (Retratos da Leitura), por território, com fonte.",
+                  corpo, ld, [("Leitura", "/leitura/")], "/leitura/")
+
+
+def pagina_indicador(con, i):
+    nivel = "regiao" if i["nivel"] in ("regiao", "brasil") else "uf"
+    linhas = _linhas(con, f"""SELECT * FROM v_indicador WHERE indicador = ? AND ano = ? AND dimensao = 'total'
+                               AND territorio_tipo IN ('pais', '{nivel}') ORDER BY territorio_tipo DESC, valor DESC NULLS LAST""", [i["id"], i["ultimo"]])
+    br = next((r for r in linhas if r["territorio"] == "BR"), None)
+    medida = "Por 100 mil hab." if i["unidade"] == "contagem" else "n"
+    tab = "".join(f'<tr><td>{e(r["territorio_nome"])}</td><td class="num">{_fmt_valor(i["unidade"], r["valor"])}</td><td>{e(_n_leitura(r))}</td>'
+                  f'<td><a href="{e(r["fonte_url"])}" rel="noopener">fonte</a></td></tr>' for r in linhas)
+    corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Leitura · {e(i["fonte_nome"])}</p><h1>{e(i["nome"])}</h1>
+<p class="lead">{e(i["definicao"])} No Brasil, em {i["ultimo"]}: <b>{_fmt_valor(i["unidade"], br["valor"]) if br else "–"}</b>{f" ({e(_n_leitura(br))})" if br else ""}.</p>
+<p class="links-externos"><a class="chip-link" href="/leitura.html?i={i["id"]}">Abrir no painel, com mapa e municípios</a> <a class="chip-link" href="{e(i["fonte_url"])}" rel="noopener">Fonte oficial</a></p></header>
+<p><b>Limitações:</b> {e(i["limitacoes"])}</p>
+<h2>{"Por região" if nivel == "regiao" else "Por estado"}, {i["ultimo"]}</h2>
+<div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Território</th><th class="num" scope="col">Valor</th><th scope="col">{medida}</th><th scope="col">Fonte</th></tr></thead><tbody>{tab}</tbody></table></div>
+<p class="muted">Anos na base: {e(", ".join(str(a) for a in i["anos"]))}. Dados completos (todos os anos, municípios e recortes): <a href="{REPO}/blob/main/dados/indicador_valor/{i["id"]}.csv">CSV</a>.</p></article>"""
+    ld = [{"@context": "https://schema.org", "@type": "Dataset", "name": i["nome"], "description": i["definicao"], "url": f"{SITE}/leitura/{i['id']}/",
+           "inLanguage": "pt-BR", "creator": {"@type": "Organization", "name": i["fonte_nome"]}, "isBasedOn": i["fonte_url"],
+           "temporalCoverage": f"{i['anos'][0]}/{i['anos'][-1]}", "spatialCoverage": {"@type": "Country", "name": "Brasil"},
+           "distribution": [{"@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": f"https://raw.githubusercontent.com/GSimas/Literadados/main/dados/indicador_valor/{i['id']}.csv"}]}]
+    desc = f"{i['nome']} no Brasil e {'nas regiões' if nivel == 'regiao' else 'por estado'}, {i['ultimo']}: valor, n e fonte ({i['fonte_nome']})."
+    return pagina(f"/leitura/{i['id']}/", f"{i['nome']} por {'região' if nivel == 'regiao' else 'estado'} ({i['ultimo']}) | Literadados", desc[:300],
+                  corpo, ld, [("Leitura", "/leitura/"), (i["nome"], f"/leitura/{i['id']}/")], "/leitura/")
+
+
+def bloco_leitura_uf(con, uf):
+    """Indicadores de leitura da UF (ano mais recente, total) para a página do estado (CA-33.8)."""
+    linhas = _linhas(con, """SELECT v.* FROM v_indicador v JOIN indicador i ON i.id = v.indicador
+                             WHERE v.territorio_tipo = 'uf' AND v.uf = ? AND v.dimensao = 'total'
+                               AND v.ano = (SELECT MAX(ano) FROM indicador_valor x WHERE x.indicador_id = v.indicador) ORDER BY i.ordem""", [uf])
+    if not linhas:
+        return ""
+    itens = "".join(f'<li><a href="/leitura/{r["indicador"]}/">{e(r["indicador_nome"])}</a>: <b>{_fmt_valor(r["unidade"], r["valor"])}</b> '
+                    f'({r["ano"]}; {e(_n_leitura(r))})</li>' for r in linhas)
+    return f'<h2>Leitura {e(em_uf(uf, linhas[0]["territorio_nome"]))}</h2><ul>{itens}</ul><p><a class="chip-link" href="/leitura.html?t={COD_UF_IBGE.get(uf, "")}">Ver no painel de Leitura, com os municípios</a></p>'
 
 
 # ---------- gravação ----------
@@ -922,7 +1009,7 @@ def _abertura(web: Path, r: dict):
         idx.write_text(novo, encoding="utf-8")
 
 
-def _portal(web: Path, b, r: dict):
+def _portal(web: Path, b, r: dict, con):
     """Cartões do portal com os números de cada módulo (CA-31.2, D37). Módulo sem dado não ganha cartão."""
     idx = web / "index.html"
     if not idx.exists():
@@ -938,6 +1025,16 @@ def _portal(web: Path, b, r: dict):
             f'        <span class="cg-num"><b>{fmt(r["pessoas"])}</b> pessoas-autoras · <b>{fmt(n_premios)}</b> prêmios</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
+    n_ind, n_mun = con.execute("SELECT COUNT(DISTINCT indicador_id), COUNT(DISTINCT territorio) FILTER (WHERE length(territorio) = 7) FROM indicador_valor").fetchone()
+    if n_ind:
+        cartoes.append(
+            '      <a class="cartao-grafico" href="leitura.html">\n'
+            '        <span class="cg-sobre">Leitura</span>\n'
+            '        <span class="cg-titulo">Onde se lê e onde estão os livros?</span>\n'
+            '        <span class="cg-desc">Alfabetização, leitores, escolas com biblioteca, livrarias e editoras, por município, estado e região.</span>\n'
+            f'        <span class="cg-num"><b>{fmt(n_ind)}</b> indicadores · <b>{fmt(n_mun)}</b> municípios</span>\n'
+            '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
+            '      </a>')
     trecho = "<!-- build:portal -->\n" + "\n".join(cartoes) + "\n      <!-- /build:portal -->"
     s = idx.read_text(encoding="utf-8")
     novo = re.sub(r"<!-- build:portal -->.*?<!-- /build:portal -->", lambda _: trecho, s, flags=re.S)
@@ -948,6 +1045,7 @@ def _portal(web: Path, b, r: dict):
 def gerar(con, web: Path) -> dict:
     """Gera tudo em web/. Devolve {caminho relativo: html} das páginas (os testes leem daqui)."""
     b = Base(con)
+    b.con = con  # blocos dos módulos Leitura e Mapeamento nas páginas de lugar e de pessoa
     paginas = {}
     for p in b.premios:
         if b.anos(p["id"]):
@@ -966,6 +1064,11 @@ def gerar(con, web: Path) -> dict:
     for eid in ids_ed:
         paginas[f"editoras/{eid}/index.html"] = pagina_editora(b, eid, pos_ed[eid], len(ids_ed))
     paginas["editoras/index.html"] = pagina_editoras(b, ids_ed, cont_ed, pos_ed)
+    inds = indicadores_leitura(con)
+    if inds:
+        paginas["leitura/index.html"] = pagina_leitura(con, inds)
+        for i in inds:
+            paginas[f"leitura/{i['id']}/index.html"] = pagina_indicador(con, i)
     paginas["perguntas/index.html"], qs = pagina_perguntas(b)
     paginas["dados-abertos/index.html"] = pagina_dados(b, con)
 
@@ -986,7 +1089,7 @@ def gerar(con, web: Path) -> dict:
             elif arq.is_dir() and not any(arq.iterdir()):
                 arq.rmdir()
 
-    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), (f"{SITE}/metodo.html", None)]
+    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), *([(f"{SITE}/leitura.html", None)] if inds else []), (f"{SITE}/metodo.html", None)]
     for rel in sorted(paginas):
         loc = f"{SITE}/{rel.removesuffix('index.html')}"
         urls.append((loc, hoje if rel in mudou or loc not in antigo else antigo[loc]))
@@ -999,5 +1102,5 @@ def gerar(con, web: Path) -> dict:
             arq.write_text(txt, encoding="utf-8")
     r = resumo(b.autores)
     _abertura(web, r)
-    _portal(web, b, r)
+    _portal(web, b, r, con)
     return paginas
