@@ -885,3 +885,58 @@ def test_build_falha_indicador_chave_repetida_e_suprimido(mini):  # CA-33.1, CA-
     _csv(mini / "indicador_valor" / "x.csv", [{**base, "suprimido": "true"}])
     with pytest.raises(build.BuildError, match="indicador_valor"):
         _build(mini)  # suprimido com valor, não
+
+
+# ---------- RF-34 Mapeamento (D40) ----------
+LIV = {"id": "livraria-a", "nome": "Livraria A", "municipio": "4205407", "tipo": "geral", "foco": "", "rede": "false", "endereco": "Rua X, 1", "bairro": "Centro",
+       "lat": "-27.59", "lon": "-48.55", "site": "", "redes": "", "situacao": "ativa", "ano_abertura": "", "ano_encerramento": "", "fonte": "http://f", "verificado_em": "2026-11-20"}
+CLU = {"id": "clube-a", "nome": "Clube A", "municipio": "4205407", "formato": "presencial", "periodicidade": "mensal", "foco": "", "aberto": "true", "organizacao": "Livraria A",
+       "local_tipo": "livraria", "livraria_id": "livraria-a", "local_nome": "", "bairro": "", "lat": "", "lon": "", "link": "http://c", "situacao": "ativa",
+       "fonte": "http://f", "verificado_em": "2026-11-20"}
+
+
+def _base_mapa(mini):
+    _territorio_mini(mini)
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[1]["municipio_nascimento"], linhas[1]["nascimento_fonte"] = "Florianópolis", "http://n"  # B nasceu em Florianópolis
+    _csv(mini / "pessoa.csv", linhas)
+    _csv(mini / "livraria.csv", [LIV])
+    _csv(mini / "clube.csv", [CLU])
+    _csv(mini / "pessoa_atuacao.csv", [{"pessoa_id": "a", "municipio": "4205407", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+    _csv(mini / "obra_mapeada.csv", [{"obra_id": "o1", "municipio": "4205407", "isbn": "", "ambientada": "true", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+
+
+def test_vinculos_derivados_e_json_do_mapeamento(mini):  # CA-34.3, CA-34.10, CA-34.12
+    _base_mapa(mini)
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    v = set(con.execute("SELECT entidade, entidade_id, tipo FROM v_vinculo WHERE municipio = '4205407'").fetchall())
+    assert {("pessoa", "b", "nascimento"), ("pessoa", "a", "atuacao"), ("obra", "o1", "autoria"), ("obra", "o2", "autoria"), ("obra", "o1", "ambientacao")} <= v
+    pm = {r[0]: (r[1], r[2]) for r in con.execute("SELECT pessoa_id, nasceu, atua FROM v_pessoa_mapeada").fetchall()}
+    assert pm == {"a": (False, True), "b": (True, False)}
+    J = json.loads((mini.parent / "mapeamento" / "4205407.json").read_text(encoding="utf-8"))
+    assert {p["id"] for p in J["pessoas"]} == {"a", "b"} and J["clubes"][0]["lat"] == -27.59  # clube na livraria herda o ponto dela
+    # Só os campos que o painel mostra (CA-34.12): nada de campos internos ou de endereço de pessoa.
+    assert set(J["pessoas"][0]) <= {"id", "nome", "genero", "genero_evidencia", "raca", "raca_fonte", "raca_trecho", "negra", "ano_nascimento", "nasceu", "atua",
+                                    "atuacao_fonte", "nascimento_fonte", "nos_premios"}
+    indice = json.loads((mini.parent / "mapeamento" / "indice.json").read_text(encoding="utf-8"))
+    assert indice["pessoa"]["a"] == ["4205407"] and indice["municipios"] == {"4205407": "Florianópolis"}
+
+
+@pytest.mark.parametrize("tabela, muda, erro", [
+    ("clube", {"local_tipo": "casa", "livraria_id": "", "bairro": "Trindade"}, "clube"),      # casa com bairro (privacidade)
+    ("clube", {"livraria_id": "inexistente"}, "clube"),                                       # livraria que não existe
+    ("clube", {"link": ""}, "clube"),                                                         # sem canal público
+    ("livraria", {"tipo": "online"}, "livraria"),                                             # on-line com endereço
+    ("livraria", {"fonte": ""}, "livraria"),                                                  # sem fonte
+    ("livraria", {"verificado_em": ""}, "livraria"),                                          # sem data
+    ("livraria", {"verificado_em": "2099-01-01"}, "futuro"),                                  # data no futuro
+    ("livraria", {"tipo": "especializada"}, "livraria"),                                      # especializada sem foco
+])
+def test_build_falha_mapeamento(mini, tabela, muda, erro):  # CA-34.2, CA-34.4, CA-34.8
+    _base_mapa(mini)
+    _csv(mini / f"{tabela}.csv", [{**(LIV if tabela == "livraria" else CLU), **muda}])
+    if tabela == "livraria" and "inexistente" not in str(muda):
+        _csv(mini / "clube.csv", [{**CLU, "local_tipo": "biblioteca", "livraria_id": ""}])
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)
