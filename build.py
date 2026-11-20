@@ -359,6 +359,22 @@ def exportar_banco(con, web: Path):
         (web / f"contexto-{m}.json").write_text(json.dumps({**conf, "sistema": prompt_sistema(con, m)}, ensure_ascii=False), encoding="utf-8")
 
 
+def exportar_busca(con, web: Path):
+    """Índice de busca para todas as páginas (CA-31.5, D37): o que não depende de dados.json. Hrefs relativos à raiz do site
+    (todas as páginas ficam em web/). Compacto: {tipos, e: [[tipo, rótulo, detalhe, href, extra?]]}."""
+    tipos = ["Pessoa", "Editora", "Estado", "Município", "Indicador", "Livraria", "Clube"]
+    e = []
+    for pid, nome, uf, ano, pais in con.execute("""SELECT id, nome, uf_nascimento, ano_nascimento, pais_nascimento FROM pessoa ORDER BY id""").fetchall():
+        sub = " · ".join(str(x) for x in ((pais if uf == "EX" else uf), ano) if x)
+        e.append([0, nome, sub, f"premios.html#/pessoa/{pid}"])
+    for eid, nome, mun, uf in con.execute("""SELECT id, nome, municipio_sede, uf_sede FROM editora
+                                             WHERE id IN (SELECT editora_id FROM obra UNION SELECT editora_id FROM indicacao) ORDER BY id""").fetchall():
+        e.append([1, nome, " · ".join(x for x in (mun, uf) if x and x != "EX"), f"premios.html#/editora/{eid}"])
+    for uf, nome, regiao in con.execute("SELECT uf, nome, regiao FROM uf WHERE uf <> 'EX' ORDER BY uf").fetchall():
+        e.append([2, nome, f"{uf} · {regiao}", f"premios.html#/uf/{uf}", uf])
+    (web / "busca.json").write_text(json.dumps({"tipos": tipos, "e": e}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
 PARTES_POR_PREMIO = ["participacao", "pessoas", "obras", "editoras", "midia", "jurados", "categorias", "edicoes", "cobertura", "distincoes"]  # = metricas.CHAVES_PARTES
 
 
@@ -406,6 +422,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
         payload = exportar(con)
         logos = {r.pop("editora_id"): r for r in _linhas(con, "SELECT * FROM editora_logo ORDER BY editora_id")}
         exportar_banco(con, saida.parent)
+        exportar_busca(con, saida.parent)
         saida.parent.mkdir(exist_ok=True)
         (saida.parent / "edicoes.json").write_text(json.dumps(contextos(con), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         seo.gerar(con, saida.parent)

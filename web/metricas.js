@@ -618,8 +618,15 @@ export function facetar(linhas, fn, ordem = [], nomes = {}) {
 }
 
 // ---------- busca determinística (RF-21, D23) ----------
-const TIPOS_BUSCA = ["Pessoa", "Livro", "Estado", "Região", "Editora", "Categoria", "Edição", "Gráfico", "Seção"];
+const TIPOS_BUSCA = ["Pessoa", "Livro", "Município", "Estado", "Região", "Editora", "Livraria", "Clube", "Indicador", "Categoria", "Edição", "Gráfico", "Seção"];
 export const normalizar = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+// Entradas de busca.json (CA-31.5, D37): {tipos, e: [[índice do tipo, rótulo, detalhe, href, termos extras?]]}, gravado pelo
+// build para todas as páginas. `pular`: prefixo de href que a página já cobre com um índice mais rico (o painel de prêmios).
+export function entradasBusca(J, pular = null) {
+  return J.e.filter((x) => !pular || !x[3].startsWith(pular)).map(([t, rotulo, sub, href, extra = ""]) =>
+    ({ tipo: J.tipos[t], rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) }));
+}
 const DESTINOS = [
   ["Gráfico", "Linha do tempo", "composição de cada edição e vencedoras", "#/grafico/linha-do-tempo"],
   ["Gráfico", "Mapa", "UF de nascimento e fluxo região → editora → resultado", "#/grafico/geografia", "geografia estados sankey"],

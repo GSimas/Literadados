@@ -257,7 +257,7 @@
 - [x] T32.3 Cabeçalho com os módulos em todas as páginas, segunda linha com as seções do módulo; `test_cabecalho_igual_em_todas_as_paginas` (CA-31.4) 🧪👁
 - [x] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
 - [x] T32.5 Diadorim por módulo: `data-modulo`, `contexto-<módulo>.json` (tabelas, views e prompt), `banco.js` carregando só o módulo (CA-31.7) 🧪
-- [ ] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
+- [x] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
 - [ ] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
 
 ## T33 Território (nov/2026, RF-32, D38)

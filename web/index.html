@@ -35,9 +35,9 @@
 <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fontes/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
-<script type="module">import { montarTema } from "./tema.js"; montarTema();</script>
+<script type="module">import { montarTema } from "./tema.js"; import { montarBusca } from "./busca.js"; montarTema(); montarBusca(null, "premios.html");</script>
 </head>
-<body>
+<body data-modulo="portal">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
 <header class="barra" id="barra">
@@ -58,6 +58,14 @@
     <span class="sep" aria-hidden="true"></span>
     <a href="metodo.html">Método</a>
   </nav>
+  <div class="busca-global" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    <label for="busca-global" class="sr">Buscar no Literadados</label>
+    <input id="busca-global" type="search" role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list"
+      autocomplete="off" spellcheck="false" placeholder="Buscar autor, editora, estado…">
+    <kbd aria-hidden="true">/</kbd>
+    <ul id="busca-resultados" class="menu busca-resultados" role="listbox" aria-label="Resultados da busca" hidden></ul>
+  </div>
   <div class="barra-acoes">
     <button id="tema" class="botao-icone so-icone" type="button" aria-label="Tema de cores"></button>
   </div>

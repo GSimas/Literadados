@@ -16,9 +16,14 @@ function destacar(rotulo, termo) {
 }
 
 // prefixo: "" no painel; "premios.html" nas outras páginas (as rotas #/… vivem no painel de prêmios).
+// D: dados do painel de prêmios (índice rico), ou null nas páginas que não o carregam (portal, outros módulos).
+// busca.json (CA-31.5) entra no primeiro foco ou digitação; no painel de prêmios, só o que não é do próprio painel.
 export function montarBusca(D, prefixo = "") {
-  const indice = M.indiceBusca(D);
+  const indice = D ? M.indiceBusca(D) : [];
   const campo = $("#busca-global"), lista = $("#busca-resultados");
+  let extra = null;
+  const carregarExtra = () => (extra ??= fetch("busca.json").then((r) => r.ok ? r.json() : { tipos: [], e: [] })
+    .then((J) => { indice.push(...M.entradasBusca(J, prefixo ? null : "premios.html")); }).catch(() => {}));
   let itens = [], ativo = -1;
 
   const ir = (e) => {
@@ -44,7 +49,8 @@ export function montarBusca(D, prefixo = "") {
     lista.children[i]?.scrollIntoView({ block: "nearest" });
   };
   const fechar = () => { if (lista.hidden) return; campo.setAttribute("aria-expanded", "false"); fecharAnimado(lista); };
-  const mostrar = () => {
+  const mostrar = async () => {
+    await carregarExtra();
     itens = M.buscar(indice, campo.value, 12);
     if (!campo.value.trim()) return fechar();
     lista.innerHTML = itens.length

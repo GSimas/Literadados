@@ -698,6 +698,25 @@ def test_cabecalho_igual_em_todas_as_paginas():  # CA-31.4, D37
         assert f'<a class="modulo" href="{c.lstrip("/")}" aria-current="page">' in txt, c
 
 
+def test_busca_json():  # CA-31.5, D37
+    """busca.json: entradas compactas com tipos conhecidos, hrefs para páginas e ids que existem, menos de 1 MB."""
+    web = RAIZ / "web"
+    J = json.loads((web / "busca.json").read_text(encoding="utf-8"))
+    assert (web / "busca.json").stat().st_size < 1_000_000
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    pessoas = {r[0] for r in con.execute("SELECT id FROM pessoa").fetchall()}
+    editoras = {r[0] for r in con.execute("SELECT id FROM editora").fetchall()}
+    for t, rotulo, sub, href, *_ in J["e"]:
+        assert rotulo and 0 <= t < len(J["tipos"]), rotulo
+        pagina, _, rota = href.partition("#")
+        assert (web / pagina).exists(), href
+        if rota.startswith("/pessoa/"):
+            assert rota.removeprefix("/pessoa/") in pessoas, href
+        if rota.startswith("/editora/"):
+            assert rota.removeprefix("/editora/") in editoras, href
+    assert {J["tipos"][x[0]] for x in J["e"]} >= {"Pessoa", "Editora", "Estado"}
+
+
 def test_contexto_e_banco_por_modulo():  # CA-31.7, D37
     """Cada módulo tem contexto-<módulo>.json com as suas tabelas (todas em Parquet), as suas views e o prompt."""
     web = RAIZ / "web"
