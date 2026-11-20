@@ -270,7 +270,7 @@
 - [x] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪
 - [x] T34.2 Coleta `alfabetizacao` (Censo 2022, SIDRA) 🧪
 - [x] T34.3 Coleta `escolas_biblioteca` (Censo Escolar, últimos 10 anos) 🧪
-- [ ] T34.4 Coleta `livrarias_cnpj` e `editoras_cnpj` (Receita, de-para de municípios) 🧪
+- [x] T34.4 Coleta `livrarias_cnpj` e `editoras_cnpj` (Receita, de-para de municípios) 🧪
 - [x] T34.5 Coleta `leitores` e `livros_por_ano` (Retratos da Leitura, edições publicadas) 🧪
 - [x] T34.6 `leitura.json`, `leitura/<UF>.json`, `metricas.expandirLeitura` e paridade (CA-33.5, CA-31.8) 🧪
 - [x] T34.7 `leitura.html`: mapa UF/município, série, recortes, URL, tabela e exportação (CA-33.6, CA-33.7) 🧪👁

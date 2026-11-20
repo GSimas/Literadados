@@ -1012,6 +1012,10 @@ def _leitura_cnpj():
                          + "\n  ".join(f"{c} {n} ({u})" for c, n, u in sorted(sem, key=str)))
     url = f"https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/consultas/dados-publicos-cnpj#{mes}"
     for ind, p in por.items():
+        # Cadastro completo: município sem estabelecimento tem contagem zero (não "sem valor").
+        for c, l in t.items():
+            if l["tipo"] == "municipio":
+                p.setdefault((c, "total"), [0, 0])
         tot = _somar_acima(t, p)
         _gravar_valores(ind, [{"indicador_id": ind, "territorio": c, "ano": mes[:4], "dimensao": "total", "categoria": "total",
                                "valor": n, "fonte_url": url} for (c, _), (n, _d) in tot.items()])
