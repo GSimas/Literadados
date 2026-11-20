@@ -13,7 +13,8 @@ import seo
 
 RAIZ = Path(__file__).parent
 TABELAS = ["territorio", "municipio_casamento", "indicador", "recorte", "indicador_valor", "premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
-           "categoria_edicao", "indicacao", "jurado", "distincao"]  # ordem das FKs
+           "categoria_edicao", "indicacao", "jurado", "distincao",
+           "livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -128,6 +129,14 @@ def checar(con):
             erros.append(f"{rot}: percentual de {r['tipo_fonte']} sem numerador e denominador")
         else:
             erros.append(f"{rot}: território ({r['ttipo']}) mais fino que o nível do indicador ({r['nivel']})")
+    # Mapeamento (CA-34.2, D40): verificação não pode ser no futuro; clube numa livraria fica no município dela.
+    hoje = datetime.now().date().isoformat()
+    for t in ("livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao"):
+        for (n,) in con.execute(f"SELECT COUNT(*) FROM {t} WHERE verificado_em > ?::DATE", [hoje]).fetchall():
+            if n:
+                erros.append(f"{t}: {n} registro(s) com verificado_em no futuro")
+    for r in _linhas(con, "SELECT c.id FROM clube c JOIN livraria l ON l.id = c.livraria_id WHERE l.municipio <> c.municipio ORDER BY 1"):
+        erros.append(f"clube {r['id']}: livraria de outro município")
     # Colocação repetida é legítima (empates: Livro do Ano Não Ficção 2016, 3º lugar de Contos 2014);
     # o total de premiadas já é conferido contra vagas_premio acima.
     if erros:
@@ -338,11 +347,37 @@ Esquema (DuckDB):
 {_ddl(["territorio", "indicador", "recorte", "indicador_valor", "v_indicador"])}"""
 
 
+def prompt_mapeamento(con) -> str:
+    """Prompt da Diadorim no módulo Mapeamento (CA-31.7, D40): cadastro curado da cena literária de um município."""
+    muns = ", ".join(f"{n} ({c})" for c, n in con.execute("""SELECT DISTINCT t.codigo, t.nome FROM territorio t WHERE t.codigo IN
+        (SELECT municipio FROM livraria UNION SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM pessoa_atuacao) ORDER BY 2""").fetchall())
+    return f"""Você responde sobre o Literadados, plataforma de dados sobre literatura e leitura no Brasil. Aqui, o módulo Mapeamento:
+cadastro curado da cena literária de um município — livrarias, clubes do livro, editoras, autoras e autores e obras. Municípios mapeados: {muns}.
+
+Regras:
+- Responda em português do Brasil. É CADASTRO, NÃO CENSO: diga "mapeados até agora", nunca "a cidade tem".
+- Vínculo com o município: pessoa por `nascimento` (nasceu ali) ou `atuacao` (vive ou trabalha ali, dito numa fonte); obra por `autoria`,
+  `editora` (editora sediada ali) ou `ambientacao`. Use `v_vinculo` e diga sempre o critério; nunca some vínculos diferentes sem dizer.
+- Pessoas mapeadas: `v_pessoa_mapeada` (colunas `nasceu`, `atua`). Raça só por autodeclaração (piso: "pelo menos"); gênero atribuído pelo
+  nome (`genero_evidencia = 'atribuicao'`) é marcado. Todo percentual com o n.
+- Privacidade: nunca dê endereço de clube que se reúne em casa (`local_tipo = 'casa'`), nem nome de organizador de clube independente.
+- `situacao`: ativa, encerrada ou incerta; `verificado_em` é a data da última conferência.
+- Se a pergunta for sobre prêmios ou indicadores de leitura, diga que isso está nos módulos Prêmios (premios.html) e Leitura (leitura.html).
+- Não repita o SQL no texto (ele é mostrado à parte).
+
+Esquema (DuckDB):
+{_ddl(["territorio", "pessoa", "editora", "obra", "livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria",
+       "v_pessoa_municipio", "v_editora_municipio", "v_vinculo", "v_pessoa_mapeada"])}"""
+
+
 def prompt_sistema(con, modulo: str = "premios") -> str:
     if modulo == "leitura":
         return prompt_leitura(con)
+    if modulo == "mapeamento":
+        return prompt_mapeamento(con)
     ddl = _ddl([t for t in re.findall(r"CREATE (?:TABLE|VIEW) (\w+)", (RAIZ / "schema.sql").read_text(encoding="utf-8"))
-                if t not in ("indicador", "recorte", "indicador_valor", "v_indicador", "territorio", "municipio_casamento")])
+                if t not in ("indicador", "recorte", "indicador_valor", "v_indicador", "territorio", "municipio_casamento", "livraria", "clube",
+                             "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada")])
     premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, p.obras, MIN(i.ano) AS de, MAX(i.ano) AS ate,
                                      COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
                               FROM premio p JOIN indicacao i ON i.premio_id = p.id
@@ -422,10 +457,16 @@ def modulos_banco(con) -> dict:
     cada página carrega só o que é do seu módulo (<body data-modulo>)."""
     views = re.findall(r"CREATE VIEW (\w+)", (RAIZ / "schema.sql").read_text(encoding="utf-8"))
     leitura = {"tabelas": ["territorio", "indicador", "recorte", "indicador_valor"], "views": ["v_indicador"]}
-    so_leitura = set(leitura["tabelas"][1:]) | set(leitura["views"])
-    mods = {"premios": {"tabelas": ["uf", *[t for t in TABELAS if t not in so_leitura]], "views": [v for v in views if v not in so_leitura]}}
+    mapa = {"tabelas": ["territorio", "municipio_casamento", "pessoa", "editora", "obra", "autoria", "indicacao", "livraria", "clube",
+                        "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria"],
+            "views": ["v_pessoa_municipio", "v_editora_municipio", "v_vinculo", "v_pessoa_mapeada"]}
+    so_outros = set(leitura["tabelas"][1:]) | set(leitura["views"]) | {"livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao",
+                                                                       "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada"}
+    mods = {"premios": {"tabelas": ["uf", *[t for t in TABELAS if t not in so_outros]], "views": [v for v in views if v not in so_outros]}}
     if con is None or con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0]:
         mods["leitura"] = leitura
+    if con is None or con.execute("SELECT (SELECT COUNT(*) FROM livraria) + (SELECT COUNT(*) FROM obra_mapeada) + (SELECT COUNT(*) FROM pessoa_atuacao)").fetchone()[0]:
+        mods["mapeamento"] = mapa
     return mods
 
 
@@ -438,6 +479,9 @@ def exportar_banco(con, web: Path):
         con.execute(f"COPY {t} TO '{pasta / f'{t}.parquet'}' (FORMAT parquet)")
     views = re.findall(r"CREATE VIEW .*?;", (RAIZ / "schema.sql").read_text(encoding="utf-8"), flags=re.S)
     (pasta / "views.sql").write_text("\n\n".join(views) + "\n", encoding="utf-8")
+    for velho in web.glob("contexto-*.json"):  # módulo que ficou sem dado perde o contexto
+        if velho.stem.removeprefix("contexto-") not in mods:
+            velho.unlink()
     for m, conf in mods.items():
         (web / f"contexto-{m}.json").write_text(json.dumps({**conf, "sistema": prompt_sistema(con, m)}, ensure_ascii=False), encoding="utf-8")
 
@@ -502,6 +546,67 @@ def exportar_leitura(con, web: Path):
     escrever(web / "pessoa-municipio.json", dict(con.execute("SELECT pessoa_id, codigo FROM v_pessoa_municipio ORDER BY 1").fetchall()))
 
 
+def exportar_mapeamento(con, web: Path):
+    """mapeamento/<código>.json (livrarias, clubes, editoras, pessoas e obras com vínculo, verificado_ate) e mapeamento/indice.json
+    ({pessoa|obra|editora: {id: [códigos]}}, lido pelo painel de prêmios para o bloco "Em <cidade>"), D40. Só campos que o painel mostra."""
+    pasta = web / "mapeamento"
+    muns = [c for (c,) in con.execute("""SELECT municipio FROM livraria UNION SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM editora_mapeada
+                                         UNION SELECT municipio FROM pessoa_atuacao UNION SELECT municipio FROM clube ORDER BY 1""").fetchall()]
+    if pasta.exists():
+        for velho in pasta.glob("*.json"):
+            velho.unlink()
+    if not muns:
+        return
+    pasta.mkdir(exist_ok=True)
+    indice = {"pessoa": {}, "obra": {}, "editora": {}}
+    for mun in muns:
+        nome = con.execute("SELECT nome FROM territorio WHERE codigo = ?", [mun]).fetchone()[0]
+        livrarias = _sem_nulos(_linhas(con, """SELECT id, nome, tipo, foco, rede, endereco, bairro, lat, lon, site, redes, situacao, ano_abertura,
+                                                     ano_encerramento, fonte, verificado_em::VARCHAR AS verificado_em FROM livraria WHERE municipio = ? ORDER BY nome""", [mun]))
+        clubes = _sem_nulos(_linhas(con, """SELECT id, nome, formato, periodicidade, foco, aberto, organizacao, local_tipo, livraria_id, local_nome, bairro,
+                                                  COALESCE(c.lat, (SELECT lat FROM livraria l WHERE l.id = c.livraria_id)) AS lat,
+                                                  COALESCE(c.lon, (SELECT lon FROM livraria l WHERE l.id = c.livraria_id)) AS lon,
+                                                  link, situacao, fonte, verificado_em::VARCHAR AS verificado_em FROM clube c WHERE municipio = ? ORDER BY nome""", [mun]))
+        editoras = _sem_nulos(_linhas(con, """SELECT e.id, e.nome, e.grupo, m.tipo, m.site, m.situacao, m.ano_encerramento, m.fonte, m.verificado_em::VARCHAR AS verificado_em,
+                                                    EXISTS (SELECT 1 FROM indicacao i WHERE i.editora_id = e.id) OR EXISTS (SELECT 1 FROM obra o JOIN indicacao i ON i.obra_id = o.id WHERE o.editora_id = e.id) AS nos_premios
+                                             FROM editora_mapeada m JOIN editora e ON e.id = m.editora_id WHERE m.municipio = ? ORDER BY e.nome""", [mun]))
+        pessoas = _sem_nulos(_linhas(con, """SELECT p.pessoa_id AS id, p.nome, p.genero, p.genero_evidencia, p.raca, p.raca_fonte, p.raca_trecho, p.negra,
+                                                   p.ano_nascimento, p.nasceu, p.atua,
+                                                   (SELECT fonte FROM pessoa_atuacao a WHERE a.pessoa_id = p.pessoa_id AND a.municipio = p.municipio) AS atuacao_fonte,
+                                                   (SELECT nascimento_fonte FROM pessoa x WHERE x.id = p.pessoa_id) AS nascimento_fonte,
+                                                   EXISTS (SELECT 1 FROM autoria a WHERE a.pessoa_id = p.pessoa_id) AS nos_premios
+                                            FROM v_pessoa_mapeada p WHERE p.municipio = ? ORDER BY p.nome""", [mun]))
+        ids_p = {p["id"] for p in pessoas}
+        # Obras: registradas no mapeamento, ou de pessoa mapeada, ou de editora mapeada (vínculos de v_vinculo).
+        obras = _linhas(con, """SELECT o.id, o.titulo, o.ano_publicacao, e.nome AS editora, om.isbn, om.fonte, om.verificado_em::VARCHAR AS verificado_em,
+                                       list(DISTINCT v.tipo ORDER BY v.tipo) AS vinculos,
+                                       EXISTS (SELECT 1 FROM indicacao i WHERE i.obra_id = o.id) AS nos_premios
+                                FROM v_vinculo v JOIN obra o ON o.id = v.entidade_id LEFT JOIN editora e ON e.id = o.editora_id
+                                LEFT JOIN obra_mapeada om ON om.obra_id = o.id AND om.municipio = v.municipio
+                                WHERE v.entidade = 'obra' AND v.municipio = ? GROUP BY ALL ORDER BY o.titulo""", [mun])
+        credito = {}
+        for oid, pid, papel in con.execute("""SELECT obra_id, pessoa_id, papel FROM (SELECT obra_id, pessoa_id, papel FROM autoria UNION SELECT * FROM mapeamento_autoria)
+                                              WHERE papel IN ('autor','ilustrador','organizador') ORDER BY ALL""").fetchall():
+            credito.setdefault(oid, []).append([pid, papel])
+        nomes = dict(con.execute("SELECT id, nome FROM pessoa").fetchall())
+        for o in obras:
+            o["autoria"] = [[pid, nomes[pid], papel] for pid, papel in credito.get(o["id"], [])]
+        obras = _sem_nulos(obras)
+        datas = [x["verificado_em"] for x in livrarias + clubes + editoras + obras if x.get("verificado_em")]
+        payload = {"municipio": mun, "nome": nome, "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                   "verificado_ate": max(datas) if datas else None, "livrarias": livrarias, "clubes": clubes, "editoras": editoras,
+                   "pessoas": pessoas, "obras": obras}
+        (pasta / f"{mun}.json").write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+        for p in ids_p:
+            indice["pessoa"].setdefault(p, []).append(mun)
+        for o in obras:
+            indice["obra"].setdefault(o["id"], []).append(mun)
+        for e in editoras:
+            indice["editora"].setdefault(e["id"], []).append(mun)
+    indice["municipios"] = dict(con.execute(f"SELECT codigo, nome FROM territorio WHERE codigo IN ({','.join('?' * len(muns))})", muns).fetchall())
+    (pasta / "indice.json").write_text(json.dumps(indice, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
 def exportar_busca(con, web: Path):
     """Índice de busca para todas as páginas (CA-31.5, D37): o que não depende de dados.json. Hrefs relativos à raiz do site
     (todas as páginas ficam em web/). Compacto: {tipos, e: [[tipo, rótulo, detalhe, href, extra?]]}."""
@@ -521,6 +626,10 @@ def exportar_busca(con, web: Path):
             e.append([3, nome, uf, f"leitura.html#/municipio/{cod}"])
         for iid, nome, fonte in con.execute("SELECT id, nome, fonte_nome FROM indicador ORDER BY ordem").fetchall():
             e.append([4, nome, fonte, f"leitura.html?i={iid}"])
+    for lid, nome, tipo, bairro, mnome in con.execute("""SELECT l.id, l.nome, l.tipo, l.bairro, t.nome FROM livraria l JOIN territorio t ON t.codigo = l.municipio ORDER BY 1""").fetchall():
+        e.append([5, nome, " · ".join(x for x in (bairro, mnome) if x), f"mapeamento.html#/livraria/{lid}"])
+    for cid, nome, mnome in con.execute("SELECT c.id, c.nome, t.nome FROM clube c JOIN territorio t ON t.codigo = c.municipio ORDER BY 1").fetchall():
+        e.append([6, nome, mnome, f"mapeamento.html#/clube/{cid}"])
     (web / "busca.json").write_text(json.dumps({"tipos": tipos, "e": e}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
@@ -573,6 +682,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
         exportar_banco(con, saida.parent)
         exportar_busca(con, saida.parent)
         exportar_leitura(con, saida.parent)
+        exportar_mapeamento(con, saida.parent)
         saida.parent.mkdir(exist_ok=True)
         (saida.parent / "edicoes.json").write_text(json.dumps(contextos(con), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         seo.gerar(con, saida.parent)

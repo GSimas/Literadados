@@ -216,6 +216,18 @@ export async function ligarMunicipios(raiz) {
   }
 }
 
+// Bloco "Em <cidade>" (CA-34.9, D40): pessoa, livro ou editora com vínculo num município mapeado ganha link para o mapeamento.
+let indiceMapa = null;
+export async function blocoMapeamento(raiz, tipo, id) {
+  indiceMapa ??= fetch("mapeamento/indice.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const I = await indiceMapa;
+  const muns = I?.[tipo]?.[id];
+  const alvo = raiz.querySelector("article") ?? raiz;
+  if (!muns?.length || raiz.querySelector(".bloco-mapeamento")) return;
+  alvo.insertAdjacentHTML("beforeend", `<section class="cartao bloco-mapeamento"><p class="sobretitulo">Mapeamento</p>
+    ${muns.map((m) => `<h3>Em ${esc(I.municipios[m] ?? m)}</h3><p><a class="botao" href="mapeamento.html${m === "4205407" ? "" : `?m=${m}`}#/${tipo}/${encodeURIComponent(id)}">Ver no mapeamento literário →</a></p>`).join("")}</section>`);
+}
+
 export async function carregarCapas() {
   capas ??= fetch("capas.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   return capas;

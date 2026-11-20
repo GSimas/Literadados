@@ -588,3 +588,18 @@ test("valoresLeitura, serieLeitura e recortesLeitura", () => {
   assert.deepEqual(M.serieLeitura(L, { indicador: "liv", territorio: "42" }).map((l) => l.ano), [2026]);
   assert.deepEqual(M.recortesLeitura(L, JL, { indicador: "alfa", territorio: "42", ano: 2022, dimensao: "sexo" }).map((l) => l.categoria), ["homens", "mulheres"]);
 });
+
+test("resumoMapeamento: critério de vínculo, n, piso e a conferir (CA-34.10)", () => {
+  const Mp = { gerado_em: "2026-11-20T00:00:00+00:00", verificado_ate: "2026-11-20",
+    pessoas: [{ id: "a", genero: "mulher", nasceu: true, atua: true, negra: true }, { id: "b", genero: "homem", nasceu: false, atua: true },
+      { id: "c", genero: "mulher", genero_evidencia: "atribuicao", nasceu: true, atua: false }],
+    livrarias: [{ tipo: "sebo", situacao: "ativa", verificado_em: "2026-11-20" }, { tipo: "geral", situacao: "encerrada", verificado_em: "2025-01-10" },
+      { tipo: "sebo", situacao: "ativa", verificado_em: "2026-01-01" }],
+    clubes: [{ situacao: "ativa", verificado_em: "2026-11-20" }], editoras: [{ situacao: "incerta", verificado_em: "2025-11-21" }], obras: [{ id: "o" }] };
+  const r = M.resumoMapeamento(Mp);
+  assert.deepEqual([r.pessoas, r.nasceram, r.atuam, r.ambos, r.mulheres, r.negras, r.generoAtribuido], [3, 2, 2, 1, 2, 1, 1]);
+  assert.equal(Math.round(r.pctMulheres), 67);
+  assert.deepEqual([r.livrariasAtivas, r.encerradas, r.livrariasPorTipo.sebo, r.clubesAtivos, r.editorasAtivas], [2, 1, 2, 1, 0]);
+  assert.equal(r.aConferir, 1);  // só a de 2025-01-10 passou de 12 meses (2025-11-21 ainda não)
+  assert.equal(M.aConferir({ verificado_em: "2025-11-19" }, Mp.gerado_em), true);
+});

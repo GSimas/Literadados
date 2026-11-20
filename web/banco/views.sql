@@ -89,3 +89,32 @@ JOIN indicador i ON i.id = v.indicador_id
 JOIN territorio t ON t.codigo = v.territorio
 LEFT JOIN territorio u ON u.codigo = t.pai
 JOIN recorte r ON r.dimensao = v.dimensao AND r.categoria = v.categoria;
+
+CREATE VIEW v_vinculo AS
+SELECT 'pessoa' AS entidade, v.pessoa_id AS entidade_id, v.codigo AS municipio, 'nascimento' AS tipo, p.nascimento_fonte AS fonte
+FROM v_pessoa_municipio v JOIN pessoa p ON p.id = v.pessoa_id
+UNION ALL
+SELECT 'pessoa', pessoa_id, municipio, 'atuacao', fonte FROM pessoa_atuacao
+UNION ALL
+SELECT DISTINCT 'obra', c.obra_id, pv.municipio, 'autoria', NULL
+FROM (SELECT obra_id, pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador')
+      UNION SELECT obra_id, pessoa_id FROM mapeamento_autoria WHERE papel IN ('autor','ilustrador')) c
+JOIN (SELECT pessoa_id, codigo AS municipio FROM v_pessoa_municipio UNION SELECT pessoa_id, municipio FROM pessoa_atuacao) pv ON pv.pessoa_id = c.pessoa_id
+UNION ALL
+SELECT DISTINCT 'obra', o.obra_id, em.codigo, 'editora', NULL
+FROM (SELECT id AS obra_id, editora_id FROM obra UNION SELECT obra_id, editora_id FROM indicacao WHERE editora_id IS NOT NULL) o
+JOIN v_editora_municipio em ON em.editora_id = o.editora_id
+UNION ALL
+SELECT 'obra', obra_id, municipio, 'ambientacao', fonte FROM obra_mapeada WHERE ambientada;
+
+CREATE VIEW v_pessoa_mapeada AS
+SELECT v.municipio, p.id AS pessoa_id, p.nome, p.genero, p.genero_evidencia, p.raca, p.raca_evidencia, p.raca_fonte, p.raca_trecho,
+       p.ano_nascimento, p.municipio_nascimento, p.uf_nascimento,
+       bool_or(v.tipo = 'nascimento') AS nasceu, bool_or(v.tipo = 'atuacao') AS atua,
+       p.raca IN ('preta','parda','negra') AS negra
+FROM v_vinculo v JOIN pessoa p ON p.id = v.entidade_id
+WHERE v.entidade = 'pessoa' AND v.municipio IN (SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM editora_mapeada
+                                                UNION SELECT municipio FROM livraria UNION SELECT municipio FROM pessoa_atuacao)
+  AND p.id IN (SELECT pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador','organizador')
+               UNION SELECT pessoa_id FROM mapeamento_autoria)
+GROUP BY ALL;

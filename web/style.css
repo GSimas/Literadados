@@ -976,3 +976,14 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 /* Módulo Leitura (D39) */
 .kpi .val.kpi-texto { font-size: 1.25rem; line-height: 1.3; }
 @media (min-width: 900px) { .leitura-controles { justify-content: flex-start; } }
+/* Módulo Mapeamento (D40) */
+.contorno-cidade { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1; }
+.lista-mapa { list-style: none; padding: 0; margin: 0; max-height: 520px; overflow-y: auto; }
+.lista-mapa li { padding: .35rem 0; border-bottom: 1px solid var(--borda); display: flex; flex-direction: column; }
+.selo-conferir { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 999px; background: var(--marca-suave); color: var(--tinta); }
+.form-sugerir { display: grid; gap: .8rem; max-width: 640px; }
+.form-sugerir label { display: grid; gap: .3rem; font-size: .9rem; }
+.form-sugerir input:not([type="hidden"]), .form-sugerir textarea { font: inherit; color: var(--tinta); background: var(--superficie); border: 1px solid var(--borda); border-radius: 10px; padding: .55rem .7rem; }
+.form-sugerir input:focus, .form-sugerir textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 28%, transparent); }
+.form-sugerir .botao { justify-self: start; }
+#mapa-abas { margin-bottom: .9rem; flex-wrap: wrap; }

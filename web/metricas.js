@@ -900,3 +900,30 @@ export function recortesLeitura(linhas, J, { indicador, territorio, ano, dimensa
   return linhas.filter((l) => l.indicador === indicador && l.territorio === territorio && l.ano === ano && l.dimensao === dimensao)
     .sort((a, b) => ordem.get(`${a.dimensao}|${a.categoria}`) - ordem.get(`${b.dimensao}|${b.categoria}`));
 }
+
+// ---------- módulo Mapeamento (RF-34, CA-34.10, D40) ----------
+// Números do cadastro de um município, sempre com o critério de vínculo; "a conferir" = verificação com mais de 12 meses
+// contados da data de geração (o número não muda sozinho no navegador).
+export function resumoMapeamento(Mp) {
+  const ps = Mp.pessoas ?? [];
+  const n = ps.length, mulheres = ps.filter((p) => p.genero === "mulher").length, negras = ps.filter((p) => p.negra).length;
+  const limite = new Date(Mp.gerado_em ?? Date.now());
+  limite.setFullYear(limite.getFullYear() - 1);
+  const corte = limite.toISOString().slice(0, 10);
+  const registros = [...(Mp.livrarias ?? []), ...(Mp.clubes ?? []), ...(Mp.editoras ?? []), ...(Mp.obras ?? []).filter((o) => o.verificado_em)];
+  const ativas = (xs) => xs.filter((x) => x.situacao === "ativa");
+  const porTipo = {};
+  for (const l of ativas(Mp.livrarias ?? [])) porTipo[l.tipo] = (porTipo[l.tipo] ?? 0) + 1;
+  return {
+    pessoas: n, nasceram: ps.filter((p) => p.nasceu).length, atuam: ps.filter((p) => p.atua).length, ambos: ps.filter((p) => p.nasceu && p.atua).length,
+    mulheres, pctMulheres: n ? (100 * mulheres) / n : null, generoAtribuido: ps.filter((p) => p.genero_evidencia === "atribuicao").length,
+    negras, pctNegrasPiso: n ? (100 * negras) / n : null,
+    livrarias: (Mp.livrarias ?? []).length, livrariasAtivas: ativas(Mp.livrarias ?? []).length, livrariasPorTipo: porTipo,
+    encerradas: (Mp.livrarias ?? []).filter((l) => l.situacao === "encerrada").length,
+    clubes: (Mp.clubes ?? []).length, clubesAtivos: ativas(Mp.clubes ?? []).length,
+    editoras: (Mp.editoras ?? []).length, editorasAtivas: ativas(Mp.editoras ?? []).length,
+    obras: (Mp.obras ?? []).length, aConferir: registros.filter((x) => x.verificado_em && x.verificado_em < corte).length,
+    verificadoAte: Mp.verificado_ate ?? null,
+  };
+}
+export const aConferir = (x, geradoEm) => { const d = new Date(geradoEm); d.setFullYear(d.getFullYear() - 1); return !!x.verificado_em && x.verificado_em < d.toISOString().slice(0, 10); };

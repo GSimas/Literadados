@@ -26,6 +26,10 @@ BRUTO = DADOS / "coleta"
 UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
 
 CAMPOS = {
+    "obra_mapeada": ["obra_id", "municipio", "isbn", "ambientada", "fonte", "verificado_em"],
+    "editora_mapeada": ["editora_id", "municipio", "tipo", "site", "situacao", "ano_encerramento", "fonte", "verificado_em"],
+    "pessoa_atuacao": ["pessoa_id", "municipio", "fonte", "verificado_em"],
+    "mapeamento_autoria": ["obra_id", "pessoa_id", "papel"],
     "pessoa": ["id", "nome", "wikidata", "genero", "genero_fonte", "genero_evidencia", "raca", "raca_evidencia", "raca_fonte", "raca_trecho", "raca_busca",
                "ano_nascimento", "municipio_nascimento", "uf_nascimento", "pais_nascimento", "nascimento_fonte", "revisado_em"],
     "editora": ["id", "nome", "grupo", "municipio_sede", "uf_sede"],
@@ -128,7 +132,7 @@ def normalizar():
         decisao, qid = (c.get("pessoa_id") or "").strip(), (c.get("wikidata") or "").strip()
         base = slug(nome)
         if decisao == "nova":
-            pid = f"{base}-{premio_id}"
+            pid = f"{base}-{premio_id.replace('mapeamento/', 'm')}"
         elif decisao:
             if decisao not in pessoas:
                 raise SystemExit(f"{premio_id}/casamentos.csv: {nome} → pessoa_id {decisao} não existe")
@@ -142,7 +146,7 @@ def normalizar():
             if qid and ja and ja != qid:  # mesmo nome, outra pessoa no Wikidata: homônimo
                 if ordem[premio_id] == 0:  # no prêmio padrão, isso tiraria as indicações de quem já está na base
                     raise SystemExit(f"{premio_id}/casamentos.csv: {nome} com QID diferente ({qid} × {ja}) no prêmio padrão: corrija a base")
-                pid = f"{base}-{premio_id}"
+                pid = f"{base}-{premio_id.replace('mapeamento/', 'm')}"
                 revisar[premio_id][nome] = {"nome": nome, "pessoa_id": pid, "motivo": f"QID diferente ({qid} × {ja}): criada pessoa nova",
                                             "wikidata_base": ja, "premios_base": ",".join(sorted(antes))}
             elif qid and not ja and pid in pessoas:  # QID conferido para quem já está na base sem QID: grava e vale
@@ -268,6 +272,56 @@ def normalizar():
                 "premio_id": premio_id, "ano": r["ano"], "nome_original": r["nome_original"], "obra_id": oid,
                 "lista_curta": r["lista_curta"], "colocacao": r["colocacao"], "fonte": fonte, "_ed": ed_id}
 
+    # Mapeamento (RF-34, D40): dados/coleta/mapeamento/<código do município>/, como mais uma fonte, depois de todos os prêmios
+    # (os ids atuais não mudam). Mesmo casamento de pessoa e obra (casamentos.csv, obras_casamentos.csv). remocoes.csv
+    # (pessoa_id): quem pediu para sair do mapeamento não volta numa coleta futura (CA-34.11); a trajetória nos prêmios fica.
+    terr = {l["codigo"]: l for l in csv.DictReader((DADOS / "territorio.csv").open(encoding="utf-8"))} if (DADOS / "territorio.csv").exists() else {}
+    mapa = {"obra_mapeada": {}, "editora_mapeada": {}, "pessoa_atuacao": {}, "mapeamento_autoria": set()}
+    for pasta in sorted(p for p in (BRUTO / "mapeamento").glob("*") if p.is_dir()) if (BRUTO / "mapeamento").exists() else []:
+        mun, fonte_id = pasta.name, f"mapeamento/{pasta.name}"
+        if mun not in terr:
+            raise SystemExit(f"{fonte_id}: município {mun} não está em dados/territorio.csv")
+        uf_mun = terr[terr[mun]["pai"]]["sigla"]
+        ler_ = lambda nome: list(csv.DictReader((pasta / nome).open(encoding="utf-8"))) if (pasta / nome).exists() else []
+        casam[fonte_id] = {c["nome"]: c for c in ler_("casamentos.csv")}
+        ordem[fonte_id], revisar[fonte_id] = len(premios), {}
+        obra_decidida.update({(fonte_id, c["titulo"]): c["obra_id"] for c in ler_("obras_casamentos.csv")})
+        fora = {r["pessoa_id"] for r in ler_("remocoes.csv")}
+        for r in ler_("editoras.csv"):
+            eid = slug(r["nome"])
+            editoras.setdefault(eid, {"id": eid, "nome": r["nome"], "municipio_sede": r.get("municipio_sede") or terr[mun]["nome"], "uf_sede": uf_mun})
+            mapa["editora_mapeada"][(eid, mun)] = {"editora_id": eid, "municipio": mun, **{k: r.get(k, "") for k in
+                                                   ("tipo", "site", "situacao", "ano_encerramento", "fonte", "verificado_em")}}
+        for r in ler_("obras.csv"):
+            pid_de = lambda n: pessoa(n, fonte_id)
+            autores = [n for n in nomes(r["autores"]) if slug(n) not in fora]
+            orgs = [n for n in nomes(r.get("organizadores")) if n not in autores and slug(n) not in fora]
+            ilus = [n for n in nomes(r.get("ilustradores")) if n not in autores and slug(n) not in fora]
+            if not (autores or orgs):
+                continue
+            pa, po = [pid_de(n) for n in autores], [pid_de(n) for n in orgs]
+            if any(p in fora for p in pa + po):
+                continue
+            ed_id = slug(editora_principal(r.get("editora") or "")) if r.get("editora") else ""
+            if ed_id:
+                editoras.setdefault(ed_id, {"id": ed_id, "nome": editora_principal(r["editora"])})
+            oid = obra(r["titulo"], autores or orgs, pa or po, r.get("ano") or "", ed_id, fonte_id)
+            if r.get("ano") and not obras[oid].get("ano_publicacao"):
+                obras[oid]["ano_publicacao"] = r["ano"]
+            mapa["mapeamento_autoria"] |= {(oid, p, "autor") for p in pa} | {(oid, p, "organizador") for p in po}
+            mapa["mapeamento_autoria"] |= {(oid, pid_de(n), "ilustrador") for n in ilus}
+            mapa["obra_mapeada"][(oid, mun)] = {"obra_id": oid, "municipio": mun, "isbn": r.get("isbn", ""),
+                                                "ambientada": "true" if (r.get("ambientada") or "").strip() in ("1", "true", "sim") else "false",
+                                                "fonte": r["fonte"], "verificado_em": r["verificado_em"]}
+        for r in ler_("pessoas.csv"):
+            if slug(r["nome"]) in fora:
+                continue
+            pid = pessoa(r["nome"], fonte_id)
+            if pid in fora:
+                continue
+            mapa["pessoa_atuacao"][(pid, mun)] = {"pessoa_id": pid, "municipio": mun, "fonte": r["fonte"], "verificado_em": r["verificado_em"]}
+        print(f"mapeamento {mun}: {len(mapa['obra_mapeada'])} obras, {len(mapa['editora_mapeada'])} editoras, {len(mapa['pessoa_atuacao'])} pessoas com atuação")
+
     # Editoras: sede/grupo levantados à parte; `canonico` unifica duplicatas (ex.: "record" → "editora-record").
     enr_arq, alias = BRUTO / "editoras_enriquecidas.csv", {}
     if enr_arq.exists():
@@ -291,13 +345,18 @@ def normalizar():
     gravar("pessoa", sorted(pessoas.values(), key=lambda p: p["id"]))
     # Só editoras usadas: grafias antigas e coedições que viraram canonico deixam de aparecer (a sede/grupo vive em
     # editoras_enriquecidas.csv, então nada se perde).
-    usadas = {o["editora_id"] for o in obras.values()} | {i["editora_id"] for i in indicacoes.values()}
+    for em in mapa["editora_mapeada"].values():
+        em["editora_id"] = alias.get(em["editora_id"], em["editora_id"])
+    usadas = {o["editora_id"] for o in obras.values()} | {i["editora_id"] for i in indicacoes.values()} | {e["editora_id"] for e in mapa["editora_mapeada"].values()}
     gravar("editora", sorted((e for e in editoras.values() if e["id"] in usadas), key=lambda e: e["id"]))
     gravar("obra", sorted(obras.values(), key=lambda o: o["id"]))
     gravar("autoria", [{"premio_id": pr, "obra_id": o, "pessoa_id": p, "papel": t} for pr, o, p, t in sorted(autoria)])
     gravar("indicacao", sorted(indicacoes.values(), key=lambda i: (i["premio_id"], i["ano"], i["nome_original"], i["obra_id"])))
     gravar("jurado", sorted(jurados.values(), key=lambda j: (j["premio_id"], j["ano"], j["nome_original"], j["pessoa_id"])))
     gravar("distincao", sorted(distincoes.values(), key=lambda d: (d["premio_id"], d["ano"], d["nome_original"], d["pessoa_id"])))
+    for t in ("obra_mapeada", "editora_mapeada", "pessoa_atuacao"):
+        gravar(t, [mapa[t][k] for k in sorted(mapa[t])])
+    gravar("mapeamento_autoria", [{"obra_id": o, "pessoa_id": p, "papel": t} for o, p, t in sorted(mapa["mapeamento_autoria"])])
     for premio_id, linhas in revisar.items():  # refeito a cada execução; sem pendência, o arquivo some
         arq = BRUTO / premio_id / "casamentos_revisar.csv"
         if linhas:
@@ -966,6 +1025,57 @@ def _leitura_retratos():
         _gravar_valores(ind, linhas)
 
 
+CAMPOS_LIVRARIA = ["id", "nome", "municipio", "tipo", "foco", "rede", "endereco", "bairro", "lat", "lon", "site", "redes", "situacao",
+                   "ano_abertura", "ano_encerramento", "fonte", "verificado_em"]
+CAMPOS_CLUBE = ["id", "nome", "municipio", "formato", "periodicidade", "foco", "aberto", "organizacao", "local_tipo", "livraria_id", "local_nome",
+                "bairro", "lat", "lon", "link", "situacao", "fonte", "verificado_em"]
+
+
+def mapeamento():
+    """dados/coleta/mapeamento/<código>/livrarias.csv e clubes.csv → dados/livraria.csv e dados/clube.csv (RF-34, D40), com id em slug.
+    Clube numa livraria aponta para ela pelo nome. Privacidade: clube em casa ou on-line perde bairro, local e coordenadas."""
+    livs, clubes = [], []
+    for pasta in sorted(p for p in (BRUTO / "mapeamento").glob("*") if p.is_dir()):
+        mun, ids, por_nome = pasta.name, set(), {}
+        ler_ = lambda nome: list(csv.DictReader((pasta / nome).open(encoding="utf-8"))) if (pasta / nome).exists() else []
+
+        def novo_id(nome):
+            base, i = slug(nome), 2
+            lid = base
+            while lid in ids:
+                lid, i = f"{base}-{i}", i + 1
+            ids.add(lid)
+            return lid
+        for r in ler_("livrarias.csv"):
+            lid = novo_id(r["nome"])
+            por_nome[r["nome"].strip().lower()] = lid
+            livs.append({**{c: (r.get(c) or "").strip() for c in CAMPOS_LIVRARIA}, "id": lid, "municipio": mun,
+                         "rede": "true" if (r.get("rede") or "").strip().lower() in ("true", "1", "sim") else "false"})
+        ids_c = set()
+        for r in ler_("clubes.csv"):
+            base, i = slug(r["nome"]), 2
+            cid = base
+            while cid in ids_c:
+                cid, i = f"{base}-{i}", i + 1
+            ids_c.add(cid)
+            c = {**{k: (r.get(k) or "").strip() for k in CAMPOS_CLUBE}, "id": cid, "municipio": mun}
+            c["livraria_id"] = por_nome.get((r.get("livraria") or "").strip().lower(), "")
+            if c["local_tipo"] == "livraria" and not c["livraria_id"]:
+                print(f"  clube {r['nome']}: livraria '{r.get('livraria')}' não está em livrarias.csv; local vira espaco_publico")
+                c["local_tipo"] = "espaco_publico"
+                c["local_nome"] = c["local_nome"] or r.get("livraria", "")
+            if c["local_tipo"] in ("casa", "online"):
+                c.update(bairro="", lat="", lon="", local_nome="")
+            c["aberto"] = {"true": "true", "1": "true", "sim": "true", "false": "false", "0": "false", "não": "false"}.get(c["aberto"].lower(), "")
+            clubes.append(c)
+    for nome, campos, linhas in (("livraria", CAMPOS_LIVRARIA, livs), ("clube", CAMPOS_CLUBE, clubes)):
+        with (DADOS / f"{nome}.csv").open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=campos)
+            w.writeheader()
+            w.writerows(linhas)
+    print(f"{len(livs)} livrarias e {len(clubes)} clubes em dados/livraria.csv e dados/clube.csv")
+
+
 def leitura():
     """coleta.py leitura <fonte>: alfabetizacao · escolas_biblioteca · cnpj · retratos."""
     {"alfabetizacao": _leitura_alfabetizacao, "escolas_biblioteca": _leitura_escolas_biblioteca,
@@ -973,6 +1083,6 @@ def leitura():
 
 
 if __name__ == "__main__":
-    {"leitura": leitura, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
+    {"leitura": leitura, "mapeamento": mapeamento, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
      "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto,
      "territorio": territorio, "malha_municipios": malha_municipios}[sys.argv[1]]()

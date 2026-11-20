@@ -725,7 +725,8 @@ def test_contexto_e_banco_por_modulo():  # CA-31.7, D37
     web = RAIZ / "web"
     todas_views = set(re.findall(r"CREATE VIEW (\w+)", (web / "banco" / "views.sql").read_text(encoding="utf-8")))
     mods = sorted(web.glob("contexto-*.json"))
-    assert [m.stem.removeprefix("contexto-") for m in mods] == sorted(build.modulos_banco(None))
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    assert [m.stem.removeprefix("contexto-") for m in mods] == sorted(build.modulos_banco(con))  # módulo sem dado não tem contexto
     for arq in mods:
         ctx = json.loads(arq.read_text(encoding="utf-8"))
         assert ctx["sistema"] and all((web / "banco" / f"{t}.parquet").exists() for t in ctx["tabelas"]), arq.name

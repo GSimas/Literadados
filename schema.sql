@@ -290,6 +290,102 @@ FROM v_participacao
 WHERE papel = 'autor'
 GROUP BY premio, ano;
 
+-- ========== Módulo Mapeamento (RF-34, D40) ==========
+-- Cadastro curado da cena literária de um município (hoje Florianópolis, 4205407). É cadastro, não censo.
+-- Livrarias e clubes: editados à mão em dados/livraria.csv e dados/clube.csv. Obras, editoras e atuação de pessoas: pelo
+-- normalizar, a partir de dados/coleta/mapeamento/<código>/ (o normalizar reescreve obra, autoria e editora).
+CREATE TABLE livraria (
+  id                TEXT PRIMARY KEY,
+  nome              TEXT NOT NULL,
+  municipio         TEXT NOT NULL REFERENCES territorio(codigo),
+  tipo              TEXT NOT NULL CHECK (tipo IN ('geral','sebo','especializada','cafe_livraria','online')),
+  foco              TEXT,                       -- especializada: infantil, religiosa, universitária…
+  rede              BOOLEAN NOT NULL DEFAULT false,  -- filial de rede nacional ou regional
+  endereco          TEXT,
+  bairro            TEXT,
+  lat               DOUBLE,
+  lon               DOUBLE,
+  site              TEXT,
+  redes             TEXT,                       -- perfis públicos (Instagram etc.), separados por " ; "
+  situacao          TEXT NOT NULL CHECK (situacao IN ('ativa','encerrada','incerta')),
+  ano_abertura      INTEGER,
+  ano_encerramento  INTEGER,
+  fonte             TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em     DATE NOT NULL,
+  CHECK (tipo <> 'online' OR (endereco IS NULL AND lat IS NULL AND lon IS NULL)),
+  CHECK (tipo = 'online' OR bairro IS NOT NULL),
+  CHECK (tipo <> 'especializada' OR foco IS NOT NULL),
+  CHECK ((lat IS NULL) = (lon IS NULL)),
+  CHECK (ano_encerramento IS NULL OR situacao = 'encerrada')
+);
+
+-- Clube do livro: privacidade (DB-6) nos CHECKs. Encontro em casa não tem endereço nem ponto; nome de organizador
+-- independente nunca é publicado (organizacao = instituição ou 'independente').
+CREATE TABLE clube (
+  id             TEXT PRIMARY KEY,
+  nome           TEXT NOT NULL,
+  municipio      TEXT NOT NULL REFERENCES territorio(codigo),
+  formato        TEXT NOT NULL CHECK (formato IN ('presencial','online','hibrido')),
+  periodicidade  TEXT,
+  foco           TEXT,
+  aberto         BOOLEAN,                    -- aceita novos membros
+  organizacao    TEXT NOT NULL,              -- instituição (livraria, biblioteca, editora, coletivo) ou 'independente'
+  local_tipo     TEXT NOT NULL CHECK (local_tipo IN ('livraria','biblioteca','cafe','espaco_publico','casa','online')),
+  livraria_id    TEXT REFERENCES livraria(id),
+  local_nome     TEXT,
+  bairro         TEXT,
+  lat            DOUBLE,
+  lon            DOUBLE,
+  link           TEXT NOT NULL CHECK (link LIKE 'http%'),   -- canal público do clube
+  situacao       TEXT NOT NULL CHECK (situacao IN ('ativa','encerrada','incerta')),
+  fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em  DATE NOT NULL,
+  CHECK (local_tipo NOT IN ('casa','online') OR (bairro IS NULL AND lat IS NULL AND lon IS NULL AND local_nome IS NULL)),
+  CHECK (local_tipo <> 'livraria' OR livraria_id IS NOT NULL),
+  CHECK (formato <> 'online' OR local_tipo = 'online'),
+  CHECK ((lat IS NULL) = (lon IS NULL))
+);
+
+-- Obra registrada no mapeamento (vínculo de ambientação e a fonte do registro).
+CREATE TABLE obra_mapeada (
+  obra_id        TEXT NOT NULL REFERENCES obra(id),
+  municipio      TEXT NOT NULL REFERENCES territorio(codigo),
+  isbn           TEXT,
+  ambientada     BOOLEAN NOT NULL DEFAULT false,   -- passada no município, dito numa fonte
+  fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em  DATE NOT NULL,
+  PRIMARY KEY (obra_id, municipio)
+);
+
+CREATE TABLE editora_mapeada (
+  editora_id        TEXT NOT NULL REFERENCES editora(id),
+  municipio         TEXT NOT NULL REFERENCES territorio(codigo),
+  tipo              TEXT NOT NULL CHECK (tipo IN ('comercial','universitaria','independente','artesanal')),
+  site              TEXT,
+  situacao          TEXT NOT NULL CHECK (situacao IN ('ativa','encerrada','incerta')),
+  ano_encerramento  INTEGER,
+  fonte             TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em     DATE NOT NULL,
+  PRIMARY KEY (editora_id, municipio)
+);
+
+-- Vínculo de atuação (vive ou trabalha na cidade), dito numa fonte pública (DB-2). Nascimento sai de v_pessoa_municipio.
+CREATE TABLE pessoa_atuacao (
+  pessoa_id      TEXT NOT NULL REFERENCES pessoa(id),
+  municipio      TEXT NOT NULL REFERENCES territorio(codigo),
+  fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em  DATE NOT NULL,
+  PRIMARY KEY (pessoa_id, municipio)
+);
+
+-- Crédito das obras do mapeamento (autoria tem premio_id na chave: o crédito é de cada fonte, D31/D40).
+CREATE TABLE mapeamento_autoria (
+  obra_id    TEXT NOT NULL REFERENCES obra(id),
+  pessoa_id  TEXT NOT NULL REFERENCES pessoa(id),
+  papel      TEXT NOT NULL DEFAULT 'autor' CHECK (papel IN ('autor','ilustrador','organizador')),
+  PRIMARY KEY (obra_id, pessoa_id, papel)
+);
+
 -- ========== Módulo Leitura (RF-33, D39) ==========
 -- Catálogo de indicadores (dados/indicador.csv, editado à mão). limitacoes vai para o Método.
 CREATE TABLE indicador (
@@ -372,6 +468,37 @@ JOIN indicador i ON i.id = v.indicador_id
 JOIN territorio t ON t.codigo = v.territorio
 LEFT JOIN territorio u ON u.codigo = t.pai
 JOIN recorte r ON r.dimensao = v.dimensao AND r.categoria = v.categoria;
+
+-- Vínculos com o município (CA-34.3, D40), regra no SQL: nascimento e atuação de pessoa; autoria, editora e ambientação de obra.
+CREATE VIEW v_vinculo AS
+SELECT 'pessoa' AS entidade, v.pessoa_id AS entidade_id, v.codigo AS municipio, 'nascimento' AS tipo, p.nascimento_fonte AS fonte
+FROM v_pessoa_municipio v JOIN pessoa p ON p.id = v.pessoa_id
+UNION ALL
+SELECT 'pessoa', pessoa_id, municipio, 'atuacao', fonte FROM pessoa_atuacao
+UNION ALL
+SELECT DISTINCT 'obra', c.obra_id, pv.municipio, 'autoria', NULL
+FROM (SELECT obra_id, pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador')
+      UNION SELECT obra_id, pessoa_id FROM mapeamento_autoria WHERE papel IN ('autor','ilustrador')) c
+JOIN (SELECT pessoa_id, codigo AS municipio FROM v_pessoa_municipio UNION SELECT pessoa_id, municipio FROM pessoa_atuacao) pv ON pv.pessoa_id = c.pessoa_id
+UNION ALL
+SELECT DISTINCT 'obra', o.obra_id, em.codigo, 'editora', NULL
+FROM (SELECT id AS obra_id, editora_id FROM obra UNION SELECT obra_id, editora_id FROM indicacao WHERE editora_id IS NOT NULL) o
+JOIN v_editora_municipio em ON em.editora_id = o.editora_id
+UNION ALL
+SELECT 'obra', obra_id, municipio, 'ambientacao', fonte FROM obra_mapeada WHERE ambientada;
+
+-- Pessoas do mapeamento: vínculo com um município mapeado e ao menos uma obra na base (CA-34.6).
+CREATE VIEW v_pessoa_mapeada AS
+SELECT v.municipio, p.id AS pessoa_id, p.nome, p.genero, p.genero_evidencia, p.raca, p.raca_evidencia, p.raca_fonte, p.raca_trecho,
+       p.ano_nascimento, p.municipio_nascimento, p.uf_nascimento,
+       bool_or(v.tipo = 'nascimento') AS nasceu, bool_or(v.tipo = 'atuacao') AS atua,
+       p.raca IN ('preta','parda','negra') AS negra
+FROM v_vinculo v JOIN pessoa p ON p.id = v.entidade_id
+WHERE v.entidade = 'pessoa' AND v.municipio IN (SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM editora_mapeada
+                                                UNION SELECT municipio FROM livraria UNION SELECT municipio FROM pessoa_atuacao)
+  AND p.id IN (SELECT pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador','organizador')
+               UNION SELECT pessoa_id FROM mapeamento_autoria)
+GROUP BY ALL;
 
 INSERT INTO uf (uf, nome, regiao) VALUES
   ('AC','Acre','Norte'), ('AP','Amapá','Norte'), ('AM','Amazonas','Norte'), ('PA','Pará','Norte'),
