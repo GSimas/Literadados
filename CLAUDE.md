@@ -1,6 +1,6 @@
 # CLAUDE.md — Literadados
 
-Plataforma (painel e IA) sobre o perfil demográfico (gênero, raça autodeclarada, UF ou país de nascimento) de quem chega a prêmios literários, sem prêmio principal: o painel abre com todos, lado a lado (DA-4/DA-5). Hoje: Jabuti 1959–2026, Oceanos, São Paulo, Biblioteca Nacional, Sesc, LeYa, José Saramago e ABL (livros), mais o conjunto da obra (Camões e Machado de Assis, RF-30) à parte (RF-26, D31, D36; dados brutos em `dados/coleta/<premio>/`).
+Plataforma de dados sobre literatura e leitura no Brasil, em módulos (RF-31, D37): portal em `web/index.html`; **Prêmios** (`premios.html`: painel e IA sobre o perfil demográfico — gênero, raça autodeclarada, UF ou país de nascimento — de quem chega a prêmios literários, sem prêmio principal: abre com todos, lado a lado, DA-4/DA-5); **Leitura** (indicadores por território, RF-33) e **Mapeamento** (Florianópolis, RF-34). Território comum: códigos do IBGE (RF-32). Hoje: Jabuti 1959–2026, Oceanos, São Paulo, Biblioteca Nacional, Sesc, LeYa, José Saramago e ABL (livros), mais o conjunto da obra (Camões e Machado de Assis, RF-30) à parte (RF-26, D31, D36; dados brutos em `dados/coleta/<premio>/`).
 
 ## Como trabalhar aqui (SDD)
 1. Mudança de comportamento → primeiro `spec/spec.md` (requisito + critério de aceitação), depois `spec/design.md`, depois `spec/tasks.md`, só então código.

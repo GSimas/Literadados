@@ -582,7 +582,18 @@ FIXAM_UM_PREMIO = [
     r"Quem chega ao Prêmio", r"sobre o (Prêmio )?Jabuti", r"edições do Jabuti", r"principal prêmio do livro", r"abre no Jabuti",
     r"Edições do Prêmio Jabuti", r"desde 1959", r'\?\? "Prêmio Jabuti"', r"jabuti visto de cima", r"casco de jabuti",
     r"PREMIOS\.slice\(0, ?1\)", r"premios\[0\]\.id\]", r"lt-membro",
+    # Plataforma, não um módulo (CA-31.6): o Literadados não se reduz a prêmios.
+    r"plataforma de dados sobre o perfil de quem chega", r"[Pp]lataforma de prêmios", r"dados abertos sobre quem chega aos prêmios",
 ]
+
+
+def test_portal_fala_da_plataforma():  # CA-31.6, DB-1
+    """Título e h1 do portal falam da plataforma; a pergunta dos prêmios fica no módulo Prêmios."""
+    portal = (RAIZ / "web" / "index.html").read_text(encoding="utf-8")
+    for tag in ("title", "h1"):
+        txt = re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", portal, re.S).group(1)
+        assert "prêmio" not in txt.lower() and "literatura e leitura" in txt, tag
+    assert "<h1 id=\"h-hero\">Quem chega aos prêmios literários?</h1>" in (RAIZ / "web" / "premios.html").read_text(encoding="utf-8")
 
 
 def test_textos_de_plataforma():  # CA-26.15

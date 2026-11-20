@@ -182,7 +182,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 {corpo}
 </main>
 <footer class="rodape">
-  <p><b>Literadados</b> · dados abertos sobre quem chega aos prêmios literários de língua portuguesa. Cada número tem fonte; cada pessoa, um perfil.
+  <p><b>Literadados</b> · dados abertos sobre literatura e leitura no Brasil. Cada número tem fonte; cada pessoa, um perfil.
   <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/premios.html">Painel interativo</a>.</p>
   <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
 </footer>
@@ -785,7 +785,7 @@ def perguntas(b):
     qs.append(("Quais categorias dos prêmios entram no Literadados?",
                f"As literárias: {', '.join(cats)}. Categorias de não ficção, ilustração e outras ficam fora; organizadores de antologias são registrados, mas não entram nas contagens."))
     qs.append(("Como citar o Literadados?",
-               f"SIMAS, Gustavo. <i>Literadados</i>: quem chega aos prêmios literários. {date.today().year}. Disponível em: {SITE}/. "
+               f"SIMAS, Gustavo. <i>Literadados</i>: dados sobre literatura e leitura. {date.today().year}. Disponível em: {SITE}/. "
                'Os dados podem ser baixados em <a href="/dados-abertos/">Dados abertos</a>.'))
     return qs
 
@@ -835,7 +835,7 @@ def pagina_dados(b, con):
 <li>Estado = UF de nascimento. Mostre sempre o n junto do percentual. Compare edições em proporção (as vagas mudam).</li>
 <li>Não some percentuais de prêmios diferentes: formatos e períodos diferem.</li></ul>
 <h2>Como citar</h2>
-<p>SIMAS, Gustavo. <i>Literadados</i>: quem chega aos prêmios literários. {date.today().year}. Disponível em: <a href="{SITE}/">{SITE}/</a>.</p>
+<p>SIMAS, Gustavo. <i>Literadados</i>: dados sobre literatura e leitura. {date.today().year}. Disponível em: <a href="{SITE}/">{SITE}/</a>.</p>
 <p class="muted pequeno">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. <a href="/metodo.html">Método e referências</a>.</p>
 </article>"""
     ld = [{"@context": "https://schema.org", "@type": "Dataset", "name": "Literadados — quem chega aos prêmios literários", "description": desc,
@@ -854,7 +854,7 @@ def llms(b, qs):
     r = resumo(b.autores)
     ativos = [p for p in b.premios if b.anos(p["id"])]
     s = [f"# Literadados", "",
-         f"> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa ({', '.join(p['nome'] for p in ativos)}): gênero, raça autodeclarada e UF de nascimento "
+         f"> Dados abertos sobre literatura e leitura no Brasil, em módulos. Módulo Prêmios: quem chega aos prêmios literários de língua portuguesa ({', '.join(p['nome'] for p in ativos)}): gênero, raça autodeclarada e UF de nascimento "
          f"de {fmt(r['pessoas'])} pessoas-autoras em {fmt(r['indicacoes'])} indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.", "",
          "Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, \"pelo menos\"; \"sem declaração\" não quer dizer branca); "
          "gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.", "",

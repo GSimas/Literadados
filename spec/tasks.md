@@ -254,8 +254,8 @@
 - [x] T32.0 Spec RF-31 a RF-34 e decisões DB-1 a DB-7 (fechadas em 2026-11-20); design D37 a D40
 - [x] T32.1 `git mv web/index.html web/premios.html`; testes, `seo.py` (`NAV`, links "abrir no painel"), `metodo.html`, sitemap e `llms.txt` apontando para `premios.html`; mesmos números (CA-31.1) 🧪
 - [x] T32.2 Portal `index.html`: script `rotas-antigas` e `test_rotas_antigas_redirecionam`; cartões com números do build (`build:portal`) (CA-31.2, CA-31.3) 🧪👁
-- [ ] T32.3 Cabeçalho com os módulos em todas as páginas, segunda linha com as seções do módulo; `test_cabecalho_igual_em_todas_as_paginas` (CA-31.4) 🧪👁
-- [ ] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
+- [x] T32.3 Cabeçalho com os módulos em todas as páginas, segunda linha com as seções do módulo; `test_cabecalho_igual_em_todas_as_paginas` (CA-31.4) 🧪👁
+- [x] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
 - [ ] T32.5 Diadorim por módulo: `data-modulo`, `contexto-<módulo>.json`, `banco/modulos.json`, `banco.js` carregando só o módulo (CA-31.7) 🧪
 - [ ] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
 - [ ] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁

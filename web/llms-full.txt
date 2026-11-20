@@ -1,6 +1,6 @@
 # Literadados — texto completo
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura, Prémio LeYa, Prémio Literário José Saramago, Prêmios da Academia Brasileira de Letras): gênero, raça autodeclarada e UF de nascimento de 1.665 pessoas-autoras em 3.586 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre literatura e leitura no Brasil, em módulos. Módulo Prêmios: quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura, Prémio LeYa, Prémio Literário José Saramago, Prêmios da Academia Brasileira de Letras): gênero, raça autodeclarada e UF de nascimento de 1.665 pessoas-autoras em 3.586 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
@@ -188,7 +188,7 @@ As literárias: Romance, Contos, Crônica, Prosa, Poesia, Infantil, Juvenil, Inf
 
 ### Como citar o Literadados?
 
-SIMAS, Gustavo. Literadados: quem chega aos prêmios literários. 2026. Disponível em: https://literadados.gustavosimas.com/. Os dados podem ser baixados em Dados abertos.
+SIMAS, Gustavo. Literadados: dados sobre literatura e leitura. 2026. Disponível em: https://literadados.gustavosimas.com/. Os dados podem ser baixados em Dados abertos.
 
 ## Prêmio Jabuti
 

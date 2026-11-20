@@ -5,8 +5,8 @@
   </picture>
 </p>
 
-<p align="center"><b>Quem chega aos prêmios literários?</b><br>
-Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem oito prêmios por livro — Jabuti (1959–2026), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2026), Sesc de Literatura (2004–2026), LeYa (2008–2025), José Saramago (1999–2024) e os prêmios da Academia Brasileira de Letras (1999–2026) — e, à parte, dois prêmios pelo conjunto da obra: Camões (1989–2026) e Machado de Assis (1941–2026). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
+<p align="center"><b>Dados sobre literatura e leitura no Brasil</b><br>
+Plataforma de dados abertos organizada em módulos, com fonte em cada número. O módulo <b>Prêmios</b> mostra gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem oito prêmios por livro — Jabuti (1959–2026), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2026), Sesc de Literatura (2004–2026), LeYa (2008–2025), José Saramago (1999–2024) e os prêmios da Academia Brasileira de Letras (1999–2026) — e, à parte, dois prêmios pelo conjunto da obra: Camões (1989–2026) e Machado de Assis (1941–2026). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
 
 <p align="center">
   <a href="https://literadados.gustavosimas.com"><img alt="Site no ar" src="https://img.shields.io/website?url=https%3A%2F%2Fliteradados.gustavosimas.com&label=literadados.gustavosimas.com&up_message=no%20ar&down_message=fora%20do%20ar"></a>

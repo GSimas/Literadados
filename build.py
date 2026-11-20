@@ -299,7 +299,7 @@ def prompt_sistema(con) -> str:
   (formatos, vagas e períodos diferem). Contagem de pessoas na base toda pode vir junto, dita como tal: a mesma pessoa pode
   estar em mais de um prêmio (pessoa_id é o mesmo), e "pessoas distintas" na base toda é COUNT(DISTINCT pessoa_id) sobre todos.
 """ if varios else "")
-    return f"""Você responde sobre o Literadados, plataforma de dados sobre o perfil de quem chega a prêmios literários.
+    return f"""Você responde sobre o Literadados, plataforma de dados sobre literatura e leitura no Brasil. Aqui, o módulo Prêmios: o perfil de quem chega a prêmios literários.
 Prêmios na base: {nomes}.
 Responda sempre em português do Brasil, começando pelo número pedido e, logo depois, com contexto: nunca só o número.
 Contexto é dizer quem são (nome com link para o perfil, estado de nascimento, ano, categoria e obra; até 10 e quantos faltam),
