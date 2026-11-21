@@ -56,7 +56,9 @@ async function renderMapa() {
   ].filter((p) => (!tipo || p.cat === tipo) && (!sit || p.situacao === sit));
   const w = Math.min(largura(el), 620), h = Math.round(w * 1.1);
   const feat = contorno ?? { type: "FeatureCollection", features: pontos.map((p) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lon, p.lat] } })) };
-  const proj = d3.geoMercator().fitExtent([[10, 10], [w - 10, h - 10]], feat), caminho = d3.geoPath(proj);
+  // Projeção plana (como em mapa.js e leitura.js): a malha do IBGE não segue o sentido de anel que o d3 esférico espera, e
+  // geoMercator lia o contorno como "o mundo menos o município" (quadrado cheio, pontos todos no mesmo lugar).
+  const proj = d3.geoIdentity().reflectY(true).fitExtent([[10, 10], [w - 10, h - 10]], feat), caminho = d3.geoPath(proj);
   const COR = { livraria: css("--s1"), sebo: css("--s3"), clube: css("--s5") };
   const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "group").attr("aria-label", `Mapa de ${MP.nome} com ${pontos.length} pontos`);
   if (contorno) svg.append("path").datum(contorno).attr("d", caminho).attr("class", "contorno-cidade");
@@ -174,6 +176,8 @@ addEventListener("hashchange", rota);
 montarTema(() => renderMapa());
 $$("#mapa .controles select").forEach(melhorarSelect);
 melhorarSelect($("#mapa-vinculo"));
+// Formulário (CA-19.2): menus próprios também aqui; o <select> nativo continua no formulário, como fonte do valor enviado.
+$$(".form-sugerir select").forEach(melhorarSelect);
 ["#mapa-tipo", "#mapa-situacao"].forEach((s) => $(s).addEventListener("change", renderMapa));
 $("#mapa-busca").addEventListener("input", renderCadastro);
 $("#mapa-vinculo").addEventListener("change", renderCadastro);
