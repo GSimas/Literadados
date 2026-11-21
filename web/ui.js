@@ -187,6 +187,19 @@ export function fecharAnimado(el, fechar = () => { el.hidden = true; }) {
   setTimeout(fim, 600); // aba em segundo plano pode não entregar animationend
 }
 
+// Perfil em <dialog> (CA-19.1, CA-20.2): ×, Esc e clique fora fecham com animação. "Fora" = fora da caixa do diálogo
+// (o clique no fundo escurecido chega ao próprio <dialog>); clique no conteúdo não fecha.
+export function fecharPerfilAoClicarFora(dlg) {
+  const fechar = () => fecharAnimado(dlg, () => dlg.close());
+  dlg.addEventListener("cancel", (e) => { e.preventDefault(); fechar(); });
+  dlg.querySelector("form")?.addEventListener("submit", (e) => { e.preventDefault(); fechar(); });
+  dlg.addEventListener("click", (e) => {
+    if (e.target !== dlg) return;
+    const r = dlg.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom || e.detail === 0) fechar();
+  });
+}
+
 // Conta de 0 até o valor (abertura). O texto final é sempre o valor formatado exato.
 export function contar(el, alvo, formatar, ms = 1200) {
   if (alvo == null || movimentoReduzido()) { el.textContent = formatar(alvo); return; }

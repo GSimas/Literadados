@@ -1,6 +1,6 @@
 // Módulo Eventos (spec RF-35, design D41): eventos literários do Brasil, edições passadas e futuras. Dados em eventos.json.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos } from "./ui.js";
+import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos, fecharPerfilAoClicarFora } from "./ui.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
@@ -133,6 +133,7 @@ async function rota() {
 }
 $("#perfil").addEventListener("close", () => { if (/^#\/evento\//.test(location.hash)) history.replaceState(null, "", `${location.pathname}${location.search}${fundo}`); });
 addEventListener("hashchange", rota);
+fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
 montarTema(() => J && renderFiltrado());

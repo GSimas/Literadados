@@ -1,7 +1,7 @@
 // Módulo Leitura (spec RF-33, design D39): indicadores por território, ano e recorte. Dados em leitura.json (Brasil, regiões,
 // UFs) e leitura/<indicador>/<UF>.json + leitura/municipios/<UF>.json (municípios), carregados quando a UF é escolhida.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos } from "./ui.js";
+import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos, fecharPerfilAoClicarFora } from "./ui.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
@@ -276,6 +276,7 @@ async function rota() {
 }
 $("#perfil").addEventListener("close", () => { if (/^#\/(municipio|uf)\//.test(location.hash)) history.replaceState(null, "", `${location.pathname}${location.search}${fundo}`); });
 addEventListener("hashchange", rota);
+fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
 montarTema(() => renderTudo());

@@ -1,7 +1,7 @@
 // Módulo Mapeamento (spec RF-34, design D40): cadastro curado da cena literária de um município (hoje Florianópolis).
 // Dados em mapeamento/<código>.json; contorno do município em malha/<UF>.json; sem mapa de fundo de terceiros (RNF-09).
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, css, largura, tabela, dica, astGenero, ROT_RACA, melhorarSelect, botaoExportarGrafico, luzNosBlocos, CONTATO } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, css, largura, tabela, dica, astGenero, ROT_RACA, melhorarSelect, botaoExportarGrafico, luzNosBlocos, CONTATO, fecharPerfilAoClicarFora } from "./ui.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
@@ -171,6 +171,7 @@ function rota() {
 }
 $("#perfil").addEventListener("close", () => { if (/^#\/(livraria|clube|pessoa|obra|editora)\//.test(location.hash)) history.replaceState(null, "", `${location.pathname}${location.search}${fundo}`); });
 addEventListener("hashchange", rota);
+fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
 montarTema(() => renderMapa());
