@@ -22,8 +22,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main():
     porta = int(os.environ.get("PORT", 8000))
-    if not (RAIZ / "web" / "contexto.json").exists():
-        raise SystemExit("web/contexto.json não existe. Rode antes: python build.py")
+    if not (RAIZ / "web" / "contexto-premios.json").exists():  # Diadorim por módulo (D37)
+        raise SystemExit("web/contexto-premios.json não existe. Rode antes: python build.py")
     srv = ThreadingHTTPServer(("127.0.0.1", porta), partial(Handler, directory=str(RAIZ / "web")))
     print(f"Literadados em http://localhost:{porta}")
     srv.serve_forever()
