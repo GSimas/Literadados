@@ -297,3 +297,12 @@
 - [ ] T36.4 Florianópolis, clubes: "Trilogia da Terra" e "Entre Páginas e Sinal" contam como encontros recorrentes? Página do clube Lygia Bojunga (FCC) a conferir; Leia Mulheres Floripa
 - [ ] T36.5 Retratos da Leitura: conferir as leituras de gráfico listadas em `dados/coleta/leitura/LEIA.md` (2015 p. 56 × p. 64; escolaridade 2007 e 2011; 2019 pp. 22, 23, 28; 2024 pp. 18, 19)
 - [ ] T36.6 `São Estêvão (BA)` em `dados/municipio_casamento.csv`: conferir a fonte de nascimento
+
+## T37 Módulo Eventos literários (nov/2026, RF-35, D41)
+- [x] T37.0 Spec RF-35 (decisões DB-8 a DB-10), design D41, protocolo `dados/coleta/eventos/LEIA.md`
+- [ ] T37.1 Schema `evento`, `evento_edicao`, `evento_homenageado`, `v_evento_edicao`; checagens de data, situação e público (CA-35.1 a CA-35.3) 🧪
+- [ ] T37.2 Coleta por agentes (Sudeste/Sul; Norte/Nordeste/Centro-Oeste) e `coleta.py eventos` 🧪
+- [ ] T37.3 `eventos.json`, funções puras e testes (CA-35.6) 🧪
+- [ ] T37.4 `eventos.html`: próximos, calendário, mapa por UF, filtros na URL, tabela, perfil de evento (CA-35.4 a CA-35.6) 👁
+- [ ] T37.5 Eventos no perfil de município e no mapeamento da cidade (CA-35.7) 👁
+- [ ] T37.6 Páginas estáticas, busca, portal, cabeçalho, dados abertos, Diadorim (CA-35.8, CA-35.9) 🧪

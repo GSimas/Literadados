@@ -361,3 +361,33 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
   **Páginas estáticas (CA-34.12).** `seo.py` gera `/mapeamento/` (municípios mapeados, hoje só um), `/mapeamento/florianopolis/` (as listas, com o critério e a data), `/mapeamento/florianopolis/livrarias/<id>/` (JSON-LD `BookStore`, com endereço só de estabelecimento) e `/mapeamento/florianopolis/clubes/<id>/` (JSON-LD `Organization`, sem endereço de casa). `PASTAS` ganha `mapeamento`. As páginas de pessoa existentes (`/pessoas/<id>/`) ganham o vínculo. Quem só está no mapeamento ganha página em `/mapeamento/<cidade>/pessoas/<id>/` (fora de `/pessoas/`, que é a lista de quem chegou aos prêmios), com as mesmas regras de raça e gênero (CA-27.3). `/dados-abertos/` lista `livraria.csv`, `clube.csv` e um CSV de pessoas e obras mapeadas, só com os campos que o painel mostra.
 
   **Diadorim (CA-31.7).** Módulo `mapeamento`: `territorio`, `pessoa`, `obra`, `editora`, `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria` e as views `v_vinculo` e `v_pessoa_municipio`. Regras no prompt: é cadastro, não censo ("mapeados até agora"); dizer o critério de vínculo; não dar endereço de clube que não tenha local público; raça e gênero como no módulo Prêmios.
+
+- **D41** Módulo Eventos literários (RF-35, DB-8 a DB-10).
+
+  **Schema.** `evento (id, nome, tipo, municipio → territorio, organizador, site, redes, ano_inicio, fonte, verificado_em)` e
+  `evento_edicao (evento_id, numero, ano, data_inicio, data_fim, municipio → territorio, local, tema, situacao, formato, publico,
+  publico_fonte, fonte, verificado_em)`, com chave `(evento_id, data_inicio)`. CHECKs: `data_fim >= data_inicio`, `ano = year(data_inicio)`,
+  `publico` só com `publico_fonte`. No build: `prevista` com `data_fim` antes de `verificado_em` e `realizada` com `data_inicio` depois
+  de `verificado_em` falham (DB-10). Homenageados em `evento_homenageado (evento_id, data_inicio, nome, pessoa_id)`: `pessoa_id` só
+  quando o slug do nome é exatamente o id de uma pessoa da base (casamento conservador; o resto fica só com o nome, CA-35.2).
+  View `v_evento_edicao`: edição com nome e tipo do evento, nome e UF do município.
+
+  **Coleta.** Agentes gravam `dados/coleta/eventos/eventos_N.csv` e `edicoes_N.csv` (um par por agente, sem colisão; protocolo em
+  `dados/coleta/eventos/LEIA.md`). `coleta.py eventos` junta os lotes em `dados/evento.csv`, `evento_edicao.csv` e
+  `evento_homenageado.csv`: id do evento em slug do nome; município por nome + UF contra `territorio` (sem acento, caixa e
+  pontuação), com exceções em `dados/coleta/eventos/municipios.csv`; o comando falha listando o que não casa.
+
+  **`eventos.json`.** `{gerado_em, verificado_ate, eventos: [...], edicoes: [...], municipios: {código: [nome, UF]}, homenageados: [...]}`,
+  sem chaves nulas (D13); pequeno (centenas de edições), carregado inteiro. Funções puras em `metricas.js`: `proximosEventos(edicoes,
+  hoje)`, `calendarioEventos(edicoes, ano)` (12 meses), `resumoEventos(J, hoje)`, `filtrarEventos(edicoes, filtro)` e
+  `eventosParaTexto`/`eventosDeTexto` (URL `?tipo=&uf=&ano=&sit=`, padrão fora da URL). "Hoje" é parâmetro: o navegador passa a
+  data local, os testes passam uma data fixa.
+
+  **Painel (`eventos.html`, `eventos.js`).** Próximos eventos (cartões), números, filtros, calendário do ano (grade de 12 meses em
+  HTML), mapa por UF (`br-uf.json`, projeção plana, contagem de edições no ano, tabela equivalente), tabela de edições exportável e
+  perfil `#/evento/<id>` com a linha do tempo das edições (`Plot.dot` por ano, cor pela situação). O perfil de município
+  (`leitura.html`) e a página do mapeamento da cidade leem `eventos.json` sob demanda e listam os eventos do município.
+
+  **Páginas estáticas.** `/eventos/` (próximos e por UF) e `/eventos/<id>/` com JSON-LD `Event` por edição (`eventStatus`
+  `EventScheduled`, `EventCancelled`, `EventPostponed`; `location` `Place` com cidade e UF). `PASTAS` ganha `eventos`.
+  Busca (`busca.json`), cartão do portal, cabeçalho (`MODULOS`), dados abertos e Diadorim (`contexto-eventos.json`) como nos outros módulos.

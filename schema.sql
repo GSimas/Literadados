@@ -325,12 +325,12 @@ CREATE TABLE clube (
   id             TEXT PRIMARY KEY,
   nome           TEXT NOT NULL,
   municipio      TEXT NOT NULL REFERENCES territorio(codigo),
-  formato        TEXT NOT NULL CHECK (formato IN ('presencial','online','hibrido')),
+  formato        TEXT NOT NULL CHECK (formato IN ('presencial','online','hibrido','nao_informado')),
   periodicidade  TEXT,
   foco           TEXT,
   aberto         BOOLEAN,                    -- aceita novos membros
   organizacao    TEXT NOT NULL,              -- instituição (livraria, biblioteca, editora, coletivo) ou 'independente'
-  local_tipo     TEXT NOT NULL CHECK (local_tipo IN ('livraria','biblioteca','cafe','espaco_publico','casa','online')),
+  local_tipo     TEXT NOT NULL CHECK (local_tipo IN ('livraria','biblioteca','cafe','espaco_publico','casa','online','nao_informado')),
   livraria_id    TEXT REFERENCES livraria(id),
   local_nome     TEXT,
   bairro         TEXT,
@@ -340,7 +340,7 @@ CREATE TABLE clube (
   situacao       TEXT NOT NULL CHECK (situacao IN ('ativa','encerrada','incerta')),
   fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
   verificado_em  DATE NOT NULL,
-  CHECK (local_tipo NOT IN ('casa','online') OR (bairro IS NULL AND lat IS NULL AND lon IS NULL AND local_nome IS NULL)),
+  CHECK (local_tipo NOT IN ('casa','online','nao_informado') OR (bairro IS NULL AND lat IS NULL AND lon IS NULL AND local_nome IS NULL)),
   CHECK (local_tipo <> 'livraria' OR livraria_id IS NOT NULL),
   CHECK (formato <> 'online' OR local_tipo = 'online'),
   CHECK ((lat IS NULL) = (lon IS NULL))

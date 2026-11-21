@@ -1010,7 +1010,7 @@ def paginas_mapeamento(con, web: Path) -> dict:
 {fmt(len(M["editoras"]))} editoras e {fmt(len(M["pessoas"]))} autoras e autores ({fmt(nasc)} nascidos na cidade, {fmt(atua)} que vivem ou trabalham nela).</p>
 <p class="links-externos"><a class="chip-link" href="/mapeamento.html">Abrir o painel, com mapa e filtros</a></p></header>
 <h2>Livrarias e sebos</h2><ul>{"".join(li(f"{base}livrarias/{l['id']}/", l["nome"], f"{TIPO_LIV_M[l['tipo']]} · {l.get('bairro') or ''} · {SIT_M[l['situacao']]}") for l in M["livrarias"])}</ul>
-<h2>Clubes do livro</h2><ul>{"".join(li(f"{base}clubes/{c['id']}/", c["nome"], f"{c['formato']} · {SIT_M[c['situacao']]}") for c in M["clubes"])}</ul>
+<h2>Clubes do livro</h2><ul>{"".join(li(f"{base}clubes/{c['id']}/", c["nome"], f"{'formato não informado' if c['formato'] == 'nao_informado' else c['formato']} · {SIT_M[c['situacao']]}") for c in M["clubes"])}</ul>
 <h2>Editoras</h2><ul>{"".join(f'<li>{e(x["nome"])} <span class="muted">{e(x["tipo"])} · {SIT_M[x["situacao"]]}</span></li>' for x in M["editoras"])}</ul>
 <h2>Autoras e autores</h2><ul>{"".join(f'<li><a href="{f"/pessoas/{quote(p['id'])}/" if p.get("nos_premios") else f"{base}pessoas/{quote(p['id'])}/"}">{e(p["nome"])}</a> <span class="muted">{"nasceu na cidade" if p.get("nasceu") else ""}{" · " if p.get("nasceu") and p.get("atua") else ""}{"vive ou trabalha na cidade" if p.get("atua") else ""}</span></li>' for p in M["pessoas"])}</ul>
 </article>"""
@@ -1038,8 +1038,8 @@ def paginas_mapeamento(con, web: Path) -> dict:
             if not p.get("nos_premios"):  # quem está nos prêmios já tem /pessoas/<id>/, com o bloco do mapeamento
                 paginas[f"mapeamento/{cid}/pessoas/{p['id']}/index.html"] = pagina_pessoa_mapeada(M, cid, p)
         for c in M["clubes"]:
-            local = {"livraria": "numa livraria", "biblioteca": "numa biblioteca", "cafe": "num café", "espaco_publico": "em espaço público", "casa": "em casa (sem endereço publicado)", "online": "on-line"}[c["local_tipo"]]
-            corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Clube do livro · {e(c["formato"])}</p><h1>{e(c["nome"])}</h1>
+            local = {"livraria": "numa livraria", "biblioteca": "numa biblioteca", "cafe": "num café", "espaco_publico": "em espaço público", "casa": "em casa (sem endereço publicado)", "online": "on-line", "nao_informado": "em local não informado na fonte"}[c["local_tipo"]]
+            corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Clube do livro{"" if c["formato"] == "nao_informado" else f" · {e(c['formato'])}"}</p><h1>{e(c["nome"])}</h1>
 <p class="lead">{e(SIT_M[c["situacao"]].capitalize())}. Encontros {e(local)}{f" ({e(c['local_nome'])})" if c.get("local_nome") else ""}{f", {e(c['bairro'])}" if c.get("bairro") else ""}{f"; {e(c['periodicidade'])}" if c.get("periodicidade") else ""}.{f" Foco: {e(c['foco'])}." if c.get("foco") else ""} Organização: {e(c["organizacao"])}.</p>
 <p class="links-externos"><a class="chip-link" href="{e(c["link"])}" rel="noopener">Canal do clube</a> <a class="chip-link" href="/mapeamento.html#/clube/{c["id"]}">Abrir no painel</a></p></header>
 <p class="muted">Fonte: <a href="{e(c["fonte"])}" rel="noopener">página consultada</a> · conferido em {e(c["verificado_em"])}.</p></article>"""

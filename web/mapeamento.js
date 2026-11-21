@@ -13,7 +13,7 @@ const R = MP ? M.resumoMapeamento(MP) : null;
 const TIPO_LIV = { geral: "Livraria", sebo: "Sebo", especializada: "Livraria especializada", cafe_livraria: "Café-livraria", online: "Livraria on-line" };
 const TIPO_ED = { comercial: "Comercial", universitaria: "Universitária", independente: "Independente", artesanal: "Artesanal" };
 const SIT = { ativa: "Ativa", encerrada: "Encerrada", incerta: "Situação incerta" };
-const LOCAL = { livraria: "Numa livraria", biblioteca: "Numa biblioteca", cafe: "Num café", espaco_publico: "Em espaço público", casa: "Em casa (sem endereço publicado)", online: "On-line" };
+const LOCAL = { livraria: "Numa livraria", biblioteca: "Numa biblioteca", cafe: "Num café", espaco_publico: "Em espaço público", casa: "Em casa (sem endereço publicado)", online: "On-line", nao_informado: "Local não informado na fonte" };
 const data = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "–");
 const selo = (x) => (M.aConferir(x, MP.gerado_em) ? ' <span class="selo-conferir" title="Verificado há mais de 12 meses">a conferir</span>' : "");
 const fonte = (u, rot = "fonte") => (u ? `<a href="${esc(u)}" rel="noopener" target="_blank">${rot}</a>` : "");
@@ -108,7 +108,7 @@ function renderCadastro() {
     ligar(el, ls.map((e) => `#/editora/${e.id}`));
   } else if (aba === "clubes") {
     const ls = MP.clubes.filter((c) => casa(c.nome, c.foco, c.bairro));
-    tabela(el, ls, [{ rot: "Clube", f: (c) => c.nome }, { rot: "Formato", f: (c) => c.formato }, { rot: "Onde", f: (c) => LOCAL[c.local_tipo] + (c.bairro ? ` · ${c.bairro}` : "") },
+    tabela(el, ls, [{ rot: "Clube", f: (c) => c.nome }, { rot: "Formato", f: (c) => (c.formato === "nao_informado" ? "não informado" : c.formato) }, { rot: "Onde", f: (c) => LOCAL[c.local_tipo] + (c.bairro ? ` · ${c.bairro}` : "") },
       { rot: "Foco", f: (c) => c.foco ?? "" }, { rot: "Situação", f: (c) => SIT[c.situacao] }]);
     ligar(el, ls.map((c) => `#/clube/${c.id}`));
   } else {
@@ -135,7 +135,7 @@ function perfil(tipo, id) {
       ${MP.clubes.filter((c) => c.livraria_id === l.id).map((c) => `<p>Clube do livro aqui: <a href="#/clube/${c.id}">${esc(c.nome)}</a></p>`).join("")}
       ${rodapeRegistro(l)}</div>`; }
   if (tipo === "clube" && CLU.has(id)) { const c = CLU.get(id);
-    return `<header class="perfil-cab"><p class="sobretitulo">Clube do livro · ${esc(c.formato)}</p><h2 id="perfil-nome">${esc(c.nome)}</h2>
+    return `<header class="perfil-cab"><p class="sobretitulo">Clube do livro${c.formato === "nao_informado" ? "" : ` · ${esc(c.formato)}`}</p><h2 id="perfil-nome">${esc(c.nome)}</h2>
       <p>${esc(SIT[c.situacao])}${c.periodicidade ? ` · ${esc(c.periodicidade)}` : ""}${c.aberto != null ? ` · ${c.aberto ? "aberto a novos membros" : "fechado a novos membros"}` : ""}</p></header>
       <div class="perfil-lugar"><p>${esc(LOCAL[c.local_tipo])}${c.livraria_id && LIV.has(c.livraria_id) ? `: <a href="#/livraria/${c.livraria_id}">${esc(LIV.get(c.livraria_id).nome)}</a>` : c.local_nome ? `: ${esc(c.local_nome)}` : ""}${c.bairro ? ` · ${esc(c.bairro)}` : ""}${osm(c)}</p>
       ${c.foco ? `<p><b>Foco:</b> ${esc(c.foco)}</p>` : ""}<p><b>Organização:</b> ${esc(c.organizacao)}</p>

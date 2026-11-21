@@ -1068,7 +1068,7 @@ def mapeamento():
                 print(f"  clube {r['nome']}: livraria '{r.get('livraria')}' não está em livrarias.csv; local vira espaco_publico")
                 c["local_tipo"] = "espaco_publico"
                 c["local_nome"] = c["local_nome"] or r.get("livraria", "")
-            if c["local_tipo"] in ("casa", "online"):
+            if c["local_tipo"] in ("casa", "online", "nao_informado"):
                 c.update(bairro="", lat="", lon="", local_nome="")
             c["aberto"] = {"true": "true", "1": "true", "sim": "true", "false": "false", "0": "false", "não": "false"}.get(c["aberto"].lower(), "")
             clubes.append(c)

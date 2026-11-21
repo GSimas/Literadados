@@ -46,7 +46,7 @@ Datas em ISO (`2026-11-20`). Fonte é sempre uma URL (`http…`) da página onde
 
 ### `clubes.csv` (vira `dados/clube.csv`)
 `nome,formato,periodicidade,foco,aberto,organizacao,local_tipo,livraria,local_nome,bairro,lat,lon,link,situacao,fonte,verificado_em,observacao`
-(`formato` ∈ `presencial`, `online`, `hibrido`; `local_tipo` ∈ `livraria`, `biblioteca`, `cafe`, `espaco_publico`, `casa`, `online`;
+(`formato` ∈ `presencial`, `online`, `hibrido`, `nao_informado`; `local_tipo` ∈ `livraria`, `biblioteca`, `cafe`, `espaco_publico`, `casa`, `online`, `nao_informado` (a fonte não diz; sem bairro, local nem coordenadas);
 `livraria` = nome exato da livraria em `livrarias.csv` quando o encontro é numa delas; `aberto` = `true`/`false`/vazio).
 
 ### `obras.csv`

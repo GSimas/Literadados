@@ -22,6 +22,7 @@ O Literadados reúne esses dados numa plataforma de **módulos** que compartilha
 | **Prêmios** (RF-01 a RF-30) | Prêmios literários de língua portuguesa: listas, finalistas, premiados e júri, com o perfil demográfico de quem chega a eles (tabela abaixo) | Prêmios ainda não coletados (tabela abaixo) |
 | **Leitura** (RF-33) | Indicadores agregados de leitura, alfabetização e acesso ao livro (bibliotecas escolares, livrarias, editoras) por município, UF, região e Brasil, com recorte por sexo, cor ou raça, idade e escolaridade quando a fonte publica | Microdados sem divulgação pública; indicadores por país |
 | **Mapeamento** (RF-34) | Florianópolis: livrarias e sebos, clubes do livro, editoras, autoras e autores e obras, cada registro com o seu vínculo com a cidade | Outros municípios; bibliotecas, feiras, saraus e eventos; vendas e preços |
+| **Eventos** (RF-35) | Festivais, feiras, bienais, festas e encontros literários no Brasil todo: edições passadas e futuras, com datas, cidade, local e fonte | Eventos de uma escola só, lançamentos de livro, saraus semanais; países fora do Brasil |
 | Plataforma (RF-31, RF-32) | Portal, território comum (códigos do IBGE), busca, Diadorim, páginas estáticas e dados abertos de todos os módulos | Países como território de indicador ou de mapeamento (DB-7) |
 
 **Módulo Prêmios**
@@ -49,7 +50,7 @@ O Literadados reúne esses dados numa plataforma de **módulos** que compartilha
 
 Cada requisito tem critérios de aceitação (CA) verificáveis. Os marcados com 🧪 têm teste automatizado em `tests/`; os marcados com 👁 são verificados no navegador.
 
-RF-01 a RF-30 formam o **módulo Prêmios**. RF-31 (portal) e RF-32 (território) valem para a plataforma inteira; RF-33 (Leitura) e RF-34 (Mapeamento) são os módulos novos e ficam no fim desta seção.
+RF-01 a RF-30 formam o **módulo Prêmios**. RF-31 (portal) e RF-32 (território) valem para a plataforma inteira; RF-33 (Leitura), RF-34 (Mapeamento) e RF-35 (Eventos) são os módulos novos e ficam no fim desta seção.
 
 ### RF-01 Base de dados
 Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando gera o banco e os dados do app.
@@ -326,7 +327,7 @@ Cadastro curado da cena literária de um município. É um cadastro, não um cen
 - **CA-34.5 🧪** **Editora:** sede no município e ao menos um livro publicado verificável (ISBN, catálogo de biblioteca ou página da editora). Tipo: `comercial`, `universitaria`, `independente` ou `artesanal` (inclui cartonera e editora de fanzine). Edição do autor não vira editora.
 - **CA-34.6 🧪** **Autora ou autor:** pessoa com ao menos um livro publicado verificável (por editora ou edição do autor) e vínculo com a cidade (CA-34.3). Gênero, raça e nascimento seguem as regras da base: raça só autodeclarada, com trecho e link; gênero atribuído pelo nome marcado (CA-11.4). Só dados públicos e profissionais: nome literário, obras, vínculo, links públicos. Nunca endereço, telefone ou e-mail pessoal.
 - **CA-34.7 🧪** **Obra:** livro de pessoa ou editora mapeada, ou ambientado na cidade, com ano, editora e ISBN quando houver. A capa segue o CA-24.2 (exibida da fonte, com crédito).
-- **CA-34.8 🧪** **Clube do livro:** grupo com encontros recorrentes para discutir livros e com canal público (site, rede social, página de livraria ou biblioteca). Campos: nome, formato (`presencial`, `online` ou `hibrido`), periodicidade, foco (gênero, tema, público), aberto a novos membros ou não, quem organiza (instituição ou "independente") e local de encontro. Privacidade (DB-6): endereço só de lugar público (livraria, biblioteca, café); clube que se reúne em casa não tem endereço nem ponto no mapa. O nome de quem organiza um clube independente não é publicado, só o canal público do clube.
+- **CA-34.8 🧪** **Clube do livro:** grupo com encontros recorrentes para discutir livros e com canal público (site, rede social, página de livraria ou biblioteca). Campos: nome, formato (`presencial`, `online`, `hibrido` ou `nao_informado`), periodicidade, foco (gênero, tema, público), aberto a novos membros ou não, quem organiza (instituição ou "independente") e local de encontro (`nao_informado` quando a fonte só traz o canal, por exemplo um @ numa programação de evento; então sem endereço nem ponto). Privacidade (DB-6): endereço só de lugar público (livraria, biblioteca, café); clube que se reúne em casa não tem endereço nem ponto no mapa. O nome de quem organiza um clube independente não é publicado, só o canal público do clube.
 
 **Painel**
 - **CA-34.9 👁** O módulo abre com um mapa da cidade com livrarias e clubes presenciais, com filtros por tipo e situação, e uma lista equivalente (o mapa nunca é o único acesso, RNF-05). Abaixo, editoras, autoras e autores e obras em listas com busca e filtros (tipo, vínculo, situação). Livraria (`#/livraria/<id>`), clube (`#/clube/<id>`), pessoa, obra e editora têm perfil no módulo, com o vínculo e a fonte. Quem também está nos prêmios ganha link para o perfil de lá, e o perfil dos prêmios ganha o bloco "Em Florianópolis", com link de volta.
@@ -342,6 +343,31 @@ Cadastro curado da cena literária de um município. É um cadastro, não um cen
 - **DB-5 Contribuição:** formulário com revisão humana, sem servidor próprio (RNF-07). O CSV continua sendo a fonte da verdade.
 - **DB-6 Privacidade:** no mapeamento, só dados públicos e profissionais de pessoas; endereço só de estabelecimento ou de lugar público; remoção atendida a pedido da pessoa.
 - **DB-7 Países:** o território aceita país desde já (DA-3), mas indicadores e mapeamento fora do Brasil ficam para uma versão futura.
+
+### RF-35 Módulo Eventos literários (Brasil)
+> Pedido do mantenedor em 2026-11-21. Desenho: D41. Decisões DB-8 a DB-10 no fim desta seção.
+
+Cadastro curado de eventos literários do Brasil (festivais, feiras, bienais, festas literárias, encontros, jornadas, salões), com as edições passadas e as anunciadas. Como o Mapeamento, é cadastro, não censo: diz o que foi mapeado até agora.
+
+**Base e build**
+- **CA-35.1 🧪** Tabela `evento` (id, nome, tipo ∈ `festival`, `feira`, `bienal`, `festa_literaria`, `encontro`, `jornada`, `salao`, `outro`; município-sede em `territorio`; organizador; site; redes; ano da 1ª edição; fonte; `verificado_em`) e tabela `evento_edicao` (evento, ano, número da edição, data de início e de fim, município, local, tema, homenageada ou homenageado, situação ∈ `realizada`, `prevista`, `cancelada`, `adiada`, `formato` ∈ `presencial`, `online`, `hibrido`, público estimado com a fonte dele, fonte, `verificado_em`). O build falha com edição sem fonte ou sem data, data de fim antes da de início, município inexistente, público sem fonte, edição `prevista` com data de fim anterior à data de verificação, ou `realizada` com data de início posterior a ela.
+- **CA-35.2 🧪** Homenageada ou homenageado que está na base de pessoas é ligado pelo id (link para o perfil); quem não está fica só com o nome. Nenhum atributo de pessoa (gênero, raça) é inferido pelo evento.
+- **CA-35.3 🧪** O ano de uma edição é o da data de início. Uma edição por evento e ano; evento que acontece duas vezes no mesmo ano usa edições com sufixo no número.
+
+**Painel (`eventos.html`)**
+- **CA-35.4 👁** O módulo abre com os **próximos eventos** (edições com data de fim a partir de hoje, na data do navegador), em ordem de data, e mostra a contagem de eventos e de edições mapeados, as UFs com eventos e a data da última conferência ("mapeados até agora").
+- **CA-35.5 👁** Calendário do ano escolhido (edições por mês, com o nome, a cidade e as datas), mapa por UF com o número de edições no ano (tabela equivalente) e linha do tempo de cada evento (edições por ano, com situação). Filtros por tipo, UF, ano e situação, guardados na URL.
+- **CA-35.6 🧪👁** Perfil de evento (`#/evento/<id>`): tipo, cidade, organizador, site, todas as edições com datas, local, tema, homenageados (com link para o perfil quando a pessoa está na base), público com fonte e situação. Números de funções puras testadas (`metricas.proximosEventos`, `metricas.calendarioEventos`, `metricas.resumoEventos`).
+- **CA-35.7 👁** Perfil de município (CA-32.4) e página do mapeamento da cidade listam os eventos do município.
+
+**Para buscadores e IA**
+- **CA-35.8 🧪** Páginas estáticas `/eventos/` (por UF e por mês do ano corrente) e `/eventos/<id>/`, com JSON-LD `Event` por edição (`startDate`, `endDate`, `location` com cidade e UF, `eventStatus`: agendado, cancelado, adiado). A busca do cabeçalho acha eventos; o portal ganha o cartão do módulo; os dados saem em CSV na página de dados abertos.
+- **CA-35.9 🧪** Diadorim no módulo Eventos (views `v_evento_edicao`), com as regras: cadastro, não censo; data e fonte de toda edição; "prevista" não é confirmação de que aconteceu.
+
+**Decisões** (padrão do projeto, 2026-11-21; podem ser revistas pelo mantenedor)
+- **DB-8 Recorte:** eventos abertos ao público cujo centro é a literatura ou o livro (feiras do livro, festas literárias, bienais, festivais e encontros de escritores). Ficam fora eventos internos de uma escola, lançamentos de livro, saraus recorrentes semanais e eventos acadêmicos (congressos), que pedem outro recorte.
+- **DB-9 Abrangência inicial:** o Brasil todo, começando pelos eventos mais conhecidos de cada UF e pelas edições de 2015 em diante (mais as anteriores quando houver lista pública completa), e pela edição seguinte quando já anunciada.
+- **DB-10 Datas:** "passado" e "futuro" são calculados no navegador pela data de hoje; a situação gravada (`prevista`, `realizada`) é a da última conferência, e edição prevista cuja data já passou aparece como "a conferir" até ser atualizada.
 
 ## 5. Requisitos não funcionais
 
@@ -367,6 +393,7 @@ Cadastro curado da cena literária de um município. É um cadastro, não um cen
 | Efeito do prêmio nas visualizações da Wikipédia | Fase 2; exige coleta de séries de visualizações |
 | Outros prêmios | Saiu desta lista: virou o RF-26 |
 | Indicadores e mapeamento por país | O território já aceita país (DB-7), mas as fontes são outras e o foco agora é o Brasil |
+| Eventos fora do Brasil, congressos acadêmicos e saraus semanais | Outro recorte (DB-8); o modelo de evento serve se entrarem depois |
 | Mapeamento de outros municípios | Exige quem mantenha os registros de cada cidade; o modelo já é por município (DB-3) |
 | Bibliotecas, feiras, saraus e eventos no mapeamento | Primeiro as cinco entidades pedidas; bibliotecas públicas e comunitárias são as candidatas da 2ª versão |
 | Páginas estáticas por município (5.570) | Depois que o perfil de município (CA-32.4) se mostrar útil |
