@@ -1062,3 +1062,24 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .pc-serie { min-height: 42px; display: block; font-size: .72rem; }
 .pc-serie svg { display: block; max-width: 100%; height: auto; background: transparent; }
 @media (prefers-reduced-motion: reduce) { .panorama-cartao { transition: none; } .panorama-cartao:hover { transform: none; } }
+
+/* Página Sobre em blocos: grade de botões (título, resumo, "Ler →"); o conteúdo abre numa janela. */
+.blocos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
+.bloco-botao { display: grid; gap: .35rem; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  padding: .9rem 1rem; border-radius: 14px; border: 1px solid var(--borda); background: var(--superficie); transition: border-color .15s, transform .15s; }
+.bloco-botao:hover, .bloco-botao:focus-visible { border-color: var(--marca); transform: translateY(-1px); }
+.bloco-botao b { font-family: var(--fonte-titulo); font-size: 1.05rem; line-height: 1.2; }
+.bloco-botao span { font-size: .82rem; color: var(--tinta-2); line-height: 1.4; }
+.bloco-botao .bloco-abrir { color: var(--marca); font-weight: 600; margin-top: .2rem; }
+.janela-bloco { width: min(820px, 96vw); }
+.janela-corpo { padding: 0 clamp(1rem, 3vw, 1.6rem) 1.4rem; line-height: 1.6; }
+.janela-corpo > :first-child { margin-top: 0; }
+.janela-corpo .cartao { margin-bottom: .8rem; }
+@media (prefers-reduced-motion: reduce) { .bloco-botao { transition: none; } .bloco-botao:hover { transform: none; } }
+
+/* Mapeamento: a lista ao lado do mapa ocupa a altura toda do cartão (que acompanha a altura do mapa), sem sobra vazia embaixo. */
+@media (min-width: 900px) {
+  .mapa-lado:has(#mapa-lista) { display: flex; flex-direction: column; }
+  #mapa-lista { flex: 1 1 0; min-height: 12rem; position: relative; }
+  #mapa-lista .lista-mapa { position: absolute; inset: 0; max-height: none; }
+}

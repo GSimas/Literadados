@@ -45,3 +45,20 @@ export function montarTema(aoTrocar = () => {}) {
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (tema === "auto") semMexerNaRolagem(aoTrocar); });
 }
+
+
+// Faixas do fundo animado (portal e abertura dos prêmios): embaralha os itens entre as faixas e sorteia o ponto de partida
+// de cada uma (atraso negativo), para a página não abrir sempre na mesma disposição. Cada faixa tem o conteúdo duplicado
+// (rola até -50%); `itens` (HTML) troca o conteúdo, senão usa a 1ª metade de cada faixa. `porFaixa` limita quantos entram.
+export function sortearFaixas(faixas, itens = null, porFaixa = Infinity) {
+  faixas = [...faixas];
+  if (!faixas.length) return;
+  const pool = itens ? [...itens] : faixas.flatMap((f) => [...f.children].slice(0, f.children.length / 2).map((c) => c.outerHTML));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  faixas.forEach((f, k) => {
+    const meus = pool.filter((_, i) => i % faixas.length === k).slice(0, porFaixa).join("");
+    f.innerHTML = meus + meus;
+    const dur = parseFloat(getComputedStyle(f).getPropertyValue("--dur")) || 120;
+    f.style.animationDelay = `-${(Math.random() * dur).toFixed(1)}s`;
+  });
+}

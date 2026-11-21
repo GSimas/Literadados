@@ -1293,14 +1293,16 @@ def _mosaico_portal(web: Path, con):
     capas = con.execute("""SELECT DISTINCT oc.obra_id, oc.capa_url, oc.fonte FROM obra_capa oc
                            WHERE oc.capa_url LIKE '%vteximg.com.br/arquivos/ids/%'
                              AND EXISTS (SELECT 1 FROM indicacao i WHERE i.obra_id = oc.obra_id AND i.colocacao = 1)""").fetchall()
-    capas = sorted(capas, key=lambda c: h(c[0]))[:48]
+    capas = sorted(capas, key=lambda c: h(c[0]))
+    todas, capas = capas[:160], capas[:48]  # 48 no HTML (sem JS); o portal sorteia 48 das 160 a cada visita
     mini = lambda u: re.sub(r"/arquivos/ids/(\d+)/", r"/arquivos/ids/\1-160-240/", u)
     itens = [f'<img src="{e(mini(u))}" alt="" width="96" height="144" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' for _, u, _ in capas]
     faixas = [itens[i::4] for i in range(4)]
-    nomes = sorted({f for _, _, f in capas})
+    nomes = sorted({f for _, _, f in todas})
     sites = ", ".join(nomes[:-1]) + (" e " if len(nomes) > 1 else "") + nomes[-1]
     trecho = ("<!-- build:mosaico -->" + "".join(
         f'<div class="hero-faixa" style="--dur:{120 + i * 35}s"{" data-rev" if i % 2 else ""}>{"".join(f + f)}</div>' for i, f in enumerate(faixas))
+        + '<script type="application/json" id="capas-fundo">' + json.dumps([mini(u) for _, u, _ in todas]) + "</script>"
         + "<!-- /build:mosaico -->")
     credito = f"<!-- build:credito-capas -->Capas ao fundo: {e(sites)} · direitos reservados<!-- /build:credito-capas -->"
     s = idx.read_text(encoding="utf-8")

@@ -10,7 +10,7 @@ import { montarPessoas, renderPessoas, htmlPerfil, htmlObra, carregarCapas } fro
 import { htmlEdicao, carregarContextos, celulaEdicao } from "./edicoes.js";
 import { htmlEditora, carregarLogos } from "./editoras.js";
 import { montarCapas3D } from "./capas-3d.js";
-import { montarTema } from "./tema.js";
+import { montarTema, sortearFaixas } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
 import { htmlLugar } from "./lugares.js";
@@ -102,6 +102,7 @@ function renderAbertura() {
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
   const span = (p) => `<span style="background-image:url('${srcFoto(p.id, midiaPorId.get(p.id), 160).replace(/'/g, "%27")}')"></span>`;
   $("#hero-mosaico").innerHTML = faixas.map((f, i) => `<div class="hero-faixa" style="--dur:${110 + i * 30}s"${i % 2 ? " data-rev" : ""}>${[...f, ...f].map(span).join("")}</div>`).join("");
+  sortearFaixas($$("#hero-mosaico .hero-faixa"));  // ordem e ponto de partida sorteados a cada visita
   // Pontos que flutuam devagar, nas cores das séries (eco de "cada ponto é uma pessoa").
   $("#hero-pontos").innerHTML = d3.range(22).map((i) => {
     const r = (k) => ((Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1 + 1) % 1; // pseudoaleatório estável
