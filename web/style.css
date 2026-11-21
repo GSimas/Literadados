@@ -979,6 +979,21 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 @media (min-width: 900px) { .leitura-controles { justify-content: flex-start; } }
 /* Módulo Mapeamento (D40) */
 .contorno-cidade { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1; }
+/* Mapa da cidade (OSM): mar, vizinhos esmaecidos, distritos em linha fina, lagoas; rótulos com halo da cor do fundo. */
+.mapa-caixa { position: relative; }
+.mapa-cidade { display: block; max-width: 100%; height: auto; border-radius: 12px; touch-action: none; cursor: grab; }
+.mapa-cidade:active { cursor: grabbing; }
+.mapa-mar, .mapa-agua { fill: color-mix(in srgb, var(--s1) 13%, var(--superficie)); }
+.mapa-agua { stroke: none; }
+.mapa-vizinho { fill: color-mix(in srgb, var(--superficie-2) 55%, var(--superficie)); stroke: var(--borda); }
+.mapa-cidade .contorno-cidade { stroke: var(--tinta-3, var(--tinta-2)); }
+.mapa-distrito { fill: none; stroke: var(--eixo, var(--borda)); stroke-dasharray: 3 2; }
+.mapa-rotulos text { text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--superficie-2); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.rot-distrito { fill: var(--tinta-2); }
+.rot-vizinho { fill: var(--tinta-3, var(--tinta-2)); font-style: italic; stroke: color-mix(in srgb, var(--superficie-2) 55%, var(--superficie)) !important; }
+.mapa-zoom { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; }
+.mapa-zoom button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--borda); background: var(--superficie); color: var(--tinta); font-size: 1rem; line-height: 1; cursor: pointer; }
+.mapa-zoom button:hover { background: var(--superficie-2); }
 .lista-mapa { list-style: none; padding: 0; margin: 0; max-height: 520px; overflow-y: auto; }
 .lista-mapa li { padding: .35rem 0; border-bottom: 1px solid var(--borda); display: flex; flex-direction: column; }
 .selo-conferir { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 999px; background: var(--marca-suave); color: var(--tinta); }

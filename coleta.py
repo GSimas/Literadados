@@ -23,7 +23,7 @@ from pathlib import Path
 RAIZ = Path(__file__).parent
 DADOS = RAIZ / "dados"
 BRUTO = DADOS / "coleta"
-UA = "Literadados/0.1 (pesquisa sobre o Prêmio Jabuti)"
+UA = "Literadados (https://literadados.gustavosimas.com)"
 
 CAMPOS = {
     "obra_mapeada": ["obra_id", "municipio", "isbn", "ambientada", "fonte", "verificado_em"],
@@ -575,7 +575,7 @@ def _json(url: str) -> dict:
         corpo, _, codigo = r.stdout.rpartition(b"\n")
         if r.returncode == 0 and codigo.startswith(b"2"):
             return json.loads(corpo)
-        if codigo not in (b"429", b"503") or tentativa == 4:
+        if codigo not in (b"429", b"502", b"503", b"504") or tentativa == 4:
             raise RuntimeError(f"GET {url[:80]}: curl {r.returncode}, http {codigo.decode() or '?'}")
         time.sleep(15)
 
@@ -665,7 +665,7 @@ def _baixar(url: str) -> bytes:
         corpo, _, codigo = r.stdout.rpartition(b"\n")
         if r.returncode == 0 and codigo.startswith(b"2"):
             return corpo
-        if codigo not in (b"429", b"503") or tentativa == 4:
+        if codigo not in (b"429", b"502", b"503", b"504") or tentativa == 4:
             raise RuntimeError(f"GET {url[:80]}: curl {r.returncode}, http {codigo.decode() or '?'}")
         time.sleep(15)
 
@@ -875,6 +875,53 @@ def malha_municipios():
                                                       "features": sorted(feats, key=lambda f: f["properties"]["codigo"])}, separators=(",", ":")), encoding="utf-8")
         total += (pasta / f"{uf}.json").stat().st_size
     print(f"27 UFs em web/malha/ ({total // 1024} KB no total)")
+
+
+def malha_cidade():
+    """coleta.py malha_cidade [código]: contorno detalhado da cidade do mapeamento (CA-34.x), com distritos e lagoas, e os
+    municípios vizinhos, do OpenStreetMap (Overpass para achar as relações; Nominatim para a geometria já simplificada).
+    A malha do IBGE para um município só existe em qualidade mínima e sem distritos. Grava web/malha/<código>.json."""
+    mun = sys.argv[2] if len(sys.argv) > 2 else "4205407"
+    ovp = lambda q: _json("https://overpass-api.de/api/interpreter?" + urllib.parse.urlencode({"data": f"[out:json][timeout:90];{q}"}))["elements"]
+    cid = ovp(f'rel["boundary"="administrative"]["admin_level"="8"]["IBGE:GEOCODIGO"="{mun}"];out tags bb;')[0]
+    b = cid["bounds"]
+    m = 0.08
+    bbox = f'{b["minlat"] - m},{b["minlon"] - m},{b["maxlat"] + m},{b["maxlon"] + m}'
+    area = f"area({3600000000 + cid['id']})->.a;"
+    distritos = ovp(area + 'rel(area.a)["boundary"="administrative"]["admin_level"="9"];out tags;')
+    agua = ovp(area + 'nwr(area.a)["natural"="water"]["name"~"^Lagoa"];out tags;')
+    vizinhos = [r for r in ovp(f'rel["boundary"="administrative"]["admin_level"="8"]({bbox});out tags;') if r["id"] != cid["id"]]
+
+    def arred(c):
+        return [round(c[0], 4), round(c[1], 4)] if isinstance(c[0], (int, float)) else [arred(x) for x in c]
+
+    def geometrias(els):
+        ids = [("R" if e["type"] == "relation" else "W" if e["type"] == "way" else "N") + str(e["id"]) for e in els]
+        out = {}
+        for i in range(0, len(ids), 50):
+            g = _json("https://nominatim.openstreetmap.org/lookup?" + urllib.parse.urlencode(
+                {"osm_ids": ",".join(ids[i:i + 50]), "format": "geojson", "polygon_geojson": 1, "polygon_threshold": 0.0002}))
+            for f in g["features"]:
+                p = f["properties"]
+                if f["geometry"]["type"] in ("Polygon", "MultiPolygon"):
+                    out[p["osm_type"][0].upper() + str(p["osm_id"])] = f["geometry"]
+            time.sleep(1.1)  # política do Nominatim: 1 pedido por segundo
+        return [(e, out.get(("R" if e["type"] == "relation" else "W") + str(e["id"]))) for e in els]
+
+    def feat(e, g, nome=None, **extra):
+        return {"type": "Feature", "properties": {"nome": nome or e["tags"].get("name"), **extra},
+                "geometry": {"type": g["type"], "coordinates": arred(g["coordinates"])}}
+
+    [(_, gcid)] = geometrias([{"type": "relation", "id": cid["id"], "tags": {}}])
+    saida = {"fonte": "OpenStreetMap (© colaboradores do OpenStreetMap, ODbL), via Overpass e Nominatim", "codigo": mun,
+             "municipio": feat(cid, gcid),
+             "distritos": [feat(e, g, nome=cid["tags"]["name"] if e["tags"].get("name") == "Sede" else None)  # distrito-sede leva o nome da cidade
+                           for e, g in geometrias(distritos) if g],
+             "agua": [feat(e, g) for e, g in geometrias(agua) if g],
+             "vizinhos": [feat(e, g, codigo=e["tags"].get("IBGE:GEOCODIGO")) for e, g in geometrias(vizinhos) if g]}
+    arq = RAIZ / "web" / "malha" / f"{mun}.json"  # fora de web/mapeamento/, que o build limpa
+    arq.write_text(json.dumps(saida, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"{len(saida['distritos'])} distritos, {len(saida['agua'])} lagoas, {len(saida['vizinhos'])} vizinhos → {arq.name} ({arq.stat().st_size // 1024} KB)")
 
 
 # ---------- módulo Leitura (RF-33, D39) ----------
@@ -1155,4 +1202,4 @@ def leitura():
 if __name__ == "__main__":
     {"leitura": leitura, "mapeamento": mapeamento, "eventos": eventos, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
      "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto,
-     "territorio": territorio, "malha_municipios": malha_municipios}[sys.argv[1]]()
+     "territorio": territorio, "malha_municipios": malha_municipios, "malha_cidade": malha_cidade}[sys.argv[1]]()

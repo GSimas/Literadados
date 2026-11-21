@@ -39,40 +39,99 @@ function renderNumeros() {
     Raça só por autodeclaração pública: "sem declaração" não quer dizer branca.`;
 }
 
-// ---------- mapa da cidade: contorno do IBGE + pontos (RNF-09) ----------
-let contorno = null;
+// ---------- mapa da cidade: OpenStreetMap (distritos, lagoas, vizinhos) + pontos (RNF-09) ----------
+let malhaCidade;
+async function carregarMalha() {
+  if (malhaCidade !== undefined) return malhaCidade;
+  // Malha detalhada (coleta.py malha_cidade); sem ela, o contorno mínimo do IBGE.
+  malhaCidade = await fetch(`malha/${MUN}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (!malhaCidade) {
+    const uf = { 42: "SC" }[MUN.slice(0, 2)] ?? null;
+    const malha = uf ? await fetch(`malha/${uf}.json`).then((r) => r.json()) : null;
+    const f = malha?.features.find((x) => x.properties.codigo === MUN);
+    malhaCidade = f ? { municipio: f, distritos: [], agua: [], vizinhos: [], fonte: "IBGE (malha mínima)" } : null;
+  }
+  return malhaCidade;
+}
 async function renderMapa() {
   const el = $("#g-mapa-cidade");
   if (!MP) return;
-  if (!contorno) {
-    const uf = { 42: "SC" }[MUN.slice(0, 2)] ?? null;
-    const malha = uf ? await fetch(`malha/${uf}.json`).then((r) => r.json()) : null;
-    contorno = malha?.features.find((f) => f.properties.codigo === MUN) ?? null;
-  }
+  const ml = await carregarMalha();
   const tipo = $("#mapa-tipo").value, sit = $("#mapa-situacao").value;
   const pontos = [
     ...MP.livrarias.filter((l) => l.lat != null).map((l) => ({ ...l, cat: l.tipo === "sebo" ? "sebo" : "livraria", href: `#/livraria/${l.id}` })),
     ...MP.clubes.filter((c) => c.lat != null && c.local_tipo !== "casa").map((c) => ({ ...c, cat: "clube", href: `#/clube/${c.id}` })),
   ].filter((p) => (!tipo || p.cat === tipo) && (!sit || p.situacao === sit));
-  const w = Math.min(largura(el), 620), h = Math.round(w * 1.1);
-  const feat = contorno ?? { type: "FeatureCollection", features: pontos.map((p) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lon, p.lat] } })) };
-  // Projeção plana (como em mapa.js e leitura.js): a malha do IBGE não segue o sentido de anel que o d3 esférico espera, e
-  // geoMercator lia o contorno como "o mundo menos o município" (quadrado cheio, pontos todos no mesmo lugar).
-  const proj = d3.geoIdentity().reflectY(true).fitExtent([[10, 10], [w - 10, h - 10]], feat), caminho = d3.geoPath(proj);
+  const w = Math.min(largura(el), 620);
+  const alvo = ml?.municipio ?? { type: "FeatureCollection", features: pontos.map((p) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lon, p.lat] } })) };
+  // Projeção plana (como em mapa.js e leitura.js): a malha do IBGE não segue o sentido de anel que o d3 esférico espera.
+  // A altura sai da forma da cidade (a ilha é alta e estreita), com teto para não passar da tela.
+  const proj = d3.geoIdentity().reflectY(true).fitWidth(w - 20, alvo);
+  const [[, y0], [, y1]] = d3.geoPath(proj).bounds(alvo);
+  const h = Math.round(Math.min(Math.max(y1 - y0 + 20, w * 0.7), w * 1.3));
+  proj.fitExtent([[10, 10], [w - 10, h - 10]], alvo);
+  const caminho = d3.geoPath(proj);
   const COR = { livraria: css("--s1"), sebo: css("--s3"), clube: css("--s5") };
-  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "group").attr("aria-label", `Mapa de ${MP.nome} com ${pontos.length} pontos`);
-  if (contorno) svg.append("path").datum(contorno).attr("d", caminho).attr("class", "contorno-cidade");
-  svg.append("g").selectAll("a").data(pontos).join("a").attr("href", (p) => p.href).attr("aria-label", (p) => `${p.nome} (${p.cat})`)
-    .append("circle").attr("cx", (p) => proj([p.lon, p.lat])[0]).attr("cy", (p) => proj([p.lon, p.lat])[1]).attr("r", 6)
-    .attr("fill", (p) => COR[p.cat]).attr("stroke", css("--superficie")).attr("stroke-width", 1.5).attr("opacity", (p) => (p.situacao === "ativa" ? 1 : 0.45))
+  const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("class", "mapa-cidade").attr("role", "group").attr("aria-label", `Mapa de ${MP.nome} com ${pontos.length} pontos`);
+  svg.append("rect").attr("class", "mapa-mar").attr("width", w).attr("height", h);
+  const g = svg.append("g");
+  if (ml) {
+    g.append("g").selectAll("path").data(ml.vizinhos).join("path").attr("class", "mapa-vizinho").attr("d", caminho);
+    g.append("path").datum(ml.municipio).attr("class", "contorno-cidade").attr("d", caminho);
+    g.append("g").selectAll("path").data(ml.distritos).join("path").attr("class", "mapa-distrito").attr("d", caminho);
+    g.append("g").selectAll("path").data(ml.agua).join("path").attr("class", "mapa-agua").attr("d", caminho);
+  }
+  const rotulos = g.append("g").attr("class", "mapa-rotulos").attr("aria-hidden", "true");
+  const rot = (feats, cls) => rotulos.append("g").selectAll("text").data(feats.map((f) => ({ f, c: caminho.centroid(f), a: caminho.area(f) }))
+    .filter((d) => d.c[0] > 0 && d.c[0] < w && d.c[1] > 0 && d.c[1] < h)).join("text").attr("class", cls)
+    .attr("x", (d) => d.c[0]).attr("y", (d) => d.c[1]).text((d) => d.f.properties.nome);
+  const tDist = rot(ml?.distritos ?? [], "rot-distrito"), tViz = rot(ml?.vizinhos ?? [], "rot-vizinho");
+  const marcas = g.append("g").selectAll("a").data(pontos).join("a").attr("href", (p) => p.href).attr("aria-label", (p) => `${p.nome} (${p.cat})`)
+    .append("circle").attr("cx", (p) => proj([p.lon, p.lat])[0]).attr("cy", (p) => proj([p.lon, p.lat])[1])
+    .attr("fill", (p) => COR[p.cat]).attr("stroke", css("--superficie")).attr("opacity", (p) => (p.situacao === "ativa" ? 1 : 0.45))
     .on("pointermove", (ev, p) => dica.mostrar(ev, `<b>${esc(p.nome)}</b>${esc(p.cat === "clube" ? "Clube do livro" : TIPO_LIV[p.tipo])} · ${esc(p.bairro ?? "")}<br>${esc(SIT[p.situacao])}`))
     .on("pointerleave", dica.esconder);
+  // Zoom: arrastar, pinça, botões e Ctrl/⌘ + roda (a roda sozinha continua rolando a página). Rótulo de distrito só
+  // aparece quando o distrito tem área para ele; pontos e textos mantêm o tamanho na tela.
+  const escala = (k) => {
+    marcas.attr("r", 6 / k).attr("stroke-width", 1.5 / k);
+    // Estilo em linha, não atributo: o CSS dos gráficos (font-size, stroke-width) venceria o atributo.
+    tDist.style("font-size", `${10.5 / k}px`).style("stroke-width", `${3 / k}px`).attr("display", (d) => (d.a * k * k > 2600 ? null : "none"));
+    tViz.style("font-size", `${11 / k}px`).style("stroke-width", `${3 / k}px`);
+    // Rótulos que se sobrepõem: fica o do distrito maior.
+    const fica = [];
+    tDist.filter(function () { return this.getAttribute("display") !== "none"; }).nodes()
+      .sort((a, b) => d3.select(b).datum().a - d3.select(a).datum().a).forEach((n) => {
+        const r = n.getBBox(), bate = fica.some((o) => r.x < o.x + o.width && o.x < r.x + r.width && r.y < o.y + o.height && o.y < r.y + r.height);
+        if (bate) n.setAttribute("display", "none"); else fica.push(r);
+      });
+    g.selectAll(".mapa-distrito, .contorno-cidade, .mapa-vizinho, .mapa-agua").style("stroke-width", `${1 / k}px`);
+  };
+  const zoom = d3.zoom().scaleExtent([1, 12]).translateExtent([[0, 0], [w, h]])
+    .filter((ev) => (ev.type === "wheel" ? ev.ctrlKey || ev.metaKey : !ev.button))
+    .on("zoom", (ev) => { g.attr("transform", ev.transform); escala(ev.transform.k); });
+  svg.call(zoom).on("dblclick.zoom", null);
+  const botoes = document.createElement("div");
+  botoes.className = "mapa-zoom";
+  botoes.innerHTML = `<button type="button" data-z="1.6" aria-label="Aproximar">+</button><button type="button" data-z="0.625" aria-label="Afastar">−</button><button type="button" data-z="0" aria-label="Ver a cidade inteira">⤢</button>`;
+  botoes.addEventListener("click", (ev) => {
+    const z = ev.target.closest("button")?.dataset.z;
+    if (z == null) return;
+    const s = svg.transition().duration(300);
+    +z ? zoom.scaleBy(s, +z) : zoom.transform(s, d3.zoomIdentity);
+  });
+  const caixa = document.createElement("div");
+  caixa.className = "mapa-caixa";
+  caixa.append(svg.node(), botoes);
+  $("#g-mapa-cidade").closest("figure").querySelector("figcaption").textContent =
+    `Contorno, distritos e lagoas: ${ml?.fonte ?? "—"}. Pontos: OpenStreetMap ou endereço público. Arraste para mover; use os botões ou Ctrl + roda para aproximar.`;
   const legenda = document.createElement("div");
   legenda.className = "mapa-legenda";
   legenda.innerHTML = Object.entries({ livraria: "Livraria", sebo: "Sebo", clube: "Clube do livro" }).map(([k, r]) =>
     `<span><i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${COR[k]};vertical-align:-1px"></i> ${r}</span>`).join("")
     + `<span class="muted">esmaecido = encerrada ou incerta</span>`;
-  el.replaceChildren(svg.node(), legenda, botaoExportarGrafico());
+  el.replaceChildren(caixa, legenda, botaoExportarGrafico());
+  escala(1); // depois de entrar na página: getBBox dos rótulos só mede elemento visível
   // Lista equivalente (RNF-05): o mapa nunca é o único acesso.
   const lista = [...MP.livrarias.map((l) => ({ ...l, cat: l.tipo === "sebo" ? "sebo" : "livraria", href: `#/livraria/${l.id}` })),
     ...MP.clubes.map((c) => ({ ...c, cat: "clube", href: `#/clube/${c.id}` }))]
