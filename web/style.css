@@ -399,7 +399,9 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
 .tabela td.num, .tabela th.num { text-align: right; }
 .tabela tbody tr[data-id] { cursor: pointer; }
 .tabela tbody tr[data-id]:hover, .tabela tbody tr[data-id]:focus { background: var(--superficie-2); outline: none; }
-.rolagem { max-height: 520px; overflow: auto; }
+/* Tabela com mais de 10 linhas (CA-19.11): ~10 linhas visíveis, rolagem própria e cabeçalho fixo (th sticky acima). */
+.rolagem { overflow-x: auto; }
+.rolagem:has(tbody tr:nth-child(11)) { max-height: min(29rem, 70vh); overflow-y: auto; }
 
 /* ---------- método e referências ---------- */
 .texto { max-width: 75ch; }
@@ -848,8 +850,7 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 @keyframes varre-texto { from { background-position: 100% 0; } to { background-position: 0 0; } }
 .dd-cab p { transition: color var(--dur-2); }
 .dd-cab:hover p { color: var(--tinta); }
-/* Cobertura por edição: 16 linhas, mostradas inteiras (uma rolagem só, a lateral, se a tela for estreita) */
-#t-cobertura .rolagem { max-height: none; }
+
 
 /* Contexto automático da Diadorim (CA-12.12) */
 .dd-contexto { margin-top: .55rem; padding-top: .5rem; border-top: 1px dashed var(--borda); }
@@ -961,3 +962,155 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .rodape-links { margin: .4rem 0; }
 .edicao-comp h4 { margin: .8rem 0 .2rem; font-size: .85rem; color: var(--tinta-2); font-weight: 600; }
 .vencedoras-lead { padding-left: 1.1rem; margin: .2rem 0 1rem; display: grid; gap: .25rem; }
+
+/* Portal (RF-31, D37): abertura curta e um cartão por módulo, com o número gravado pelo build. */
+.portal-abertura { padding-top: clamp(3rem, 9vh, 6rem); padding-bottom: 0; }
+.portal-abertura h1 { max-width: 18ch; }
+.portal-abertura .hero-lead { max-width: 60ch; margin-bottom: 0; }
+.cg-num { font-size: .9rem; color: var(--tinta-2); }
+.cg-num b { font-family: var(--fonte-titulo); font-size: 1.15rem; color: var(--tinta); }
+.portal-em-breve { margin-top: 1.25rem; }
+/* Cabeçalho comum (CA-31.4, D37): os módulos abrem a navegação, separados das seções da página. */
+.nav a.modulo { color: var(--tinta); font-weight: 600; }
+.nav a.modulo[aria-current="page"], .nav a[aria-current="page"] { color: var(--link); background: var(--marca-suave); }
+.nav .sep { flex: none; width: 1px; margin: .45rem .35rem; background: var(--borda); }
+/* Módulo Leitura (D39) */
+.kpi .val.kpi-texto { font-size: 1.25rem; line-height: 1.3; }
+@media (min-width: 900px) { .leitura-controles { justify-content: flex-start; } }
+/* Módulo Mapeamento (D40) */
+.contorno-cidade { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1; }
+/* Mapa da cidade (OSM): mar, vizinhos esmaecidos, distritos em linha fina, lagoas; rótulos com halo da cor do fundo. */
+.mapa-caixa { position: relative; }
+.mapa-cidade { display: block; max-width: 100%; height: auto; border-radius: 12px; touch-action: none; cursor: grab; }
+.mapa-cidade:active { cursor: grabbing; }
+.mapa-mar, .mapa-agua { fill: color-mix(in srgb, var(--s1) 13%, var(--superficie)); }
+.mapa-agua { stroke: none; }
+.mapa-vizinho { fill: color-mix(in srgb, var(--superficie-2) 55%, var(--superficie)); stroke: var(--borda); }
+.mapa-cidade .contorno-cidade { stroke: none; }  /* sem contorno em volta da cidade: o limite já aparece pelo mar e pelos vizinhos */
+.mapa-distrito { fill: none; stroke: var(--eixo, var(--borda)); stroke-dasharray: 3 2; }
+.mapa-rotulos text { text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--superficie-2); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.rot-distrito { fill: var(--tinta-2); }
+.rot-vizinho { fill: var(--tinta-3, var(--tinta-2)); font-style: italic; stroke: color-mix(in srgb, var(--superficie-2) 55%, var(--superficie)) !important; }
+.mapa-zoom { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; }
+.mapa-zoom button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--borda); background: var(--superficie); color: var(--tinta); font-size: 1rem; line-height: 1; cursor: pointer; }
+.mapa-zoom button:hover { background: var(--superficie-2); }
+.lista-mapa { list-style: none; padding: 0; margin: 0; max-height: 520px; overflow-y: auto; }
+.lista-mapa li { padding: .35rem 0; border-bottom: 1px solid var(--borda); display: flex; flex-direction: column; }
+.selo-conferir { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 999px; background: var(--marca-suave); color: var(--tinta); }
+.form-sugerir { display: grid; gap: .8rem 1.4rem; }
+/* Largura toda da página: em tela larga, duas colunas (pedido | tipo, fonte | contato); nome, descrição e avisos ocupam a linha. */
+@media (min-width: 760px) {
+  .form-sugerir { grid-template-columns: 1fr 1fr; }
+  .form-sugerir > :is(p, button), .form-sugerir > label:has(textarea), .form-sugerir > label:has([name="registro"]) { grid-column: 1 / -1; }
+}
+.form-sugerir label { display: grid; gap: .3rem; font-size: .9rem; }
+.form-sugerir input:not([type="hidden"]), .form-sugerir textarea { font: inherit; color: var(--tinta); background: var(--superficie); border: 1px solid var(--borda); border-radius: 10px; padding: .55rem .7rem; }
+.form-sugerir input:focus, .form-sugerir textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 28%, transparent); }
+.form-sugerir .botao { justify-self: start; }
+#mapa-abas { margin-bottom: .9rem; flex-wrap: wrap; }
+/* Perfis das páginas de Leitura, Mapeamento e Eventos: cabeçalho em coluna única (sem foto) e corpo com recuo nas bordas. */
+.perfil-cab.simples { display: block; padding: 1.5rem 1.5rem 1.25rem; }
+.perfil-lugar { padding: 1rem 1.5rem 1.5rem; display: grid; gap: 1rem; min-width: 0; }
+.perfil-lugar > .grafico { margin: 0; }
+@media (max-width: 600px) { .perfil-cab.simples, .perfil-lugar { padding-left: 1rem; padding-right: 1rem; } }
+/* Portal em tela cheia, sem rolagem (CA-31.2): cabeçalho, abertura, cartões dos módulos e rodapé cabem em 100svh. */
+body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; }
+.portal { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: clamp(1rem, 4vh, 2.75rem);
+  width: 100%; padding: clamp(.75rem, 3vh, 2.5rem) clamp(16px, 4vw, 56px); min-height: 0; }
+.portal .portal-abertura { padding: 0; }
+.portal-abertura h1 { max-width: 22ch; font-size: clamp(1.75rem, 2.4vw + 2.2vh, 4rem); }
+.portal-abertura .hero-lead { margin: .6rem 0 0; font-size: clamp(.95rem, .6vw + 1vh, 1.2rem); max-width: 60ch; }
+.portal-modulos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.6rem, 1.4vw, 1.25rem); }
+.portal-modulos .cartao-grafico { padding: clamp(.8rem, 2vh, 1.4rem) clamp(.8rem, 1.4vw, 1.3rem); gap: .3rem; }
+.portal-modulos .cg-titulo { font-size: clamp(1.1rem, .9vw + 1vh, 1.6rem); }
+.portal-modulos .cg-desc { font-size: clamp(.8rem, .4vw + .6vh, .95rem); }
+.portal-modulos .cg-num { font-size: clamp(.8rem, .4vw + .6vh, .95rem); margin-top: .35rem; }
+.pagina-portal .rodape { padding: .6rem 16px; margin: 0; }
+.pagina-portal .rodape p { margin: 0; font-size: .85rem; }
+@media (max-width: 900px) { .portal-modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .portal-modulos .cg-abrir { display: none; } .portal-modulos .cg-desc { display: none; } }
+@media (max-height: 640px) { .portal-modulos .cg-desc { display: none; } }
+.notas-pagina { max-width: 1200px; margin: 0 auto; padding: 0 16px 1.5rem; }
+.notas-pagina p { margin: .4rem 0; }
+
+/* Fundo animado do portal: faixas de fotos e capas tipográficas correndo (mesma animação da abertura dos prêmios). */
+.portal { position: relative; overflow: hidden; isolation: isolate; }
+.portal > :not(.portal-fundo) { position: relative; z-index: 1; }
+.portal-fundo { position: absolute; inset: -6% -2%; z-index: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  transform: rotate(-5deg); opacity: .22; pointer-events: none;
+  mask-image: radial-gradient(ellipse 75% 70% at 60% 45%, #000 25%, transparent 78%); }
+.portal-fundo .hero-faixa { align-items: center; }
+.portal-fundo img { flex: none; width: clamp(64px, 7vw, 104px); height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px;
+  background: var(--superficie-2); box-shadow: 0 4px 14px rgb(0 0 0 / .25); filter: saturate(.75); }
+.portal .cartao-grafico { background: color-mix(in srgb, var(--superficie) 88%, transparent); backdrop-filter: blur(6px); }
+@media (prefers-reduced-motion: reduce) { .portal-fundo .hero-faixa { animation: none; } }
+
+/* Panorama da Leitura (CA-33.10): um bloco por tema, cartões clicáveis com valor, n, série pequena e fonte. */
+.panorama { display: grid; gap: 1.6rem; }
+.panorama-tema h3 { margin: 0 0 .6rem; font-size: 1.05rem; }
+.panorama-cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+@media (min-width: 700px) { .panorama-cartoes { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+.panorama-cartao { display: grid; gap: .25rem; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  padding: .8rem .9rem; border-radius: 14px; border: 1px solid var(--borda); background: var(--superficie); transition: border-color .15s, transform .15s; }
+.panorama-cartao:hover, .panorama-cartao:focus-visible { border-color: var(--marca); transform: translateY(-1px); }
+.panorama-cartao[aria-current="true"] { border-color: var(--marca); box-shadow: inset 0 0 0 1px var(--marca); }
+.pc-nome { font-size: .82rem; color: var(--tinta-2); line-height: 1.3; }
+.pc-val { font-family: var(--fonte-titulo); font-size: 1.45rem; line-height: 1.1; }
+.pc-det, .pc-fonte { font-size: .72rem; color: var(--tinta-2); line-height: 1.35; }
+.pc-fonte { opacity: .8; }
+.pc-serie { min-height: 42px; display: block; font-size: .72rem; }
+.pc-serie svg { display: block; max-width: 100%; height: auto; background: transparent; }
+@media (prefers-reduced-motion: reduce) { .panorama-cartao { transition: none; } .panorama-cartao:hover { transform: none; } }
+
+/* Página Sobre em blocos: grade de botões (título, resumo, "Ler →"); o conteúdo abre numa janela. */
+.blocos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
+.bloco-botao { display: grid; gap: .35rem; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  padding: .9rem 1rem; border-radius: 14px; border: 1px solid var(--borda); background: var(--superficie); transition: border-color .15s, transform .15s; }
+.bloco-botao:hover, .bloco-botao:focus-visible { border-color: var(--marca); transform: translateY(-1px); }
+.bloco-botao b { font-family: var(--fonte-titulo); font-size: 1.05rem; line-height: 1.2; }
+.bloco-botao span { font-size: .82rem; color: var(--tinta-2); line-height: 1.4; }
+.bloco-botao .bloco-abrir { color: var(--marca); font-weight: 600; margin-top: .2rem; }
+.janela-bloco { width: min(820px, 96vw); }
+.bloco-corpo { padding: 0 clamp(1rem, 3vw, 1.6rem) 1.4rem; line-height: 1.6; }
+.bloco-corpo > :first-child { margin-top: 0; }
+.bloco-corpo .cartao { margin-bottom: .8rem; }
+.janela-bloco { overscroll-behavior: contain; }
+@media (prefers-reduced-motion: reduce) { .bloco-botao { transition: none; } .bloco-botao:hover { transform: none; } }
+
+/* Mapeamento: a lista ao lado do mapa ocupa a altura toda do cartão (que acompanha a altura do mapa), sem sobra vazia embaixo. */
+@media (min-width: 900px) {
+  .mapa-lado:has(#mapa-lista) { display: flex; flex-direction: column; }
+  #mapa-lista { flex: 1 1 0; min-height: 12rem; position: relative; }
+  #mapa-lista .lista-mapa { position: absolute; inset: 0; max-height: none; }
+}
+
+/* Foto do perfil inclina sob o mouse, como a capa do livro (capas-3d.js): só a foto gira; o alvo do evento fica parado. */
+.foto-palco { perspective: 850px; width: fit-content; }
+.foto-tilt { position: relative; border-radius: var(--raio); transform-style: preserve-3d; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.foto-tilt::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: linear-gradient(105deg, rgba(255,255,255,.18), transparent 40%, rgba(0,0,0,.12)); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .inclinando .foto-tilt { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(12px); transition-duration: .12s; }
+  .inclinando .foto-tilt::after { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .foto-tilt { transition: none; } }
+
+/* Fundo do portal entra de uma vez, quando todas as capas carregaram (index.html). */
+.portal-fundo { transition: opacity .9s ease; }
+.portal-fundo:not(.pronto) { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .portal-fundo { transition: none; } }
+
+/* Nada ultrapassa o bloco: filhos de grade podem encolher e, em último caso, o texto quebra em vez de vazar. */
+.kpi, .cartao, .panorama-cartao, .bloco-botao, .hero-num, .passo-cartao { min-width: 0; overflow-wrap: break-word; }  /* break-word (não anywhere): não encolhe colunas de tabela nem quebra palavra que cabe */
+.kpi .val { font-size: clamp(1.45rem, 2.4vw, 2.1rem); }
+.kpis > * { min-width: 0; }
+
+/* Botão "i" e a nota que ele abre (ui.info). */
+.info { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin-left: .25rem; padding: 0; vertical-align: .12em;
+  border-radius: 50%; border: 1px solid var(--borda-forte, var(--tinta-2)); background: transparent; color: var(--tinta-2); cursor: pointer;
+  font: italic 700 .72rem/1 var(--fonte-titulo); }
+.info:hover, .info:focus-visible { color: var(--marca); border-color: var(--marca); }
+.info-pop { position: fixed; inset: auto; margin: 0; width: max-content; max-width: min(360px, calc(100vw - 24px)); padding: .75rem .9rem;
+  border: 1px solid var(--borda); border-radius: 12px; background: var(--superficie); color: var(--tinta); box-shadow: 0 12px 32px rgba(0,0,0,.28);
+  font: 400 .85rem/1.5 var(--fonte); text-align: left; }
+.info-pop:popover-open { animation: aparece var(--dur-2, .2s) var(--curva, ease); }

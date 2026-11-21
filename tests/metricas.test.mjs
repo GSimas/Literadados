@@ -545,3 +545,87 @@ test("nome curto de prêmio para eixos e listas", () => {
   assert.equal(M.nomeCurto("Prêmios da Academia Brasileira de Letras"), "Academia Brasileira de Letras");
   assert.equal(M.nomeCurto("Prêmio São Paulo de Literatura"), "São Paulo de Literatura");
 });
+
+test("entradasBusca: busca.json vira entradas do índice; o painel pula o que já cobre (CA-31.5)", () => {
+  const J = { tipos: ["Pessoa", "Município"], e: [[0, "Conceição Evaristo", "MG · 1946", "/premios.html#/pessoa/ce"], [1, "Florianópolis", "SC", "/leitura.html#/municipio/4205407", "desterro"]] };
+  const todas = M.entradasBusca(J);
+  assert.equal(todas.length, 2);
+  assert.equal(M.buscar(todas, "desterro")[0].rotulo, "Florianópolis");  // termo extra acha o município
+  assert.deepEqual(M.entradasBusca(J, "/premios.html").map((x) => x.tipo), ["Município"]);
+  assert.equal(M.buscar(todas, "flor")[0].tipo, "Município");
+});
+
+// ---------- módulo Leitura (CA-33.5, CA-33.7) ----------
+const JL = {
+  indicadores: [{ id: "alfa", nome: "Alfabetização", unidade: "percentual", tipo_fonte: "censo" }, { id: "liv", nome: "Livrarias", unidade: "contagem", tipo_fonte: "registro_administrativo" }],
+  recortes: [{ dimensao: "total", categoria: "total", rotulo: "Total" }, { dimensao: "sexo", categoria: "homens", rotulo: "Homens" }, { dimensao: "sexo", categoria: "mulheres", rotulo: "Mulheres" }],
+  fontes: ["https://x/1", "https://x/2"],
+  territorios: [{ codigo: "BR", tipo: "pais", nome: "Brasil", sigla: "BR", populacao_2022: 200 }, { codigo: "42", tipo: "uf", nome: "Santa Catarina", sigla: "SC", pai: "4", populacao_2022: 100 }],
+  valores: [[0, "BR", 2022, 0, 0, 93, 186, 200], [0, "42", 2022, 2, 0, 96.5, 48, 50], [0, "42", 2022, 1, 0, null], [1, "42", 2026, 0, 1, 3]],
+  cobertura: [{ indicador: "alfa", anos: [2022] }, { indicador: "liv", anos: [2025, 2026] }],
+};
+test("expandirLeitura remonta as linhas de v_indicador, com suprimido e por 100 mil", () => {
+  const L = M.expandirLeitura(JL, [{ uf: "SC", municipios: [["4205407", "Florianópolis", 500000]], valores: [[1, "4205407", 2026, 0, 1, 50]] }]);
+  assert.equal(L.length, 5);
+  const fl = L.find((l) => l.territorio === "4205407");
+  assert.deepEqual([fl.territorio_tipo, fl.uf, fl.por_100mil, fl.fonte_url], ["municipio", "SC", 10, "https://x/2"]);
+  assert.equal(L.find((l) => l.categoria === "homens").suprimido, true);
+  assert.equal(L.find((l) => l.territorio === "42" && l.indicador === "liv").por_100mil, 3000);
+  assert.equal(L.find((l) => l.territorio === "42" && l.indicador === "alfa" && l.categoria === "mulheres").uf, "SC");
+});
+test("leituraParaTexto/leituraDeTexto: ida e volta, padrão fora da URL", () => {
+  const p = M.leituraDeTexto("", JL);
+  assert.deepEqual(p, { i: "alfa", a: 2022, r: "total", t: "BR" });
+  assert.equal(M.leituraParaTexto(p, JL), "");
+  const e = { i: "liv", a: 2025, r: "sexo", t: "42" };
+  assert.deepEqual(M.leituraDeTexto(M.leituraParaTexto(e, JL), JL), e);
+  assert.equal(M.leituraParaTexto({ i: "liv", a: 2026, r: "total", t: "BR" }, JL), "i=liv");  // último ano do indicador é o padrão
+  assert.deepEqual(M.leituraDeTexto("i=xx&a=1900&r=yy", JL), p);  // valor inválido volta ao padrão
+});
+test("valoresLeitura, serieLeitura e recortesLeitura", () => {
+  const L = M.expandirLeitura(JL);
+  assert.equal(M.valoresLeitura(L, { indicador: "alfa", ano: 2022, dimensao: "sexo", categoria: "mulheres", tipo: "uf" })[0].valor, 96.5);
+  assert.deepEqual(M.serieLeitura(L, { indicador: "liv", territorio: "42" }).map((l) => l.ano), [2026]);
+  assert.deepEqual(M.recortesLeitura(L, JL, { indicador: "alfa", territorio: "42", ano: 2022, dimensao: "sexo" }).map((l) => l.categoria), ["homens", "mulheres"]);
+});
+
+test("resumoMapeamento: critério de vínculo, n, piso e a conferir (CA-34.10)", () => {
+  const Mp = { gerado_em: "2026-11-20T00:00:00+00:00", verificado_ate: "2026-11-20",
+    pessoas: [{ id: "a", genero: "mulher", nasceu: true, atua: true, negra: true }, { id: "b", genero: "homem", nasceu: false, atua: true },
+      { id: "c", genero: "mulher", genero_evidencia: "atribuicao", nasceu: true, atua: false }],
+    livrarias: [{ tipo: "sebo", situacao: "ativa", verificado_em: "2026-11-20" }, { tipo: "geral", situacao: "encerrada", verificado_em: "2025-01-10" },
+      { tipo: "sebo", situacao: "ativa", verificado_em: "2026-01-01" }],
+    clubes: [{ situacao: "ativa", verificado_em: "2026-11-20" }], editoras: [{ situacao: "incerta", verificado_em: "2025-11-21" }], obras: [{ id: "o" }] };
+  const r = M.resumoMapeamento(Mp);
+  assert.deepEqual([r.pessoas, r.nasceram, r.atuam, r.ambos, r.mulheres, r.negras, r.generoAtribuido], [3, 2, 2, 1, 2, 1, 1]);
+  assert.equal(Math.round(r.pctMulheres), 67);
+  assert.deepEqual([r.livrariasAtivas, r.encerradas, r.livrariasPorTipo.sebo, r.clubesAtivos, r.editorasAtivas], [2, 1, 2, 1, 0]);
+  assert.equal(r.aConferir, 1);  // só a de 2025-01-10 passou de 12 meses (2025-11-21 ainda não)
+  assert.equal(M.aConferir({ verificado_em: "2025-11-19" }, Mp.gerado_em), true);
+});
+
+// ---------- módulo Eventos (CA-35.4 a CA-35.6) ----------
+const JE = {
+  verificado_ate: "2026-11-21",
+  eventos: [{ id: "flip", nome: "FLIP", tipo: "festa_literaria", municipio: "3303807" }, { id: "ponte", nome: "Ponte de Palavras", tipo: "encontro", municipio: "4205407" }],
+  municipios: { "3303807": ["Paraty", "RJ"], "4205407": ["Florianópolis", "SC"] },
+  edicoes: [
+    { evento: "flip", inicio: "2025-07-30", fim: "2025-08-03", municipio: "3303807", situacao: "realizada" },
+    { evento: "flip", inicio: "2026-07-29", fim: "2026-08-02", municipio: "3303807", situacao: "realizada" },
+    { evento: "flip", inicio: "2027-07-28", fim: "2027-08-01", municipio: "3303807", situacao: "prevista" },
+    { evento: "ponte", inicio: "2026-11-13", fim: "2026-11-15", municipio: "4205407", situacao: "prevista" },
+    { evento: "ponte", inicio: "2026-12-01", fim: "2026-12-02", municipio: "4205407", situacao: "cancelada" },
+  ],
+};
+test("eventos: próximos, calendário, filtro, resumo e URL (CA-35.4 a CA-35.6)", () => {
+  assert.deepEqual(M.proximosEventos(JE.edicoes, "2026-11-21").map((e) => e.inicio), ["2027-07-28"]);  // cancelada fica fora
+  assert.equal(M.situacaoEvento(JE.edicoes[3], "2026-11-21"), "a_conferir");  // prevista com data passada
+  assert.deepEqual(M.filtrarEventos(JE, { uf: "SC" }).map((e) => e.evento), ["ponte", "ponte"]);
+  assert.deepEqual(M.filtrarEventos(JE, { tipo: "festa_literaria", ano: 2026 }).length, 1);
+  const r = M.resumoEventos(JE, "2026-11-21");
+  assert.deepEqual([r.eventos, r.edicoes, r.ufs, r.proximos, r.aConferir], [2, 5, 2, 1, 1]);
+  const f = { tipo: "feira", uf: "SP", ano: 2025, sit: "realizada" };
+  assert.deepEqual(M.eventosDeTexto(M.eventosParaTexto(f, 2026), 2026), f);
+  assert.equal(M.eventosParaTexto({ tipo: "", uf: "", ano: 2026, sit: "" }, 2026), "");
+  assert.deepEqual(M.eventosDeTexto("tipo=xx&uf=sc", 2026), { tipo: "", uf: "", ano: 2026, sit: "" });
+});

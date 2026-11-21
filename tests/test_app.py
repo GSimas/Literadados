@@ -440,12 +440,15 @@ def test_vagas_conferidas_por_premio(mini):  # CA-26.1: mesma edição e categor
 # ---------- banco no navegador (CA-12.4, RNF-07, D26) ----------
 # O DuckDB-WASM recria o banco a partir dos Parquet + views.sql; aqui o DuckDB do Python faz o mesmo caminho.
 
-def _banco_do_navegador(web: Path):
+def _banco_do_navegador(web: Path, modulo: str = "premios"):
+    """Como banco.js: só as tabelas e as views do módulo (D37)."""
     con = duckdb.connect()
-    for t in json.loads((web / "contexto.json").read_text(encoding="utf-8"))["tabelas"]:
+    ctx = json.loads((web / f"contexto-{modulo}.json").read_text(encoding="utf-8"))
+    for t in ctx["tabelas"]:
         con.execute(f"CREATE TABLE {t} AS SELECT * FROM read_parquet('{web / 'banco' / f'{t}.parquet'}')")
     for v in [x.strip() for x in (web / "banco" / "views.sql").read_text(encoding="utf-8").split(";\n") if x.strip()]:
-        con.execute(v)
+        if re.search(r"CREATE VIEW (\w+)", v).group(1) in ctx["views"]:
+            con.execute(v)
     return con
 
 
@@ -457,7 +460,7 @@ def test_banco_do_navegador_igual_ao_build(base, mini, tmp_path):  # CA-12.4: me
     for q in ["SELECT COUNT(*), COUNT(DISTINCT pessoa_id), SUM(premiada::INT) FROM v_participacao", "SELECT * FROM v_cobertura ORDER BY premio, ano",
               "SELECT COUNT(*) FROM pessoa WHERE genero_evidencia = 'atribuicao'"]:
         assert nav.execute(q).fetchall() == orig.execute(q).fetchall(), q
-    ctx = json.loads((tmp_path / "web" / "contexto.json").read_text(encoding="utf-8"))["sistema"]
+    ctx = json.loads((tmp_path / "web" / "contexto-premios.json").read_text(encoding="utf-8"))["sistema"]
     assert "v_participacao" in ctx and "piso" in ctx and "genero_atribuido" in ctx
 
 
@@ -582,17 +585,28 @@ FIXAM_UM_PREMIO = [
     r"Quem chega ao Prêmio", r"sobre o (Prêmio )?Jabuti", r"edições do Jabuti", r"principal prêmio do livro", r"abre no Jabuti",
     r"Edições do Prêmio Jabuti", r"desde 1959", r'\?\? "Prêmio Jabuti"', r"jabuti visto de cima", r"casco de jabuti",
     r"PREMIOS\.slice\(0, ?1\)", r"premios\[0\]\.id\]", r"lt-membro",
+    # Plataforma, não um módulo (CA-31.6): o Literadados não se reduz a prêmios.
+    r"plataforma de dados sobre o perfil de quem chega", r"[Pp]lataforma de prêmios", r"dados abertos sobre quem chega aos prêmios",
 ]
+
+
+def test_portal_fala_da_plataforma():  # CA-31.6, DB-1
+    """Título e h1 do portal falam da plataforma; a pergunta dos prêmios fica no módulo Prêmios."""
+    portal = (RAIZ / "web" / "index.html").read_text(encoding="utf-8")
+    for tag in ("title", "h1"):
+        txt = re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", portal, re.S).group(1)
+        assert "prêmio" not in txt.lower() and "literatura e leitura" in txt, tag
+    assert "<h1 id=\"h-hero\">Quem chega aos prêmios literários?</h1>" in (RAIZ / "web" / "premios.html").read_text(encoding="utf-8")
 
 
 def test_textos_de_plataforma():  # CA-26.15
     """Texto genérico não cita um prêmio; nome de prêmio no HTML só junto de uma regra dele ("no Jabuti, …", "… do Oceanos:")."""
     web = RAIZ / "web"
-    for arq in [web / "index.html", web / "metodo.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
+    for arq in [web / "index.html", web / "premios.html", web / "sobre.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
         txt = arq.read_text(encoding="utf-8")
         for padrao in FIXAM_UM_PREMIO:
             assert not re.search(padrao, txt), f"{arq.name}: {padrao}"
-    for arq in ["index.html", "metodo.html"]:
+    for arq in ["index.html", "premios.html", "sobre.html"]:
         txt = re.sub(r"<span data-premios-texto>[^<]*</span>", "", (web / arq).read_text(encoding="utf-8"))  # lista vinda dos dados
         txt = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", "", txt, flags=re.S)
         for m in re.finditer(r"(?:Prêmio )?(?:Jabuti|Oceanos)", txt):
@@ -603,7 +617,7 @@ def test_textos_de_plataforma():  # CA-26.15
 def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
     """O painel abre na série completa: nenhum texto fixa 2010–2025 como o período do painel."""
     web = RAIZ / "web"
-    for arq in ["index.html", "metodo.html", *[p.name for p in web.glob("*.js")]]:
+    for arq in ["index.html", "premios.html", "sobre.html", *[p.name for p in web.glob("*.js")]]:
         txt = (web / arq).read_text(encoding="utf-8")
         for proibido in ("Prêmio Jabuti 2010–2025", "2010–2025 · 16 edições", "Entre 2010 e 2025", "Recorte completo: 2010–2025", "Dezesseis edições", "D.recorte"):
             assert proibido not in txt, f"{arq}: {proibido}"
@@ -655,3 +669,348 @@ def test_conjunto_da_obra_checagens(mini, kw, erro):  # CA-30.1
     _com_distincao(mini, **kw)
     with pytest.raises(build.BuildError, match=erro):
         _build(mini)
+
+
+def test_rotas_antigas_redirecionam():  # CA-31.3, D37
+    """O script do portal manda links antigos do painel (hash de rota, âncora de seção, filtro na URL) para premios.html."""
+    html = (RAIZ / "web" / "index.html").read_text(encoding="utf-8")
+    script = re.search(r'<script id="rotas-antigas">(.*?)</script>', html, re.S).group(1)
+    casos = [("", "", None), ("", "#conteudo", None), ("", "#modulos", None),
+             ("", "#/pessoa/conceicao-evaristo", "premios.html#/pessoa/conceicao-evaristo"),
+             ("", "#/grafico/funil", "premios.html#/grafico/funil"), ("", "#panorama", "premios.html#panorama"),
+             ("?panorama=2015-2025~Poesia", "", "premios.html?panorama=2015-2025~Poesia"),
+             ("?funil=2019-2025", "#/edicao/jabuti/2019", "premios.html?funil=2019-2025#/edicao/jabuti/2019")]
+    js = "const casos = " + json.dumps(casos) + ";\nconst saida = casos.map(([search, hash]) => { let destino = null;\n" \
+         "  const location = { search, hash, replace: (u) => { destino = u; } };\n" + script + "\n  return destino; });\n" \
+         "console.log(JSON.stringify(saida));"
+    out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+    assert json.loads(out) == [c[2] for c in casos]
+
+
+def test_cabecalho_igual_em_todas_as_paginas():  # CA-31.4, D37
+    """O cabeçalho é o mesmo bloco em toda página (escrita à mão ou gerada); muda só o item marcado como atual."""
+    import seo
+    web = RAIZ / "web"
+    tirar = lambda h: re.sub(r' aria-current="page"', "", h)
+    blocos = {}
+    for arq in [*seo.PAGINAS_CABECALHO, "premios/index.html", "pessoas/index.html", "leitura/index.html", "eventos/index.html"]:
+        txt = (web / arq).read_text(encoding="utf-8")
+        h = re.search(r'<header class="barra".*?</header>', txt, re.S).group(0)
+        assert "#historia" not in h and "Edições" not in h, arq  # nada de atalho de seção no cabeçalho
+        blocos[arq] = tirar(h)
+    assert len(set(blocos.values())) == 1, [k for k, v in blocos.items() if v != blocos["index.html"]]
+    for arq, atual in seo.PAGINAS_CABECALHO.items():
+        h = re.search(r'<header class="barra".*?</header>', (web / arq).read_text(encoding="utf-8"), re.S).group(0)
+        assert h.count('aria-current="page"') == (1 if atual else 0), arq
+
+
+def test_busca_json():  # CA-31.5, D37
+    """busca.json: entradas compactas com tipos conhecidos, hrefs para páginas e ids que existem, menos de 1 MB."""
+    web = RAIZ / "web"
+    J = json.loads((web / "busca.json").read_text(encoding="utf-8"))
+    assert (web / "busca.json").stat().st_size < 1_000_000
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    pessoas = {r[0] for r in con.execute("SELECT id FROM pessoa").fetchall()}
+    editoras = {r[0] for r in con.execute("SELECT id FROM editora").fetchall()}
+    for t, rotulo, sub, href, *_ in J["e"]:
+        assert rotulo and 0 <= t < len(J["tipos"]), rotulo
+        pagina, _, rota = href.partition("#")
+        assert href.startswith("/") and (web / pagina.partition("?")[0].lstrip("/")).exists(), href
+        if rota.startswith("/pessoa/"):
+            assert rota.removeprefix("/pessoa/") in pessoas, href
+        if rota.startswith("/editora/"):
+            assert rota.removeprefix("/editora/") in editoras, href
+    assert {J["tipos"][x[0]] for x in J["e"]} >= {"Pessoa", "Editora", "Estado"}
+
+
+def test_contexto_e_banco_por_modulo():  # CA-31.7, D37
+    """Cada módulo tem contexto-<módulo>.json com as suas tabelas (todas em Parquet), as suas views e o prompt."""
+    web = RAIZ / "web"
+    todas_views = set(re.findall(r"CREATE VIEW (\w+)", (web / "banco" / "views.sql").read_text(encoding="utf-8")))
+    mods = sorted(web.glob("contexto-*.json"))
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    assert [m.stem.removeprefix("contexto-") for m in mods] == sorted(build.modulos_banco(con))  # módulo sem dado não tem contexto
+    for arq in mods:
+        ctx = json.loads(arq.read_text(encoding="utf-8"))
+        assert ctx["sistema"] and all((web / "banco" / f"{t}.parquet").exists() for t in ctx["tabelas"]), arq.name
+        assert set(ctx["views"]) <= todas_views, arq.name
+    for pag in ["premios.html"]:
+        m = re.search(r'<body data-modulo="(\w+)"', (web / pag).read_text(encoding="utf-8")).group(1)
+        assert (web / f"contexto-{m}.json").exists(), pag
+
+
+# ---------- RF-32 território (D38) ----------
+
+def test_territorio_completo():  # CA-32.1
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    n = dict(con.execute("SELECT tipo, COUNT(*) FROM territorio GROUP BY tipo").fetchall())
+    assert n["pais"] == 1 and n["regiao"] == 5 and n["uf"] == 27 and n["municipio"] >= 5570
+    assert con.execute("SELECT nome, pai FROM territorio WHERE codigo = '4205407'").fetchone() == ("Florianópolis", "42")
+    assert con.execute("SELECT COUNT(*) FROM territorio WHERE tipo = 'municipio' AND populacao_2022 IS NULL").fetchone()[0] <= 1
+    soma = con.execute("SELECT SUM(populacao_2022) FROM territorio WHERE tipo = 'uf'").fetchone()[0]
+    assert soma == con.execute("SELECT populacao_2022 FROM territorio WHERE codigo = 'BR'").fetchone()[0]
+
+
+COD_UF = {sigla: cod for cod, sigla in __import__("coleta").IBGE_UF.items()}
+
+
+def _territorio_mini(d: Path):
+    _csv(d / "territorio.csv", [
+        {"codigo": "BR", "tipo": "pais", "nome": "Brasil", "sigla": "BR", "pai": "", "populacao_2022": "1"},
+        *[{"codigo": str(i), "tipo": "regiao", "nome": n, "sigla": "", "pai": "BR", "populacao_2022": "1"}
+          for i, n in enumerate(["Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"], 1)],
+        *[{"codigo": COD_UF[s], "tipo": "uf", "nome": n, "sigla": s, "pai": r, "populacao_2022": ""}
+          for s, n, r in (l.split(",") for l in UFS_MINI)],
+        {"codigo": "4205407", "tipo": "municipio", "nome": "Florianópolis", "sigla": "", "pai": "42", "populacao_2022": "1"},
+        {"codigo": "3550308", "tipo": "municipio", "nome": "São Paulo", "sigla": "", "pai": "35", "populacao_2022": "1"},
+    ])
+
+
+UFS_MINI = [f"{s},{n},{ {'Norte': '1', 'Nordeste': '2', 'Sudeste': '3', 'Sul': '4', 'Centro-Oeste': '5'}[r]}" for s, n, r in [
+    ("AC", "Acre", "Norte"), ("AP", "Amapá", "Norte"), ("AM", "Amazonas", "Norte"), ("PA", "Pará", "Norte"), ("RO", "Rondônia", "Norte"),
+    ("RR", "Roraima", "Norte"), ("TO", "Tocantins", "Norte"), ("AL", "Alagoas", "Nordeste"), ("BA", "Bahia", "Nordeste"), ("CE", "Ceará", "Nordeste"),
+    ("MA", "Maranhão", "Nordeste"), ("PB", "Paraíba", "Nordeste"), ("PE", "Pernambuco", "Nordeste"), ("PI", "Piauí", "Nordeste"),
+    ("RN", "Rio Grande do Norte", "Nordeste"), ("SE", "Sergipe", "Nordeste"), ("DF", "Distrito Federal", "Centro-Oeste"), ("GO", "Goiás", "Centro-Oeste"),
+    ("MT", "Mato Grosso", "Centro-Oeste"), ("MS", "Mato Grosso do Sul", "Centro-Oeste"), ("ES", "Espírito Santo", "Sudeste"), ("MG", "Minas Gerais", "Sudeste"),
+    ("RJ", "Rio de Janeiro", "Sudeste"), ("SP", "São Paulo", "Sudeste"), ("PR", "Paraná", "Sul"), ("RS", "Rio Grande do Sul", "Sul"), ("SC", "Santa Catarina", "Sul")]]
+
+
+def test_codigo_municipio_pessoas_e_editoras(mini):  # CA-32.3
+    """Código do município calculado por nome sem acento e caixa dentro da UF; exceção em municipio_casamento; nada muda em v_participacao."""
+    _territorio_mini(mini)
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[0]["municipio_nascimento"], linhas[1]["municipio_nascimento"] = "Mooca", "FLORIANOPOLIS"
+    _csv(mini / "pessoa.csv", linhas)
+    _csv(mini / "municipio_casamento.csv", [{"municipio": "Mooca", "uf": "SP", "codigo": "3550308", "observacao": "bairro de São Paulo"}])
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert dict(con.execute("SELECT * FROM v_pessoa_municipio").fetchall()) == {"a": "3550308", "b": "4205407"}
+    assert dict(con.execute("SELECT * FROM v_editora_municipio").fetchall()) == {"ed": "3550308"}
+    assert build.municipios_sem_codigo(con) == []
+
+
+def test_build_falha_territorio(mini):  # CA-32.1, CA-32.2
+    _territorio_mini(mini)
+    _csv(mini / "municipio_casamento.csv", [{"municipio": "X", "uf": "SP", "codigo": "9999999", "observacao": "teste"}])
+    with pytest.raises(build.BuildError, match="municipio_casamento"):
+        _build(mini)
+    (mini / "municipio_casamento.csv").unlink()
+    linhas = [l for l in csv.DictReader((mini / "territorio.csv").open(encoding="utf-8")) if l["codigo"] != "42"]  # SC some
+    _csv(mini / "territorio.csv", linhas)
+    with pytest.raises(build.BuildError, match="27 UFs|nível acima|uf SC"):
+        _build(mini)
+
+
+def test_malha_municipal():  # CA-32.5
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    por_uf = {}
+    for c, uf in con.execute("SELECT m.codigo, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio'").fetchall():
+        por_uf.setdefault(uf, set()).add(c)
+    for uf, cods in por_uf.items():
+        g = json.loads((RAIZ / "web" / "malha" / f"{uf}.json").read_text(encoding="utf-8"))
+        malha = {f["properties"]["codigo"] for f in g["features"]}
+        assert len(cods - malha) <= 1, uf  # município instalado depois da malha (Boa Esperança do Norte, MT)
+
+
+# ---------- RF-33 Leitura (D39) ----------
+
+def test_json_leitura_reconstroi_v_indicador():  # CA-33.5, CA-31.8
+    """expandirLeitura (Node) sobre leitura.json + os arquivos de SC devolve as linhas de v_indicador (Brasil, regiões, UFs e SC)."""
+    web = RAIZ / "web"
+    J = json.loads((web / "leitura.json").read_text(encoding="utf-8"))
+    extras = [{"uf": "SC", "municipios": json.loads((web / "leitura" / "municipios" / "SC.json").read_text(encoding="utf-8"))["municipios"],
+               "valores": json.loads((web / "leitura" / p).read_text(encoding="utf-8"))["valores"]} for p in [f"{x}.json" for x in J["por_uf"] if x.endswith("/SC")]]
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        (tmp / "x.json").write_text(json.dumps(extras), encoding="utf-8")
+        (tmp / "t.mjs").write_text(
+            f"import * as M from {json.dumps((web / 'metricas.js').as_uri())};\nimport {{ readFileSync }} from 'node:fs';\n"
+            f"const J = JSON.parse(readFileSync({json.dumps(str(web / 'leitura.json'))}, 'utf8')), X = JSON.parse(readFileSync({json.dumps(str(tmp / 'x.json'))}, 'utf8'));\n"
+            "console.log(JSON.stringify(M.expandirLeitura(J, X)));", encoding="utf-8")
+        out = subprocess.run(["node", str(tmp / "t.mjs")], capture_output=True, text=True, check=True).stdout
+    obtido = json.loads(out)
+    con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
+    # observacao fica só no banco (Diadorim e dados abertos): no JSON pesaria sem o painel mostrar.
+    esperado = build._linhas(con, "SELECT * EXCLUDE (observacao) FROM v_indicador WHERE territorio_tipo <> 'municipio' OR uf = 'SC'")
+    chave = lambda l: (l["indicador"], l["territorio"], l["ano"], l["dimensao"], l["categoria"])
+    obtido, esperado = sorted(obtido, key=chave), sorted(esperado, key=chave)
+    assert len(obtido) == len(esperado) > 1000
+    for o, e in zip(obtido, esperado):
+        assert list(o) == list(e)
+        for k in e:
+            if k == "por_100mil" and e[k] is not None:
+                assert abs(o[k] - e[k]) <= 0.011, (chave(e), k)
+            elif isinstance(e[k], float):
+                assert o[k] == pytest.approx(e[k]), (chave(e), k)
+            else:
+                assert o[k] == e[k], (chave(e), k)
+
+
+def test_leitura_arquivos_menores_que_1mb():  # CA-31.8, RNF-06
+    web = RAIZ / "web"
+    for arq in [web / "leitura.json", *(web / "leitura").rglob("*.json")]:
+        assert arq.stat().st_size < 1_000_000, arq.name
+
+
+def _base_leitura(mini):
+    _territorio_mini(mini)
+    shutil.copy(RAIZ / "dados" / "indicador.csv", mini / "indicador.csv")
+    shutil.copy(RAIZ / "dados" / "recorte.csv", mini / "recorte.csv")
+    (mini / "indicador_valor").mkdir()
+    base = {"indicador_id": "alfabetizacao", "territorio": "4205407", "ano": "2022", "dimensao": "total", "categoria": "total", "valor": "98.6",
+            "numerador": "448", "denominador": "454", "amostra": "", "margem": "", "suprimido": "false", "fonte_url": "https://sidra.ibge.gov.br/tabela/9542"}
+    return base
+
+
+@pytest.mark.parametrize("muda, erro", [
+    ({"fonte_url": ""}, "indicador_valor"),                                   # sem fonte
+    ({"territorio": "9999999"}, "indicador_valor"),                           # território inexistente
+    ({"valor": "130"}, "percentual fora"),                                    # percentual > 100
+    ({"categoria": "outros"}, "indicador_valor"),                             # recorte fora do vocabulário
+    ({"numerador": "", "denominador": ""}, "sem numerador"),                  # censo em % sem numerador e denominador
+    ({"indicador_id": "leitores", "territorio": "BR", "numerador": "", "denominador": ""}, "sem amostra"),  # amostral sem amostra
+    ({"indicador_id": "leitores", "amostra": "100"}, "mais fino"),             # Retratos não desce a município
+])
+def test_build_falha_indicador(mini, muda, erro):  # CA-33.1, CA-33.3
+    linha = {**_base_leitura(mini), **muda}
+    _csv(mini / "indicador_valor" / "x.csv", [linha])
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)
+
+
+def test_build_falha_indicador_chave_repetida_e_suprimido(mini):  # CA-33.1, CA-33.3
+    base = _base_leitura(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [base, base])
+    with pytest.raises(build.BuildError, match="indicador_valor"):
+        _build(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [{**base, "valor": "", "numerador": "", "denominador": "", "suprimido": "true"}])
+    _build(mini)  # suprimido sem valor é válido
+    _csv(mini / "indicador_valor" / "x.csv", [{**base, "suprimido": "true"}])
+    with pytest.raises(build.BuildError, match="indicador_valor"):
+        _build(mini)  # suprimido com valor, não
+
+
+
+def test_amostral_sem_amostra_so_com_motivo(mini):  # CA-33.1, CA-33.3, CA-33.9
+    """Pesquisa amostral sem amostra passa só se `observacao` disser por que a fonte não publica (mercado do livro, PNAD)."""
+    linha = {**_base_leitura(mini), "indicador_id": "leitores", "territorio": "BR", "numerador": "", "denominador": "", "observacao": "nota qualquer"}
+    _csv(mini / "indicador_valor" / "x.csv", [linha])
+    with pytest.raises(build.BuildError, match="sem amostra"):
+        _build(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [{**linha, "observacao": "a fonte não publica o tamanho da amostra"}])
+    _build(mini)
+
+
+def test_indicadores_tem_tema_e_unidade_valida():  # CA-33.9, CA-33.10
+    import csv as _c
+    inds = list(_c.DictReader((RAIZ / "dados" / "indicador.csv").open(encoding="utf-8")))
+    assert {i["tema"] for i in inds} == {"habitos", "alfabetizacao", "escola", "mercado", "bibliotecas"}
+    assert {i["unidade"] for i in inds} <= {"percentual", "contagem", "media", "moeda", "pontuacao"}
+    ids = {i["id"] for i in inds}
+    assert {"analfabetismo_pnad", "inaf_proficiente", "saeb_lp_9ef", "pisa_leitura", "livros_exemplares_vendidos", "bibliotecas_publicas_snbp"} <= ids
+
+# ---------- RF-34 Mapeamento (D40) ----------
+LIV = {"id": "livraria-a", "nome": "Livraria A", "municipio": "4205407", "tipo": "geral", "foco": "", "rede": "false", "endereco": "Rua X, 1", "bairro": "Centro",
+       "lat": "-27.59", "lon": "-48.55", "site": "", "redes": "", "situacao": "ativa", "ano_abertura": "", "ano_encerramento": "", "fonte": "http://f", "verificado_em": "2026-11-20"}
+CLU = {"id": "clube-a", "nome": "Clube A", "municipio": "4205407", "formato": "presencial", "periodicidade": "mensal", "foco": "", "aberto": "true", "organizacao": "Livraria A",
+       "local_tipo": "livraria", "livraria_id": "livraria-a", "local_nome": "", "bairro": "", "lat": "", "lon": "", "link": "http://c", "situacao": "ativa",
+       "fonte": "http://f", "verificado_em": "2026-11-20"}
+
+
+def _base_mapa(mini):
+    _territorio_mini(mini)
+    linhas = list(csv.DictReader((mini / "pessoa.csv").open(encoding="utf-8")))
+    linhas[1]["municipio_nascimento"], linhas[1]["nascimento_fonte"] = "Florianópolis", "http://n"  # B nasceu em Florianópolis
+    _csv(mini / "pessoa.csv", linhas)
+    _csv(mini / "livraria.csv", [LIV])
+    _csv(mini / "clube.csv", [CLU])
+    _csv(mini / "pessoa_atuacao.csv", [{"pessoa_id": "a", "municipio": "4205407", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+    _csv(mini / "obra_mapeada.csv", [{"obra_id": "o1", "municipio": "4205407", "isbn": "", "ambientada": "true", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+
+
+def test_vinculos_derivados_e_json_do_mapeamento(mini):  # CA-34.3, CA-34.10, CA-34.12
+    _base_mapa(mini)
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    v = set(con.execute("SELECT entidade, entidade_id, tipo FROM v_vinculo WHERE municipio = '4205407'").fetchall())
+    assert {("pessoa", "b", "nascimento"), ("pessoa", "a", "atuacao"), ("obra", "o1", "autoria"), ("obra", "o2", "autoria"), ("obra", "o1", "ambientacao")} <= v
+    pm = {r[0]: (r[1], r[2]) for r in con.execute("SELECT pessoa_id, nasceu, atua FROM v_pessoa_mapeada").fetchall()}
+    assert pm == {"a": (False, True), "b": (True, False)}
+    J = json.loads((mini.parent / "mapeamento" / "4205407.json").read_text(encoding="utf-8"))
+    assert {p["id"] for p in J["pessoas"]} == {"a", "b"} and J["clubes"][0]["lat"] == -27.59  # clube na livraria herda o ponto dela
+    # Só os campos que o painel mostra (CA-34.12): nada de campos internos ou de endereço de pessoa.
+    assert set(J["pessoas"][0]) <= {"id", "nome", "genero", "genero_evidencia", "raca", "raca_fonte", "raca_trecho", "negra", "ano_nascimento", "nasceu", "atua",
+                                    "atuacao_fonte", "nascimento_fonte", "nos_premios"}
+    indice = json.loads((mini.parent / "mapeamento" / "indice.json").read_text(encoding="utf-8"))
+    assert indice["pessoa"]["a"] == ["4205407"] and indice["municipios"] == {"4205407": "Florianópolis"}
+
+
+@pytest.mark.parametrize("tabela, muda, erro", [
+    ("clube", {"local_tipo": "casa", "livraria_id": "", "bairro": "Trindade"}, "clube"),      # casa com bairro (privacidade)
+    ("clube", {"livraria_id": "inexistente"}, "clube"),                                       # livraria que não existe
+    ("clube", {"link": ""}, "clube"),                                                         # sem canal público
+    ("clube", {"local_tipo": "nao_informado", "formato": "nao_informado", "livraria_id": "", "bairro": "Centro"}, "clube"),  # local não informado com bairro
+    ("livraria", {"tipo": "online"}, "livraria"),                                             # on-line com endereço
+    ("livraria", {"fonte": ""}, "livraria"),                                                  # sem fonte
+    ("livraria", {"verificado_em": ""}, "livraria"),                                          # sem data
+    ("livraria", {"verificado_em": "2099-01-01"}, "futuro"),                                  # data no futuro
+    ("livraria", {"tipo": "especializada"}, "livraria"),                                      # especializada sem foco
+])
+def test_build_falha_mapeamento(mini, tabela, muda, erro):  # CA-34.2, CA-34.4, CA-34.8
+    _base_mapa(mini)
+    _csv(mini / f"{tabela}.csv", [{**(LIV if tabela == "livraria" else CLU), **muda}])
+    if tabela == "livraria" and "inexistente" not in str(muda):
+        _csv(mini / "clube.csv", [{**CLU, "local_tipo": "biblioteca", "livraria_id": ""}])
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)
+
+
+# ---------- RF-35 Eventos (D41) ----------
+EV = {"id": "ponte", "nome": "Ponte de Palavras", "tipo": "encontro", "municipio": "4205407", "organizador": "", "site": "", "redes": "", "ano_inicio": "2026",
+      "fonte": "http://f", "verificado_em": "2026-11-20"}
+ED = {"evento_id": "ponte", "numero": "1", "ano": "2026", "data_inicio": "2026-11-13", "data_fim": "2026-11-15", "municipio": "4205407", "local": "", "tema": "",
+      "situacao": "realizada", "formato": "presencial", "publico": "", "publico_fonte": "", "fonte": "http://f", "verificado_em": "2026-11-20"}
+
+
+def _base_eventos(mini, edicao=None):
+    _territorio_mini(mini)
+    _csv(mini / "evento.csv", [EV])
+    _csv(mini / "evento_edicao.csv", [edicao or ED])
+    _csv(mini / "evento_homenageado.csv", [{"evento_id": "ponte", "data_inicio": "2026-11-13", "nome": "A", "pessoa_id": "a"}])
+
+
+def test_eventos_json_e_view(mini):  # CA-35.1, CA-35.2, CA-35.6
+    _base_eventos(mini)
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT evento_nome, municipio_nome, uf FROM v_evento_edicao").fetchone() == ("Ponte de Palavras", "Florianópolis", "SC")
+    J = json.loads((mini.parent / "eventos.json").read_text(encoding="utf-8"))
+    assert J["edicoes"][0]["inicio"] == "2026-11-13" and J["municipios"]["4205407"] == ["Florianópolis", "SC"] and J["homenageados"][0]["pessoa_id"] == "a"
+
+
+@pytest.mark.parametrize("muda, erro", [
+    ({"data_fim": "2026-11-10"}, "evento_edicao"),                        # fim antes do início
+    ({"ano": "2025"}, "evento_edicao"),                                    # ano diferente do da data de início
+    ({"fonte": ""}, "evento_edicao"),                                      # sem fonte
+    ({"publico": "5000"}, "evento_edicao"),                                # público sem fonte
+    ({"municipio": "9999999"}, "evento_edicao"),                           # município inexistente
+    ({"situacao": "prevista", "data_fim": "2026-11-15", "verificado_em": "2026-11-20"}, "incoerente"),   # prevista com data passada
+    ({"situacao": "realizada", "data_inicio": "2026-12-01", "data_fim": "2026-12-02", "ano": "2026"}, "incoerente"),  # realizada no futuro
+])
+def test_build_falha_evento(mini, muda, erro):  # CA-35.1, DB-10
+    _base_eventos(mini, {**ED, **muda})
+    if "data_inicio" in muda:
+        (mini / "evento_homenageado.csv").unlink()
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)
+
+
+def test_rodape_igual_em_todas_as_paginas():  # CA-31.11
+    """O rodapé é o mesmo em toda página: Literadados e o crédito de quem desenvolveu."""
+    import seo
+    web = RAIZ / "web"
+    for arq in [*seo.PAGINAS_CABECALHO, "premios/index.html", "pessoas/index.html", "eventos/index.html"]:
+        txt = (web / arq).read_text(encoding="utf-8")
+        assert re.search(r'<footer class="rodape">.*?</footer>', txt, re.S).group(0) == seo.RODAPE, arq
+    assert "gustavosimas.com" in seo.RODAPE and "Método" not in seo.RODAPE

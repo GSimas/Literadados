@@ -187,6 +187,19 @@ export function fecharAnimado(el, fechar = () => { el.hidden = true; }) {
   setTimeout(fim, 600); // aba em segundo plano pode não entregar animationend
 }
 
+// Perfil em <dialog> (CA-19.1, CA-20.2): ×, Esc e clique fora fecham com animação. "Fora" = fora da caixa do diálogo
+// (o clique no fundo escurecido chega ao próprio <dialog>); clique no conteúdo não fecha.
+export function fecharPerfilAoClicarFora(dlg) {
+  const fechar = () => fecharAnimado(dlg, () => dlg.close());
+  dlg.addEventListener("cancel", (e) => { e.preventDefault(); fechar(); });
+  dlg.querySelector("form")?.addEventListener("submit", (e) => { e.preventDefault(); fechar(); });
+  dlg.addEventListener("click", (e) => {
+    if (e.target !== dlg) return;
+    const r = dlg.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom || e.detail === 0) fechar();
+  });
+}
+
 // Conta de 0 até o valor (abertura). O texto final é sempre o valor formatado exato.
 export function contar(el, alvo, formatar, ms = 1200) {
   if (alvo == null || movimentoReduzido()) { el.textContent = formatar(alvo); return; }
@@ -414,4 +427,84 @@ export function montarFiltro(el, estado, { anos, padrao, aoMudar, baixar }) {
   $("[data-limpar]", el).addEventListener("click", () => { Object.assign(estado, padrao()); mudou(); });
   $("[data-csv]", el).addEventListener("click", baixar);
   return { resumo: (html) => { $(".filtro-resumo", el).innerHTML = html; } };
+}
+
+
+// Mostrar só o necessário (pedido de 2026-11-21): cada .bloco (data-titulo, data-resumo opcional) vira um botão com título e
+// resumo, e o conteúdo abre numa janela. O nó vai inteiro para o <dialog>: ids preenchidos depois continuam valendo. Os blocos
+// ficam onde estão (filhos diretos de uma seção ou dentro de .blocos-fonte). Âncora (#id) de um bloco ou de algo dentro dele abre a janela.
+export function blocosEmJanelas(raiz = document) {
+  const resumo = (b) => {
+    if (b.dataset.resumo) return b.dataset.resumo;
+    const txt = (b.querySelector("p, li")?.textContent ?? b.textContent).replace(/\s+/g, " ").trim();
+    return txt.length > 95 ? `${txt.slice(0, txt.lastIndexOf(" ", 92))}…` : txt;
+  };
+  const grupos = new Map();
+  for (const b of raiz.querySelectorAll(".bloco:not(dialog .bloco)")) {
+    const pai = b.parentElement;
+    if (!grupos.has(pai)) grupos.set(pai, []);
+    grupos.get(pai).push(b);
+  }
+  let n = document.querySelectorAll("dialog.janela-bloco").length;
+  for (const [pai, blocos] of grupos) {
+    const grade = document.createElement("div");
+    grade.className = "blocos";
+    if (pai.classList.contains("blocos-fonte")) pai.replaceWith(grade); else blocos[0].before(grade);
+    const sobretitulo = pai.closest("section")?.querySelector(".sobretitulo")?.textContent ?? "";
+    for (const b of blocos) {
+      const id = `janela-${++n}`, titulo = b.dataset.titulo;
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "bloco-botao";
+      botao.setAttribute("aria-haspopup", "dialog");
+      botao.innerHTML = `<b>${esc(titulo)}</b><span>${esc(resumo(b))}</span><span class="bloco-abrir" aria-hidden="true">Ler →</span>`;
+      const dlg = document.createElement("dialog");
+      dlg.className = "perfil janela-bloco";
+      dlg.setAttribute("aria-labelledby", `${id}-t`);
+      dlg.innerHTML = `<form method="dialog"><button class="fechar" aria-label="Fechar">×</button></form>
+        <header class="perfil-cab simples"><p class="sobretitulo">${esc(sobretitulo)}</p><h2 id="${id}-t">${esc(titulo)}</h2></header>`;
+      b.classList.add("bloco-corpo");  // não "janela-corpo": aquela tem overscroll-behavior: contain e travava a rolagem
+      dlg.append(b);
+      document.body.append(dlg);
+      fecharPerfilAoClicarFora(dlg);
+      botao.addEventListener("click", () => dlg.showModal());
+      grade.append(botao);
+    }
+  }
+  const abrirAncora = () => {
+    const alvo = location.hash.length > 1 && !location.hash.startsWith("#/") ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    const dlg = alvo?.closest("dialog.janela-bloco");
+    if (dlg && !dlg.open) { dlg.showModal(); if (alvo !== dlg.querySelector(".bloco")) alvo.scrollIntoView({ block: "start" }); }
+  };
+  abrirAncora();
+  addEventListener("hashchange", abrirAncora);
+}
+
+
+// Botão "i" com uma nota curta (popover nativo: abre no clique, fecha com Esc, clique fora ou rolagem). A nota fica ao lado do botão.
+let nInfo = 0;
+export function info(html, rotulo = "Mais informações") {
+  const id = `info-${++nInfo}`;
+  return `<button type="button" class="info" popovertarget="${id}" aria-label="${esc(rotulo)}">i</button><span id="${id}" class="info-pop" popover>${html}</span>`;
+}
+if (typeof document !== "undefined") document.addEventListener("toggle", (e) => {  // (testes no Node não têm document)
+  const pop = e.target;
+  if (!pop.classList?.contains("info-pop") || e.newState !== "open") return;
+  const botao = document.querySelector(`[popovertarget="${pop.id}"]`);
+  if (!botao) return;
+  const b = botao.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, m = 12;
+  pop.style.left = `${Math.max(m, Math.min(b.left - 16, innerWidth - w - m))}px`;
+  pop.style.top = `${b.bottom + 8 + h > innerHeight - m ? Math.max(m, b.top - h - 8) : b.bottom + 8}px`;
+}, true);
+if (typeof document !== "undefined") addEventListener("scroll", () => document.querySelectorAll(".info-pop:popover-open").forEach((p) => p.hidePopover()), { passive: true });
+
+// Texto de abertura longo (lead): fica a 1ª frase; o resto vai para um "i". Roda de novo sem efeito (data-enxuto).
+export function enxugar(raiz = document, limite = 140) {
+  for (const p of raiz.querySelectorAll(".secao-cab .lead, .hero-lead, .lead-enxugar")) {
+    if (p.dataset.enxuto || p.querySelector(".info") || p.textContent.trim().length < limite) continue;
+    const m = p.innerHTML.trim().match(/^(.{40,}?[.!?])\s+([A-ZÀ-Ú"“(][\s\S]*)$/);
+    if (!m) continue;
+    p.innerHTML = `${m[1]} ${info(m[2])}`;
+    p.dataset.enxuto = "1";
+  }
 }

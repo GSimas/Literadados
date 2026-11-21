@@ -254,3 +254,71 @@ def test_sem_pendencia_arquivo_de_revisao_some(bruto):
     _csv(b / "outro" / "lista_2016.csv", LISTA, [_livro("Sol", "Gente Nova")])
     coleta.normalizar()
     assert not (b / "outro" / "casamentos_revisar.csv").exists()
+
+
+# ---------- mapeamento (RF-34, D40) ----------
+OBRAS_M = ["titulo", "autores", "ilustradores", "organizadores", "editora", "ano", "isbn", "ambientada", "fonte", "verificado_em", "observacao"]
+
+
+def _mapeamento(b, dados, obras, pessoas=(), editoras=(), remocoes=()):
+    _csv(dados / "territorio.csv", coleta.CAMPOS_TERRITORIO, [
+        {"codigo": "BR", "tipo": "pais", "nome": "Brasil", "sigla": "BR", "pai": "", "populacao_2022": "1"},
+        {"codigo": "4", "tipo": "regiao", "nome": "Sul", "sigla": "", "pai": "BR", "populacao_2022": "1"},
+        {"codigo": "42", "tipo": "uf", "nome": "Santa Catarina", "sigla": "SC", "pai": "4", "populacao_2022": "1"},
+        {"codigo": "4205407", "tipo": "municipio", "nome": "Florianópolis", "sigla": "", "pai": "42", "populacao_2022": "1"}])
+    p = b / "mapeamento" / "4205407"
+    _csv(p / "obras.csv", OBRAS_M, [{"fonte": "http://f", "verificado_em": "2026-11-20", **o} for o in obras])
+    _csv(p / "pessoas.csv", ["nome", "vinculo", "fonte", "verificado_em"], [{"vinculo": "atuacao", "fonte": "http://f", "verificado_em": "2026-11-20", **x} for x in pessoas])
+    _csv(p / "editoras.csv", ["nome", "tipo", "municipio_sede", "site", "situacao", "fonte", "verificado_em"],
+         [{"tipo": "independente", "municipio_sede": "Florianópolis", "situacao": "ativa", "fonte": "http://f", "verificado_em": "2026-11-20", **x} for x in editoras])
+    _csv(p / "remocoes.csv", ["pessoa_id", "data"], [{"pessoa_id": r, "data": "2026-11-20"} for r in remocoes])
+
+
+def test_mapeamento_entra_pelo_normalizar_e_nao_muda_premios(bruto):  # CA-34.1, D40
+    dados, b = coleta.DADOS, coleta.BRUTO
+    coleta.normalizar()
+    antes = {t: _ler(dados / f"{t}.csv") for t in ("indicacao", "autoria", "jurado")}
+    obras_antes = {o["id"]: o for o in _ler(dados / "obra.csv")}
+    _mapeamento(b, dados, [{"titulo": "Ilha", "autores": "Carla Nova", "editora": "Editora Desterro", "ano": "2020", "ambientada": "1"},
+                           {"titulo": "Livro", "autores": "Ana Silva", "editora": "Ed"}],  # mesma obra e pessoa dos prêmios
+                pessoas=[{"nome": "Carla Nova"}], editoras=[{"nome": "Editora Desterro"}])
+    coleta.normalizar()
+    # Os prêmios não mudam (indicação, crédito por prêmio, júri e ids de obra).
+    for t, ls in antes.items():
+        assert _ler(dados / f"{t}.csv") == ls, t
+    obras = {o["id"]: o for o in _ler(dados / "obra.csv")}
+    assert set(obras_antes) <= set(obras) and obras["livro"] == obras_antes["livro"]
+    assert "ilha" in obras and obras["ilha"]["ano_publicacao"] == "2020"
+    assert {(r["obra_id"], r["pessoa_id"]) for r in _ler(dados / "mapeamento_autoria.csv")} == {("ilha", "carla-nova"), ("livro", "ana-silva")}
+    assert {r["obra_id"]: r["ambientada"] for r in _ler(dados / "obra_mapeada.csv")} == {"ilha": "true", "livro": "false"}
+    assert [r["pessoa_id"] for r in _ler(dados / "pessoa_atuacao.csv")] == ["carla-nova"]
+    eds = {e["id"]: e for e in _ler(dados / "editora.csv")}
+    assert eds["editora-desterro"]["uf_sede"] == "SC" and [e["editora_id"] for e in _ler(dados / "editora_mapeada.csv")] == ["editora-desterro"]
+
+
+def test_remocao_respeitada(bruto):  # CA-34.11
+    dados, b = coleta.DADOS, coleta.BRUTO
+    _mapeamento(b, dados, [{"titulo": "Ilha", "autores": "Carla Nova"}, {"titulo": "Mar Aberto", "autores": "Dora Velha"}],
+                pessoas=[{"nome": "Carla Nova"}, {"nome": "Dora Velha"}], remocoes=["dora-velha"])
+    coleta.normalizar()
+    assert [r["pessoa_id"] for r in _ler(dados / "pessoa_atuacao.csv")] == ["carla-nova"]
+    assert all(r["pessoa_id"] != "dora-velha" for r in _ler(dados / "mapeamento_autoria.csv"))
+    assert "mar-aberto" not in {o["id"] for o in _ler(dados / "obra.csv")}
+
+
+def test_mapeamento_casas_e_livrarias(bruto):  # CA-34.4, CA-34.8 (privacidade)
+    dados, b = coleta.DADOS, coleta.BRUTO
+    _mapeamento(b, dados, [])
+    p = b / "mapeamento" / "4205407"
+    _csv(p / "livrarias.csv", ["nome", "tipo", "rede", "bairro", "situacao", "fonte", "verificado_em"],
+         [{"nome": "Livraria A", "tipo": "geral", "rede": "não", "bairro": "Centro", "situacao": "ativa", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+    _csv(p / "clubes.csv", ["nome", "formato", "organizacao", "local_tipo", "livraria", "local_nome", "bairro", "lat", "lon", "link", "situacao", "fonte", "verificado_em"],
+         [{"nome": "Clube na loja", "formato": "presencial", "organizacao": "Livraria A", "local_tipo": "livraria", "livraria": "Livraria A", "link": "http://c",
+           "situacao": "ativa", "fonte": "http://f", "verificado_em": "2026-11-20"},
+          {"nome": "Clube da sala", "formato": "presencial", "organizacao": "independente", "local_tipo": "casa", "local_nome": "Casa da Maria", "bairro": "Trindade",
+           "lat": "-27.6", "lon": "-48.5", "link": "http://c", "situacao": "ativa", "fonte": "http://f", "verificado_em": "2026-11-20"}])
+    coleta.mapeamento()
+    cl = {c["id"]: c for c in _ler(dados / "clube.csv")}
+    assert cl["clube-na-loja"]["livraria_id"] == "livraria-a"
+    assert (cl["clube-da-sala"]["bairro"], cl["clube-da-sala"]["lat"], cl["clube-da-sala"]["local_nome"]) == ("", "", "")  # casa: sem endereço
+    assert _ler(dados / "livraria.csv")[0]["rede"] == "false"

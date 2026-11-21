@@ -16,10 +16,11 @@ from test_app import RAIZ, _build, _csv, mini  # noqa: F401  (mini é fixture)
 
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
-    """Build dos dados reais num web/ temporário, com uma cópia do index.html (números da abertura) e uma página órfã."""
+    """Build dos dados reais num web/ temporário, com uma cópia do premios.html (números da abertura) e uma página órfã."""
     web = tmp_path_factory.mktemp("site") / "web"
     (web / "pessoas" / "fantasma").mkdir(parents=True)
     (web / "pessoas" / "fantasma" / "index.html").write_text("velha", encoding="utf-8")
+    shutil.copy(RAIZ / "web" / "premios.html", web / "premios.html")
     shutil.copy(RAIZ / "web" / "index.html", web / "index.html")
     build.build(RAIZ / "dados", web.parent / "s.duckdb", web / "dados.json")
     return web
@@ -72,7 +73,15 @@ def test_paginas_geradas(site):  # CA-27.1
     for (pid,) in con.execute("SELECT pessoa_id FROM distincao LIMIT 3").fetchall():  # CA-30.5
         assert "<h2>Conjunto da obra</h2>" in pags[f"pessoas/{pid}/index.html"]
     premios = {e.split("/")[0] for e in edicoes}
-    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6  # nada além disso (6 listas)
+    inds = {r[0] for r in con.execute("SELECT DISTINCT indicador_id FROM indicador_valor").fetchall()}  # módulo Leitura (CA-33.8)
+    assert {f"leitura/{i}/index.html" for i in inds} <= set(pags) and (not inds or "leitura/index.html" in pags)
+    # Mapeamento (CA-34.12): lista de municípios, página da cidade, livrarias, clubes e quem só está no mapeamento.
+    muns = [r[0] for r in con.execute("SELECT DISTINCT municipio FROM livraria UNION SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM pessoa_atuacao").fetchall()]
+    n_mapa = (1 + len(muns) + con.execute("SELECT (SELECT COUNT(*) FROM livraria) + (SELECT COUNT(*) FROM clube)").fetchone()[0]
+              + con.execute("SELECT COUNT(DISTINCT pessoa_id) FROM v_pessoa_mapeada WHERE pessoa_id NOT IN (SELECT pessoa_id FROM autoria)").fetchone()[0]) if muns else 0
+    n_ev = con.execute("SELECT COUNT(*) FROM evento").fetchone()[0]  # módulo Eventos (CA-35.8)
+    n_ev = n_ev + 1 if n_ev else 0
+    assert len(pags) == len(pessoas) + len(edicoes) + len(ufs) + len(eds) + len(premios) + 6 + (len(inds) + 1 if inds else 0) + n_mapa + n_ev  # nada além disso
 
 
 def test_marcas_editoras_e_catalogo_separado(site):  # CA-29.4, RNF-06
@@ -107,7 +116,7 @@ def test_metadados_e_json_ld(site):  # CA-27.2
         assert '<html lang="pt-BR">' in txt
         assert p.ld and all(x["@context"] == "https://schema.org" for x in p.ld), rel
         assert len(p.meta["description"]) <= 320, rel
-    for arq in ("index.html", "metodo.html"):  # escritos à mão
+    for arq in ("index.html", "premios.html", "sobre.html"):  # escritos à mão
         p = Pagina((RAIZ / "web" / arq).read_text(encoding="utf-8"))
         assert p.canonical and p.meta.get("og:title") and p.ld and p.h1 <= 1
 
@@ -170,7 +179,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
     assert all(pos[b.ed_id[n]] == h["posicao"] for n, h in js_["editoras"].items() if h["indicacoes"])
     # A abertura traz no HTML os números reais do painel (CA-27.6).
     t = js_["total"]
-    idx = (site / "index.html").read_text(encoding="utf-8")
+    idx = (site / "premios.html").read_text(encoding="utf-8")
     assert f"<b>{seo.fmt(t['pessoas'])}</b><span>pessoas-autoras em {seo.fmt(t['indicacoes'])} indicações" in idx
     assert f"(piso: {seo.fmt(t['raca']['negras'])})" in idx and "<b>0</b>" not in idx
 
@@ -178,7 +187,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
 def test_sitemap_estavel_e_textos_para_ias(site):  # CA-27.5
     mapa = (site / "sitemap.xml").read_text(encoding="utf-8")
     locs = re.findall(r"<loc>([^<]+)</loc>", mapa)
-    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
+    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/leitura.html", f"{seo.SITE}/mapeamento.html", *([f"{seo.SITE}/eventos.html"] if (site / "eventos.json").exists() else []), f"{seo.SITE}/sobre.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
     antes = {p: p.stat().st_mtime_ns for p in site.rglob("*.html")}
     con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
     # Página que não mudou não é regravada e mantém o lastmod; página que mudou ganha a data de hoje.
@@ -237,3 +246,19 @@ def test_build_falha_contexto_invalido(mini, linha):  # CA-28.3
     _contexto(mini, [linha])
     with pytest.raises((build.BuildError, duckdb.Error)):
         _build(mini)
+
+
+def test_portal_numeros_do_build(site):  # CA-31.2, D37
+    """O portal traz o cartão de cada módulo com dado, com os números gravados pelo build; sem JSON de dados."""
+    idx = (site / "index.html").read_text(encoding="utf-8")
+    con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
+    b = seo.Base(con)
+    r = seo.resumo(b.autores)
+    n = sum(1 for p in b.premios if b.anos(p["id"]))
+    assert f'<b>{seo.fmt(r["pessoas"])}</b> pessoas-autoras · <b>{seo.fmt(n)}</b> prêmios' in idx
+    com_leitura = con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0] > 0
+    com_mapa = any((site / "mapeamento").glob("[0-9]*.json"))
+    com_eventos = con.execute("SELECT COUNT(*) FROM evento_edicao").fetchone()[0] > 0
+    assert idx.count('class="cartao-grafico"') == 1 + com_leitura + com_mapa + com_eventos  # módulo sem dado não ganha cartão
+    assert ('href="leitura.html"' in idx) == com_leitura
+    assert "dados.json" not in idx and 'href="premios.html"' in idx

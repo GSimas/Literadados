@@ -15,17 +15,22 @@ function destacar(rotulo, termo) {
   return `${esc(chars.slice(0, ini).join(""))}<mark>${esc(chars.slice(ini, fim).join(""))}</mark>${esc(chars.slice(fim).join(""))}`;
 }
 
-// prefixo: "" no painel; "./" em metodo.html (as rotas #/… vivem no index).
+// prefixo: "" no painel; "premios.html" nas outras páginas (as rotas #/… vivem no painel de prêmios).
+// D: dados do painel de prêmios (índice rico), ou null nas páginas que não o carregam (portal, outros módulos).
+// busca.json (CA-31.5) entra no primeiro foco ou digitação; no painel de prêmios, só o que não é do próprio painel.
 export function montarBusca(D, prefixo = "") {
-  const indice = M.indiceBusca(D);
+  const indice = D ? M.indiceBusca(D) : [];
   const campo = $("#busca-global"), lista = $("#busca-resultados");
+  let extra = null;
+  const carregarExtra = () => (extra ??= fetch("/busca.json").then((r) => r.ok ? r.json() : { tipos: [], e: [] })
+    .then((J) => { indice.push(...M.entradasBusca(J, prefixo ? null : "/premios.html")); }).catch(() => {}));
   let itens = [], ativo = -1;
 
   const ir = (e) => {
     fechar();
     campo.value = "";
     campo.blur();
-    // "#…" e "?…" (filtro na URL) vivem no index: em metodo.html ganham o prefixo "./".
+    // "#…" e "?…" (filtro na URL) vivem no painel: fora dele ganham o prefixo "premios.html".
     const href = /^[#?]/.test(e.href) && prefixo ? `${prefixo}${e.href}` : e.href;
     if (href.startsWith("#")) { location.hash = href; return; }
     // Filtro na URL (edição de um prêmio, CA-26.12): mescla com os filtros das outras partes, sem apagá-los.
@@ -44,7 +49,8 @@ export function montarBusca(D, prefixo = "") {
     lista.children[i]?.scrollIntoView({ block: "nearest" });
   };
   const fechar = () => { if (lista.hidden) return; campo.setAttribute("aria-expanded", "false"); fecharAnimado(lista); };
-  const mostrar = () => {
+  const mostrar = async () => {
+    await carregarExtra();
     itens = M.buscar(indice, campo.value, 12);
     if (!campo.value.trim()) return fechar();
     lista.innerHTML = itens.length

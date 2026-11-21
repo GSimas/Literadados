@@ -148,7 +148,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   const pais = p.uf_nascimento === "EX" ? (p.pais_nascimento ? nomePais(p.pais_nascimento) : "fora do Brasil") : "";
   const ufLink = p.uf_nascimento && p.uf_nascimento !== "EX" ? `<a class="chip-link" href="#/uf/${esc(p.uf_nascimento)}">${esc(p.uf_nascimento)}</a>`
     : pais && !(p.municipio_nascimento ?? "").includes(pais) ? esc(pais) : "";
-  const nasc = [p.municipio_nascimento && esc(p.municipio_nascimento), ufLink, p.ano_nascimento && esc(p.ano_nascimento)].filter(Boolean).join(" · ");
+  const nasc = [p.municipio_nascimento && `<span data-municipio-de="${esc(id)}">${esc(p.municipio_nascimento)}</span>`, ufLink, p.ano_nascimento && esc(p.ano_nascimento)].filter(Boolean).join(" · ");
   const ps = premiosDe(ls, jur, org, dist, jurDist), multi = ps.length > 1;
   const links = [
     m?.wikipedia_pt && `<a href="https://pt.wikipedia.org/wiki/${encodeURIComponent(m.wikipedia_pt.replace(/ /g, "_"))}" target="_blank" rel="noopener noreferrer">Wikipédia</a>`,
@@ -158,7 +158,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   ].filter(Boolean).join("");
   return `<article>
     <header class="perfil-cab">
-      <div>${foto(p, m, { w: 480 })}${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
+      <div><div class="foto-palco"><div class="foto-tilt">${foto(p, m, { w: 480 })}</div></div>${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
       <div>
         <p class="sobretitulo">${[ls.some((l) => l.papel === "autor") ? "Autor(a)" : ls.length ? "Ilustrador(a)" : org.length ? "Organizador(a)" : "",
           dist.length ? "distinção pelo conjunto da obra" : "", jur.length || jurDist.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^./, (c) => c.toUpperCase())}</p>
@@ -202,6 +202,32 @@ export function htmlPerfil(id, { D, midiaPorId }) {
 const FONTE_CAPA = { google_books: "Google Books", open_library: "Open Library" };
 // capas.json (build, D34): lido só quando um perfil de livro abre, fora do dados.json (RNF-06).
 let capas = null;
+// Município de nascimento → perfil de município no módulo Leitura (T33.4, D38). O código vem de pessoa-municipio.json, carregado
+// só quando um perfil abre (o dados.json não comporta o código: RNF-06).
+let codigosMunicipio = null;
+export async function ligarMunicipios(raiz) {
+  const alvos = raiz.querySelectorAll("[data-municipio-de]");
+  if (!alvos.length) return;
+  codigosMunicipio ??= fetch("pessoa-municipio.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const cods = await codigosMunicipio;
+  for (const el of alvos) {
+    const c = cods[el.dataset.municipioDe];
+    if (c) el.outerHTML = `<a class="chip-link" href="leitura.html#/municipio/${c}" title="Indicadores de leitura do município">${el.innerHTML}</a>`;
+  }
+}
+
+// Bloco "Em <cidade>" (CA-34.9, D40): pessoa, livro ou editora com vínculo num município mapeado ganha link para o mapeamento.
+let indiceMapa = null;
+export async function blocoMapeamento(raiz, tipo, id) {
+  indiceMapa ??= fetch("mapeamento/indice.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const I = await indiceMapa;
+  const muns = I?.[tipo]?.[id];
+  const alvo = raiz.querySelector("article") ?? raiz;
+  if (!muns?.length || raiz.querySelector(".bloco-mapeamento")) return;
+  alvo.insertAdjacentHTML("beforeend", `<section class="cartao bloco-mapeamento"><p class="sobretitulo">Mapeamento</p>
+    ${muns.map((m) => `<h3>Em ${esc(I.municipios[m] ?? m)}</h3><p><a class="botao" href="mapeamento.html${m === "4205407" ? "" : `?m=${m}`}#/${tipo}/${encodeURIComponent(id)}">Ver no mapeamento literário →</a></p>`).join("")}</section>`);
+}
+
 export async function carregarCapas() {
   capas ??= fetch("capas.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   return capas;

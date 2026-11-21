@@ -618,8 +618,15 @@ export function facetar(linhas, fn, ordem = [], nomes = {}) {
 }
 
 // ---------- busca determinística (RF-21, D23) ----------
-const TIPOS_BUSCA = ["Pessoa", "Livro", "Estado", "Região", "Editora", "Categoria", "Edição", "Gráfico", "Seção"];
+const TIPOS_BUSCA = ["Pessoa", "Livro", "Município", "Estado", "Região", "Editora", "Evento", "Livraria", "Clube", "Indicador", "Categoria", "Edição", "Gráfico", "Seção"];
 export const normalizar = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+// Entradas de busca.json (CA-31.5, D37): {tipos, e: [[índice do tipo, rótulo, detalhe, href, termos extras?]]}, gravado pelo
+// build para todas as páginas. `pular`: prefixo de href que a página já cobre com um índice mais rico (o painel de prêmios).
+export function entradasBusca(J, pular = null) {
+  return J.e.filter((x) => !pular || !x[3].startsWith(pular)).map(([t, rotulo, sub, href, extra = ""]) =>
+    ({ tipo: J.tipos[t], rotulo, sub, href, nome: normalizar(rotulo), chave: normalizar(`${rotulo} ${extra}`) }));
+}
 const DESTINOS = [
   ["Gráfico", "Linha do tempo", "composição de cada edição e vencedoras", "#/grafico/linha-do-tempo"],
   ["Gráfico", "Mapa", "UF de nascimento e fluxo região → editora → resultado", "#/grafico/geografia", "geografia estados sankey"],
@@ -632,8 +639,8 @@ const DESTINOS = [
   ["Seção", "História guiada", "a narrativa em passos", "#historia"],
   ["Seção", "Panorama", "o recorte em números", "#panorama"],
   ["Seção", "Autores", "anel de retratos", "#autores", "pessoas galeria"],
-  ["Seção", "Método", "como os dados foram feitos", "metodo.html", "metodologia cobertura"],
-  ["Seção", "Referências", "fontes por domínio", "metodo.html#referencias", "fontes"],
+  ["Seção", "Método", "como os dados foram feitos", "sobre.html", "metodologia cobertura"],
+  ["Seção", "Referências", "fontes por domínio", "sobre.html#referencias", "fontes"],
 ];
 
 export function indiceBusca(D) {
@@ -837,4 +844,118 @@ export function distincoes(D) {
                generoAtribuido: ps.filter((p) => p.genero_atribuido).length, de: lista[0].ano, ate: lista.at(-1).ano, composicao, lista });
   }
   return out.sort((a, b) => ordem.indexOf(a.premio) - ordem.indexOf(b.premio));
+}
+
+// ---------- módulo Leitura (RF-33, D39) ----------
+// Valores compactos de leitura.json e leitura/<indicador>/<UF>.json:
+// [indicador, território, ano, recorte, fonte, valor, numerador, denominador, amostra, margem]; valor nulo = suprimido.
+// extras: [{ uf, municipios: [[código, nome, população]], valores }]. Devolve as linhas com as colunas de v_indicador.
+export function expandirLeitura(J, extras = []) {
+  const terr = new Map(J.territorios.map((t) => [t.codigo, t]));
+  for (const x of extras) for (const [codigo, nome, populacao_2022] of x.municipios ?? []) terr.set(codigo, { codigo, tipo: "municipio", nome, uf: x.uf, populacao_2022 });
+  const linhas = [];
+  for (const v of [J.valores, ...extras.map((x) => x.valores ?? [])].flat()) {
+    const [ii, codigo, ano, ir, fi, valor = null, numerador = null, denominador = null, amostra = null, margem = null] = v;
+    const ind = J.indicadores[ii], rec = J.recortes[ir], t = terr.get(codigo) ?? { codigo, tipo: "municipio", nome: codigo };
+    const por100 = ind.unidade === "contagem" && valor != null && t.populacao_2022 > 0 ? Math.round((valor / t.populacao_2022) * 1e7) / 100 : null;
+    linhas.push({ indicador: ind.id, indicador_nome: ind.nome, unidade: ind.unidade, tipo_fonte: ind.tipo_fonte, territorio: codigo,
+      territorio_nome: t.nome, territorio_tipo: t.tipo, uf: t.tipo === "municipio" ? t.uf ?? null : t.tipo === "uf" ? t.sigla : null,
+      ano, dimensao: rec.dimensao, categoria: rec.categoria, categoria_rotulo: rec.rotulo, valor, numerador, denominador, amostra, margem,
+      suprimido: valor == null, por_100mil: por100, fonte_url: J.fontes[fi] });
+  }
+  return linhas;
+}
+
+// Estado do painel na URL (CA-33.7): ?i=<indicador>&a=<ano>&r=<dimensão>&t=<território>; o padrão (1º indicador, último ano,
+// total, Brasil) não vai para a URL.
+export function anosLeitura(J, indicador) { return J.cobertura.find((c) => c.indicador === indicador)?.anos ?? []; }
+export function leituraDeTexto(texto, J) {
+  const q = new URLSearchParams(texto ?? "");
+  const ids = J.indicadores.map((x) => x.id);
+  const i = ids.includes(q.get("i")) ? q.get("i") : ids[0];
+  const anos = anosLeitura(J, i), a = +q.get("a");
+  const dims = new Set(J.recortes.map((r) => r.dimensao));
+  return { i, a: anos.includes(a) ? a : anos.at(-1), r: dims.has(q.get("r")) ? q.get("r") : "total", t: q.get("t") || "BR" };
+}
+export function leituraParaTexto(e, J) {
+  const p = leituraDeTexto("", J), padrao = leituraDeTexto(`i=${e.i}`, J), q = new URLSearchParams();
+  if (e.i !== p.i) q.set("i", e.i);
+  if (e.a !== padrao.a) q.set("a", e.a);
+  if (e.r !== "total") q.set("r", e.r);
+  if (e.t !== "BR") q.set("t", e.t);
+  return q.toString();
+}
+// Valores de um indicador num ano e recorte, para os territórios de um nível (UFs do Brasil ou municípios de uma UF).
+export function valoresLeitura(linhas, { indicador, ano, dimensao = "total", categoria = "total", tipo = "uf", uf = null }) {
+  return linhas.filter((l) => l.indicador === indicador && l.ano === ano && l.dimensao === dimensao && l.categoria === categoria
+    && l.territorio_tipo === tipo && (!uf || l.uf === uf));
+}
+export function serieLeitura(linhas, { indicador, territorio, dimensao = "total", categoria = "total" }) {
+  return linhas.filter((l) => l.indicador === indicador && l.territorio === territorio && l.dimensao === dimensao && l.categoria === categoria)
+    .sort((a, b) => a.ano - b.ano);
+}
+// Categorias de um recorte num território e ano, na ordem do vocabulário.
+export function recortesLeitura(linhas, J, { indicador, territorio, ano, dimensao }) {
+  const ordem = new Map(J.recortes.map((r, k) => [`${r.dimensao}|${r.categoria}`, k]));
+  return linhas.filter((l) => l.indicador === indicador && l.territorio === territorio && l.ano === ano && l.dimensao === dimensao)
+    .sort((a, b) => ordem.get(`${a.dimensao}|${a.categoria}`) - ordem.get(`${b.dimensao}|${b.categoria}`));
+}
+
+// ---------- módulo Mapeamento (RF-34, CA-34.10, D40) ----------
+// Números do cadastro de um município, sempre com o critério de vínculo; "a conferir" = verificação com mais de 12 meses
+// contados da data de geração (o número não muda sozinho no navegador).
+export function resumoMapeamento(Mp) {
+  const ps = Mp.pessoas ?? [];
+  const n = ps.length, mulheres = ps.filter((p) => p.genero === "mulher").length, negras = ps.filter((p) => p.negra).length;
+  const limite = new Date(Mp.gerado_em ?? Date.now());
+  limite.setFullYear(limite.getFullYear() - 1);
+  const corte = limite.toISOString().slice(0, 10);
+  const registros = [...(Mp.livrarias ?? []), ...(Mp.clubes ?? []), ...(Mp.editoras ?? []), ...(Mp.obras ?? []).filter((o) => o.verificado_em)];
+  const ativas = (xs) => xs.filter((x) => x.situacao === "ativa");
+  const porTipo = {};
+  for (const l of ativas(Mp.livrarias ?? [])) porTipo[l.tipo] = (porTipo[l.tipo] ?? 0) + 1;
+  return {
+    pessoas: n, nasceram: ps.filter((p) => p.nasceu).length, atuam: ps.filter((p) => p.atua).length, ambos: ps.filter((p) => p.nasceu && p.atua).length,
+    mulheres, pctMulheres: n ? (100 * mulheres) / n : null, generoAtribuido: ps.filter((p) => p.genero_evidencia === "atribuicao").length,
+    negras, pctNegrasPiso: n ? (100 * negras) / n : null,
+    livrarias: (Mp.livrarias ?? []).length, livrariasAtivas: ativas(Mp.livrarias ?? []).length, livrariasPorTipo: porTipo,
+    encerradas: (Mp.livrarias ?? []).filter((l) => l.situacao === "encerrada").length,
+    clubes: (Mp.clubes ?? []).length, clubesAtivos: ativas(Mp.clubes ?? []).length,
+    editoras: (Mp.editoras ?? []).length, editorasAtivas: ativas(Mp.editoras ?? []).length,
+    obras: (Mp.obras ?? []).length, aConferir: registros.filter((x) => x.verificado_em && x.verificado_em < corte).length,
+    verificadoAte: Mp.verificado_ate ?? null,
+  };
+}
+export const aConferir = (x, geradoEm) => { const d = new Date(geradoEm); d.setFullYear(d.getFullYear() - 1); return !!x.verificado_em && x.verificado_em < d.toISOString().slice(0, 10); };
+
+// ---------- módulo Eventos (RF-35, D41) ----------
+// "hoje" é parâmetro (AAAA-MM-DD): o navegador passa a data local; os testes, uma data fixa (DB-10).
+export const TIPOS_EVENTO = { festival: "Festival", feira: "Feira do livro", bienal: "Bienal", festa_literaria: "Festa literária", encontro: "Encontro", jornada: "Jornada", salao: "Salão do livro", outro: "Outro" };
+export const SITUACOES_EVENTO = { realizada: "Realizada", prevista: "Prevista", cancelada: "Cancelada", adiada: "Adiada" };
+// Situação vista hoje: prevista cuja data já passou fica "a conferir".
+export const situacaoEvento = (e, hoje) => (e.situacao === "prevista" && e.fim < hoje ? "a_conferir" : e.situacao);
+export function proximosEventos(edicoes, hoje, n = 12) {
+  return edicoes.filter((e) => e.fim >= hoje && e.situacao !== "cancelada").sort((a, b) => a.inicio.localeCompare(b.inicio) || a.evento.localeCompare(b.evento)).slice(0, n);
+}
+export function filtrarEventos(J, f = {}) {
+  const tipo = new Map(J.eventos.map((e) => [e.id, e.tipo]));
+  return J.edicoes.filter((e) => (!f.tipo || tipo.get(e.evento) === f.tipo) && (!f.uf || J.municipios[e.municipio]?.[1] === f.uf)
+    && (!f.ano || +e.inicio.slice(0, 4) === +f.ano) && (!f.sit || e.situacao === f.sit));
+}
+export function resumoEventos(J, hoje) {
+  const ufs = new Set(J.edicoes.map((e) => J.municipios[e.municipio]?.[1]).filter(Boolean));
+  return { eventos: J.eventos.length, edicoes: J.edicoes.length, ufs: ufs.size, proximos: J.edicoes.filter((e) => e.fim >= hoje && e.situacao !== "cancelada").length,
+    aConferir: J.edicoes.filter((e) => situacaoEvento(e, hoje) === "a_conferir").length, verificadoAte: J.verificado_ate ?? null,
+    anos: [...new Set(J.edicoes.map((e) => +e.inicio.slice(0, 4)))].sort((a, b) => a - b) };
+}
+export function eventosDeTexto(texto, anoPadrao) {
+  const q = new URLSearchParams(texto ?? "");
+  return { tipo: TIPOS_EVENTO[q.get("tipo")] ? q.get("tipo") : "", uf: /^[A-Z]{2}$/.test(q.get("uf") ?? "") ? q.get("uf") : "",
+    ano: +q.get("ano") || anoPadrao, sit: SITUACOES_EVENTO[q.get("sit")] ? q.get("sit") : "" };
+}
+export function eventosParaTexto(f, anoPadrao) {
+  const q = new URLSearchParams();
+  for (const k of ["tipo", "uf", "sit"]) if (f[k]) q.set(k, f[k]);
+  if (f.ano && f.ano !== anoPadrao) q.set("ano", f.ano);
+  return q.toString();
 }

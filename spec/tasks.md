@@ -249,3 +249,78 @@
 - [x] T31.6 Busca de raça do protocolo para as 181 pessoas novas (`pessoas_raca_premios_1..4.csv`, 160 buscas): 160 completas, 21 parciais (teto), 1 autodeclaração (Paulina Chiziane, negra; trecho conferido no Observador); 4 casos em `revisao_raca.csv` (Edison Carneiro, Gilka Machado, José Craveirinha, Odete Semedo)
 - [x] T31.7 Textos de contexto (RF-28) das 45 edições com livro (LeYa 14, Saramago 13, ABL 18; `contexto/lote_12.csv`, `lote_13.csv`), 10 marcados para revisão
 - [ ] T31.8 Pendências nos LEIA: Machado de Assis 1944 e 1960 (REVISAR), Scliar na Poesia ABL 2000, Clair de Mattos, "Maria José Gomes Santos" (júri Saramago 2001), Isabel Lucas (local de nascimento), finalistas LeYa com título mudado na publicação
+
+## T32 Portal e módulos, etapa 0 (nov/2026, RF-31, D37)
+- [x] T32.0 Spec RF-31 a RF-34 e decisões DB-1 a DB-7 (fechadas em 2026-11-20); design D37 a D40
+- [x] T32.1 `git mv web/index.html web/premios.html`; testes, `seo.py` (`NAV`, links "abrir no painel"), `metodo.html`, sitemap e `llms.txt` apontando para `premios.html`; mesmos números (CA-31.1) 🧪
+- [x] T32.2 Portal `index.html`: script `rotas-antigas` e `test_rotas_antigas_redirecionam`; cartões com números do build (`build:portal`) (CA-31.2, CA-31.3) 🧪👁
+- [x] T32.3 Cabeçalho com os módulos em todas as páginas, segunda linha com as seções do módulo; `test_cabecalho_igual_em_todas_as_paginas` (CA-31.4) 🧪👁
+- [x] T32.4 Textos de plataforma (DB-1): título e descrição do portal, README, `llms.txt`, `og.png`; `FIXAM_UM_PREMIO` ampliado (CA-31.6) 🧪
+- [x] T32.5 Diadorim por módulo: `data-modulo`, `contexto-<módulo>.json` (tabelas, views e prompt), `banco.js` carregando só o módulo (CA-31.7) 🧪
+- [x] T32.6 `busca.json` e busca em todas as páginas (CA-31.5) 🧪👁
+- [x] T32.7 Conferência no navegador (portal, links antigos, prêmios igual a antes) e axe-core 👁
+
+## T33 Território (nov/2026, RF-32, D38)
+- [x] T33.1 `coleta.py territorio` → `dados/territorio.csv`; tabela, checagens e conferência com `uf` (CA-32.1, CA-32.2) 🧪
+- [x] T33.2 `v_pessoa_municipio`, `v_editora_municipio`, `dados/municipio_casamento.csv`; resolver os avisos de nome sem código (CA-32.3) 🧪
+- [x] T33.3 Malha municipal por UF (`coleta.py malha`, `web/malha/<UF>.json`) (CA-32.5) 🧪
+- [x] T33.4 Município no perfil de pessoa liga ao perfil de município (vai com T34.8; o código sai de `pessoa-municipio.json`, carregado só no perfil, porque o `dados.json` já tem 992 KB) 🧪👁
+
+## T34 Módulo Leitura (nov/2026, RF-33, D39)
+- [x] T34.1 Schema `indicador`, `recorte`, `indicador_valor`, `v_indicador`; checagens do build (CA-33.1 a CA-33.3) 🧪
+- [x] T34.2 Coleta `alfabetizacao` (Censo 2022, SIDRA) 🧪
+- [x] T34.3 Coleta `escolas_biblioteca` (Censo Escolar, últimos 10 anos) 🧪
+- [x] T34.4 Coleta `livrarias_cnpj` e `editoras_cnpj` (Receita, de-para de municípios) 🧪
+- [x] T34.5 Coleta `leitores` e `livros_por_ano` (Retratos da Leitura, edições publicadas) 🧪
+- [x] T34.6 `leitura.json`, `leitura/<UF>.json`, `metricas.expandirLeitura` e paridade (CA-33.5, CA-31.8) 🧪
+- [x] T34.7 `leitura.html`: mapa UF/município, série, recortes, URL, tabela e exportação (CA-33.6, CA-33.7) 🧪👁
+- [x] T34.8 Perfil de município e bloco de leitura nos perfis de UF e região (CA-32.4) 👁
+- [x] T34.9 Páginas estáticas `/leitura/`, bloco nas páginas de UF, dados abertos, Método "Leitura" (CA-33.8) 🧪👁
+- [x] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
+
+## T39 Leitura, segunda leva e panorama (nov/2026, CA-33.9, CA-33.10)
+- [x] T39.1 Schema: `indicador.tema`, unidades `moeda` e `pontuacao`, dimensão `canal`, `indicador_valor.observacao`; amostral sem amostra só com o motivo (CA-33.1) 🧪
+- [x] T39.2 `coleta.py leitura arquivo <fonte>` (protocolo `dados/coleta/leitura/PROTOCOLO.md`) e `coleta.py leitura pnad` (SIDRA 7113 e 7125; margem de 95% pelo CV)
+- [x] T39.3 Transcrições por agentes: INAF 2001–2024, SAEB 2011–2021 por UF e rede, PISA 2000–2025, Produção e Vendas 2006–2025, Painel do Varejo 2014–2025, SNBP 2025–2026 por município, MUNIC (biblioteca pública e livraria) 2001–2021 por UF 🧪
+- [x] T39.4 Panorama por tema em `leitura.html`, seletor de tema, indicador nacional sem mapa, moeda e pontuação na formatação (CA-33.10) 👁
+- [ ] T39.5 SAEB pela planilha oficial do INEP (`download.inep.gov.br` fora do ar na coleta; a série veio do espelho da Base dos Dados), com 2023, 2025, municípios e alunos avaliados; amostras do PISA 2000–2009
+- [ ] T39.6 Conferência humana: rótulos de gráfico do INAF 2024 (pp. 25–32); nota de país da OCDE sobre a amostra do PISA 2025; queda de municípios com biblioteca pública na MUNIC (97,1% em 2014 → 87,7% em 2018) e o salto de livrarias em 2001; total de exemplares vendidos de 2016 diferente da soma mercado + governo na fonte
+
+## T35 Módulo Mapeamento, Florianópolis (nov/2026, RF-34, D40)
+- [x] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪
+- [x] T35.2 `normalizar` lê `dados/coleta/mapeamento/<código>/` depois dos prêmios, com `remocoes.csv`; `test_mapeamento_nao_muda_premios` (CA-34.1) 🧪
+- [x] T35.3 Protocolo `dados/coleta/mapeamento/4205407/LEIA.md` (definições, fontes, privacidade)
+- [x] T35.4 Editoras e livrarias: `coleta.py mapeamento candidatas` (CNPJ + OSM), conferência, `livraria.csv` e `editoras.csv` (CA-34.4, CA-34.5)
+- [x] T35.5 Autoras, autores e obras: vínculo de atuação com fonte, obras verificáveis, pessoas pelo protocolo (`pessoas_floripa_N.csv`) (CA-34.6, CA-34.7)
+- [x] T35.6 Clubes do livro, com as regras de privacidade (CA-34.8)
+- [x] T35.7 `mapeamento/4205407.json`, `metricas.resumoMapeamento`; `mapeamento.html` com mapa, listas e perfis; bloco "Em Florianópolis" no `premios.html` (CA-34.9, CA-34.10) 🧪👁
+- [ ] T35.8 Formulário (Netlify Forms) e página de agradecimento (feitos e conferidos no navegador); falta o mantenedor ligar a detecção de formulários no painel do Netlify (CA-34.11) 👁
+- [x] T35.9 Páginas estáticas do mapeamento, páginas de pessoa com vínculo, dados abertos (CA-34.12) 🧪
+- [x] T35.10 Diadorim do módulo Mapeamento 🧪
+
+## T36 Pendências de conferência humana do mapeamento e da leitura (nov/2026)
+- [ ] T36.1 Florianópolis, livrarias: Livros & Livros (CCE/UFSC) e Paulus seguem abertas? Saraiva do Villa Romana fechou? Sebo Mafalda: número da loja; 74 candidatas em `dados/coleta/mapeamento/4205407/candidatas.csv`
+- [ ] T36.2 Florianópolis, editoras: Asinha como selo da Ases da Literatura ou editora à parte; sede só pelo CNPJ (Arquétipos, Draft, Pandion, NilaPress, Traços & Capturas)
+- [ ] T36.3 Florianópolis, pessoas: Franklin Cascaes (nasceu em Itaguaçu, então São José, hoje Florianópolis continental); vínculos de atuação de figuras históricas (Péricles Prade, Crispim Mira, Horácio Nunes Pires, Nicolau Nagib Nahas, Victor Márcio Konder); raça de Cruz e Sousa, Antonieta de Barros, Ildefonso Juvenal e Trajano Margarida (descrições de terceiros, REVISAR; conferir o Literafro quando voltar); ficha de Michelli Provensi pode misturar duas pessoas
+- [ ] T36.4 Florianópolis, clubes: "Trilogia da Terra" e "Entre Páginas e Sinal" contam como encontros recorrentes? Página do clube Lygia Bojunga (FCC) a conferir; Leia Mulheres Floripa
+- [ ] T36.5 Retratos da Leitura: conferir as leituras de gráfico listadas em `dados/coleta/leitura/LEIA.md` (2015 p. 56 × p. 64; escolaridade 2007 e 2011; 2019 pp. 22, 23, 28; 2024 pp. 18, 19)
+- [ ] T36.6 `São Estêvão (BA)` em `dados/municipio_casamento.csv`: conferir a fonte de nascimento
+
+## T37 Módulo Eventos literários (nov/2026, RF-35, D41)
+- [x] T37.0 Spec RF-35 (decisões DB-8 a DB-10), design D41, protocolo `dados/coleta/eventos/LEIA.md`
+- [x] T37.1 Schema `evento`, `evento_edicao`, `evento_homenageado`, `v_evento_edicao`; checagens de data, situação e público (CA-35.1 a CA-35.3) 🧪
+- [x] T37.2 Coleta por agentes (Sudeste/Sul; Norte/Nordeste/Centro-Oeste) e `coleta.py eventos` 🧪
+- [x] T37.3 `eventos.json`, funções puras e testes (CA-35.6) 🧪
+- [x] T37.4 `eventos.html`: próximos, calendário, mapa por UF, filtros na URL, tabela, perfil de evento (CA-35.4 a CA-35.6) 👁
+- [x] T37.5 Eventos no perfil de município e no mapeamento da cidade (CA-35.7) 👁
+- [x] T37.6 Páginas estáticas, busca, portal, cabeçalho, dados abertos, Diadorim (CA-35.8, CA-35.9) 🧪
+- [ ] T36.7 Clubes do Ponte de Palavras (p. 7 da programação de nov/2026): ~31 perfis que parecem clubes ficaram de fora por falta de nome e município confirmados sem abrir o Instagram (lista no relatório da coleta: clubedolivro_floripa, clubedolivro.floripa, clubedeleitura.esag, clubesereno, clubedolivrotheblackcat, paginas_da_ilha, leitura_sambaqui, entre outros); @cicfloripa pode ser o clube Lygia Bojunga; os 4 projetos de perfil pessoal (Bordando Escritores, Entre Páginas e Amigas, Tecendo Palavras, Através do Livro) podem ser da Grande Florianópolis
+
+- [ ] T36.8 Florianópolis, 3ª passada (nov/2026: +26 livrarias e sebos, +4 clubes): Sebo Eureka × Sebo Estreito (mesmo endereço na Heitor Blum, 411: duas lojas ou duplicata?); Sebo's Império matriz e filial como duas lojas; Árvore do Saber (CNPJ de associação: sebo de projeto social?); 6 livrarias "incerta" só com o guia da Touché (Nobel Floripa Shopping, Mangrich, Nova Era, Vivendo Evangelho, Mania de Ler, Guga); 7 lojas sem coordenada (Nominatim só acha a rua); tirar de `candidatas.csv` as que já entraram; Instagram a conferir: @seboivete, @sebosimperio, @seboacervodasletras, @sebobagagemcultural, @leiturafloripa, @snsbookclub
+
+## T38 Pendências de conferência humana dos eventos (nov/2026)
+- [ ] T38.1 Edições sem dia de início (ficaram de fora): Flitabira 2026, Flipetrópolis 2024, Flup 2023, Fórum das Letras 2017–2018, Jornada de Passo Fundo 2020/2027, Flinc 2025, 1ª Bienal de Jaraguá do Sul; séries incompletas: Feira de Porto Alegre 2015–2021, Bienal de SP 2016, Salipi antes de 2024, Pan-Amazônica 2015–2018, Bienal PE 2017/2021, Fliporto 2015–2019, Flipelô 2020–2022, FliParaíba 2025, Felib depois de 2023, Bienal Bahia 2022
+- [ ] T38.2 Divergências anotadas em `observacao`: FLIP 2020 (homenageada Elizabeth Bishop na página oficial × sem homenageado na Wikipédia); numeração da Fliporto, da Bienal de Alagoas e da Flipipa; FIL 2026 (29 ou 30/08); datas deduzidas de "N dias"; datas só de anúncio prévio
+- [ ] T38.3 Organizadores a conferir (Ponte de Palavras, Flima, Flinc, Tarrafa, Festival da Palavra, Feira Literária Capixaba, A Feira do Livro, Bienal Pantanal, Bienal de Itabaiana, Flipipa, Fligê, SaLiPa, Flimac); município da Flicoop; Fliporto em Olinda × Recife (2025–2026); possível duplicidade Flap × "1ª Festa Literária do Paraná"
+- [ ] T38.5 SC (lote 3, nov/2026: +31 eventos, +79 edições): Feira do Livro de Florianópolis junta a série de dezembro da CCL (2015–2016) com a "1ª Feira" de 2023 e a de junho de 2026 (separar?); Rio do Sul virou "Festival Literário do Alto Vale do Itajaí" em 2026; edições dadas como realizadas só pelo anúncio (Chapecó 2026, Lages 2018, Flipomerode 2024); feiras municipais com forte presença escolar (Cocal do Sul, Gaspar, Porto Belo, Xaxim, Xanxerê, Schroeder, Nova Veneza); Joinville desde 2003 e 85 mil visitantes em 2025 (ND) a pôr em `edicoes_1.csv`; edições sem dia exato listadas no relatório (Itajaí 2017–2025, Brusque, Videira, Timbó, Forquilhinha, Caçador)
+- [ ] T38.4 Próximo lote: RO e MT sem eventos; ES e SC com poucos (imprensa local recusa acesso automatizado); candidatos: Bienal Rubem Braga, Festa Internacional da Palavra (Itaúnas), Flii, Flipomerode, Feira do Livro de Jaraguá do Sul, Bienal do Livro do Paraná, Lombada (PUCPR), Festival da Mantiqueira, Flup Pernambuco

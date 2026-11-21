@@ -57,3 +57,71 @@ SELECT
 FROM v_participacao
 WHERE papel = 'autor'
 GROUP BY premio, ano;
+
+CREATE VIEW v_pessoa_municipio AS
+SELECT p.id AS pessoa_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM pessoa p
+LEFT JOIN municipio_casamento mc ON mc.municipio = p.municipio_nascimento AND mc.uf = p.uf_nascimento
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = p.uf_nascimento
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(p.municipio_nascimento)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+CREATE VIEW v_editora_municipio AS
+SELECT e.id AS editora_id, COALESCE(mc.codigo, t.codigo) AS codigo
+FROM editora e
+LEFT JOIN municipio_casamento mc ON mc.municipio = e.municipio_sede AND mc.uf = e.uf_sede
+LEFT JOIN (SELECT m.codigo, m.nome, u.sigla FROM territorio m JOIN territorio u ON u.codigo = m.pai WHERE m.tipo = 'municipio') t
+  ON mc.municipio IS NULL AND t.sigla = e.uf_sede
+ AND regexp_replace(strip_accents(lower(t.nome)), '[^a-z0-9]', '', 'g') = regexp_replace(strip_accents(lower(e.municipio_sede)), '[^a-z0-9]', '', 'g')
+WHERE COALESCE(mc.codigo, t.codigo) IS NOT NULL;
+
+CREATE VIEW v_indicador AS
+SELECT v.indicador_id AS indicador, i.nome AS indicador_nome, i.unidade, i.tipo_fonte,
+       v.territorio, t.nome AS territorio_nome, t.tipo AS territorio_tipo,
+       CASE t.tipo WHEN 'municipio' THEN u.sigla WHEN 'uf' THEN t.sigla END AS uf,
+       v.ano, v.dimensao, v.categoria, r.rotulo AS categoria_rotulo,
+       v.valor, v.numerador, v.denominador, v.amostra, v.margem, v.suprimido,
+       CASE WHEN i.unidade = 'contagem' AND t.populacao_2022 > 0 THEN round(v.valor / t.populacao_2022 * 100000, 2) END AS por_100mil,
+       v.fonte_url, v.observacao
+FROM indicador_valor v
+JOIN indicador i ON i.id = v.indicador_id
+JOIN territorio t ON t.codigo = v.territorio
+LEFT JOIN territorio u ON u.codigo = t.pai
+JOIN recorte r ON r.dimensao = v.dimensao AND r.categoria = v.categoria;
+
+CREATE VIEW v_vinculo AS
+SELECT 'pessoa' AS entidade, v.pessoa_id AS entidade_id, v.codigo AS municipio, 'nascimento' AS tipo, p.nascimento_fonte AS fonte
+FROM v_pessoa_municipio v JOIN pessoa p ON p.id = v.pessoa_id
+UNION ALL
+SELECT 'pessoa', pessoa_id, municipio, 'atuacao', fonte FROM pessoa_atuacao
+UNION ALL
+SELECT DISTINCT 'obra', c.obra_id, pv.municipio, 'autoria', NULL
+FROM (SELECT obra_id, pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador')
+      UNION SELECT obra_id, pessoa_id FROM mapeamento_autoria WHERE papel IN ('autor','ilustrador')) c
+JOIN (SELECT pessoa_id, codigo AS municipio FROM v_pessoa_municipio UNION SELECT pessoa_id, municipio FROM pessoa_atuacao) pv ON pv.pessoa_id = c.pessoa_id
+UNION ALL
+SELECT DISTINCT 'obra', o.obra_id, em.codigo, 'editora', NULL
+FROM (SELECT id AS obra_id, editora_id FROM obra UNION SELECT obra_id, editora_id FROM indicacao WHERE editora_id IS NOT NULL) o
+JOIN v_editora_municipio em ON em.editora_id = o.editora_id
+UNION ALL
+SELECT 'obra', obra_id, municipio, 'ambientacao', fonte FROM obra_mapeada WHERE ambientada;
+
+CREATE VIEW v_pessoa_mapeada AS
+SELECT v.municipio, p.id AS pessoa_id, p.nome, p.genero, p.genero_evidencia, p.raca, p.raca_evidencia, p.raca_fonte, p.raca_trecho,
+       p.ano_nascimento, p.municipio_nascimento, p.uf_nascimento,
+       bool_or(v.tipo = 'nascimento') AS nasceu, bool_or(v.tipo = 'atuacao') AS atua,
+       p.raca IN ('preta','parda','negra') AS negra
+FROM v_vinculo v JOIN pessoa p ON p.id = v.entidade_id
+WHERE v.entidade = 'pessoa' AND v.municipio IN (SELECT municipio FROM obra_mapeada UNION SELECT municipio FROM editora_mapeada
+                                                UNION SELECT municipio FROM livraria UNION SELECT municipio FROM pessoa_atuacao)
+  AND p.id IN (SELECT pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador','organizador')
+               UNION SELECT pessoa_id FROM mapeamento_autoria)
+GROUP BY ALL;
+
+CREATE VIEW v_evento_edicao AS
+SELECT d.evento_id AS evento, e.nome AS evento_nome, e.tipo, d.numero, d.ano, d.data_inicio, d.data_fim,
+       d.municipio, t.nome AS municipio_nome, u.sigla AS uf, d.local, d.tema, d.situacao, d.formato, d.publico, d.publico_fonte,
+       d.fonte, d.verificado_em
+FROM evento_edicao d JOIN evento e ON e.id = d.evento_id
+JOIN territorio t ON t.codigo = d.municipio JOIN territorio u ON u.codigo = t.pai;

@@ -25,6 +25,9 @@ const simples = (v) => {
   return Number.isFinite(n) ? n : String(v);
 };
 
+// Módulo da página (CA-31.7, D37): cada página carrega só as tabelas e views do seu módulo.
+export const arquivoContexto = () => `contexto-${globalThis.document?.body?.dataset?.modulo ?? "premios"}.json`;
+
 let conexao = null;
 async function abrir(aoPasso) {
   aoPasso?.({ tipo: "contexto", texto: "Abrindo o banco do Literadados no navegador (só na primeira pergunta)" });
@@ -35,13 +38,16 @@ async function abrir(aoPasso) {
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
   URL.revokeObjectURL(urlWorker);
   const con = await db.connect();
-  const { tabelas } = await fetch("contexto.json").then((r) => r.json());
+  const { tabelas, views } = await fetch(arquivoContexto()).then((r) => r.json());
   for (const t of tabelas) {
     const buf = new Uint8Array(await fetch(`banco/${t}.parquet`).then((r) => { if (!r.ok) throw new Error(`banco/${t}.parquet: ${r.status}`); return r.arrayBuffer(); }));
     await db.registerFileBuffer(`${t}.parquet`, buf);
     await con.query(`CREATE TABLE ${t} AS SELECT * FROM read_parquet('${t}.parquet')`);
   }
-  for (const v of (await fetch("banco/views.sql").then((r) => r.text())).split(/;\s*\n/).map((x) => x.trim()).filter(Boolean)) await con.query(v);
+  const doModulo = new Set(views);
+  for (const v of (await fetch("banco/views.sql").then((r) => r.text())).split(/;\s*\n/).map((x) => x.trim()).filter(Boolean)) {
+    if (doModulo.has(v.match(/CREATE VIEW (\w+)/)?.[1])) await con.query(v);
+  }
   await con.query("SET enable_external_access = false");
   await con.query("SET lock_configuration = true");
   return con;

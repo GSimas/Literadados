@@ -1,7 +1,7 @@
 // Painel Literadados: estado, navegação e ciclo de desenho. Agregações em metricas.js (testadas);
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos, enxugar } from "./ui.js";
 import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios, renderConjuntoObra } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
@@ -10,10 +10,11 @@ import { montarPessoas, renderPessoas, htmlPerfil, htmlObra, carregarCapas } fro
 import { htmlEdicao, carregarContextos, celulaEdicao } from "./edicoes.js";
 import { htmlEditora, carregarLogos } from "./editoras.js";
 import { montarCapas3D } from "./capas-3d.js";
-import { montarTema } from "./tema.js";
+import { montarTema, sortearFaixas } from "./tema.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarBusca } from "./busca.js";
 import { htmlLugar } from "./lugares.js";
+import { ligarMunicipios, blocoMapeamento } from "./pessoas.js";
 import { montarExportacao } from "./exportar.js";
 
 // Sem dados não há painel: avisa no lugar dos números da abertura, com botão para tentar de novo, em vez de falhar em silêncio.
@@ -82,22 +83,9 @@ montarTema(() => { renderTudo(); historia.redesenhar(); });
 
 // ---------- abertura (CA-15.1) ----------
 // "Jabuti 1959–2025 (67 edições) · Oceanos 2003–2025 (23 edições)": cada prêmio com o próprio período, sem somar edições.
-function periodosPremios(L) {
-  const anos = d3.rollup(L, (v) => new Set(v.map((l) => l.ano)), (l) => l.premio);
-  const um = PREMIOS.length === 1;
-  return PREMIOS.filter((p) => anos.has(p)).map((p) => {
-    const a = [...anos.get(p)].sort((x, y) => x - y);
-    const nome = um ? nomesPremios([p]) : M.nomeCurto(nomesPremios([p]));
-    return `${nome} ${a[0]}–${a.at(-1)} (${fmt(a.length)} edições)`;
-  }).concat((D.premios_distincao ?? []).map((p) => { // só conjunto da obra (RF-30): período das distinções, à parte
-    const a = (D.distincoes ?? []).filter((d) => d.premio === p.id).map((d) => d.ano);
-    return a.length ? `${M.nomeCurto(p.nome)} ${Math.min(...a)}–${Math.max(...a)} (conjunto da obra)` : "";
-  }).filter(Boolean)).join(" · ");
-}
 function renderAbertura() {
   const L0 = M.filtrar(D.participacao, padrao()), H = M.historia(L0);
   // A abertura é de todos os prêmios da base (DA-4, DA-5): prêmios, períodos e edições vêm dos dados.
-  $("#hero-periodo").textContent = periodosPremios(L0);
   $("#h-hero").textContent = "Quem chega aos prêmios literários?";
   // Números contam até o valor (CA-19.4); o texto final é o valor formatado exato.
   const nums = [
@@ -114,6 +102,7 @@ function renderAbertura() {
   const faixas = [0, 1, 2].map((i) => fotos.filter((_, k) => k % 3 === i));
   const span = (p) => `<span style="background-image:url('${srcFoto(p.id, midiaPorId.get(p.id), 160).replace(/'/g, "%27")}')"></span>`;
   $("#hero-mosaico").innerHTML = faixas.map((f, i) => `<div class="hero-faixa" style="--dur:${110 + i * 30}s"${i % 2 ? " data-rev" : ""}>${[...f, ...f].map(span).join("")}</div>`).join("");
+  sortearFaixas($$("#hero-mosaico .hero-faixa"));  // ordem e ponto de partida sorteados a cada visita
   // Pontos que flutuam devagar, nas cores das séries (eco de "cada ponto é uma pessoa").
   $("#hero-pontos").innerHTML = d3.range(22).map((i) => {
     const r = (k) => ((Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1 + 1) % 1; // pseudoaleatório estável
@@ -123,7 +112,7 @@ function renderAbertura() {
 
 // ---------- navegação: seção atual e progresso (CA-15.2) ----------
 function montarNavegacao() {
-  const links = new Map($$(".nav a").map((a) => [a.getAttribute("href").slice(1), a]));
+  const links = new Map($$(".nav a:not(.modulo)").map((a) => [a.getAttribute("href").slice(1), a]));
   const alvo = {};
   const io = new IntersectionObserver((es) => {
     for (const e of es) {
@@ -220,6 +209,8 @@ async function rota() {
     : htmlLugar(tipo, decodeURIComponent(chave), { D, linhas: M.filtrar(D.participacao, padrao()) });
   if (!r?.html || location.hash !== destino) return;
   $("#perfil-corpo").innerHTML = r.html;
+  ligarMunicipios($("#perfil-corpo"));
+  if (["pessoa", "obra", "editora"].includes(tipo)) blocoMapeamento($("#perfil-corpo"), tipo, decodeURIComponent(chave));
   if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
   if (r.desenhar) { await carregarGraficos().catch((e) => console.error(e)); r.desenhar(); } // gráficos do perfil de lugar: depois de abrir, com a largura conhecida
@@ -247,7 +238,7 @@ $("#perfil-corpo").addEventListener("click", async (e) => {
   try { await navigator.clipboard.writeText(location.href); a.textContent = "Link copiado"; } catch { a.textContent = location.href; }
 });
 
-// ---------- rodapé e faixa de cobertura (método e referências ficam em metodo.html, D18) ----------
+// ---------- rodapé e faixa de cobertura (método e referências ficam em sobre.html, D18) ----------
 function renderMetodologia() {
   // Edições por prêmio (CA-26.7): cada prêmio na própria linha, a partir da 1ª edição; nunca uma soma de anos de prêmios diferentes.
   const cob = new Set(D.cobertura.map((c) => `${c.premio ?? PREMIOS[0]}|${c.ano}`));
@@ -310,6 +301,7 @@ montarDiadorim();
 montarBusca(D);
 montarExportacao();
 luzNosBlocos();
+enxugar();  // leads longos: 1ª frase à vista, o resto num "i"
 // Pré-carrega as bibliotecas dos gráficos quando a página fica ociosa: a primeira janela já abre pronta.
 (window.requestIdleCallback ?? ((f) => setTimeout(f, 2500)))(() => carregarGraficos().catch(() => {}));
 

@@ -1,6 +1,6 @@
 # Literadados
 
-> Dados abertos sobre quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura, Prémio LeYa, Prémio Literário José Saramago, Prêmios da Academia Brasileira de Letras): gênero, raça autodeclarada e UF de nascimento de 1.665 pessoas-autoras em 3.586 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
+> Dados abertos sobre literatura e leitura no Brasil, em módulos. Módulo Prêmios: quem chega aos prêmios literários de língua portuguesa (Prêmio Jabuti, Prêmio Oceanos, Prêmio São Paulo de Literatura, Prêmio Biblioteca Nacional, Prêmio Sesc de Literatura, Prémio LeYa, Prémio Literário José Saramago, Prêmios da Academia Brasileira de Letras): gênero, raça autodeclarada e UF de nascimento de 1.665 pessoas-autoras em 3.586 indicações, cada dado com fonte. Painel interativo, perfis e uma IA (Diadorim) que consulta a base.
 
 Regras para citar os números: raça só por autodeclaração pública (o número de pessoas negras é um piso, "pelo menos"; "sem declaração" não quer dizer branca); gênero sem fonte é atribuído pelo primeiro nome e marcado; estado = UF de nascimento; todo percentual vem com o n; não some percentuais de prêmios diferentes.
 
@@ -23,8 +23,10 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 - [Pessoas de A a Z](https://literadados.gustavosimas.com/pessoas/): perfil de cada pessoa, com fontes
 - [Estados](https://literadados.gustavosimas.com/estados/): onde nasceram as pessoas-autoras
 - [Editoras](https://literadados.gustavosimas.com/editoras/): cada editora, com indicações, premiadas e autores publicados
+- [Leitura](https://literadados.gustavosimas.com/leitura/): indicadores de alfabetização, leitores, escolas com biblioteca, livrarias e editoras por território
+- [Eventos](https://literadados.gustavosimas.com/eventos/): festivais, feiras do livro, bienais e festas literárias do Brasil, com datas das edições
 - [Dados abertos](https://literadados.gustavosimas.com/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar
-- [Método](https://literadados.gustavosimas.com/metodo.html): fontes, definições, protocolo de raça, cobertura
+- [Método](https://literadados.gustavosimas.com/sobre.html): fontes, definições, protocolo de raça, cobertura
 
 ## Prêmios
 
@@ -40,5 +42,5 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 ## Optional
 
 - [Texto completo: premiadas de cada edição e contexto](https://literadados.gustavosimas.com/llms-full.txt)
-- [Painel interativo](https://literadados.gustavosimas.com/): gráficos, filtros e a Diadorim
+- [Painel interativo](https://literadados.gustavosimas.com/premios.html): gráficos, filtros e a Diadorim
 

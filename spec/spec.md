@@ -5,9 +5,27 @@
 
 ## 1. Problema
 
-Não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × estado de nascimento** dos autores de prêmios literários (hoje, Prêmio Jabuti e Prêmio Oceanos; a plataforma recebe outros pelo mesmo modelo). Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF. O Literadados preenche essa lacuna com dados verificáveis, visualizações e uma IA que responde perguntas em linguagem natural.
+Dados sobre literatura e leitura no Brasil existem, mas estão espalhados, em formatos fechados e sem recorte comparável:
+
+- **Prêmios literários:** não existe base pública que cruze **prêmio × categoria × etapa (lista, finalista, premiado, vencedor) × gênero × raça × lugar de nascimento** de quem chega a eles. Há catálogos só de vencedores, sem perfil demográfico, e estudos acadêmicos com recortes fechados em PDF.
+- **Leitura e acesso ao livro:** indicadores de alfabetização, leitura, bibliotecas, livrarias e editoras estão em fontes diferentes (IBGE, INEP, Receita Federal, pesquisas como a Retratos da Leitura no Brasil), cada uma com o seu nível territorial, a sua definição e o seu ano, e quase nunca aparecem lado a lado por município, estado e região, com recorte por sexo e cor ou raça.
+- **Cena literária local:** não há mapa público e verificável das livrarias, clubes do livro, editoras, autoras e autores e obras de uma cidade. O que existe são listas soltas em redes sociais, que envelhecem sem aviso.
+
+O Literadados reúne esses dados numa plataforma de **módulos** que compartilham o mesmo território, as mesmas pessoas, obras e editoras e as mesmas regras de rigor: fonte em cada dado, n em cada percentual, raça só autodeclarada. Visualizações e uma IA respondem perguntas em linguagem natural.
 
 ## 2. Escopo
+
+**Módulos** (decisões DB-1 a DB-7, no fim do RF-34)
+
+| Módulo | Dentro | Fora (por enquanto) |
+|---|---|---|
+| **Prêmios** (RF-01 a RF-30) | Prêmios literários de língua portuguesa: listas, finalistas, premiados e júri, com o perfil demográfico de quem chega a eles (tabela abaixo) | Prêmios ainda não coletados (tabela abaixo) |
+| **Leitura** (RF-33) | Indicadores agregados de leitura, alfabetização e acesso ao livro (bibliotecas escolares, livrarias, editoras) por município, UF, região e Brasil, com recorte por sexo, cor ou raça, idade e escolaridade quando a fonte publica | Microdados sem divulgação pública; indicadores por país |
+| **Mapeamento** (RF-34) | Florianópolis: livrarias e sebos, clubes do livro, editoras, autoras e autores e obras, cada registro com o seu vínculo com a cidade | Outros municípios; bibliotecas, feiras, saraus e eventos; vendas e preços |
+| **Eventos** (RF-35) | Festivais, feiras, bienais, festas e encontros literários no Brasil todo: edições passadas e futuras, com datas, cidade, local e fonte | Eventos de uma escola só, lançamentos de livro, saraus semanais; países fora do Brasil |
+| Plataforma (RF-31, RF-32) | Portal, território comum (códigos do IBGE), busca, Diadorim, páginas estáticas e dados abertos de todos os módulos | Países como território de indicador ou de mapeamento (DB-7) |
+
+**Módulo Prêmios**
 
 | Dentro | Fora (por enquanto) |
 |---|---|
@@ -18,17 +36,21 @@ Não existe base pública que cruze **prêmio × categoria × etapa (lista, fina
 | Raça **somente por autodeclaração pública** (ou fonte curada por identidade) | Inferência de raça por foto, sobrenome ou IA |
 | Gênero com fonte; sem fonte, **atribuído pelo primeiro nome e marcado** (D16) | Atribuição de gênero por apelido ambíguo ou iniciais |
 
-**Fase atual:** as 67 edições do Jabuti e as 23 do Oceanos estão coletadas; a cobertura de atributos das pessoas é parcial (ver Metodologia). O app precisa ser honesto com qualquer cobertura.
+**Fase atual:** o módulo Prêmios está no ar, com os prêmios do RF-26 coletados e a cobertura de atributos das pessoas parcial (ver Metodologia). Os módulos Leitura e Mapeamento estão especificados (RF-31 a RF-34; decisões DB-1 a DB-7 fechadas em 2026-11-20) e em desenho (D37 a D40). O app precisa ser honesto com qualquer cobertura.
 
 ## 3. Públicos
 
 - **Pesquisadora ou jornalista:** quer recortes exatos, com fonte, para citar.
 - **Leitor curioso:** quer explorar visualmente e descobrir padrões.
-- **Mantenedor dos dados:** quer acrescentar edições sem mexer em código.
+- **Gestora pública, bibliotecária ou educadora:** quer comparar o próprio município ou estado com outros, com fonte e ano de cada número.
+- **Leitora, livreiro, editora ou autora de Florianópolis:** quer achar livrarias, clubes e livros da cidade, e pedir para entrar no mapa, corrigir ou sair dele.
+- **Mantenedor dos dados:** quer acrescentar edições, indicadores e registros sem mexer em código.
 
 ## 4. Requisitos funcionais
 
 Cada requisito tem critérios de aceitação (CA) verificáveis. Os marcados com 🧪 têm teste automatizado em `tests/`; os marcados com 👁 são verificados no navegador.
+
+RF-01 a RF-30 formam o **módulo Prêmios**. RF-31 (portal) e RF-32 (território) valem para a plataforma inteira; RF-33 (Leitura), RF-34 (Mapeamento) e RF-35 (Eventos) são os módulos novos e ficam no fim desta seção.
 
 ### RF-01 Base de dados
 Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando gera o banco e os dados do app.
@@ -86,6 +108,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-15 Página, navegação e tema
 - **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo de **todos os prêmios da base** (pessoas distintas, % mulheres, piso de % negras), calculados dos dados. Nem o título nem a descrição se referem a um prêmio só: os prêmios e períodos vêm dos dados (DA-5).
 - **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
+- **CA-15.4 👁** Ordem das partes depois da abertura: Autores, Panorama, Gráficos e, por último, a história guiada (scrollytelling).
 - **CA-15.3 👁** O cabeçalho não tem filtro: cada parte filtrável traz o seu (RF-02).
 
 ### RF-16 História guiada (scrollytelling)
@@ -110,6 +133,8 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-19.8 👁** Dicas (balões) dos gráficos entram e saem com fade, tanto as do Observable Plot quanto as dos gráficos feitos à mão (mapa, Sankey, história).
 - **CA-19.9 👁** Em todo gráfico, o elemento sob o mouse (barra, célula, ponto, UF, fluxo) fica em destaque e os demais do mesmo gráfico ficam mais transparentes. Ao sair do gráfico, tudo volta ao normal.
 - **CA-19.10 👁** Todo bloco (cartões de número, cartões de gráfico, cartões da linha do tempo, passos da história, blocos de método e referências) ganha um brilho de fundo no hover, um foco de luz na cor da marca que acompanha o ponteiro, e a borda e a sombra acendem junto.
+- **CA-19.11 👁** Tabela com mais de 10 linhas não fica toda aberta na página: mostra cerca de 10 linhas, com barra de rolagem própria (no estilo do Literadados) e o cabeçalho da tabela fixo no topo enquanto rola. Vale para o painel, as janelas, os perfis, o Método e as páginas estáticas; a exportação leva todas as linhas.
+- **CA-19.12 👁** Mostrar só o necessário (pedido de 2026-11-21): a página mostra o essencial, e o detalhe fica a um clique. Texto de abertura longo mostra a 1ª frase, e o resto vai para um botão "i" (nota que abre ao lado do botão e fecha com Esc, clique fora ou rolagem). Definição e limitações de indicador, critérios de contagem e notas de método ficam em "i". Conteúdo extenso (método, cobertura, fichas) fica em blocos com título e resumo que abrem numa janela, com poucos blocos por página. Nenhum texto ou número ultrapassa o limite do seu bloco.
 - **CA-19.7 🧪👁** Contraste AA (≥ 4,5:1) nos dois temas, para texto sobre página, superfície, chips e botões, conferido por teste sobre os tokens de `style.css`. Dicas dos gráficos usam fundo e texto do tema.
 
 ### RF-20 Gráficos em janelas
@@ -141,7 +166,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 - **CA-25.2 🧪👁** Toda parte abre na **série completa, do primeiro ao último ano coletado** (hoje 1959–2026): abertura, história guiada, panorama, cada janela de gráfico, galeria de autores, perfis de pessoa, livro e lugar, busca e Diadorim. Os filtros recortam qualquer período dentro da série (por exemplo, 2010–2025), e só o recorte diferente do padrão vai para a URL. Quando o recorte inclui edições sem lista pública (1959–1999), o resumo do filtro avisa quantas.
 - **CA-25.3 👁** Onde a série mistura edições com e sem lista pública, o painel diz isso: a história (passo "Da lista ao 1º lugar"), o funil e a linha do tempo explicam que, antes de 2000, a "lista" é só a dos premiados. Marcos da linha do tempo e da evolução incluem 1993 (pódio de 1º a 3º) e 2000 (listas públicas na base). Eixos com dezenas de edições mostram rótulos de 5 em 5 ou de 10 em 10 anos, e as barras não somem no celular.
 - **CA-25.4 🧪👁** Indicações sem editora conhecida (série histórica sem fonte da época) não aparecem como uma "editora" no ranking de editoras: ficam fora da lista, e o gráfico informa quantas são.
-- **CA-25.5 🧪** Nenhum texto do painel fixa o período antigo: sobretítulo da abertura, história, perfil de lugar, rodapé da exportação e descrição da página vêm de `dados.json` (`anos`, `anos_coletados`) ou dizem 1959–2025. O `dados.json` não tem mais o campo `recorte`.
+- **CA-25.5 🧪** Nenhum texto do painel fixa o período antigo: história, perfil de lugar, rodapé da exportação e descrição da página vêm de `dados.json` (`anos`, `anos_coletados`) ou dizem 1959–2025. O `dados.json` não tem mais o campo `recorte`.
 
 ### RF-26 Vários prêmios
 > Decisões DA-1 a DA-5 fechadas em 2026-10-16 (fim desta seção). A implementação começa pela etapa 0 (CA-26.2), que não muda o painel. Desenho: D31.
@@ -184,7 +209,7 @@ O prêmio vira uma dimensão dos dados, ao lado de ano e categoria. Pessoa, obra
 - **DA-2 Conjunto da obra** (revista em 2026-11-19, decisão do mantenedor): prêmios pelo conjunto da obra (Camões, Machado de Assis da ABL) **entram como um tipo à parte** (RF-30): registrados por pessoa, sem livro, e nunca somados às métricas por livro.
 - **DA-3 Autores de fora do Brasil:** entram. A pessoa ganha país de nascimento (`BR` para quem tem UF), e a geografia ganha a dimensão "país"; o mapa continua sendo do Brasil. Raça segue o mesmo protocolo de autodeclaração, e o Método avisa que os termos seguem as categorias do IBGE.
 - **DA-4 Visão padrão** (revista em 2026-10-16): o painel abre com **todos os prêmios**; cada filtro tem o seletor de prêmio para recortar um ou vários. Com mais de um prêmio, os gráficos de taxa usam facetas por prêmio (CA-26.9). A História guiada e os perfis de lugar têm o mesmo padrão (todos), com seletor na história. A ordem dos prêmios (coluna `ordem`) só define a ordem de listas e facetas e a coleta, não um prêmio "principal".
-- **DA-5 Identidade** (revista em 2026-10-16): o Literadados é uma plataforma de prêmios literários, não de um prêmio. Título ("Quem chega aos prêmios literários?"), descrição, rodapés, placeholder da Diadorim, busca e textos dos gráficos falam de prêmios em geral; regra que é de um prêmio só (formatos, anos sem lista pública, júri divulgado) aparece com o nome do prêmio. O logotipo perde o jabuti e fica com as células de dados.
+- **DA-5 Identidade** (revista em 2026-10-16): o Literadados é uma plataforma de prêmios literários, não de um prêmio. Título ("Quem chega aos prêmios literários?", sem sobretítulo listando os prêmios: retirado a pedido do mantenedor em 2026-11-21), descrição, rodapés, placeholder da Diadorim, busca e textos dos gráficos falam de prêmios em geral; regra que é de um prêmio só (formatos, anos sem lista pública, júri divulgado) aparece com o nome do prêmio. O logotipo perde o jabuti e fica com as células de dados.
 
 ### RF-30 Conjunto da obra
 > DA-2 revista em 2026-11-19. Desenho: D36.
@@ -235,7 +260,7 @@ Chat flutuante chamado **Diadorim**, em referência à personagem de *Grande Ser
 - **CA-12.12 🧪** Nunca resposta seca: pergunta sobre os dados respondida só com o número (menos de 25 palavras fora das fontes, com consulta feita) leva a Diadorim a insistir uma vez com o modelo, pedindo as linhas por trás do número e o contexto. Se a resposta continuar seca, o Literadados detalha sozinho a contagem (`consultaDeDetalhe`) e mostra o bloco "Quem são" (nome com link, UF, ano, categoria, obra e colocação, e a contagem por estado), marcado como contexto montado pelo Literadados. Vale para qualquer modelo.
 
 ### RF-13 Metodologia e transparência
-Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), com o mesmo cabeçalho, logotipo e tema. O item "Método" da navegação leva a essa página, e ela tem links de volta para as seções do painel.
+Sobre (o que é o Literadados), Como contribuir, Método e Referências (RF-18) ficam numa **página própria**, `sobre.html` (desde 2026-11-21; a antiga `metodo.html` redireciona preservando a âncora), com o mesmo cabeçalho, logotipo e tema. O item "Sobre" da navegação leva a essa página.
 - **CA-13.1 👁** Seção com a tabela de cobertura por edição, as definições (etapas, regimes, piso racial, organizadores fora das contagens) e o protocolo de raça.
 - **CA-13.2 👁** Instrução de como pedir correção, com fonte, e o contato (contato@gustavosimas.com).
 - **CA-13.3 🧪👁** Cada pessoa registra se a busca de autodeclaração racial foi `completa` (protocolo cumprido) ou `parcial` (interrompida). A cobertura por edição mostra a % de buscas completas, e o panorama avisa quando há buscas parciais: "sem declaração" com busca parcial não significa ausência de declaração.
@@ -245,16 +270,128 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 - **CA-14.2 👁** Todo gráfico (das janelas, do mapa, do Sankey, da história e dos perfis de lugar) tem botão de exportar. Ele abre uma janela com duas opções: **JPG com fundo** (cor de fundo do tema) e **PNG sem fundo** (transparente). A imagem sai em resolução dobrada, com o título do gráfico, a legenda de cores e a linha "Literadados · Prêmio Jabuti <início>–<fim>", com o período do filtro da parte (sem filtro, a série completa).
 - **CA-14.3 🧪👁** Toda tabela tem botão de exportar, que abre uma janela com **XLSX** ou **CSV** (UTF-8 com BOM). O XLSX é gerado no navegador, sem biblioteca externa, e os números viram números na planilha.
 
+### RF-31 Portal e módulos
+> Decidido em 2026-11-20 (DB-1, DB-4). Desenho: D37, D38. A implementação começa pela etapa 0 (CA-31.1), que não muda nenhum número do módulo Prêmios.
+
+O Literadados deixa de ser um painel de prêmios e vira um portal com módulos. O painel de prêmios continua igual, como um dos módulos.
+- **CA-31.1 🧪** **Etapa 0:** depois da reestruturação em portal, `v_participacao`, o `dados.json` remontado, as páginas estáticas e todos os testes do módulo Prêmios dão os mesmos números de antes. Só então entra o primeiro dado dos módulos novos.
+- **CA-31.2 👁** Abertura do portal: nome e descrição da plataforma (literatura e leitura no Brasil) e um cartão por módulo com o **nome do módulo** como título (sem pergunta), uma linha curta e um número de destaque calculado dos dados, com link para o módulo. Módulo ainda sem dado não aparece. A página ocupa a largura toda e cabe na tela **sem barra de rolagem** em telas de 360 × 640 px para cima (quatro cartões numa linha na tela larga, em grade 2 × 2 na estreita). Ao fundo, faixas que correm devagar só com capas reais de livros vencedores (miniaturas exibidas da fonte, sem cópia, como em D34), com o crédito dos sites logo abaixo dos cartões. Com `prefers-reduced-motion`, as faixas param.
+- **CA-31.3 🧪👁** Cada módulo tem endereço próprio e as próprias seções. Links já compartilhados do módulo Prêmios (`/#/pessoa/<id>`, `/#/grafico/<id>`, `/#/edicao/...`, `?panorama=...` e as demais rotas e filtros) continuam abrindo o mesmo conteúdo. Um teste percorre as rotas antigas.
+- **CA-31.4 🧪👁** Cabeçalho **idêntico** em todas as páginas (portal, módulos, Método e páginas estáticas): logotipo, os módulos, Método, busca e tema, na mesma ordem e disposição; muda só o destaque do módulo atual. Atalhos de seção e páginas de consulta não entram no cabeçalho (ficam na página e no rodapé).
+- **CA-31.11 🧪** Rodapé **idêntico** em todas as páginas, só com "Literadados" e o crédito "Plataforma desenvolvida por Gustavo Simas" (link para gustavosimas.com). Notas da página (gênero atribuído, data de geração) ficam no fim do conteúdo, não no rodapé; links de consulta, contato e créditos de fotos e malhas ficam na página Sobre.
+- **CA-31.5 🧪** Busca do cabeçalho (RF-21) sobre todos os módulos: municípios, indicadores, livrarias e clubes entram no índice, com o tipo no resultado e o mesmo critério determinístico de ordem.
+- **CA-31.6 🧪** Plataforma, não um módulo (amplia CA-26.15): título, descrição, README, `llms.txt` e prompt da Diadorim descrevem a plataforma inteira. Texto de um módulo só aparece no módulo. O teste de textos de plataforma passa a recusar também frases que reduzem o Literadados a prêmios ("plataforma de prêmios literários").
+- **CA-31.7 🧪** Diadorim sobre todos os módulos: uma view por módulo no banco do navegador, e o prompt traz as regras de cada um (não comparar pesquisa amostral com censo sem dizer; mapeamento é cadastro incompleto; endereço só de lugar público).
+- **CA-31.8 🧪** RNF-06 por módulo: cada módulo carrega só os próprios dados, e cada arquivo carregado na abertura de um módulo tem menos de 1 MB.
+- **CA-31.9 🧪** Um só build: `python build.py` monta todos os módulos a partir de `dados/`, e uma inconsistência em qualquer módulo faz o build falhar com mensagem que diz o módulo.
+
+### RF-32 Território
+O território é o eixo comum dos módulos: tudo o que tem lugar aponta para um código oficial, nunca só para um nome.
+- **CA-32.1 🧪** Tabela `territorio` com Brasil, as 5 regiões, as 27 UFs (código e sigla) e os municípios (código de 7 dígitos do IBGE, nome, UF), da API de localidades do IBGE, com a população do Censo 2022 por município (amplia `uf_populacao.csv`). País entra pelo código ISO 3166-1 (DA-3). O build falha se a tabela não tiver os 27 estados e todos os municípios da fonte.
+- **CA-32.2 🧪** Todo dado com lugar nos módulos novos (valor de indicador, livraria, clube, vínculo de pessoa ou obra) aponta para um território pelo código. O build falha com código inexistente.
+- **CA-32.3 🧪** Módulo Prêmios: pessoa (município de nascimento) e editora (município da sede) ganham o código do município, casado por nome e UF. Local fora do Brasil fica sem código de município. Nome que não casa (grafia antiga, distrito que virou município) vai para um relatório de conferência humana; a decisão fica registrada e o resultado não muda entre execuções. Nenhum número do módulo muda (CA-31.1).
+- **CA-32.4 👁** Perfil de município (`#/municipio/<código>`), aberto na mesma janela dos outros perfis: reúne o que cada módulo sabe dele (pessoas premiadas nascidas ali, indicadores de leitura e, em Florianópolis, o mapeamento), cada bloco com fonte e ano. Os perfis de UF e de região (RF-22) ganham o bloco de indicadores de leitura.
+- **CA-32.5 🧪** Malha municipal: arquivo estático separado, carregado só quando um mapa de municípios é desenhado (nunca na abertura), com os municípios da tabela `territorio`.
+
+### RF-33 Módulo Leitura
+> Decidido em 2026-11-20. Desenho: D39. Fontes conferidas na coleta: a que não tiver o nível territorial ou o recorte prometido sai da leva, com o motivo anotado no Método.
+
+Indicadores agregados sobre leitura, alfabetização e acesso ao livro, por território, ano e recorte demográfico, de fontes oficiais ou pesquisas publicadas. Aqui não há pessoas: há números publicados por outras instituições, com a definição de cada uma.
+
+**Base e build**
+- **CA-33.1 🧪** Tabela `indicador` (id, nome, definição em uma frase, unidade, fonte, tipo de fonte: `censo`, `registro_administrativo` ou `pesquisa_amostral`, nível territorial mais fino) e tabela `indicador_valor` (indicador, território, ano, dimensão do recorte, valor do recorte, valor, numerador e denominador quando a fonte publica, tamanho da amostra e margem de erro ou intervalo quando a fonte publica, URL da fonte). O build falha com valor sem fonte, território inexistente, percentual fora de 0–100, recorte fora do vocabulário ou dois valores para a mesma chave. Unidade ∈ percentual, contagem, média, moeda (R$ correntes do ano) e pontuação (escala da avaliação); todo indicador tem um tema (hábitos, alfabetização, escola, mercado, bibliotecas); cada valor pode ter `observacao` (revisão da fonte, arredondamento). Pesquisa amostral sem amostra só passa quando `observacao` diz por que a fonte não a publica.
+- **CA-33.2 🧪** Recortes num vocabulário fixo: `total`, `sexo`, `cor_raca` (as cinco categorias do IBGE: branca, preta, parda, amarela, indígena), `faixa_etaria`, `situacao` (urbana ou rural), `escolaridade`, `rede` (pública ou privada, para escolas) e `canal` (vendas ao mercado ou ao governo, no mercado do livro). Cor ou raça só vem da autodeclaração de quem respondeu à pesquisa ou ao censo, como a fonte publica; o Literadados nunca recalcula nem infere. O rótulo segue o termo da fonte ("sexo" no IBGE), e o Método explica a diferença para os termos do módulo Prêmios.
+- **CA-33.3 🧪** Honestidade estatística (amplia RNF-02): valor de pesquisa amostral mostra o tamanho da amostra e a margem de erro quando a fonte publica; sem margem publicada, aparece o aviso "margem não publicada pela fonte". Valor que a própria fonte marca como pouco confiável ou suprime não é mostrado como número. Censo e registro administrativo mostram numerador e denominador. Um gráfico nunca põe na mesma escala indicadores de definições diferentes.
+- **CA-33.4 🧪** Primeira leva de fontes, cada uma com seção no Método (definição, período, nível territorial, recortes, limitações):
+  1. **Censo 2022 (IBGE):** taxa de alfabetização da população de 15 anos ou mais, por município, sexo, cor ou raça e faixa etária.
+  2. **Censo Escolar (INEP):** % de escolas com biblioteca ou sala de leitura, por município e rede, nos anos disponíveis nos microdados.
+  3. **CNPJ (Receita Federal, dados abertos):** estabelecimentos ativos com atividade principal de comércio varejista de livros (CNAE 4761-0/01) e de edição de livros (CNAE 5811-5/00 e 5821-2/00), por município, em números absolutos e por 100 mil habitantes. O Método avisa que a atividade é declarada pela empresa: o número é um indicador de presença, não um censo de livrarias (o cadastro curado é o RF-34).
+  4. **Retratos da Leitura no Brasil (Instituto Pró-Livro):** % de leitores e livros lidos por ano, Brasil e regiões, por sexo, cor ou raça, faixa etária e escolaridade, nas edições publicadas. O Método traz a definição de "leitor" da pesquisa.
+- **CA-33.5 🧪** Cobertura: o build imprime, por indicador, os anos, o nível territorial e quantos territórios têm valor. O módulo mostra a mesma cobertura.
+- **CA-33.9 🧪** Segunda leva (pedido do mantenedor em 2026-11-21), cada fonte com seção no Método e conferida na coleta (a que não tiver o dado prometido sai, com o motivo):
+  - **PNAD Contínua (IBGE, SIDRA):** taxa de analfabetismo de 15 anos ou mais, por ano (2016 em diante), Brasil, regiões e UFs, por sexo e cor ou raça quando a tabela publica;
+  - **INAF (Ação Educativa / Instituto Paulo Montenegro):** níveis de alfabetismo funcional da população de 15 a 64 anos, Brasil, nas edições publicadas;
+  - **SAEB (INEP):** proficiência média em Língua Portuguesa (5º e 9º anos do fundamental e 3º ano do médio), Brasil e UFs (municípios quando a planilha oficial trouxer), por edição;
+  - **PISA (OCDE/INEP):** pontuação média do Brasil em leitura, por edição;
+  - **Mercado do livro (CBL/Nielsen, SNEL):** exemplares produzidos e vendidos e faturamento do setor editorial, Brasil, por ano, nas edições publicadas da pesquisa "Produção e Vendas do Setor Editorial Brasileiro" e do "Painel do Varejo de Livros";
+  - **Bibliotecas públicas (Sistema Nacional de Bibliotecas Públicas / MUNIC-IBGE):** municípios com biblioteca pública e número de bibliotecas, por UF e município quando houver cadastro aberto.
+- **CA-33.10 👁** Panorama por tema no alto do módulo: hábitos de leitura, alfabetização e alfabetismo, escola, mercado do livro e bibliotecas. Cada tema tem cartões com o último valor do Brasil (com ano, n e fonte) e um gráfico pequeno da série; o clique leva o indicador ao mapa e aos gráficos de baixo. Indicador só nacional (PISA, INAF, mercado) aparece só no panorama e na série, nunca como mapa.
+
+**Painel**
+- **CA-33.6 👁** O módulo abre com um indicador e um território escolhidos (padrão: Brasil). O mapa mostra o indicador por UF ou por município, com legenda, dica (território, valor, n ou numerador e denominador, ano, fonte) e tabela equivalente. A série temporal aparece quando há mais de um ano, e a comparação por recorte quando a fonte tem recorte (ex.: alfabetização por cor ou raça na UF). O clique num território abre o perfil dele (CA-32.4).
+- **CA-33.7 🧪👁** A escolha de indicador, território, ano e recorte fica na URL e é compartilhável. A ida e a volta da codificação são testadas. Os números vêm de uma função pura testada.
+- **CA-33.8 🧪** Páginas estáticas (RF-27): uma por indicador, com a tabela por UF, e as páginas de UF ganham o bloco de leitura. `indicador_valor` sai inteiro em CSV na página de dados abertos.
+
+### RF-34 Módulo Mapeamento (Florianópolis)
+> Decidido em 2026-11-20. Desenho: D40. Versão inicial só em Florianópolis (código IBGE 4205407); o modelo é por município, para crescer sem mudar a base (DB-3). Ordem de coleta: editoras e livrarias, depois autoras, autores e obras, por último clubes do livro (DB-4).
+
+Cadastro curado da cena literária de um município. É um cadastro, não um censo: diz o que foi mapeado e conferido até agora, nunca "o que a cidade tem".
+
+**Base e build**
+- **CA-34.1 🧪** Pessoa, obra e editora são as mesmas tabelas do módulo Prêmios: uma pessoa de Florianópolis que já chegou a um prêmio é um registro só, com a trajetória nos prêmios e o vínculo com a cidade. Livraria e clube do livro são tabelas novas. O casamento de pessoas e obras segue o CA-26.5 (decisão humana, depois QID, depois nome com conferência).
+- **CA-34.2 🧪** Todo registro do mapeamento tem fonte (URL) e `verificado_em` (data da última conferência). Livraria, clube e editora têm também `situacao` (`ativa`, `encerrada` ou `incerta`). O build falha sem fonte ou sem data. Registro encerrado continua na base, marcado, com o ano de encerramento quando conhecido. Registro com mais de 12 meses sem verificação aparece como "a conferir".
+- **CA-34.3 🧪** Vínculo com o município explícito, com tipo e fonte (DB-2):
+  - pessoa: `nascimento` (município de nascimento, como no resto da base) ou `atuacao` (vive ou trabalha na cidade, dito numa fonte pública: minibiografia de editora, entrevista, site da pessoa). Uma pessoa pode ter os dois;
+  - obra: `autoria` (de pessoa com vínculo), `editora` (publicada por editora com sede na cidade) ou `ambientacao` (passada na cidade, dito numa fonte). Uma obra pode ter vários;
+  - editora: sede no município; livraria e clube: endereço ou local de encontro no município.
+  O build falha com vínculo sem tipo ou sem fonte. Nenhum número soma vínculos diferentes sem dizer o critério.
+- **CA-34.4 🧪** **Livraria:** estabelecimento cuja atividade principal é vender livros ao público. Campos: nome, tipo (`geral`, `sebo`, `especializada` com o foco, `cafe_livraria`, `online`), rede ou independente, endereço e bairro (loja física), coordenadas, site e redes. Livraria só on-line com sede na cidade entra sem ponto no mapa. Papelaria e banca que vendem livro de forma secundária ficam fora. Candidatas vêm do CNPJ (CNAE 4761-0/01) e do OpenStreetMap; só entra quem tem sinal público de funcionamento (site, rede social ativa, página de evento, matéria), e as demais ficam no relatório de candidatas.
+- **CA-34.5 🧪** **Editora:** sede no município e ao menos um livro publicado verificável (ISBN, catálogo de biblioteca ou página da editora). Tipo: `comercial`, `universitaria`, `independente` ou `artesanal` (inclui cartonera e editora de fanzine). Edição do autor não vira editora.
+- **CA-34.6 🧪** **Autora ou autor:** pessoa com ao menos um livro publicado verificável (por editora ou edição do autor) e vínculo com a cidade (CA-34.3). Gênero, raça e nascimento seguem as regras da base: raça só autodeclarada, com trecho e link; gênero atribuído pelo nome marcado (CA-11.4). Só dados públicos e profissionais: nome literário, obras, vínculo, links públicos. Nunca endereço, telefone ou e-mail pessoal.
+- **CA-34.7 🧪** **Obra:** livro de pessoa ou editora mapeada, ou ambientado na cidade, com ano, editora e ISBN quando houver. A capa segue o CA-24.2 (exibida da fonte, com crédito).
+- **CA-34.8 🧪** **Clube do livro:** grupo com encontros recorrentes para discutir livros e com canal público (site, rede social, página de livraria ou biblioteca). Campos: nome, formato (`presencial`, `online`, `hibrido` ou `nao_informado`), periodicidade, foco (gênero, tema, público), aberto a novos membros ou não, quem organiza (instituição ou "independente") e local de encontro (`nao_informado` quando a fonte só traz o canal, por exemplo um @ numa programação de evento; então sem endereço nem ponto). Privacidade (DB-6): endereço só de lugar público (livraria, biblioteca, café); clube que se reúne em casa não tem endereço nem ponto no mapa. O nome de quem organiza um clube independente não é publicado, só o canal público do clube.
+
+**Painel**
+- **CA-34.9 👁** O módulo abre com um mapa da cidade com livrarias e clubes presenciais, com filtros por tipo e situação. O mapa é detalhado: contorno do município (na capital, parte insular e continental), distritos com nome, lagoas e municípios vizinhos, com zoom por botões, arraste, pinça e Ctrl + roda (a roda sozinha rola a página). Os rótulos não se sobrepõem, e pontos e textos mantêm o tamanho na tela. Há e uma lista equivalente (o mapa nunca é o único acesso, RNF-05). Abaixo, editoras, autoras e autores e obras em listas com busca e filtros (tipo, vínculo, situação). Livraria (`#/livraria/<id>`), clube (`#/clube/<id>`), pessoa, obra e editora têm perfil no módulo, com o vínculo e a fonte. Quem também está nos prêmios ganha link para o perfil de lá, e o perfil dos prêmios ganha o bloco "Em Florianópolis", com link de volta.
+- **CA-34.10 🧪👁** Os números do módulo dizem o critério e o caráter de cadastro: "autoras e autores mapeados: X nascidos em Florianópolis, Y que atuam na cidade, Z nos dois", "livrarias ativas mapeadas", com a data da última conferência. Percentuais (gênero, piso de pessoas negras) mostram o n e seguem as regras do módulo Prêmios. Números de uma função pura testada.
+- **CA-34.11 👁** Sugerir, corrigir ou sair: um formulário público, sem login, para sugerir um registro, corrigir um dado (com fonte) ou pedir a remoção de dados sobre si. Nada entra no site sem revisão humana. O que é aceito vai para os CSVs em `dados/` (a fonte da verdade continua sendo o CSV). Pedido de remoção de pessoa é atendido. O formulário pede só o necessário, e o contato é opcional.
+- **CA-34.12 🧪** Páginas estáticas (RF-27): a página do mapeamento da cidade, com as listas, e uma página por livraria e por clube, com JSON-LD (`BookStore`, `Organization`). Os registros saem em CSV na página de dados abertos, sem nenhum campo além dos que o painel mostra.
+
+**Decisões** (fechadas em 2026-11-20 pelo mantenedor; o desenho está em D37 a D40)
+- **DB-1 Identidade** (revê DA-5): o Literadados é uma plataforma de dados sobre literatura e leitura, com foco no Brasil. Prêmios é um módulo. O título da abertura passa a falar da plataforma, e "Quem chega aos prêmios literários?" vira a pergunta do módulo Prêmios. O logotipo de células de dados continua.
+- **DB-2 Vínculo com o município:** nascimento e atuação são vínculos diferentes, cada um com fonte, e nunca são somados sem dizer o critério. "Estado = UF de nascimento" continua valendo para o módulo Prêmios.
+- **DB-3 Escala do mapeamento:** só Florianópolis na versão inicial. Outro município entra quando houver quem mantenha os registros de lá, pelo mesmo modelo.
+- **DB-4 Ordem:** (1) portal e território, sem mudar números do módulo Prêmios (CA-31.1); (2) Leitura, com as quatro fontes do CA-33.4; (3) Mapeamento: editoras e livrarias, depois autoras, autores e obras, por último clubes.
+- **DB-5 Contribuição:** formulário com revisão humana, sem servidor próprio (RNF-07). O CSV continua sendo a fonte da verdade.
+- **DB-6 Privacidade:** no mapeamento, só dados públicos e profissionais de pessoas; endereço só de estabelecimento ou de lugar público; remoção atendida a pedido da pessoa.
+- **DB-7 Países:** o território aceita país desde já (DA-3), mas indicadores e mapeamento fora do Brasil ficam para uma versão futura.
+
+### RF-35 Módulo Eventos literários (Brasil)
+> Pedido do mantenedor em 2026-11-21. Desenho: D41. Decisões DB-8 a DB-10 no fim desta seção.
+
+Cadastro curado de eventos literários do Brasil (festivais, feiras, bienais, festas literárias, encontros, jornadas, salões), com as edições passadas e as anunciadas. Como o Mapeamento, é cadastro, não censo: diz o que foi mapeado até agora.
+
+**Base e build**
+- **CA-35.1 🧪** Tabela `evento` (id, nome, tipo ∈ `festival`, `feira`, `bienal`, `festa_literaria`, `encontro`, `jornada`, `salao`, `outro`; município-sede em `territorio`; organizador; site; redes; ano da 1ª edição; fonte; `verificado_em`) e tabela `evento_edicao` (evento, ano, número da edição, data de início e de fim, município, local, tema, homenageada ou homenageado, situação ∈ `realizada`, `prevista`, `cancelada`, `adiada`, `formato` ∈ `presencial`, `online`, `hibrido`, público estimado com a fonte dele, fonte, `verificado_em`). O build falha com edição sem fonte ou sem data, data de fim antes da de início, município inexistente, público sem fonte, edição `prevista` com data de fim anterior à data de verificação, ou `realizada` com data de início posterior a ela.
+- **CA-35.2 🧪** Homenageada ou homenageado que está na base de pessoas é ligado pelo id (link para o perfil); quem não está fica só com o nome. Nenhum atributo de pessoa (gênero, raça) é inferido pelo evento.
+- **CA-35.3 🧪** O ano de uma edição é o da data de início. Uma edição por evento e ano; evento que acontece duas vezes no mesmo ano usa edições com sufixo no número.
+
+**Painel (`eventos.html`)**
+- **CA-35.4 👁** O módulo abre com os **próximos eventos** (edições com data de fim a partir de hoje, na data do navegador), em ordem de data, e mostra a contagem de eventos e de edições mapeados, as UFs com eventos e a data da última conferência ("mapeados até agora").
+- **CA-35.5 👁** Gráfico de tempo do ano escolhido (calendário em barras: uma barra por edição, do primeiro ao último dia, sobre os meses, com a data de hoje marcada; dica com nome, cidade, datas e situação; clique abre o perfil), mapa por UF com o número de edições no ano (tabela equivalente) e linha do tempo de cada evento (edições por ano, com situação). Filtros por tipo, UF, ano e situação, guardados na URL.
+- **CA-35.6 🧪👁** Perfil de evento (`#/evento/<id>`): tipo, cidade, organizador, site, todas as edições com datas, local, tema, homenageados (com link para o perfil quando a pessoa está na base), público com fonte e situação. Números de funções puras testadas (`metricas.proximosEventos`, `metricas.filtrarEventos`, `metricas.resumoEventos`).
+- **CA-35.7 👁** Perfil de município (CA-32.4) e página do mapeamento da cidade listam os eventos do município.
+
+**Para buscadores e IA**
+- **CA-35.8 🧪** Páginas estáticas `/eventos/` (por UF e por mês do ano corrente) e `/eventos/<id>/`, com JSON-LD `Event` por edição (`startDate`, `endDate`, `location` com cidade e UF, `eventStatus`: agendado, cancelado, adiado). A busca do cabeçalho acha eventos; o portal ganha o cartão do módulo; os dados saem em CSV na página de dados abertos.
+- **CA-35.9 🧪** Diadorim no módulo Eventos (views `v_evento_edicao`), com as regras: cadastro, não censo; data e fonte de toda edição; "prevista" não é confirmação de que aconteceu.
+
+**Decisões** (padrão do projeto, 2026-11-21; podem ser revistas pelo mantenedor)
+- **DB-8 Recorte:** eventos abertos ao público cujo centro é a literatura ou o livro (feiras do livro, festas literárias, bienais, festivais e encontros de escritores). Ficam fora eventos internos de uma escola, lançamentos de livro, saraus recorrentes semanais e eventos acadêmicos (congressos), que pedem outro recorte.
+- **DB-9 Abrangência inicial:** o Brasil todo, começando pelos eventos mais conhecidos de cada UF e pelas edições de 2015 em diante (mais as anteriores quando houver lista pública completa), e pela edição seguinte quando já anunciada.
+- **DB-10 Datas:** "passado" e "futuro" são calculados no navegador pela data de hoje; a situação gravada (`prevista`, `realizada`) é a da última conferência, e edição prevista cuja data já passou aparece como "a conferir" até ser atualizada.
+
 ## 5. Requisitos não funcionais
 
 - **RNF-01 Simplicidade:** sem etapa de build no frontend. Bibliotecas com versão fixa via CDN. O backend usa apenas `duckdb`. A IA roda no navegador, pelo OpenRouter, com a chave de quem entrou.
-- **RNF-02 Honestidade estatística:** todo percentual mostra o n. Quando n < 5, o valor aparece com aviso de "n pequeno". Séries temporais usam proporções (o número de vagas mudou em 2018).
+- **RNF-02 Honestidade estatística:** todo percentual mostra o n. Quando n < 5, o valor aparece com aviso de "n pequeno". Séries temporais usam proporções (o número de vagas mudou em 2018). Estimativa de pesquisa amostral mostra amostra e margem de erro, e nunca é comparada a censo ou registro sem aviso (CA-33.3). Cadastro curado (RF-34) é apresentado como "mapeado até agora", nunca como total.
 - **RNF-03 Segurança do chat:** banco aberto só para leitura, acesso externo desligado e configuração travada, só `SELECT`/`WITH`, limite de linhas e de tempo. O servidor não guarda chave nenhuma: a chave do OpenRouter é de quem entrou e fica no navegador dela.
-- **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência de raça. Gênero é a única exceção: sem fonte, pode ser atribuído pelo primeiro nome, sempre marcado como atribuído (CA-11.4, D16). Todo atributo com fonte tem a fonte exibida.
+- **RNF-04 Ética e LGPD:** raça é dado sensível. Só entra com evidência pública documentada. Nunca exibir inferência de raça. Gênero é a única exceção: sem fonte, pode ser atribuído pelo primeiro nome, sempre marcado como atribuído (CA-11.4, D16). Todo atributo com fonte tem a fonte exibida. No mapeamento (RF-34), pessoas vivas aparecem só com dados públicos e profissionais, nenhum endereço de pessoa é publicado, e o pedido de remoção é atendido (DB-6).
 - **RNF-05 Acessibilidade:** contraste AA nos dois temas, navegação por teclado nos filtros, na história, na galeria e no chat, títulos e descrições nos gráficos, tabela equivalente para cada gráfico, layout utilizável a partir de 360 px, `prefers-reduced-motion` respeitado, sem violações do axe-core (WCAG 2.1 A/AA) na página, nas janelas, nos perfis e no chat.
 - **RNF-08 Desempenho e resiliência:** nada de script bloqueando a primeira pintura (d3 com `defer`; Plot e d3-sankey só quando um gráfico de janela ou de perfil de lugar vai ser desenhado, com pré-carga ociosa), fontes servidas pelo próprio site com fallback de métricas ajustadas, fotos como miniaturas WebP do próprio site (`coleta.py miniaturas`; sem elas, o Commons), tema salvo aplicado antes do primeiro quadro, espaço da abertura reservado até os dados chegarem (CLS ≈ 0), falha ao carregar os dados ou ao desenhar uma parte vira aviso com "Tentar de novo" sem derrubar o resto.
 - **RNF-07 Hospedagem estática:** o site publicado (`web/`) funciona sem servidor de aplicação; ele vai para o Netlify em `literadados.gustavosimas.com`. O `server.py` serve só para o desenvolvimento local.
-- **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s.
+- **RNF-09 Mapas sem chave nem rastreamento:** mapas de municípios e da cidade funcionam sem chave de API e sem serviço que rastreie quem visita, com a atribuição exigida pela fonte do mapa de fundo.
+- **RNF-06 Desempenho:** `dados.json` < 1 MB; primeira renderização local < 2 s. Vale por módulo (CA-31.8).
   - **CA-RNF-06.1 🧪** O build gera `dados.json` com menos de 1 MB a partir dos dados reais.
   - **CA-RNF-06.2 🧪** O arquivo não repete atributos de pessoa e de obra em cada participação. O painel remonta as linhas no navegador, com as mesmas colunas e valores de `v_participacao`.
 
@@ -267,3 +404,10 @@ Método e Referências (RF-18) ficam numa **página própria** (`metodo.html`), 
 | Tema das obras (hipótese do "tema obrigatório") | Exige sinopses e classificação revisada |
 | Efeito do prêmio nas visualizações da Wikipédia | Fase 2; exige coleta de séries de visualizações |
 | Outros prêmios | Saiu desta lista: virou o RF-26 |
+| Indicadores e mapeamento por país | O território já aceita país (DB-7), mas as fontes são outras e o foco agora é o Brasil |
+| Eventos fora do Brasil, congressos acadêmicos e saraus semanais | Outro recorte (DB-8); o modelo de evento serve se entrarem depois |
+| Mapeamento de outros municípios | Exige quem mantenha os registros de cada cidade; o modelo já é por município (DB-3) |
+| Bibliotecas, feiras, saraus e eventos no mapeamento | Primeiro as cinco entidades pedidas; bibliotecas públicas e comunitárias são as candidatas da 2ª versão |
+| Páginas estáticas por município (5.570) | Depois que o perfil de município (CA-32.4) se mostrar útil |
+| Outras fontes de indicadores (Sistema Nacional de Bibliotecas Públicas, MUNIC, PNAD Contínua, SAEB, INAF, Produção e Vendas do Setor Editorial) | Entram uma a uma, cada uma com o seu CA, como os prêmios no RF-26 |
+| Vendas, preços e tiragens de livros | Sem fonte aberta por território |

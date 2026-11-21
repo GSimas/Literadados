@@ -5,8 +5,8 @@
   </picture>
 </p>
 
-<p align="center"><b>Quem chega aos prêmios literários?</b><br>
-Plataforma de dados abertos sobre gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem oito prêmios por livro — Jabuti (1959–2026), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2026), Sesc de Literatura (2004–2026), LeYa (2008–2025), José Saramago (1999–2024) e os prêmios da Academia Brasileira de Letras (1999–2026) — e, à parte, dois prêmios pelo conjunto da obra: Camões (1989–2026) e Machado de Assis (1941–2026). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
+<p align="center"><b>Dados sobre literatura e leitura no Brasil</b><br>
+Plataforma de dados abertos organizada em módulos, com fonte em cada número. O módulo <b>Prêmios</b> mostra gênero, raça autodeclarada e local de nascimento de quem escreveu as obras indicadas a prêmios literários de língua portuguesa, lado a lado. Hoje a base tem oito prêmios por livro — Jabuti (1959–2026), Oceanos (2003–2025), São Paulo de Literatura (2008–2025), Biblioteca Nacional (1995–2026), Sesc de Literatura (2004–2026), LeYa (2008–2025), José Saramago (1999–2024) e os prêmios da Academia Brasileira de Letras (1999–2026) — e, à parte, dois prêmios pelo conjunto da obra: Camões (1989–2026) e Machado de Assis (1941–2026). Há painel interativo, perfis de pessoas, livros, editoras, edições e lugares, história guiada, páginas para buscadores e IAs, e uma IA que responde perguntas com SQL sobre a base.</p>
 
 <p align="center">
   <a href="https://literadados.gustavosimas.com"><img alt="Site no ar" src="https://img.shields.io/website?url=https%3A%2F%2Fliteradados.gustavosimas.com&label=literadados.gustavosimas.com&up_message=no%20ar&down_message=fora%20do%20ar"></a>
@@ -76,7 +76,7 @@ O painel é desenhado por JavaScript e os perfis vivem em rotas `#/...`, que bus
 | [`/perguntas/`](https://literadados.gustavosimas.com/perguntas/) | Perguntas frequentes respondidas com números da base e n (`FAQPage`) |
 | [`/dados-abertos/`](https://literadados.gustavosimas.com/dados-abertos/) | Tabelas para baixar (Parquet e CSV), regras de uso dos números e como citar (`Dataset`) |
 
-Toda página tem título e descrição próprios, URL canônica, Open Graph e dados estruturados JSON-LD (`ProfilePage`/`Person`, `Book`, `Organization`, `ItemList`, `FAQPage`, `Dataset`, `BreadcrumbList`). As regras do painel valem nelas: percentual com n, piso de pessoas negras, raça só com autodeclaração (e nunca no JSON-LD), gênero atribuído marcado. Os números são testados contra o que o painel calcula. O build também grava `sitemap.xml` (o `lastmod` só muda quando a página muda), [`llms.txt`](https://literadados.gustavosimas.com/llms.txt) e [`llms-full.txt`](https://literadados.gustavosimas.com/llms-full.txt), e escreve na abertura (`index.html`) os números reais, para quem lê sem JavaScript. `robots.txt` libera buscadores e robôs de IA.
+Toda página tem título e descrição próprios, URL canônica, Open Graph e dados estruturados JSON-LD (`ProfilePage`/`Person`, `Book`, `Organization`, `ItemList`, `FAQPage`, `Dataset`, `BreadcrumbList`). As regras do painel valem nelas: percentual com n, piso de pessoas negras, raça só com autodeclaração (e nunca no JSON-LD), gênero atribuído marcado. Os números são testados contra o que o painel calcula. O build também grava `sitemap.xml` (o `lastmod` só muda quando a página muda), [`llms.txt`](https://literadados.gustavosimas.com/llms.txt) e [`llms-full.txt`](https://literadados.gustavosimas.com/llms-full.txt), e escreve na abertura do painel de prêmios (`premios.html`) os números reais, para quem lê sem JavaScript. `robots.txt` libera buscadores e robôs de IA.
 
 Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **filtro próprio** (período, categorias e papel), com o resumo do recorte e um botão de CSV. Cada filtro fica na URL (`?funil=2019-2025~Poesia`), e o link pode ser compartilhado. A história e a Diadorim usam o recorte completo.
 
@@ -95,12 +95,24 @@ Não há filtro global. O panorama, cada gráfico e a galeria de autores têm **
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # uma vez
 .venv/bin/python build.py      # CSVs → literadados.duckdb + web/dados.json + páginas estáticas (falha se o dado for inconsistente)
-.venv/bin/python server.py     # http://localhost:8000 (servidor estático só para desenvolvimento)
+.venv/bin/python server.py     # http://localhost:8000 (portal; prêmios em /premios.html, leitura em /leitura.html, mapeamento em /mapeamento.html)
+```
+
+Coletas dos módulos novos (os downloads brutos ficam em `~/Library/Caches/literadados/`, fora do repositório):
+
+```bash
+.venv/bin/python coleta.py territorio                  # municípios, UFs e regiões do IBGE + população do Censo 2022 → dados/territorio.csv
+.venv/bin/python coleta.py malha_municipios            # malha municipal por UF → web/malha/<UF>.json
+.venv/bin/python coleta.py leitura alfabetizacao       # Censo 2022 (SIDRA 9542) → dados/indicador_valor/alfabetizacao.csv
+.venv/bin/python coleta.py leitura escolas_biblioteca  # microdados do Censo Escolar (INEP) baixados no cache
+.venv/bin/python coleta.py leitura cnpj                # estabelecimentos do CNPJ filtrados pelos CNAEs de livraria e editora
+.venv/bin/python coleta.py leitura retratos            # dados/coleta/leitura/retratos.csv (transcrição com página) → leitores e livros por ano
+.venv/bin/python coleta.py mapeamento                  # dados/coleta/mapeamento/<código>/livrarias.csv e clubes.csv → dados/livraria.csv e clube.csv
 ```
 
 O painel não precisa de chave nenhuma. Para conversar com a Diadorim, clique no botão do canto e entre com sua conta do OpenRouter: a chave fica só no seu navegador.
 
-**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/edicoes.json`, `web/contexto.json`, `web/banco/*.parquet` e as páginas estáticas, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e push para o `main`. O Netlify está ligado ao repositório e publica `web/` a cada push; PRs ganham prévia de deploy.
+**No ar:** https://literadados.gustavosimas.com (Netlify, estático). O build gera `web/dados.json`, `web/edicoes.json`, `web/leitura.json` (e os arquivos por UF), `web/mapeamento/<município>.json`, `web/contexto-<módulo>.json`, `web/banco/*.parquet` e as páginas estáticas, e a Diadorim consulta o banco num DuckDB que roda no próprio navegador (DuckDB-WASM). Não há servidor de aplicação. Para publicar: `python build.py`, commit e push para o `main`. O Netlify está ligado ao repositório e publica `web/` a cada push; PRs ganham prévia de deploy.
 
 ## Testes
 
