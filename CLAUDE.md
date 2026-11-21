@@ -20,9 +20,14 @@ node --test tests/*.test.mjs         # testes das métricas do frontend (Node 24
 .venv/bin/python coleta.py verificar           # confere trechos de raça contra as páginas-fonte
 .venv/bin/python coleta.py contexto            # dados/coleta/contexto/lote_*.csv → dados/edicao_contexto.csv (texto de cada edição)
 .venv/bin/python coleta.py territorio | malha_municipios       # território do IBGE (RF-32) e malha municipal por UF
-.venv/bin/python coleta.py leitura <alfabetizacao|escolas_biblioteca|cnpj|retratos>   # módulo Leitura (RF-33); downloads em ~/Library/Caches/literadados/
+.venv/bin/python coleta.py leitura <alfabetizacao|escolas_biblioteca|cnpj|retratos>   # módulo Leitura (RF-33); downloads em ~/Library/Caches/literadados/ (Linux: ~/.cache/literadados/)
 .venv/bin/python coleta.py mapeamento          # livrarias.csv/clubes.csv da coleta → dados/livraria.csv e clube.csv (RF-34); obras/editoras/pessoas entram pelo normalizar
 ```
+
+## Atualização automática (D42)
+`.github/workflows/atualizar-dados.yml` roda no dia 1 de cada mês (e por "Run workflow" no GitHub): `coleta.py territorio`, `leitura alfabetizacao`, `leitura pnad` e `malha_cidade 4205407`, depois `build.py`, e abre um PR (`atualizar-dados`) para revisão. **Nunca publica sozinha**: o deploy só sai no merge. Build com `BuildError` = job vermelho, sem PR; fontes sem mudança = sem PR. Só roda o que está em `main`.
+- Automático: só coletas de API pública que reescrevem o arquivo inteiro (IBGE localidades/SIDRA, OpenStreetMap).
+- Manual: listas de prêmios, raça por autodeclaração, Retratos da Leitura, INAF, SAEB, PISA, mercado do livro, SNBP/MUNIC (`leitura arquivo`), mapeamento e eventos (curadoria humana); `leitura cnpj` e `leitura escolas_biblioteca` (downloads de GB em cache local, pesados demais para o runner); `malha` e `malha_municipios` (mudam só com nova malha do IBGE).
 
 ## Regras inegociáveis
 - Raça só com autodeclaração pública (ou fonte curada por identidade) + URL + trecho literal. Nunca inferir. Indicador de negros é **piso** ("pelo menos").

@@ -1,0 +1,71 @@
+# Atualização mensal dos dados que vêm de APIs públicas (design D42). Nunca publica sozinha:
+# roda as coletas, o build e abre um pull request para revisão humana. O deploy só acontece no merge para main.
+# Requer em Settings → Actions → General: "Allow GitHub Actions to create and approve pull requests".
+name: Atualizar dados públicos
+
+on:
+  schedule:
+    - cron: "0 9 1 * *"  # dia 1 de cada mês, 06:00 em Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: atualizar-dados
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      # Só coletas que leem APIs públicas e reescrevem o arquivo inteiro (User-Agent do projeto, sem e-mail).
+      # Ficam de fora: leitura cnpj e leitura escolas_biblioteca (downloads de GB/centenas de MB em cache local),
+      # e tudo o que é curado (listas de prêmios, raça, Retratos, INAF, SAEB, PISA, mercado, SNBP/MUNIC, mapeamento, eventos).
+      - name: Território (IBGE, localidades e Censo 2022)
+        run: python coleta.py territorio
+      - name: Alfabetização (IBGE, SIDRA 9542)
+        run: python coleta.py leitura alfabetizacao
+      - name: Analfabetismo (IBGE, PNAD Contínua)
+        run: python coleta.py leitura pnad
+      - name: Malha de Florianópolis (OpenStreetMap)
+        run: python coleta.py malha_cidade 4205407
+
+      # O build carimba gerado_em em vários JSON: sem mudança nas fontes, não há PR.
+      - name: Ver se as fontes mudaram
+        id: fontes
+        run: |
+          git status --porcelain -- dados web/malha
+          if [ -n "$(git status --porcelain -- dados web/malha)" ]; then echo "mudou=true" >> "$GITHUB_OUTPUT"; else echo "mudou=false" >> "$GITHUB_OUTPUT"; fi
+
+      # BuildError sai com código 1 e "ERRO: ..." no log: o job falha e não há PR.
+      - name: Build
+        run: python build.py
+
+      - name: Abrir pull request para revisão
+        if: steps.fontes.outputs.mudou == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: atualizar-dados
+          delete-branch: true
+          commit-message: "Atualiza dados públicos (IBGE, OpenStreetMap)"
+          title: "Atualização mensal dos dados públicos"
+          body: |
+            Gerado pela ação `atualizar-dados` (design D42). Nada foi publicado: o deploy só acontece no merge para `main`.
+
+            Coletas: `territorio`, `leitura alfabetizacao`, `leitura pnad`, `malha_cidade 4205407`; depois `build.py` (passou nas checagens).
+
+            Antes do merge: confira o diff de `dados/` e `web/malha/` (valores novos, linhas sumidas, contornos) e a prévia de deploy do Netlify.
+            As mudanças em `gerado_em` dos JSON são só o carimbo do build.
