@@ -26,10 +26,21 @@
 </head>
 <body class="estatica">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-<header class="barra">
-  <a class="marca" href="/" aria-label="Literadados, início"><img class="logo" src="/logo.svg" alt="" width="30" height="30">
-    <span class="marca-texto">Litera<em>dados</em></span></a>
-  <nav class="nav" aria-label="Módulos e seções"><a class="modulo" href="/premios.html">Prêmios</a><a class="modulo" href="/leitura.html">Leitura</a><a class="modulo" href="/mapeamento.html">Mapeamento</a><a class="modulo" href="/eventos.html">Eventos</a><span class="sep" aria-hidden="true"></span><a href="/premios/">Edições</a><a href="/pessoas/" aria-current="page">Pessoas</a><a href="/editoras/">Editoras</a><a href="/estados/">Estados</a><a href="/perguntas/">Perguntas</a><a href="/metodo.html">Método</a></nav>
+<header class="barra" id="barra">
+  <a class="marca" href="/" aria-label="Literadados, início"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><g class="lt-marca"><path class="lt-casco" d="M32 3.5 L56.68 17.75 L56.68 46.25 L32 60.5 L7.32 46.25 L7.32 17.75 Z"/><path class="lt-celula" style="--i:0" d="M32.00 24.64 L38.37 28.32 L38.37 35.68 L32.00 39.36 L25.63 35.68 L25.63 28.32 Z" fill-opacity="1"/><path class="lt-celula" style="--i:1" d="M17.74 24.64 L24.11 28.32 L24.11 35.68 L17.74 39.36 L11.37 35.68 L11.37 28.32 Z" fill-opacity="0.55"/><path class="lt-celula" style="--i:2" d="M24.87 12.29 L31.24 15.97 L31.24 23.33 L24.87 27.01 L18.50 23.33 L18.50 15.97 Z" fill-opacity="0.8"/><path class="lt-celula" style="--i:3" d="M39.13 12.29 L45.50 15.97 L45.50 23.33 L39.13 27.01 L32.76 23.33 L32.76 15.97 Z" fill-opacity="0.4"/><path class="lt-celula" style="--i:4" d="M46.26 24.64 L52.63 28.32 L52.63 35.68 L46.26 39.36 L39.89 35.68 L39.89 28.32 Z" fill-opacity="0.9"/><path class="lt-celula" style="--i:5" d="M39.13 36.99 L45.50 40.67 L45.50 48.03 L39.13 51.71 L32.76 48.03 L32.76 40.67 Z" fill-opacity="0.5"/><path class="lt-celula" style="--i:6" d="M24.87 36.99 L31.24 40.67 L31.24 48.03 L24.87 51.71 L18.50 48.03 L18.50 40.67 Z" fill-opacity="0.7"/></g></svg><span class="marca-texto">Litera<em>dados</em></span></a>
+  <nav class="nav" aria-label="Módulos"><a class="modulo" href="/premios.html" aria-current="page">Prêmios</a><a class="modulo" href="/leitura.html">Leitura</a><a class="modulo" href="/mapeamento.html">Mapeamento</a><a class="modulo" href="/eventos.html">Eventos</a><span class="sep" aria-hidden="true"></span><a href="/metodo.html">Método</a></nav>
+  <div class="busca-global" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    <label for="busca-global" class="sr">Buscar no Literadados</label>
+    <input id="busca-global" type="search" role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list"
+      autocomplete="off" spellcheck="false" placeholder="Buscar autor, livro, cidade, evento…">
+    <kbd aria-hidden="true">/</kbd>
+    <ul id="busca-resultados" class="menu busca-resultados" role="listbox" aria-label="Resultados da busca" hidden></ul>
+  </div>
+  <div class="barra-acoes">
+    <button id="tema" class="botao-icone so-icone" type="button" aria-label="Tema de cores"></button>
+  </div>
+  <div class="progresso" id="progresso" aria-hidden="true"></div>
 </header>
 <main id="conteudo" class="pagina-estatica">
 <nav class="migalhas" aria-label="Você está em"><ol><li><a href="/">Início</a></li><li><a href="/pessoas/">Pessoas</a></li><li aria-current="page">Bruno Tolentino</li></ol></nav>
@@ -53,7 +64,9 @@
 <footer class="rodape">
   <p><b>Literadados</b> · dados abertos sobre literatura e leitura no Brasil. Cada número tem fonte; cada pessoa, um perfil.
   <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/premios.html">Painel interativo</a>.</p>
+  <nav class="rodape-links" aria-label="Páginas de consulta"><a href="/premios/">Edições</a> · <a href="/pessoas/" aria-current="page">Pessoas</a> · <a href="/editoras/">Editoras</a> · <a href="/estados/">Estados</a> · <a href="/perguntas/">Perguntas</a> · <a href="/leitura/">Leitura</a> · <a href="/mapeamento/">Mapeamento</a> · <a href="/eventos/">Eventos</a></nav>
   <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
 </footer>
+<script type="module">import { montarTema } from "/tema.js"; import { montarBusca } from "/busca.js"; montarTema(); montarBusca(null, "/premios.html");</script>
 </body>
 </html>

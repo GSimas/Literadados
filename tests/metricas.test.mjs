@@ -547,11 +547,11 @@ test("nome curto de prêmio para eixos e listas", () => {
 });
 
 test("entradasBusca: busca.json vira entradas do índice; o painel pula o que já cobre (CA-31.5)", () => {
-  const J = { tipos: ["Pessoa", "Município"], e: [[0, "Conceição Evaristo", "MG · 1946", "premios.html#/pessoa/ce"], [1, "Florianópolis", "SC", "leitura.html#/municipio/4205407", "desterro"]] };
+  const J = { tipos: ["Pessoa", "Município"], e: [[0, "Conceição Evaristo", "MG · 1946", "/premios.html#/pessoa/ce"], [1, "Florianópolis", "SC", "/leitura.html#/municipio/4205407", "desterro"]] };
   const todas = M.entradasBusca(J);
   assert.equal(todas.length, 2);
   assert.equal(M.buscar(todas, "desterro")[0].rotulo, "Florianópolis");  // termo extra acha o município
-  assert.deepEqual(M.entradasBusca(J, "premios.html").map((x) => x.tipo), ["Município"]);
+  assert.deepEqual(M.entradasBusca(J, "/premios.html").map((x) => x.tipo), ["Município"]);
   assert.equal(M.buscar(todas, "flor")[0].tipo, "Município");
 });
 

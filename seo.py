@@ -126,10 +126,56 @@ class Base:
 COD_UF_IBGE = {"RO": "11", "AC": "12", "AM": "13", "RR": "14", "PA": "15", "AP": "16", "TO": "17", "MA": "21", "PI": "22", "CE": "23", "RN": "24",
                "PB": "25", "PE": "26", "AL": "27", "SE": "28", "BA": "29", "MG": "31", "ES": "32", "RJ": "33", "SP": "35", "PR": "41", "SC": "42",
                "RS": "43", "MS": "50", "MT": "51", "GO": "52", "DF": "53"}
-LOGO = '<img class="logo" src="/logo.svg" alt="" width="30" height="30">'
+LOGO = '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><g class="lt-marca"><path class="lt-casco" d="M32 3.5 L56.68 17.75 L56.68 46.25 L32 60.5 L7.32 46.25 L7.32 17.75 Z"/><path class="lt-celula" style="--i:0" d="M32.00 24.64 L38.37 28.32 L38.37 35.68 L32.00 39.36 L25.63 35.68 L25.63 28.32 Z" fill-opacity="1"/><path class="lt-celula" style="--i:1" d="M17.74 24.64 L24.11 28.32 L24.11 35.68 L17.74 39.36 L11.37 35.68 L11.37 28.32 Z" fill-opacity="0.55"/><path class="lt-celula" style="--i:2" d="M24.87 12.29 L31.24 15.97 L31.24 23.33 L24.87 27.01 L18.50 23.33 L18.50 15.97 Z" fill-opacity="0.8"/><path class="lt-celula" style="--i:3" d="M39.13 12.29 L45.50 15.97 L45.50 23.33 L39.13 27.01 L32.76 23.33 L32.76 15.97 Z" fill-opacity="0.4"/><path class="lt-celula" style="--i:4" d="M46.26 24.64 L52.63 28.32 L52.63 35.68 L46.26 39.36 L39.89 35.68 L39.89 28.32 Z" fill-opacity="0.9"/><path class="lt-celula" style="--i:5" d="M39.13 36.99 L45.50 40.67 L45.50 48.03 L39.13 51.71 L32.76 48.03 L32.76 40.67 Z" fill-opacity="0.5"/><path class="lt-celula" style="--i:6" d="M24.87 36.99 L31.24 40.67 L31.24 48.03 L24.87 51.71 L18.50 48.03 L18.50 40.67 Z" fill-opacity="0.7"/></g></svg>'
 # Módulos (D37): os mesmos links, na mesma ordem, no cabeçalho de toda página (test_cabecalho_igual_em_todas_as_paginas).
 MODULOS = [("/premios.html", "Prêmios"), ("/leitura.html", "Leitura"), ("/mapeamento.html", "Mapeamento"), ("/eventos.html", "Eventos")]
-NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
+NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"),
+       ("/leitura/", "Leitura"), ("/mapeamento/", "Mapeamento"), ("/eventos/", "Eventos")]  # páginas de consulta: no rodapé das páginas estáticas
+# Página escrita à mão → item marcado no cabeçalho (CA-31.4). "/" marca o logotipo (portal).
+PAGINAS_CABECALHO = {"index.html": "/", "premios.html": "/premios.html", "leitura.html": "/leitura.html", "mapeamento.html": "/mapeamento.html",
+                     "mapeamento-obrigado.html": "/mapeamento.html", "eventos.html": "/eventos.html", "metodo.html": "/metodo.html", "404.html": None}
+
+
+def cabecalho(atual=None) -> str:
+    """Cabeçalho único de todas as páginas (CA-31.4, D37): logotipo, módulos, Método, busca e tema; muda só o destaque."""
+    cur = lambda c: ' aria-current="page"' if c == atual else ""
+    itens = ("".join(f'<a class="modulo" href="{c}"{cur(c)}>{r}</a>' for c, r in MODULOS)
+             + f'<span class="sep" aria-hidden="true"></span><a href="/metodo.html"{cur("/metodo.html")}>Método</a>')
+    return f"""<header class="barra" id="barra">
+  <a class="marca" href="/" aria-label="Literadados, início"{cur("/")}>{LOGO}<span class="marca-texto">Litera<em>dados</em></span></a>
+  <nav class="nav" aria-label="Módulos">{itens}</nav>
+  <div class="busca-global" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    <label for="busca-global" class="sr">Buscar no Literadados</label>
+    <input id="busca-global" type="search" role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list"
+      autocomplete="off" spellcheck="false" placeholder="Buscar autor, livro, cidade, evento…">
+    <kbd aria-hidden="true">/</kbd>
+    <ul id="busca-resultados" class="menu busca-resultados" role="listbox" aria-label="Resultados da busca" hidden></ul>
+  </div>
+  <div class="barra-acoes">
+    <button id="tema" class="botao-icone so-icone" type="button" aria-label="Tema de cores"></button>
+  </div>
+  <div class="progresso" id="progresso" aria-hidden="true"></div>
+</header>"""
+
+
+def gravar_cabecalhos(web: Path):
+    """Grava o cabeçalho único nas páginas escritas à mão (troca o <header class="barra"> inteiro)."""
+    for arq, atual in PAGINAS_CABECALHO.items():
+        p = web / arq
+        if not p.exists():
+            continue
+        s = p.read_text(encoding="utf-8")
+        novo = re.sub(r'<header class="barra"[^>]*>.*?</header>', lambda _: cabecalho(atual), s, count=1, flags=re.S)
+        if novo != s:
+            p.write_text(novo, encoding="utf-8")
+
+
+def modulo_do_caminho(caminho: str):
+    for pref, mod in (("/leitura/", "/leitura.html"), ("/mapeamento/", "/mapeamento.html"), ("/eventos/", "/eventos.html")):
+        if caminho.startswith(pref):
+            return mod
+    return "/premios.html"  # prêmios, edições, pessoas, editoras, estados, perguntas, dados abertos
 
 
 def _ld(obj) -> str:
@@ -141,8 +187,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
     trilha = [("Início", "/"), *migalhas]
     ld = [*ld, {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + c} for i, (n, c) in enumerate(trilha)]}] if migalhas else list(ld)
-    nav = ("".join(f'<a class="modulo" href="{c}">{r}</a>' for c, r in MODULOS) + '<span class="sep" aria-hidden="true"></span>'
-           + "".join(f'<a href="{c}"{" aria-current=\"page\"" if c == atual else ""}>{r}</a>' for c, r in NAV))
+    consulta = " · ".join(f'<a href="{c}"{" aria-current=\"page\"" if c == atual else ""}>{r}</a>' for c, r in NAV)
     og_img = imagem or f"{SITE}/og.png"
     migas = ("<nav class=\"migalhas\" aria-label=\"Você está em\"><ol>" + "".join(
         f'<li><a href="{c}">{e(n)}</a></li>' if i < len(trilha) - 1 else f'<li aria-current="page">{e(n)}</li>' for i, (n, c) in enumerate(trilha))
@@ -175,11 +220,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 </head>
 <body class="estatica">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-<header class="barra">
-  <a class="marca" href="/" aria-label="Literadados, início">{LOGO}
-    <span class="marca-texto">Litera<em>dados</em></span></a>
-  <nav class="nav" aria-label="Módulos e seções">{nav}</nav>
-</header>
+{cabecalho(modulo_do_caminho(caminho))}
 <main id="conteudo" class="pagina-estatica">
 {migas}
 {corpo}
@@ -187,8 +228,10 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 <footer class="rodape">
   <p><b>Literadados</b> · dados abertos sobre literatura e leitura no Brasil. Cada número tem fonte; cada pessoa, um perfil.
   <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/premios.html">Painel interativo</a>.</p>
+  <nav class="rodape-links" aria-label="Páginas de consulta">{consulta}</nav>
   <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
 </footer>
+<script type="module">import {{ montarTema }} from "/tema.js"; import {{ montarBusca }} from "/busca.js"; montarTema(); montarBusca(null, "/premios.html");</script>
 </body>
 </html>
 """
@@ -1187,9 +1230,8 @@ def _portal(web: Path, b, r: dict, con):
     if r["pessoas"]:
         cartoes.append(
             '      <a class="cartao-grafico" href="premios.html">\n'
-            '        <span class="cg-sobre">Prêmios literários</span>\n'
-            '        <span class="cg-titulo">Quem chega aos prêmios literários?</span>\n'
-            '        <span class="cg-desc">Gênero, raça autodeclarada e local de nascimento de quem é indicado e premiado.</span>\n'
+            '        <span class="cg-titulo">Prêmios literários</span>\n'
+            '        <span class="cg-desc">Gênero, raça e origem de indicados e premiados</span>\n'
             f'        <span class="cg-num"><b>{fmt(r["pessoas"])}</b> pessoas-autoras · <b>{fmt(n_premios)}</b> prêmios</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
@@ -1197,9 +1239,8 @@ def _portal(web: Path, b, r: dict, con):
     if n_ind:
         cartoes.append(
             '      <a class="cartao-grafico" href="leitura.html">\n'
-            '        <span class="cg-sobre">Leitura</span>\n'
-            '        <span class="cg-titulo">Onde se lê e onde estão os livros?</span>\n'
-            '        <span class="cg-desc">Alfabetização, leitores, escolas com biblioteca, livrarias e editoras, por município, estado e região.</span>\n'
+            '        <span class="cg-titulo">Leitura</span>\n'
+            '        <span class="cg-desc">Alfabetização, leitores, bibliotecas e livrarias por território</span>\n'
             f'        <span class="cg-num"><b>{fmt(n_ind)}</b> indicadores · <b>{fmt(n_mun)}</b> municípios</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
@@ -1208,19 +1249,17 @@ def _portal(web: Path, b, r: dict, con):
     if (web / "mapeamento").exists() and any((web / "mapeamento").glob("[0-9]*.json")):
         cartoes.append(
             '      <a class="cartao-grafico" href="mapeamento.html">\n'
-            '        <span class="cg-sobre">Mapeamento · Florianópolis</span>\n'
-            '        <span class="cg-titulo">Quem faz a cena literária da cidade?</span>\n'
-            '        <span class="cg-desc">Livrarias, sebos, clubes do livro, editoras, autoras, autores e obras, num cadastro curado com fonte.</span>\n'
-            f'        <span class="cg-num"><b>{fmt(n_liv)}</b> livrarias ativas · <b>{fmt(n_pes)}</b> autoras e autores mapeados</span>\n'
+            '        <span class="cg-titulo">Mapeamento</span>\n'
+            '        <span class="cg-desc">Florianópolis: livrarias, clubes, editoras e autores</span>\n'
+            f'        <span class="cg-num"><b>{fmt(n_liv)}</b> livrarias · <b>{fmt(n_pes)}</b> autores</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
     n_ev, n_ed = con.execute("SELECT COUNT(DISTINCT evento_id), COUNT(*) FROM evento_edicao").fetchone()
     if n_ed:
         cartoes.append(
             '      <a class="cartao-grafico" href="eventos.html">\n'
-            '        <span class="cg-sobre">Eventos</span>\n'
-            '        <span class="cg-titulo">Onde a literatura se encontra?</span>\n'
-            '        <span class="cg-desc">Festivais, feiras do livro, bienais e festas literárias do Brasil, com as edições passadas e as próximas.</span>\n'
+            '        <span class="cg-titulo">Eventos</span>\n'
+            '        <span class="cg-desc">Festivais, feiras e bienais literárias do Brasil</span>\n'
             f'        <span class="cg-num"><b>{fmt(n_ev)}</b> eventos · <b>{fmt(n_ed)}</b> edições</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
@@ -1294,4 +1333,5 @@ def gerar(con, web: Path) -> dict:
     r = resumo(b.autores)
     _abertura(web, r)
     _portal(web, b, r, con)
+    gravar_cabecalhos(web)
     return paginas

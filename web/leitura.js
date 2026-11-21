@@ -282,7 +282,7 @@ fecharPerfilAoClicarFora($("#perfil"));
 montarTema(() => renderTudo());
 montarControles();
 $$(".leitura-controles select").forEach(melhorarSelect);  // menus próprios (CA-19.2); o MutationObserver refaz as opções
-montarBusca(null, "premios.html");
+montarBusca(null, "/premios.html");
 montarDiadorim();
 montarExportacao();
 renderCobertura();

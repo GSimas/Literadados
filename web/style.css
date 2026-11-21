@@ -992,3 +992,20 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .perfil-lugar { padding: 1rem 1.5rem 1.5rem; display: grid; gap: 1rem; min-width: 0; }
 .perfil-lugar > .grafico { margin: 0; }
 @media (max-width: 600px) { .perfil-cab.simples, .perfil-lugar { padding-left: 1rem; padding-right: 1rem; } }
+/* Portal em tela cheia, sem rolagem (CA-31.2): cabeçalho, abertura, cartões dos módulos e rodapé cabem em 100svh. */
+body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; }
+.portal { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: clamp(1rem, 4vh, 2.75rem);
+  width: 100%; padding: clamp(.75rem, 3vh, 2.5rem) clamp(16px, 4vw, 56px); min-height: 0; }
+.portal .portal-abertura { padding: 0; }
+.portal-abertura h1 { max-width: 22ch; font-size: clamp(1.75rem, 2.4vw + 2.2vh, 4rem); }
+.portal-abertura .hero-lead { margin: .6rem 0 0; font-size: clamp(.95rem, .6vw + 1vh, 1.2rem); max-width: 60ch; }
+.portal-modulos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.6rem, 1.4vw, 1.25rem); }
+.portal-modulos .cartao-grafico { padding: clamp(.8rem, 2vh, 1.4rem) clamp(.8rem, 1.4vw, 1.3rem); gap: .3rem; }
+.portal-modulos .cg-titulo { font-size: clamp(1.1rem, .9vw + 1vh, 1.6rem); }
+.portal-modulos .cg-desc { font-size: clamp(.8rem, .4vw + .6vh, .95rem); }
+.portal-modulos .cg-num { font-size: clamp(.8rem, .4vw + .6vh, .95rem); margin-top: .35rem; }
+.portal-rodape { padding: .6rem 16px; }
+.portal-rodape p { margin: 0; font-size: .85rem; }
+@media (max-width: 900px) { .portal-modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .portal-modulos .cg-abrir { display: none; } .portal-modulos .cg-desc { display: none; } }
+@media (max-height: 640px) { .portal-modulos .cg-desc { display: none; } }

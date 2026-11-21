@@ -22,8 +22,8 @@ export function montarBusca(D, prefixo = "") {
   const indice = D ? M.indiceBusca(D) : [];
   const campo = $("#busca-global"), lista = $("#busca-resultados");
   let extra = null;
-  const carregarExtra = () => (extra ??= fetch("busca.json").then((r) => r.ok ? r.json() : { tipos: [], e: [] })
-    .then((J) => { indice.push(...M.entradasBusca(J, prefixo ? null : "premios.html")); }).catch(() => {}));
+  const carregarExtra = () => (extra ??= fetch("/busca.json").then((r) => r.ok ? r.json() : { tipos: [], e: [] })
+    .then((J) => { indice.push(...M.entradasBusca(J, prefixo ? null : "/premios.html")); }).catch(() => {}));
   let itens = [], ativo = -1;
 
   const ir = (e) => {

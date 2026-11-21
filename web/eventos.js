@@ -183,7 +183,7 @@ fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
 montarTema(() => J && renderFiltrado());
-montarBusca(null, "premios.html");
+montarBusca(null, "/premios.html");
 montarDiadorim();
 montarExportacao();
 renderNumeros();

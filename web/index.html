@@ -35,94 +35,66 @@
 <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fontes/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
-<script type="module">import { montarTema } from "./tema.js"; import { montarBusca } from "./busca.js"; montarTema(); montarBusca(null, "premios.html");</script>
+<script type="module">import { montarTema } from "./tema.js"; import { montarBusca } from "./busca.js"; montarTema(); montarBusca(null, "/premios.html");</script>
 </head>
-<body data-modulo="portal">
+<body data-modulo="portal" class="pagina-portal">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
 <header class="barra" id="barra">
-  <a class="marca" href="./" aria-label="Literadados, início" aria-current="page">
-    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><g class="lt-marca">
-    <path class="lt-casco" d="M32 3.5 L56.68 17.75 L56.68 46.25 L32 60.5 L7.32 46.25 L7.32 17.75 Z"/>
-    <path class="lt-celula" style="--i:0" d="M32.00 24.64 L38.37 28.32 L38.37 35.68 L32.00 39.36 L25.63 35.68 L25.63 28.32 Z" fill-opacity="1"/>
-    <path class="lt-celula" style="--i:1" d="M17.74 24.64 L24.11 28.32 L24.11 35.68 L17.74 39.36 L11.37 35.68 L11.37 28.32 Z" fill-opacity="0.55"/>
-    <path class="lt-celula" style="--i:2" d="M24.87 12.29 L31.24 15.97 L31.24 23.33 L24.87 27.01 L18.50 23.33 L18.50 15.97 Z" fill-opacity="0.8"/>
-    <path class="lt-celula" style="--i:3" d="M39.13 12.29 L45.50 15.97 L45.50 23.33 L39.13 27.01 L32.76 23.33 L32.76 15.97 Z" fill-opacity="0.4"/>
-    <path class="lt-celula" style="--i:4" d="M46.26 24.64 L52.63 28.32 L52.63 35.68 L46.26 39.36 L39.89 35.68 L39.89 28.32 Z" fill-opacity="0.9"/>
-    <path class="lt-celula" style="--i:5" d="M39.13 36.99 L45.50 40.67 L45.50 48.03 L39.13 51.71 L32.76 48.03 L32.76 40.67 Z" fill-opacity="0.5"/>
-    <path class="lt-celula" style="--i:6" d="M24.87 36.99 L31.24 40.67 L31.24 48.03 L24.87 51.71 L18.50 48.03 L18.50 40.67 Z" fill-opacity="0.7"/>
-  </g></svg>
-    <span class="marca-texto">Litera<em>dados</em></span></a>
-  <nav class="nav" aria-label="Módulos">
-    <a class="modulo" href="premios.html">Prêmios</a>
-    <a class="modulo" href="leitura.html">Leitura</a>
-    <a class="modulo" href="mapeamento.html">Mapeamento</a>
-    <a class="modulo" href="eventos.html">Eventos</a>
-    <span class="sep" aria-hidden="true"></span>
-    <a href="metodo.html">Método</a>
-  </nav>
+  <a class="marca" href="/" aria-label="Literadados, início" aria-current="page"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><g class="lt-marca"><path class="lt-casco" d="M32 3.5 L56.68 17.75 L56.68 46.25 L32 60.5 L7.32 46.25 L7.32 17.75 Z"/><path class="lt-celula" style="--i:0" d="M32.00 24.64 L38.37 28.32 L38.37 35.68 L32.00 39.36 L25.63 35.68 L25.63 28.32 Z" fill-opacity="1"/><path class="lt-celula" style="--i:1" d="M17.74 24.64 L24.11 28.32 L24.11 35.68 L17.74 39.36 L11.37 35.68 L11.37 28.32 Z" fill-opacity="0.55"/><path class="lt-celula" style="--i:2" d="M24.87 12.29 L31.24 15.97 L31.24 23.33 L24.87 27.01 L18.50 23.33 L18.50 15.97 Z" fill-opacity="0.8"/><path class="lt-celula" style="--i:3" d="M39.13 12.29 L45.50 15.97 L45.50 23.33 L39.13 27.01 L32.76 23.33 L32.76 15.97 Z" fill-opacity="0.4"/><path class="lt-celula" style="--i:4" d="M46.26 24.64 L52.63 28.32 L52.63 35.68 L46.26 39.36 L39.89 35.68 L39.89 28.32 Z" fill-opacity="0.9"/><path class="lt-celula" style="--i:5" d="M39.13 36.99 L45.50 40.67 L45.50 48.03 L39.13 51.71 L32.76 48.03 L32.76 40.67 Z" fill-opacity="0.5"/><path class="lt-celula" style="--i:6" d="M24.87 36.99 L31.24 40.67 L31.24 48.03 L24.87 51.71 L18.50 48.03 L18.50 40.67 Z" fill-opacity="0.7"/></g></svg><span class="marca-texto">Litera<em>dados</em></span></a>
+  <nav class="nav" aria-label="Módulos"><a class="modulo" href="/premios.html">Prêmios</a><a class="modulo" href="/leitura.html">Leitura</a><a class="modulo" href="/mapeamento.html">Mapeamento</a><a class="modulo" href="/eventos.html">Eventos</a><span class="sep" aria-hidden="true"></span><a href="/metodo.html">Método</a></nav>
   <div class="busca-global" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
     <label for="busca-global" class="sr">Buscar no Literadados</label>
     <input id="busca-global" type="search" role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list"
-      autocomplete="off" spellcheck="false" placeholder="Buscar autor, editora, estado…">
+      autocomplete="off" spellcheck="false" placeholder="Buscar autor, livro, cidade, evento…">
     <kbd aria-hidden="true">/</kbd>
     <ul id="busca-resultados" class="menu busca-resultados" role="listbox" aria-label="Resultados da busca" hidden></ul>
   </div>
   <div class="barra-acoes">
     <button id="tema" class="botao-icone so-icone" type="button" aria-label="Tema de cores"></button>
   </div>
+  <div class="progresso" id="progresso" aria-hidden="true"></div>
 </header>
 
-<main id="conteudo">
-  <!-- Portal (RF-31, CA-31.2): sem JavaScript de dados; os cartões entre os marcadores são gravados pelo build (seo.py). -->
-  <section class="secao portal-abertura" aria-labelledby="h-portal">
-    <p class="sobretitulo">Literadados</p>
+<main id="conteudo" class="portal">
+  <!-- Portal (RF-31, CA-31.2): cabe na tela sem rolagem; os cartões entre os marcadores são gravados pelo build (seo.py). -->
+  <section class="portal-abertura" aria-labelledby="h-portal">
     <h1 id="h-portal">Dados sobre literatura e leitura no Brasil</h1>
-    <p class="hero-lead">Quem escreve, quem lê, onde estão os livros. Dados abertos, com fonte em cada número e o n ao lado de cada percentual.</p>
+    <p class="hero-lead">Dados abertos, com fonte em cada número e o n ao lado de cada percentual.</p>
   </section>
-
-  <section id="modulos" class="secao" aria-labelledby="h-modulos">
-    <h2 id="h-modulos" class="sr">Módulos</h2>
-    <div class="graficos">
+  <nav class="portal-modulos" aria-label="Módulos">
       <!-- build:portal -->
       <a class="cartao-grafico" href="premios.html">
-        <span class="cg-sobre">Prêmios literários</span>
-        <span class="cg-titulo">Quem chega aos prêmios literários?</span>
-        <span class="cg-desc">Gênero, raça autodeclarada e local de nascimento de quem é indicado e premiado.</span>
+        <span class="cg-titulo">Prêmios literários</span>
+        <span class="cg-desc">Gênero, raça e origem de indicados e premiados</span>
         <span class="cg-num"><b>1.665</b> pessoas-autoras · <b>8</b> prêmios</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
       <a class="cartao-grafico" href="leitura.html">
-        <span class="cg-sobre">Leitura</span>
-        <span class="cg-titulo">Onde se lê e onde estão os livros?</span>
-        <span class="cg-desc">Alfabetização, leitores, escolas com biblioteca, livrarias e editoras, por município, estado e região.</span>
+        <span class="cg-titulo">Leitura</span>
+        <span class="cg-desc">Alfabetização, leitores, bibliotecas e livrarias por território</span>
         <span class="cg-num"><b>6</b> indicadores · <b>5.571</b> municípios</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
       <a class="cartao-grafico" href="mapeamento.html">
-        <span class="cg-sobre">Mapeamento · Florianópolis</span>
-        <span class="cg-titulo">Quem faz a cena literária da cidade?</span>
-        <span class="cg-desc">Livrarias, sebos, clubes do livro, editoras, autoras, autores e obras, num cadastro curado com fonte.</span>
-        <span class="cg-num"><b>11</b> livrarias ativas · <b>64</b> autoras e autores mapeados</span>
+        <span class="cg-titulo">Mapeamento</span>
+        <span class="cg-desc">Florianópolis: livrarias, clubes, editoras e autores</span>
+        <span class="cg-num"><b>11</b> livrarias · <b>64</b> autores</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
       <a class="cartao-grafico" href="eventos.html">
-        <span class="cg-sobre">Eventos</span>
-        <span class="cg-titulo">Onde a literatura se encontra?</span>
-        <span class="cg-desc">Festivais, feiras do livro, bienais e festas literárias do Brasil, com as edições passadas e as próximas.</span>
+        <span class="cg-titulo">Eventos</span>
+        <span class="cg-desc">Festivais, feiras e bienais literárias do Brasil</span>
         <span class="cg-num"><b>74</b> eventos · <b>230</b> edições</span>
         <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>
       </a>
       <!-- /build:portal -->
-    </div>
-  </section>
+  </nav>
 </main>
 
-<footer class="rodape">
-  <p><b>Literadados</b> · dados abertos sobre literatura e leitura. <a href="metodo.html">Método e referências</a>.</p>
-  <nav class="rodape-links" aria-label="Páginas de consulta"><a href="/premios/">Prêmios e edições</a> · <a href="/pessoas/">Pessoas de A a Z</a> · <a href="/editoras/">Editoras</a> · <a href="/estados/">Estados</a> · <a href="/perguntas/">Perguntas frequentes</a> · <a href="/dados-abertos/">Dados abertos</a></nav>
-  <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
+<footer class="rodape portal-rodape">
+  <p><b>Literadados</b> · <a href="metodo.html">Método</a> · <a href="/dados-abertos/">Dados abertos</a> · <a href="mailto:contato@gustavosimas.com">Correções</a></p>
 </footer>
 </body>
 </html>

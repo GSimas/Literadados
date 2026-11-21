@@ -185,7 +185,7 @@ $("#mapa-vinculo").addEventListener("change", renderCadastro);
 $("#mapa-abas").addEventListener("click", (e) => { const b = e.target.closest("button[data-v]"); if (!b) return; aba = b.dataset.v;
   $$("#mapa-abas button").forEach((x) => x.setAttribute("aria-checked", String(x === b))); renderCadastro(); });
 if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) $("#form-local").hidden = false;
-montarBusca(null, "premios.html");
+montarBusca(null, "/premios.html");
 montarDiadorim();
 montarExportacao();
 renderNumeros();

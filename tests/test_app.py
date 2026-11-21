@@ -688,17 +688,20 @@ def test_rotas_antigas_redirecionam():  # CA-31.3, D37
 
 
 def test_cabecalho_igual_em_todas_as_paginas():  # CA-31.4, D37
-    """Páginas escritas à mão e geradas têm os mesmos módulos, na mesma ordem, e cada módulo se marca na própria página."""
+    """O cabeçalho é o mesmo bloco em toda página (escrita à mão ou gerada); muda só o item marcado como atual."""
     import seo
-    esperado = [c.lstrip("/") for c, _ in seo.MODULOS]
     web = RAIZ / "web"
-    for arq in ["index.html", "premios.html", "metodo.html", "404.html", "premios/index.html", "pessoas/index.html"]:
+    tirar = lambda h: re.sub(r' aria-current="page"', "", h)
+    blocos = {}
+    for arq in [*seo.PAGINAS_CABECALHO, "premios/index.html", "pessoas/index.html", "leitura/index.html", "eventos/index.html"]:
         txt = (web / arq).read_text(encoding="utf-8")
-        nav = re.search(r'<nav class="nav"[^>]*>(.*?)</nav>', txt, re.S).group(1)
-        assert [h.lstrip("/") for h in re.findall(r'<a class="modulo" href="([^"]+)"', nav)] == esperado, arq
-    for c, _ in seo.MODULOS:
-        txt = (web / c.lstrip("/")).read_text(encoding="utf-8")
-        assert f'<a class="modulo" href="{c.lstrip("/")}" aria-current="page">' in txt, c
+        h = re.search(r'<header class="barra".*?</header>', txt, re.S).group(0)
+        assert "#historia" not in h and "Edições" not in h, arq  # nada de atalho de seção no cabeçalho
+        blocos[arq] = tirar(h)
+    assert len(set(blocos.values())) == 1, [k for k, v in blocos.items() if v != blocos["index.html"]]
+    for arq, atual in seo.PAGINAS_CABECALHO.items():
+        h = re.search(r'<header class="barra".*?</header>', (web / arq).read_text(encoding="utf-8"), re.S).group(0)
+        assert h.count('aria-current="page"') == (1 if atual else 0), arq
 
 
 def test_busca_json():  # CA-31.5, D37
@@ -712,7 +715,7 @@ def test_busca_json():  # CA-31.5, D37
     for t, rotulo, sub, href, *_ in J["e"]:
         assert rotulo and 0 <= t < len(J["tipos"]), rotulo
         pagina, _, rota = href.partition("#")
-        assert (web / pagina.partition("?")[0]).exists(), href
+        assert href.startswith("/") and (web / pagina.partition("?")[0].lstrip("/")).exists(), href
         if rota.startswith("/pessoa/"):
             assert rota.removeprefix("/pessoa/") in pessoas, href
         if rota.startswith("/editora/"):

@@ -10,7 +10,7 @@ luzNosBlocos();
 const D = await carregarDados(); // dados.json + partes de outros prêmios (CA-26.14)
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 D.participacao = M.expandir(D); // a busca precisa das linhas (design D13)
-montarBusca(D, "premios.html");
+montarBusca(D, "/premios.html");
 montarExportacao();
 
 // Cobertura por prêmio e edição (CA-26.7); D.cobertura omite o 1º prêmio da ordem (economia). Cada prêmio só a partir da 1ª edição.
