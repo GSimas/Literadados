@@ -639,8 +639,8 @@ const DESTINOS = [
   ["Seção", "História guiada", "a narrativa em passos", "#historia"],
   ["Seção", "Panorama", "o recorte em números", "#panorama"],
   ["Seção", "Autores", "anel de retratos", "#autores", "pessoas galeria"],
-  ["Seção", "Método", "como os dados foram feitos", "metodo.html", "metodologia cobertura"],
-  ["Seção", "Referências", "fontes por domínio", "metodo.html#referencias", "fontes"],
+  ["Seção", "Método", "como os dados foram feitos", "sobre.html", "metodologia cobertura"],
+  ["Seção", "Referências", "fontes por domínio", "sobre.html#referencias", "fontes"],
 ];
 
 export function indiceBusca(D) {

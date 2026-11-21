@@ -237,7 +237,7 @@ $("#perfil-corpo").addEventListener("click", async (e) => {
   try { await navigator.clipboard.writeText(location.href); a.textContent = "Link copiado"; } catch { a.textContent = location.href; }
 });
 
-// ---------- rodapé e faixa de cobertura (método e referências ficam em metodo.html, D18) ----------
+// ---------- rodapé e faixa de cobertura (método e referências ficam em sobre.html, D18) ----------
 function renderMetodologia() {
   // Edições por prêmio (CA-26.7): cada prêmio na própria linha, a partir da 1ª edição; nunca uma soma de anos de prêmios diferentes.
   const cob = new Set(D.cobertura.map((c) => `${c.premio ?? PREMIOS[0]}|${c.ano}`));

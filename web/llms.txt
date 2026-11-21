@@ -26,7 +26,7 @@ Regras para citar os números: raça só por autodeclaração pública (o númer
 - [Leitura](https://literadados.gustavosimas.com/leitura/): indicadores de alfabetização, leitores, escolas com biblioteca, livrarias e editoras por território
 - [Eventos](https://literadados.gustavosimas.com/eventos/): festivais, feiras do livro, bienais e festas literárias do Brasil, com datas das edições
 - [Dados abertos](https://literadados.gustavosimas.com/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar
-- [Método](https://literadados.gustavosimas.com/metodo.html): fontes, definições, protocolo de raça, cobertura
+- [Método](https://literadados.gustavosimas.com/sobre.html): fontes, definições, protocolo de raça, cobertura
 
 ## Prêmios
 

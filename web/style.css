@@ -1005,8 +1005,10 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .portal-modulos .cg-titulo { font-size: clamp(1.1rem, .9vw + 1vh, 1.6rem); }
 .portal-modulos .cg-desc { font-size: clamp(.8rem, .4vw + .6vh, .95rem); }
 .portal-modulos .cg-num { font-size: clamp(.8rem, .4vw + .6vh, .95rem); margin-top: .35rem; }
-.portal-rodape { padding: .6rem 16px; }
-.portal-rodape p { margin: 0; font-size: .85rem; }
+.pagina-portal .rodape { padding: .6rem 16px; margin: 0; }
+.pagina-portal .rodape p { margin: 0; font-size: .85rem; }
 @media (max-width: 900px) { .portal-modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .portal-modulos .cg-abrir { display: none; } .portal-modulos .cg-desc { display: none; } }
 @media (max-height: 640px) { .portal-modulos .cg-desc { display: none; } }
+.notas-pagina { max-width: 1200px; margin: 0 auto; padding: 0 16px 1.5rem; }
+.notas-pagina p { margin: .4rem 0; }

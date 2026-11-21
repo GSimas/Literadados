@@ -116,7 +116,7 @@ def test_metadados_e_json_ld(site):  # CA-27.2
         assert '<html lang="pt-BR">' in txt
         assert p.ld and all(x["@context"] == "https://schema.org" for x in p.ld), rel
         assert len(p.meta["description"]) <= 320, rel
-    for arq in ("index.html", "premios.html", "metodo.html"):  # escritos à mão
+    for arq in ("index.html", "premios.html", "sobre.html"):  # escritos à mão
         p = Pagina((RAIZ / "web" / arq).read_text(encoding="utf-8"))
         assert p.canonical and p.meta.get("og:title") and p.ld and p.h1 <= 1
 
@@ -187,7 +187,7 @@ def test_numeros_iguais_ao_painel(site):  # CA-27.4, CA-28.2
 def test_sitemap_estavel_e_textos_para_ias(site):  # CA-27.5
     mapa = (site / "sitemap.xml").read_text(encoding="utf-8")
     locs = re.findall(r"<loc>([^<]+)</loc>", mapa)
-    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/leitura.html", f"{seo.SITE}/mapeamento.html", *([f"{seo.SITE}/eventos.html"] if (site / "eventos.json").exists() else []), f"{seo.SITE}/metodo.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
+    assert set(locs) == {f"{seo.SITE}/", f"{seo.SITE}/premios.html", f"{seo.SITE}/leitura.html", f"{seo.SITE}/mapeamento.html", *([f"{seo.SITE}/eventos.html"] if (site / "eventos.json").exists() else []), f"{seo.SITE}/sobre.html", *(f"{seo.SITE}/{r.removesuffix('index.html')}" for r in _paginas(site))}
     antes = {p: p.stat().st_mtime_ns for p in site.rglob("*.html")}
     con = duckdb.connect(str(site.parent / "s.duckdb"), read_only=True)
     # Página que não mudou não é regravada e mantém o lastmod; página que mudou ganha a data de hoje.

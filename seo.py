@@ -133,14 +133,14 @@ NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Edi
        ("/leitura/", "Leitura"), ("/mapeamento/", "Mapeamento"), ("/eventos/", "Eventos")]  # páginas de consulta: no rodapé das páginas estáticas
 # Página escrita à mão → item marcado no cabeçalho (CA-31.4). "/" marca o logotipo (portal).
 PAGINAS_CABECALHO = {"index.html": "/", "premios.html": "/premios.html", "leitura.html": "/leitura.html", "mapeamento.html": "/mapeamento.html",
-                     "mapeamento-obrigado.html": "/mapeamento.html", "eventos.html": "/eventos.html", "metodo.html": "/metodo.html", "404.html": None}
+                     "mapeamento-obrigado.html": "/mapeamento.html", "eventos.html": "/eventos.html", "sobre.html": "/sobre.html", "404.html": None}
 
 
 def cabecalho(atual=None) -> str:
     """Cabeçalho único de todas as páginas (CA-31.4, D37): logotipo, módulos, Método, busca e tema; muda só o destaque."""
     cur = lambda c: ' aria-current="page"' if c == atual else ""
     itens = ("".join(f'<a class="modulo" href="{c}"{cur(c)}>{r}</a>' for c, r in MODULOS)
-             + f'<span class="sep" aria-hidden="true"></span><a href="/metodo.html"{cur("/metodo.html")}>Método</a>')
+             + f'<span class="sep" aria-hidden="true"></span><a href="/sobre.html"{cur("/sobre.html")}>Sobre</a>')
     return f"""<header class="barra" id="barra">
   <a class="marca" href="/" aria-label="Literadados, início"{cur("/")}>{LOGO}<span class="marca-texto">Litera<em>dados</em></span></a>
   <nav class="nav" aria-label="Módulos">{itens}</nav>
@@ -157,6 +157,23 @@ def cabecalho(atual=None) -> str:
   </div>
   <div class="progresso" id="progresso" aria-hidden="true"></div>
 </header>"""
+
+
+RODAPE = """<footer class="rodape">
+  <p><b>Literadados</b> · Plataforma desenvolvida por <a href="https://gustavosimas.com" rel="noopener">Gustavo Simas</a></p>
+</footer>"""
+
+
+def gravar_rodapes(web: Path):
+    """Rodapé único (CA-31.11): troca o <footer class="rodape"> inteiro das páginas escritas à mão."""
+    for arq in PAGINAS_CABECALHO:
+        p = web / arq
+        if not p.exists():
+            continue
+        s = p.read_text(encoding="utf-8")
+        novo = re.sub(r'<footer class="rodape[^"]*">.*?</footer>', lambda _: RODAPE, s, count=1, flags=re.S)
+        if novo != s:
+            p.write_text(novo, encoding="utf-8")
 
 
 def gravar_cabecalhos(web: Path):
@@ -187,7 +204,6 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
     trilha = [("Início", "/"), *migalhas]
     ld = [*ld, {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + c} for i, (n, c) in enumerate(trilha)]}] if migalhas else list(ld)
-    consulta = " · ".join(f'<a href="{c}"{" aria-current=\"page\"" if c == atual else ""}>{r}</a>' for c, r in NAV)
     og_img = imagem or f"{SITE}/og.png"
     migas = ("<nav class=\"migalhas\" aria-label=\"Você está em\"><ol>" + "".join(
         f'<li><a href="{c}">{e(n)}</a></li>' if i < len(trilha) - 1 else f'<li aria-current="page">{e(n)}</li>' for i, (n, c) in enumerate(trilha))
@@ -225,12 +241,7 @@ def pagina(caminho, titulo, descricao, corpo, ld=(), migalhas=(), atual=None, og
 {migas}
 {corpo}
 </main>
-<footer class="rodape">
-  <p><b>Literadados</b> · dados abertos sobre literatura e leitura no Brasil. Cada número tem fonte; cada pessoa, um perfil.
-  <a href="/dados-abertos/">Dados abertos e como citar</a> · <a href="/metodo.html">Método e referências</a> · <a href="/premios.html">Painel interativo</a>.</p>
-  <nav class="rodape-links" aria-label="Páginas de consulta">{consulta}</nav>
-  <p class="muted">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>.</p>
-</footer>
+{RODAPE}
 <script type="module">import {{ montarTema }} from "/tema.js"; import {{ montarBusca }} from "/busca.js"; montarTema(); montarBusca(null, "/premios.html");</script>
 </body>
 </html>
@@ -254,7 +265,7 @@ def kpis_resumo(r) -> str:
 
 NOTA = ('<p class="muted pequeno">Regras: pessoas distintas, só autoria (ilustração e organização fora das contagens). Raça só por autodeclaração '
         'pública, com fonte: o número de pessoas negras é um piso, e "sem declaração" não quer dizer branca. Estado = UF de nascimento. '
-        '* Gênero atribuído pelo primeiro nome, sem fonte; pode estar errado. <a href="/metodo.html">Método</a>.</p>')
+        '* Gênero atribuído pelo primeiro nome, sem fonte; pode estar errado. <a href="/sobre.html">Método</a>.</p>')
 
 
 def lnk_pessoa(b, pid):
@@ -561,7 +572,7 @@ def pagina_pessoa(b, pid):
 {("<h2>Júri</h2><ul>" + "".join(f'<li><a href="/premios/{j["premio_id"]}/{j["ano"]}/">{e(b.nome_premio[j["premio_id"]])} {j["ano"]}</a> — {e(j["nome_original"])}</li>' for j in jur)
   + "".join(f'<li>{e(j["nome_original"])} {j["ano"]} <span class="muted pequeno">(conjunto da obra)</span></li>' for j in jur_dist) + "</ul>") if jur or jur_dist else ""}
 {bloco_mapeamento_pessoa(b, pid)}
-<p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com a fonte. <a href="/metodo.html">Método</a>.</p>
+<p class="muted pequeno">Raça só entra por autodeclaração pública, com link e trecho; gênero sem fonte é atribuído pelo nome e marcado. Encontrou um erro? Escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com a fonte. <a href="/sobre.html">Método</a>.</p>
 </article>"""
     pessoa = {"@type": "Person", "name": p["nome"], "url": f"{SITE}/pessoas/{quote(pid)}/"}
     same = [f"https://www.wikidata.org/wiki/{p['wikidata']}"] if p["wikidata"] else []
@@ -895,7 +906,7 @@ def pagina_dados(b, con):
 <li>Não some percentuais de prêmios diferentes: formatos e períodos diferem.</li></ul>
 <h2>Como citar</h2>
 <p>SIMAS, Gustavo. <i>Literadados</i>: dados sobre literatura e leitura. {date.today().year}. Disponível em: <a href="{SITE}/">{SITE}/</a>.</p>
-<p class="muted pequeno">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. <a href="/metodo.html">Método e referências</a>.</p>
+<p class="muted pequeno">Correções, com fonte pública: <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. <a href="/sobre.html">Método e referências</a>.</p>
 </article>"""
     ld = [{"@context": "https://schema.org", "@type": "Dataset", "name": "Literadados — quem chega aos prêmios literários", "description": desc,
            "url": f"{SITE}/dados-abertos/", "sameAs": REPO, "inLanguage": "pt-BR", "creator": AUTOR, "publisher": AUTOR, "isAccessibleForFree": True,
@@ -934,7 +945,7 @@ def llms(b, qs):
           f"- [Leitura]({SITE}/leitura/): indicadores de alfabetização, leitores, escolas com biblioteca, livrarias e editoras por território",
           f"- [Eventos]({SITE}/eventos/): festivais, feiras do livro, bienais e festas literárias do Brasil, com datas das edições",
           f"- [Dados abertos]({SITE}/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar",
-          f"- [Método]({SITE}/metodo.html): fontes, definições, protocolo de raça, cobertura", "", "## Prêmios", ""]
+          f"- [Método]({SITE}/sobre.html): fontes, definições, protocolo de raça, cobertura", "", "## Prêmios", ""]
     s += [f"- [{p['nome']}]({SITE}/premios/{p['id']}/)" for p in ativos]
     s += ["", "## Optional", "", f"- [Texto completo: premiadas de cada edição e contexto]({SITE}/llms-full.txt)",
           f"- [Painel interativo]({SITE}/premios.html): gráficos, filtros e a Diadorim", ""]
@@ -1319,7 +1330,7 @@ def gerar(con, web: Path) -> dict:
             elif arq.is_dir() and not any(arq.iterdir()):
                 arq.rmdir()
 
-    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), *([(f"{SITE}/leitura.html", None)] if inds else []), *([(f"{SITE}/mapeamento.html", None)] if "mapeamento/index.html" in paginas else []), *([(f"{SITE}/eventos.html", None)] if "eventos/index.html" in paginas else []), (f"{SITE}/metodo.html", None)]
+    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), *([(f"{SITE}/leitura.html", None)] if inds else []), *([(f"{SITE}/mapeamento.html", None)] if "mapeamento/index.html" in paginas else []), *([(f"{SITE}/eventos.html", None)] if "eventos/index.html" in paginas else []), (f"{SITE}/sobre.html", None)]
     for rel in sorted(paginas):
         loc = f"{SITE}/{rel.removesuffix('index.html')}"
         urls.append((loc, hoje if rel in mudou or loc not in antigo else antigo[loc]))
@@ -1334,4 +1345,5 @@ def gerar(con, web: Path) -> dict:
     _abertura(web, r)
     _portal(web, b, r, con)
     gravar_cabecalhos(web)
+    gravar_rodapes(web)
     return paginas

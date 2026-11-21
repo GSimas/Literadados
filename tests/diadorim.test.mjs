@@ -1,10 +1,10 @@
-// Markdown da Diadorim (spec CA-12.5, design D20): texto escapado e links só para o painel, metodo.html ou https.
+// Markdown da Diadorim (spec CA-12.5, design D20): texto escapado e links só para o painel, sobre.html ou https.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { md, hrefSeguro, responder } from "../web/diadorim.js";
 
 test("hrefSeguro aceita rotas do painel, método e https; recusa o resto", () => {
-  for (const ok of ["#/pessoa/conceicao-evaristo", "#/grafico/funil", "#autores", "metodo.html#referencias", "https://www.wikidata.org/wiki/Q1", "#/uf/MG", "#/regiao/Centro-Oeste"])
+  for (const ok of ["#/pessoa/conceicao-evaristo", "#/grafico/funil", "#autores", "sobre.html#referencias", "https://www.wikidata.org/wiki/Q1", "#/uf/MG", "#/regiao/Centro-Oeste"])
     assert.equal(hrefSeguro(ok), ok);
   for (const ruim of ["javascript:alert(1)", "http://exemplo.com", "#/grafico/nao-existe", "data:text/html,oi", "//evil.com", "#/pessoa/<x>", "#/uf/mg1", "#/regiao/Marte"])
     assert.equal(hrefSeguro(ruim), null, ruim);
@@ -66,9 +66,9 @@ test("referencias: tira 'Fontes' com nomes de tabela e monta links compreensíve
   assert.equal(r.texto, "São 3 pessoas.");
   const hrefs = r.links.map((l) => l.href);
   assert.ok(!r.links.some((l) => /v_participacao|^pessoa$/.test(l.rotulo)));
-  assert.deepEqual(hrefs, ["#/grafico/funil", "#/pessoa/ce", "#/uf/MG", "#/pessoa/x", "#/grafico/geografia", "metodo.html#metodologia"]);
+  assert.deepEqual(hrefs, ["#/grafico/funil", "#/pessoa/ce", "#/uf/MG", "#/pessoa/x", "#/grafico/geografia", "sobre.html#metodologia"]);
   assert.equal(r.links[1].rotulo, "Conceição Evaristo");
-  assert.deepEqual(referencias("Sem bloco.", []).links.map((l) => l.href), ["metodo.html#metodologia"]);
+  assert.deepEqual(referencias("Sem bloco.", []).links.map((l) => l.href), ["sobre.html#metodologia"]);
 });
 
 test("passos intermediários e modelo escolhido (CA-12.9, CA-12.11)", async () => {
@@ -114,7 +114,7 @@ test("validarSQL: só um SELECT/WITH, sem escrita nem leitura de arquivo (CA-12.
 test("respostaSeca e consultaDeDetalhe", async () => {
   const { respostaSeca, consultaDeDetalhe } = await import("../web/diadorim.js");
   assert.ok(respostaSeca("5"));
-  assert.ok(respostaSeca("São **5** mulheres.\n\nFontes: [Funil](#/grafico/funil) [Mapa](#/grafico/geografia) [Método](metodo.html#metodologia) [x](#/uf/CE)"));
+  assert.ok(respostaSeca("São **5** mulheres.\n\nFontes: [Funil](#/grafico/funil) [Mapa](#/grafico/geografia) [Método](sobre.html#metodologia) [x](#/uf/CE)"));
   assert.ok(!respostaSeca("São 5 mulheres nascidas no Nordeste entre as premiadas: Socorro Acioli (CE), Ana Maria Gonçalves (MG não), e outras três, de um total de 120 premiadas no recorte, ou 4,2% delas."));
   assert.equal(consultaDeDetalhe("SELECT COUNT(DISTINCT pessoa_id) AS n FROM v_participacao WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada;"),
     "SELECT pessoa_id, nome, uf_nascimento, ano, categoria, titulo, colocacao FROM v_participacao WHERE genero = 'mulher' AND regiao_nascimento = 'Nordeste' AND premiada ORDER BY nome, ano LIMIT 200");

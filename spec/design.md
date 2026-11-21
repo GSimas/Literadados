@@ -392,3 +392,10 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
   **Páginas estáticas.** `/eventos/` (próximos e por UF) e `/eventos/<id>/` com JSON-LD `Event` por edição (`eventStatus`
   `EventScheduled`, `EventCancelled`, `EventPostponed`; `location` `Place` com cidade e UF). `PASTAS` ganha `eventos`.
   Busca (`busca.json`), cartão do portal, cabeçalho (`MODULOS`), dados abertos e Diadorim (`contexto-eventos.json`) como nos outros módulos.
+
+  **Segunda leva e panorama (CA-33.9, CA-33.10, 2026-11-21).** `indicador` ganha `tema` (`habitos`, `alfabetizacao`, `escola`, `mercado`,
+  `bibliotecas`) e a unidade aceita `moeda` (R$ correntes do ano) e `pontuacao` (escala da avaliação). Fontes transcritas de PDF ou
+  planilha chegam por agentes em `dados/coleta/leitura/<fonte>.csv` (mesmo formato de `retratos.csv`, mais `numerador`/`denominador`) com o
+  catálogo proposto em `<fonte>_indicadores.csv`; `coleta.py leitura arquivo <fonte>` converte (protocolo em `dados/coleta/leitura/PROTOCOLO.md`).
+  A PNAD Contínua sai da API do SIDRA (`coleta.py leitura pnad`). O panorama é desenhado de `leitura.json` (só Brasil): um cartão por
+  indicador do tema, com o último valor e `Plot.line` pequeno da série.

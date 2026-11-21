@@ -602,11 +602,11 @@ def test_portal_fala_da_plataforma():  # CA-31.6, DB-1
 def test_textos_de_plataforma():  # CA-26.15
     """Texto genérico não cita um prêmio; nome de prêmio no HTML só junto de uma regra dele ("no Jabuti, …", "… do Oceanos:")."""
     web = RAIZ / "web"
-    for arq in [web / "index.html", web / "premios.html", web / "metodo.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
+    for arq in [web / "index.html", web / "premios.html", web / "sobre.html", web / "logo.svg", *web.glob("*.js"), RAIZ / "README.md"]:
         txt = arq.read_text(encoding="utf-8")
         for padrao in FIXAM_UM_PREMIO:
             assert not re.search(padrao, txt), f"{arq.name}: {padrao}"
-    for arq in ["index.html", "premios.html", "metodo.html"]:
+    for arq in ["index.html", "premios.html", "sobre.html"]:
         txt = re.sub(r"<span data-premios-texto>[^<]*</span>", "", (web / arq).read_text(encoding="utf-8"))  # lista vinda dos dados
         txt = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", "", txt, flags=re.S)
         for m in re.finditer(r"(?:Prêmio )?(?:Jabuti|Oceanos)", txt):
@@ -617,7 +617,7 @@ def test_textos_de_plataforma():  # CA-26.15
 def test_textos_sem_periodo_antigo_fixo(tmp_path):  # CA-25.5, T22.6
     """O painel abre na série completa: nenhum texto fixa 2010–2025 como o período do painel."""
     web = RAIZ / "web"
-    for arq in ["index.html", "premios.html", "metodo.html", *[p.name for p in web.glob("*.js")]]:
+    for arq in ["index.html", "premios.html", "sobre.html", *[p.name for p in web.glob("*.js")]]:
         txt = (web / arq).read_text(encoding="utf-8")
         for proibido in ("Prêmio Jabuti 2010–2025", "2010–2025 · 16 edições", "Entre 2010 e 2025", "Recorte completo: 2010–2025", "Dezesseis edições", "D.recorte"):
             assert proibido not in txt, f"{arq}: {proibido}"
@@ -984,3 +984,13 @@ def test_build_falha_evento(mini, muda, erro):  # CA-35.1, DB-10
         (mini / "evento_homenageado.csv").unlink()
     with pytest.raises(build.BuildError, match=erro):
         _build(mini)
+
+
+def test_rodape_igual_em_todas_as_paginas():  # CA-31.11
+    """O rodapé é o mesmo em toda página: Literadados e o crédito de quem desenvolveu."""
+    import seo
+    web = RAIZ / "web"
+    for arq in [*seo.PAGINAS_CABECALHO, "premios/index.html", "pessoas/index.html", "eventos/index.html"]:
+        txt = (web / arq).read_text(encoding="utf-8")
+        assert re.search(r'<footer class="rodape">.*?</footer>', txt, re.S).group(0) == seo.RODAPE, arq
+    assert "gustavosimas.com" in seo.RODAPE and "Método" not in seo.RODAPE

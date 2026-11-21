@@ -92,7 +92,7 @@ const REGRAS_LINK = `Referências (obrigatório): termine toda resposta com uma 
   [Idade](#/grafico/idade), [Editoras](#/grafico/editoras), [Ranking](#/grafico/ranking) (mais premiados e indicados), [Júri](#/grafico/juri),
   [Entre prêmios](#/grafico/entre-premios) (quem passa por mais de um prêmio, quando a base tem vários),
   [Conjunto da obra](#/grafico/conjunto-da-obra) (prêmios pela trajetória, sem livro, como o Camões).
-- Seções: [Panorama](#panorama), [Autores](#autores), [Método](metodo.html#metodologia), [Referências](metodo.html#referencias).
+- Seções: [Panorama](#panorama), [Autores](#autores), [Método](sobre.html#metodologia), [Referências](sobre.html#referencias).
 - Fontes externas: URLs das colunas fonte, genero_fonte, raca_fonte e nascimento_fonte, quando sustentarem a resposta.
 Nunca invente URL nem pessoa_id: use só o que vier das consultas. Mostre o n junto de todo percentual.
 Nunca cite nomes de tabelas, views ou colunas (v_participacao, pessoa, categoria_edicao, uf_nascimento…) como fonte nem no texto:
@@ -101,20 +101,20 @@ quem lê não conhece o banco. Fale das coisas pelo nome comum (lista do Jabuti,
 
 const REGRAS_LINK_MAPEAMENTO = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
 - Registros do mapeamento: [Livraria](#/livraria/<id>), [Clube](#/clube/<id>), [Pessoa](#/pessoa/<id>), [Livro](#/obra/<id>), [Editora](#/editora/<id>),
-  com o id exato vindo de uma consulta. Método: [Método do Mapeamento](metodo.html#mapeamento).
+  com o id exato vindo de uma consulta. Método: [Método do Mapeamento](sobre.html#mapeamento).
 - Fontes externas: as URLs das colunas fonte e link que sustentam a resposta.
 Nunca invente URL nem id. Diga sempre que é cadastro ("mapeados até agora") e o critério de vínculo. Mostre o n junto de todo percentual.
 Nunca cite nomes de tabelas, views ou colunas no texto.`;
 
 const REGRAS_LINK_EVENTOS = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
-- Eventos: [Nome do evento](#/evento/<id>), com o id exato vindo de uma consulta. Método: [Método dos Eventos](metodo.html#eventos).
+- Eventos: [Nome do evento](#/evento/<id>), com o id exato vindo de uma consulta. Método: [Método dos Eventos](sobre.html#eventos).
 - Fontes externas: a URL da coluna fonte das edições que sustentam a resposta.
 Nunca invente URL nem id. Diga sempre a data de cada edição e que é cadastro ("mapeados até agora").
 Nunca cite nomes de tabelas, views ou colunas no texto.`;
 
 const REGRAS_LINK_LEITURA = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
 - Municípios: [Florianópolis](#/municipio/4205407), com o código do IBGE exato vindo de uma consulta. Estados: [Santa Catarina](#/uf/SC).
-- Método do módulo: [Método da Leitura](metodo.html#leitura).
+- Método do módulo: [Método da Leitura](sobre.html#leitura).
 - Fontes externas: a URL da coluna fonte_url das linhas que sustentam a resposta.
 Nunca invente URL nem código: use só o que vier das consultas. Diga o ano e a fonte de todo número; mostre n (amostra) ou numerador e denominador.
 Nunca cite nomes de tabelas, views ou colunas como fonte nem no texto: fale das coisas pelo nome comum (Censo 2022, Censo Escolar, Retratos da Leitura).`;
@@ -153,7 +153,7 @@ export function referencias(texto, consultas = []) {
     }
     for (const [rx, href, rot] of GRAFICO_POR_SQL) if (rx.test(c.sql)) add(href, rot);
   }
-  add("metodo.html#metodologia", "Método");
+  add("sobre.html#metodologia", "Método");
   return { texto: corpo, links: [...links].map(([href, rotulo]) => ({ href, rotulo })) };
 }
 
@@ -166,7 +166,7 @@ const FERRAMENTAS = [{
   },
 }];
 
-// ---------- Markdown mínimo e seguro (texto escapado; links só para o painel, metodo.html ou https) ----------
+// ---------- Markdown mínimo e seguro (texto escapado; links só para o painel, sobre.html ou https) ----------
 export function hrefSeguro(u) {
   const h = String(u).trim();
   if (/^#\/(pessoa|obra)\/[\w-]+$/.test(h) || /^#\/municipio\/\d{7}$/.test(h)) return h;
@@ -174,7 +174,7 @@ export function hrefSeguro(u) {
   if (MODULO() === "eventos" && /^#\/evento\/[\w-]+$/.test(h)) return h;
   if (/^#\/uf\/[A-Z]{2}$/.test(h) || /^#\/regiao\/(Norte|Nordeste|Sudeste|Sul|Centro-Oeste)$/.test(h)) return h;
   if (/^#\/grafico\/([\w-]+)$/.test(h)) return JANELAS.includes(h.split("/")[2]) ? h : null;
-  if (/^#[\w-]+$/.test(h) || /^metodo\.html(#[\w-]+)?$/.test(h)) return h;
+  if (/^#[\w-]+$/.test(h) || /^sobre\.html(#[\w-]+)?$/.test(h)) return h;
   try { return new URL(h).protocol === "https:" ? h : null; } catch { return null; }
 }
 function inline(t) {
