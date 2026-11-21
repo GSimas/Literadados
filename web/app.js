@@ -83,22 +83,9 @@ montarTema(() => { renderTudo(); historia.redesenhar(); });
 
 // ---------- abertura (CA-15.1) ----------
 // "Jabuti 1959–2025 (67 edições) · Oceanos 2003–2025 (23 edições)": cada prêmio com o próprio período, sem somar edições.
-function periodosPremios(L) {
-  const anos = d3.rollup(L, (v) => new Set(v.map((l) => l.ano)), (l) => l.premio);
-  const um = PREMIOS.length === 1;
-  return PREMIOS.filter((p) => anos.has(p)).map((p) => {
-    const a = [...anos.get(p)].sort((x, y) => x - y);
-    const nome = um ? nomesPremios([p]) : M.nomeCurto(nomesPremios([p]));
-    return `${nome} ${a[0]}–${a.at(-1)} (${fmt(a.length)} edições)`;
-  }).concat((D.premios_distincao ?? []).map((p) => { // só conjunto da obra (RF-30): período das distinções, à parte
-    const a = (D.distincoes ?? []).filter((d) => d.premio === p.id).map((d) => d.ano);
-    return a.length ? `${M.nomeCurto(p.nome)} ${Math.min(...a)}–${Math.max(...a)} (conjunto da obra)` : "";
-  }).filter(Boolean)).join(" · ");
-}
 function renderAbertura() {
   const L0 = M.filtrar(D.participacao, padrao()), H = M.historia(L0);
   // A abertura é de todos os prêmios da base (DA-4, DA-5): prêmios, períodos e edições vêm dos dados.
-  $("#hero-periodo").textContent = periodosPremios(L0);
   $("#h-hero").textContent = "Quem chega aos prêmios literários?";
   // Números contam até o valor (CA-19.4); o texto final é o valor formatado exato.
   const nums = [

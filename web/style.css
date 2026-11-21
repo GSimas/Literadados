@@ -399,7 +399,9 @@ blockquote { margin: .35rem 0; padding: .2rem 0 .2rem .8rem; border-left: 3px so
 .tabela td.num, .tabela th.num { text-align: right; }
 .tabela tbody tr[data-id] { cursor: pointer; }
 .tabela tbody tr[data-id]:hover, .tabela tbody tr[data-id]:focus { background: var(--superficie-2); outline: none; }
-.rolagem { max-height: 520px; overflow: auto; }
+/* Tabela com mais de 10 linhas (CA-19.11): ~10 linhas visíveis, rolagem própria e cabeçalho fixo (th sticky acima). */
+.rolagem { overflow-x: auto; }
+.rolagem:has(tbody tr:nth-child(11)) { max-height: min(29rem, 70vh); overflow-y: auto; }
 
 /* ---------- método e referências ---------- */
 .texto { max-width: 75ch; }
@@ -848,8 +850,7 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 @keyframes varre-texto { from { background-position: 100% 0; } to { background-position: 0 0; } }
 .dd-cab p { transition: color var(--dur-2); }
 .dd-cab:hover p { color: var(--tinta); }
-/* Cobertura por edição: 16 linhas, mostradas inteiras (uma rolagem só, a lateral, se a tela for estreita) */
-#t-cobertura .rolagem { max-height: none; }
+
 
 /* Contexto automático da Diadorim (CA-12.12) */
 .dd-contexto { margin-top: .55rem; padding-top: .5rem; border-top: 1px dashed var(--borda); }
