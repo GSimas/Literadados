@@ -37,3 +37,7 @@ Escolaridade: "Fundamental I / Até 4ª série" → `ate_fundamental_1`, "Fundam
 - `livros_por_ano` por idade em 2015: não publicado.
 - Livros lidos nos últimos 3 meses (todas as edições): fora, por definição.
 - Capitais e UFs: fora do escopo desta coleta.
+
+## Conferência (2026-11-21, T36.5)
+
+Conferidas número a número contra as páginas renderizadas dos PDFs (valor, amostra e margem): 2015 pp. 56 e 64; escolaridade 2007 (p. 40, e livros/ano p. 106) e 2011 (p. 64, e livros/ano p. 72); 2019 pp. 22, 23 e 28; 2024 pp. 18 e 19; amostras e margens nas pp. de metodologia (2007 p. 15, 2011 p. 20, 2019 p. 13, 2024 p. 10). Nenhum valor errado, nenhuma correção. Todas as barras têm rótulo numérico: nada foi estimado pela altura. Únicas diferenças, já anotadas em `observacao`: em 2015, 5-10 e 18-24 anos são 67 no gráfico (p. 56) e 66 na tabela (p. 64); fica o gráfico. A ordem 5ª a 8ª (68%) > Ensino Médio (64%) em 2007 e 55 > 54 em 2011 está na própria fonte.
