@@ -1,7 +1,7 @@
 // Painel Literadados: estado, navegação e ciclo de desenho. Agregações em metricas.js (testadas);
 // seções em explorar.js, historia.js, linha-do-tempo.js, mapa.js e pessoas.js.
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, srcFoto, CATEGORIAS, PREMIOS, definirDados, nomesPremios, carregarDados, astGenero, CONTATO, fecharAnimado, contar, melhorarSelect, movimentoReduzido, luzNosBlocos, montarFiltro, carregarGraficos, enxugar } from "./ui.js";
 import { renderPanorama, renderEvolucao, renderFunil, renderSegregacao, renderSankey, renderIdade, renderEditoras, renderJuri, renderRanking, renderEntrePremios, renderConjuntoObra } from "./explorar.js";
 import { montarHistoria } from "./historia.js";
 import { renderLinhaDoTempo, montarTrilho } from "./linha-do-tempo.js";
@@ -301,6 +301,7 @@ montarDiadorim();
 montarBusca(D);
 montarExportacao();
 luzNosBlocos();
+enxugar();  // leads longos: 1ª frase à vista, o resto num "i"
 // Pré-carrega as bibliotecas dos gráficos quando a página fica ociosa: a primeira janela já abre pronta.
 (window.requestIdleCallback ?? ((f) => setTimeout(f, 2500)))(() => carregarGraficos().catch(() => {}));
 

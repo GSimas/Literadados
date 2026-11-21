@@ -1,7 +1,7 @@
 // Módulo Leitura (spec RF-33, design D39): indicadores por território, ano e recorte. Dados em leitura.json (Brasil, regiões,
 // UFs) e leitura/<indicador>/<UF>.json + leitura/municipios/<UF>.json (municípios), carregados quando a UF é escolhida.
 import * as M from "./metricas.js";
-import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos, fecharPerfilAoClicarFora } from "./ui.js";
+import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos, fecharPerfilAoClicarFora, info, enxugar, blocosEmJanelas } from "./ui.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
@@ -119,7 +119,8 @@ async function renderTudo() {
   $("#leitura-onde").textContent = `${nomeTerr(estado.t)} · ${estado.a}`;
   $("#h-mapa").textContent = ind.nome;
   renderPanoramaAtivo();
-  $("#leitura-definicao").innerHTML = `${esc(ind.definicao)}<br><span class="muted pequeno"><b>Limitações:</b> ${esc(ind.limitacoes)}</span>`;
+  $("#leitura-definicao").innerHTML = `${esc(ind.definicao)} ${info(`<b>Fonte:</b> ${esc(ind.fonte_nome)}<br><b>Limitações:</b> ${esc(ind.limitacoes)}`, "Fonte e limitações")}`;
+  $("#leitura-definicao").dataset.enxuto = "1";
   renderKpis(ind);
   await renderMapa(ind);
   await carregarGraficos();
@@ -255,10 +256,10 @@ function renderPanorama() {
       const s = M.serieLeitura(linhas, { indicador: ind.id, territorio: "BR" }).filter((l) => !l.suprimido);
       const ult = s.at(-1);
       if (!ult) return "";
-      return `<button type="button" class="panorama-cartao" data-i="${esc(ind.id)}" aria-label="${esc(`${ind.nome}: ${fmtValor(ult)} em ${ult.ano}. Abrir no mapa e nos gráficos`)}">
+      return `<button type="button" class="panorama-cartao" data-i="${esc(ind.id)}" title="${esc(ind.fonte_nome)}" aria-label="${esc(`${ind.nome}: ${fmtValor(ult)} em ${ult.ano}. Abrir no mapa e nos gráficos`)}">
         <span class="pc-nome">${esc(ind.nome)}</span><span class="pc-val">${fmtCurto(ult)}</span>
         <span class="pc-det">${esc([`Brasil, ${ult.ano}`, fmtN(ult)].filter(Boolean).join(" · "))}</span><span class="pc-serie" data-serie="${esc(ind.id)}"></span>
-        <span class="pc-fonte">${esc(ind.fonte_nome)}</span></button>`;
+</button>`;
     }).join("")}</div></div>`;
   }).join("");
   el.querySelectorAll("[data-serie]").forEach((sp) => {
@@ -352,6 +353,8 @@ montarBusca(null, "/premios.html");
 montarDiadorim();
 montarExportacao();
 renderCobertura();
+blocosEmJanelas();
+enxugar();
 await carregarGraficos();
 renderPanorama();
 $("#gerado-em").textContent = `Dados gerados em ${new Date(J.gerado_em).toLocaleString("pt-BR")}.`;

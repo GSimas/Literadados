@@ -1104,3 +1104,13 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .kpi, .cartao, .panorama-cartao, .bloco-botao, .hero-num, .passo-cartao { min-width: 0; overflow-wrap: break-word; }  /* break-word (não anywhere): não encolhe colunas de tabela nem quebra palavra que cabe */
 .kpi .val { font-size: clamp(1.45rem, 2.4vw, 2.1rem); }
 .kpis > * { min-width: 0; }
+
+/* Botão "i" e a nota que ele abre (ui.info). */
+.info { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin-left: .25rem; padding: 0; vertical-align: .12em;
+  border-radius: 50%; border: 1px solid var(--borda-forte, var(--tinta-2)); background: transparent; color: var(--tinta-2); cursor: pointer;
+  font: italic 700 .72rem/1 var(--fonte-titulo); }
+.info:hover, .info:focus-visible { color: var(--marca); border-color: var(--marca); }
+.info-pop { position: fixed; inset: auto; margin: 0; width: max-content; max-width: min(360px, calc(100vw - 24px)); padding: .75rem .9rem;
+  border: 1px solid var(--borda); border-radius: 12px; background: var(--superficie); color: var(--tinta); box-shadow: 0 12px 32px rgba(0,0,0,.28);
+  font: 400 .85rem/1.5 var(--fonte); text-align: left; }
+.info-pop:popover-open { animation: aparece var(--dur-2, .2s) var(--curva, ease); }

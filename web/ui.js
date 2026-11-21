@@ -479,3 +479,32 @@ export function blocosEmJanelas(raiz = document) {
   abrirAncora();
   addEventListener("hashchange", abrirAncora);
 }
+
+
+// Botão "i" com uma nota curta (popover nativo: abre no clique, fecha com Esc, clique fora ou rolagem). A nota fica ao lado do botão.
+let nInfo = 0;
+export function info(html, rotulo = "Mais informações") {
+  const id = `info-${++nInfo}`;
+  return `<button type="button" class="info" popovertarget="${id}" aria-label="${esc(rotulo)}">i</button><span id="${id}" class="info-pop" popover>${html}</span>`;
+}
+if (typeof document !== "undefined") document.addEventListener("toggle", (e) => {  // (testes no Node não têm document)
+  const pop = e.target;
+  if (!pop.classList?.contains("info-pop") || e.newState !== "open") return;
+  const botao = document.querySelector(`[popovertarget="${pop.id}"]`);
+  if (!botao) return;
+  const b = botao.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, m = 12;
+  pop.style.left = `${Math.max(m, Math.min(b.left - 16, innerWidth - w - m))}px`;
+  pop.style.top = `${b.bottom + 8 + h > innerHeight - m ? Math.max(m, b.top - h - 8) : b.bottom + 8}px`;
+}, true);
+if (typeof document !== "undefined") addEventListener("scroll", () => document.querySelectorAll(".info-pop:popover-open").forEach((p) => p.hidePopover()), { passive: true });
+
+// Texto de abertura longo (lead): fica a 1ª frase; o resto vai para um "i". Roda de novo sem efeito (data-enxuto).
+export function enxugar(raiz = document, limite = 140) {
+  for (const p of raiz.querySelectorAll(".secao-cab .lead, .hero-lead, .lead-enxugar")) {
+    if (p.dataset.enxuto || p.querySelector(".info") || p.textContent.trim().length < limite) continue;
+    const m = p.innerHTML.trim().match(/^(.{40,}?[.!?])\s+([A-ZÀ-Ú"“(][\s\S]*)$/);
+    if (!m) continue;
+    p.innerHTML = `${m[1]} ${info(m[2])}`;
+    p.dataset.enxuto = "1";
+  }
+}

@@ -1,7 +1,7 @@
 // Módulo Mapeamento (spec RF-34, design D40): cadastro curado da cena literária de um município (hoje Florianópolis).
 // Dados em mapeamento/<código>.json; contorno do município em malha/<UF>.json; sem mapa de fundo de terceiros (RNF-09).
 import * as M from "./metricas.js";
-import { $, $$, fmt, fmtPct, esc, css, largura, tabela, dica, astGenero, ROT_RACA, melhorarSelect, botaoExportarGrafico, luzNosBlocos, CONTATO, fecharPerfilAoClicarFora } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, css, largura, tabela, dica, astGenero, ROT_RACA, melhorarSelect, botaoExportarGrafico, luzNosBlocos, CONTATO, fecharPerfilAoClicarFora, info, enxugar } from "./ui.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
@@ -34,9 +34,10 @@ function renderNumeros() {
     + card("Autoras e autores mapeados", fmt(R.pessoas), `${fmt(R.nasceram)} nascidos na cidade · ${fmt(R.atuam)} vivem ou trabalham nela · ${fmt(R.ambos)} nos dois`)
     + card("Mulheres", R.pessoas ? fmtPct(R.pctMulheres) + astGenero(R.generoAtribuido) : "–", `${fmt(R.mulheres)} de ${fmt(R.pessoas)}`)
     + card("Pessoas negras", R.pessoas ? `≥ ${fmtPct(R.pctNegrasPiso)}` : "–", `pelo menos ${fmt(R.negras)} de ${fmt(R.pessoas)}; piso por autodeclaração`);
-  $("#mapa-nota").innerHTML = `Pessoa entra com vínculo (nasceu na cidade ou vive e trabalha nela, dito numa fonte) e ao menos um livro na base.
+  $("#mapa-nota").innerHTML = `Como contamos ${info(`Pessoa entra com vínculo (nasceu na cidade ou vive e trabalha nela, dito numa fonte) e ao menos um livro na base.
     ${R.generoAtribuido ? `* Inclui ${fmt(R.generoAtribuido)} pessoa(s) com gênero atribuído pelo primeiro nome, que pode estar errado; correções: ${CONTATO}. ` : ""}
-    Raça só por autodeclaração pública: "sem declaração" não quer dizer branca.`;
+    Raça só por autodeclaração pública: "sem declaração" não quer dizer branca.`, "Como contamos")}`;
+  enxugar();
 }
 
 // ---------- mapa da cidade: OpenStreetMap (distritos, lagoas, vizinhos) + pontos (RNF-09) ----------
