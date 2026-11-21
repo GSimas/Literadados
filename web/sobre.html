@@ -55,47 +55,53 @@
   <section id="sobre" class="secao" aria-labelledby="h-sobre">
     <header class="secao-cab"><p class="sobretitulo">Sobre</p><h1 id="h-sobre">O que é o Literadados</h1>
       <p class="lead">Uma plataforma de dados abertos sobre literatura e leitura no Brasil. Reúne, num só lugar e com fonte em cada número, dados que hoje estão espalhados: quem chega aos prêmios literários, como o país lê, onde estão os livros e quem faz a cena literária das cidades.</p></header>
-    <div class="bloco" data-titulo="Módulos"><ul>
+    <div class="blocos-fonte">
+    <div class="bloco" data-titulo="Módulos e princípios" data-resumo="Os quatro módulos e as regras que valem em todos: fonte em cada número, raça só por autodeclaração.">
+<h3>Módulos</h3>
+<ul>
       <li><a href="premios.html"><b>Prêmios</b></a>: gênero, raça autodeclarada e local de nascimento de quem é indicado e premiado nos principais prêmios literários de língua portuguesa, edição por edição.</li>
       <li><a href="leitura.html"><b>Leitura</b></a>: alfabetização, leitores, bibliotecas, escolas, livrarias, editoras e mercado do livro, por município, estado e região.</li>
       <li><a href="mapeamento.html"><b>Mapeamento</b></a>: livrarias, sebos, clubes do livro, editoras, autoras, autores e obras de uma cidade (hoje, Florianópolis), num cadastro curado.</li>
-      <li><a href="eventos.html"><b>Eventos</b></a>: festivais, feiras do livro, bienais e festas literárias do Brasil, com as edições passadas e as próximas.</li></ul></div>
-    <div class="bloco" data-titulo="Princípios"><ul>
+      <li><a href="eventos.html"><b>Eventos</b></a>: festivais, feiras do livro, bienais e festas literárias do Brasil, com as edições passadas e as próximas.</li></ul>
+<h3>Princípios</h3>
+<ul>
       <li>Todo número tem fonte, e todo percentual mostra o n.</li>
       <li>Raça só entra por autodeclaração pública, com o trecho e o link; nunca é inferida. O número de pessoas negras é um piso ("pelo menos").</li>
       <li>Gênero sem fonte é atribuído pelo primeiro nome e marcado com asterisco.</li>
       <li>Cadastros (mapeamento e eventos) dizem o que foi mapeado até agora; não são censo.</li>
-      <li>A Diadorim, a IA do site, consulta o banco e sempre se declara inteligência artificial.</li></ul></div>
-  </section>
-
-  <section id="contribuir" class="secao" aria-labelledby="h-contribuir">
-    <header class="secao-cab"><p class="sobretitulo">Contribuir</p><h2 id="h-contribuir">Como contribuir</h2></header>
-    <div class="bloco" data-titulo="Corrigir, sugerir e baixar os dados"><ul>
+      <li>A Diadorim, a IA do site, consulta o banco e sempre se declara inteligência artificial.</li></ul>
+    </div>
+    <div class="bloco" id="contribuir" data-titulo="Como contribuir" data-resumo="Corrigir um dado, sugerir uma livraria ou um evento, baixar os dados e o código.">
+<h3>Corrigir, sugerir e baixar os dados</h3>
+<ul>
       <li><b>Corrigir um dado:</b> escreva para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a> com o dado e uma fonte pública (página, documento, entrevista). Correções de raça só entram com autodeclaração pública.</li>
       <li><b>Mapeamento da sua cidade:</b> sugira uma livraria, um clube do livro, uma editora, uma autora ou um livro, corrija um registro ou peça para sair, pelo <a href="mapeamento.html#sugerir">formulário do mapeamento</a>. Nada entra sem revisão humana, e pedidos de remoção são atendidos.</li>
       <li><b>Eventos literários:</b> mande a programação ou a página oficial do evento, com as datas, para o mesmo e-mail.</li>
-      <li><b>Dados e código:</b> os dados estão em <a href="/dados-abertos/">Dados abertos</a> (CSV e Parquet), e o código-fonte em <a href="https://github.com/GSimas/Literadados" rel="noopener">github.com/GSimas/Literadados</a>.</li></ul></div>
-    <div class="bloco" data-titulo="Páginas de consulta"><p class="chips">
+      <li><b>Dados e código:</b> os dados estão em <a href="/dados-abertos/">Dados abertos</a> (CSV e Parquet), e o código-fonte em <a href="https://github.com/GSimas/Literadados" rel="noopener">github.com/GSimas/Literadados</a>.</li></ul>
+<h3>Páginas de consulta</h3>
+<p class="chips">
       <a class="chip-link" href="/premios/">Prêmios e edições</a> <a class="chip-link" href="/pessoas/">Pessoas de A a Z</a> <a class="chip-link" href="/editoras/">Editoras</a>
       <a class="chip-link" href="/estados/">Estados</a> <a class="chip-link" href="/perguntas/">Perguntas frequentes</a> <a class="chip-link" href="/leitura/">Indicadores de leitura</a>
       <a class="chip-link" href="/mapeamento/">Mapeamento</a> <a class="chip-link" href="/eventos/">Eventos</a> <a class="chip-link" href="/dados-abertos/">Dados abertos</a></p>
-      <p class="muted pequeno">Fotos: Wikimedia Commons e sites creditados nos perfis. Malhas: IBGE. Indicadores: IBGE, INEP, Receita Federal, Instituto Pró-Livro e as fontes citadas em cada número.</p></div>
+      <p class="muted pequeno">Fotos: Wikimedia Commons e sites creditados nos perfis. Capas ao fundo da página inicial: Martins Fontes, Companhia das Letras e Livrarias Curitiba (direitos reservados). Malhas: IBGE. Indicadores: IBGE, INEP, Receita Federal, Instituto Pró-Livro e as fontes citadas em cada número.</p>
+    </div>
+    </div>
   </section>
+
   <section id="metodologia" class="secao" aria-labelledby="h-metodologia">
     <header class="secao-cab"><p class="sobretitulo">Método</p><h2 id="h-metodologia">Como os dados foram feitos</h2></header>
-    <div class="bloco" data-titulo="De onde vêm os dados">
-      <p>Listas oficiais de cada prêmio, publicadas pelo organizador (quadro abaixo), conferidas em duas fontes jornalísticas ou oficiais. Dados das pessoas vêm do Wikidata, conferidos por humano, e de biografias públicas. Cada atributo guarda sua fonte (veja o perfil de cada pessoa).</p>
-    </div>
-    <div class="bloco" data-titulo="Vários prêmios">
-      <p>A base guarda estes prêmios: <span data-premios-texto>os prêmios literários coletados</span>. Pessoa, livro e editora são um registro só: quem passou por mais de um prêmio tem um perfil, com a trajetória completa. A mesma pessoa é reconhecida por uma decisão registrada, pelo identificador do Wikidata ou, sem os dois, pelo nome; o casamento só pelo nome com alguém de outro prêmio já vale, mas entra numa lista de conferência, e uma pessoa decide se é a mesma ou um homônimo. Um livro é o mesmo quando o título bate e a mesma pessoa está na autoria; título igual com sobrenome igual, mas pessoas diferentes, fica como livro diferente até que alguém confirme. O painel abre com todos os prêmios, lado a lado; cada parte (e a história) tem um seletor para escolher um prêmio ou vários. Com mais de um prêmio no recorte, cada gráfico mostra um painel por prêmio, com o próprio n: percentuais de prêmios diferentes nunca se somam, porque formatos, vagas e períodos diferem. A editora é a da edição que concorreu (um livro português pode concorrer pela edição de Lisboa).</p>
+    <div class="blocos-fonte">
+    <div class="bloco" data-titulo="Prêmios: fontes e definições" data-resumo="De onde vêm as listas, os prêmios da base, a série histórica do Jabuti e o que é lista, finalista e premiada.">
+<h3>De onde vêm os dados</h3>
+<p>Listas oficiais de cada prêmio, publicadas pelo organizador (quadro abaixo), conferidas em duas fontes jornalísticas ou oficiais. Dados das pessoas vêm do Wikidata, conferidos por humano, e de biografias públicas. Cada atributo guarda sua fonte (veja o perfil de cada pessoa).</p>
+<h3>Vários prêmios</h3>
+<p>A base guarda estes prêmios: <span data-premios-texto>os prêmios literários coletados</span>. Pessoa, livro e editora são um registro só: quem passou por mais de um prêmio tem um perfil, com a trajetória completa. A mesma pessoa é reconhecida por uma decisão registrada, pelo identificador do Wikidata ou, sem os dois, pelo nome; o casamento só pelo nome com alguém de outro prêmio já vale, mas entra numa lista de conferência, e uma pessoa decide se é a mesma ou um homônimo. Um livro é o mesmo quando o título bate e a mesma pessoa está na autoria; título igual com sobrenome igual, mas pessoas diferentes, fica como livro diferente até que alguém confirme. O painel abre com todos os prêmios, lado a lado; cada parte (e a história) tem um seletor para escolher um prêmio ou vários. Com mais de um prêmio no recorte, cada gráfico mostra um painel por prêmio, com o próprio n: percentuais de prêmios diferentes nunca se somam, porque formatos, vagas e períodos diferem. A editora é a da edição que concorreu (um livro português pode concorrer pela edição de Lisboa).</p>
         <p>Prêmios lusófonos incluem autores nascidos fora do Brasil: para eles, o painel mostra o país de nascimento no lugar do estado. A regra de raça é a mesma (só autodeclaração pública, com fonte e trecho), e os termos seguem as categorias do IBGE, pensadas para o Brasil.</p>
         <div id="metodo-premios"></div>
-    </div>
-    <div class="bloco" data-titulo="Jabuti: série histórica (1959–2009)">
-      <p>O painel abre na série completa de cada prêmio, e cada parte tem um filtro para recortar o período. No Jabuti, de 2010 em diante, toda edição tem uma lista pública de cerca de 10 obras por categoria; de 2000 a 2009, as listas vêm de fontes da época (site arquivado da CBL e imprensa). Antes disso, só se anunciavam os premiados: de 1959 a 1992, um vencedor por categoria; de 1993 a 1999, pódio. Essas edições entram só com os premiados, cruzados em três fontes: a página de premiados do site oficial, a página "Edições anteriores" do antigo site da CBL (arquivada em 2010) e as páginas de cada edição na Wikipédia, que citam o livro <i>Prêmio Jabuti 50 anos</i> (CBL, 2008). A editora ficou em branco quando não havia fonte da época, porque o site oficial mostra a editora atual do título. Quando o recorte inclui edições sem lista pública, o resumo do filtro avisa: nelas, "lista" é só a dos premiados. Por isso, no Jabuti, comparações entre a lista e quem venceu ficam mais justas num recorte de 2000 em diante; para comparar com a série recente, filtre 2010–2025. No Oceanos, há lista pública desde a 1ª edição (2003). Indicações sem editora conhecida ficam fora do gráfico de editoras.</p>
-    </div>
-    <div class="bloco" data-titulo="Definições">
-      <ul>
+<h3>Jabuti: série histórica (1959–2009)</h3>
+<p>O painel abre na série completa de cada prêmio, e cada parte tem um filtro para recortar o período. No Jabuti, de 2010 em diante, toda edição tem uma lista pública de cerca de 10 obras por categoria; de 2000 a 2009, as listas vêm de fontes da época (site arquivado da CBL e imprensa). Antes disso, só se anunciavam os premiados: de 1959 a 1992, um vencedor por categoria; de 1993 a 1999, pódio. Essas edições entram só com os premiados, cruzados em três fontes: a página de premiados do site oficial, a página "Edições anteriores" do antigo site da CBL (arquivada em 2010) e as páginas de cada edição na Wikipédia, que citam o livro <i>Prêmio Jabuti 50 anos</i> (CBL, 2008). A editora ficou em branco quando não havia fonte da época, porque o site oficial mostra a editora atual do título. Quando o recorte inclui edições sem lista pública, o resumo do filtro avisa: nelas, "lista" é só a dos premiados. Por isso, no Jabuti, comparações entre a lista e quem venceu ficam mais justas num recorte de 2000 em diante; para comparar com a série recente, filtre 2010–2025. No Oceanos, há lista pública desde a 1ª edição (2003). Indicações sem editora conhecida ficam fora do gráfico de editoras.</p>
+<h3>Definições</h3>
+<ul>
           <li><b>Lista:</b> obras da 1ª lista pública da categoria. No Jabuti, ≈10 por categoria, chamadas de finalistas até 2018 e de semifinalistas de 2019 em diante. No Oceanos, os 10 finalistas em 2003–2006 e, depois, os semifinalistas (cerca de 50 na categoria única; cerca de 20 por categoria em 2012–2014).</li>
           <li><b>Finalistas:</b> 2ª lista, quando existe: no Jabuti, de 2019 em diante (≈5); no Oceanos, desde 2007 (10; 4 por categoria em 2012–2014).</li>
           <li><b>Premiadas:</b> no Jabuti, o vencedor de cada categoria até 1992; 1º, 2º e 3º lugares de 1993 a 2017 (em 1993, até cinco premiados por categoria, sem pódio; a ordem segue a Wikipédia); só o 1º a partir de 2018. No Oceanos, 1º a 3º (1º a 4º em 2015–2018); um vencedor por categoria em 2012–2014 e desde 2023. <b>Vencedoras:</b> 1º lugar.</li>
@@ -105,60 +111,62 @@
           <li><b>Categorias do Oceanos:</b> categoria única ("Geral") em 2003–2011 e 2015–2022; Romance, Poesia e Conto/Crônica (em Contos) em 2012–2014, com o Grande Prêmio entre os três vencedores (em Livro do Ano); Prosa e Poesia desde 2023.</li>
         </ul>
     </div>
-    <div class="bloco" data-titulo="Raça: só autodeclaração">
-      <p>Raça entra apenas quando a própria pessoa se declarou publicamente (entrevista, perfil, depoimento, registro de candidatura no TSE), com link e trecho literal, ou quando consta de fonte curada por identidade (o portal Literafro, da UFMG). Nunca é inferida por foto, sobrenome ou IA. Como pessoas brancas raramente se declaram, o percentual de pessoas negras é um <b>piso</b> ("pelo menos") e o de pessoas brancas não é calculável. "Negras" agrupa pretas, pardas e quem se declarou negro sem especificar.</p>
+    <div class="bloco" data-titulo="Raça, gênero e fotos" data-resumo="Raça só por autodeclaração pública, gênero com fonte ou atribuição marcada, fotos com licença e como corrigir.">
+<h3>Raça: só autodeclaração</h3>
+<p>Raça entra apenas quando a própria pessoa se declarou publicamente (entrevista, perfil, depoimento, registro de candidatura no TSE), com link e trecho literal, ou quando consta de fonte curada por identidade (o portal Literafro, da UFMG). Nunca é inferida por foto, sobrenome ou IA. Como pessoas brancas raramente se declaram, o percentual de pessoas negras é um <b>piso</b> ("pelo menos") e o de pessoas brancas não é calculável. "Negras" agrupa pretas, pardas e quem se declarou negro sem especificar.</p>
         <p>Cada pessoa registra se a busca de autodeclaração foi <b>completa</b> (protocolo cumprido) ou <b>parcial</b> (interrompida); onde é parcial, "sem declaração" pode esconder uma declaração pública.</p>
+<h3>Gênero: fonte ou atribuição marcada</h3>
+<p>O gênero vem de fonte pública (Wikidata, Wikipédia, biografias). Quando nenhuma fonte foi achada, ele foi <b>atribuído pelo primeiro nome</b> e aparece com asterisco (*): pode estar errado. Apelidos ambíguos e iniciais continuam como "não identificado". Raça nunca é atribuída.</p>
+<h3>Fotos e perfis</h3>
+<p>Fotos vêm, de preferência, do Wikimedia Commons, com licença livre e com autoria e licença exibidas. Sem foto livre, a foto pode vir de outro site (editora, prêmio, Wikipédia, imprensa): ela tem direitos reservados, é exibida a partir da própria fonte (o Literadados não guarda cópia) e traz sempre o crédito com o link da página de origem. O mesmo vale para as capas. Quem não tem foto aparece com as iniciais; a cor do avatar sai de um cálculo sobre o identificador da pessoa e não carrega nenhuma informação sobre ela.</p>
+<h3>Encontrou um erro?</h3>
+<p>Correções são bem-vindas, sobretudo da própria pessoa. Envie o nome, o dado correto e a fonte pública para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. Mudanças entram pelos arquivos em <code>dados/</code> e ficam registradas.</p>
     </div>
-    <div class="bloco" data-titulo="Gênero: fonte ou atribuição marcada">
-      <p>O gênero vem de fonte pública (Wikidata, Wikipédia, biografias). Quando nenhuma fonte foi achada, ele foi <b>atribuído pelo primeiro nome</b> e aparece com asterisco (*): pode estar errado. Apelidos ambíguos e iniciais continuam como "não identificado". Raça nunca é atribuída.</p>
+    <div class="bloco" id="referencias" data-titulo="Cobertura e referências" data-resumo="Quanto de cada edição tem dado conhecido e em que fontes a base se apoia.">
+<p>Todas as URLs citadas na base (listas, júris, gênero, nascimento e raça), agrupadas por tipo de fonte. O número indica quantos registros cada domínio sustenta.</p>
+<h3>Cobertura por edição</h3>
+<div id="t-cobertura"></div>
+<h3>Fontes por tipo</h3>
+<div id="referencias-grupos" class="referencias"></div>
     </div>
-    <div class="bloco" data-titulo="Fotos e perfis">
-      <p>Fotos vêm, de preferência, do Wikimedia Commons, com licença livre e com autoria e licença exibidas. Sem foto livre, a foto pode vir de outro site (editora, prêmio, Wikipédia, imprensa): ela tem direitos reservados, é exibida a partir da própria fonte (o Literadados não guarda cópia) e traz sempre o crédito com o link da página de origem. O mesmo vale para as capas. Quem não tem foto aparece com as iniciais; a cor do avatar sai de um cálculo sobre o identificador da pessoa e não carrega nenhuma informação sobre ela.</p>
-    </div>
-    <div class="bloco" data-titulo="Encontrou um erro?">
-      <p>Correções são bem-vindas, sobretudo da própria pessoa. Envie o nome, o dado correto e a fonte pública para <a href="mailto:contato@gustavosimas.com">contato@gustavosimas.com</a>. Mudanças entram pelos arquivos em <code>dados/</code> e ficam registradas.</p>
-    </div>
-    <div class="bloco" data-titulo="Cobertura por edição" data-resumo="Quanto de cada edição de cada prêmio tem gênero, estado, raça declarada e idade conhecidos.">
-      <div id="t-cobertura"></div>
     </div>
   </section>
 
-  <!-- Referências (RF-18) -->
-  <!-- Módulo Leitura (RF-33, CA-33.4): definições, fontes e limitações vêm de leitura.json -->
-  <section id="leitura" class="secao" aria-labelledby="h-leitura-metodo">
-    <header class="secao-cab"><p class="sobretitulo">Módulo Leitura</p><h2 id="h-leitura-metodo">Indicadores de leitura: fontes e definições</h2></header>
-    <div class="bloco" data-titulo="Como ler os indicadores"><p>Números agregados publicados por outras instituições. Cada indicador tem a sua definição, o seu ano e o seu nível territorial: indicadores de definições diferentes nunca se comparam como se fossem a mesma medida. Cor ou raça é a autodeclaração de quem respondeu, nas cinco categorias do IBGE (branca, preta, parda, amarela, indígena), termos diferentes dos usados no módulo Prêmios, onde a raça vem de autodeclaração pública de cada pessoa. Pesquisa por amostra traz a amostra e a margem de erro, quando a fonte publica; censo e registro trazem numerador e denominador. Contagens por 100 mil habitantes usam a população do Censo 2022, mesmo para outros anos. Valores em reais são correntes (sem correção pela inflação); pontuação é a escala da própria avaliação (Saeb e PISA não se comparam entre si).</p></div>
-    <div class="bloco" data-titulo="Fichas dos indicadores" data-resumo="Definição, fonte, tipo de fonte, nível territorial, anos e limitações de cada indicador do módulo."><div id="metodo-leitura"></div></div>
-  </section>
-
-  <!-- Módulo Mapeamento (RF-34, D40) -->
-  <section id="mapeamento" class="secao" aria-labelledby="h-mapeamento-metodo">
-    <header class="secao-cab"><p class="sobretitulo">Módulo Mapeamento</p><h2 id="h-mapeamento-metodo">Mapeamento literário: definições e privacidade</h2>
-      <p class="lead">Cadastro curado da cena literária de um município (hoje, Florianópolis). Não é censo: diz o que foi mapeado e conferido até agora. Todo registro tem fonte pública e data de conferência; o que passa de 12 meses sem conferência aparece como "a conferir".</p></header>
-    <div class="bloco" data-titulo="O que entra"><ul>
+  <section id="modulos-metodo" class="secao" aria-labelledby="h-modulos-metodo">
+    <header class="secao-cab"><p class="sobretitulo">Módulos</p><h2 id="h-modulos-metodo">Leitura, mapeamento e eventos</h2></header>
+    <div class="blocos-fonte">
+    <div class="bloco" id="leitura" data-titulo="Leitura" data-resumo="Como ler os indicadores e a ficha de cada um: definição, fonte, anos, nível territorial e limitações.">
+<h3>Como ler os indicadores</h3>
+<p>Números agregados publicados por outras instituições. Cada indicador tem a sua definição, o seu ano e o seu nível territorial: indicadores de definições diferentes nunca se comparam como se fossem a mesma medida. Cor ou raça é a autodeclaração de quem respondeu, nas cinco categorias do IBGE (branca, preta, parda, amarela, indígena), termos diferentes dos usados no módulo Prêmios, onde a raça vem de autodeclaração pública de cada pessoa. Pesquisa por amostra traz a amostra e a margem de erro, quando a fonte publica; censo e registro trazem numerador e denominador. Contagens por 100 mil habitantes usam a população do Censo 2022, mesmo para outros anos. Valores em reais são correntes (sem correção pela inflação); pontuação é a escala da própria avaliação (Saeb e PISA não se comparam entre si).</p>
+<h3>Fichas dos indicadores</h3>
+<div id="metodo-leitura"></div>
+    </div>
+    <div class="bloco" id="mapeamento" data-titulo="Mapeamento" data-resumo="O que entra no cadastro da cidade, vínculo com a cidade, privacidade e fontes.">
+<p>Cadastro curado da cena literária de um município (hoje, Florianópolis). Não é censo: diz o que foi mapeado e conferido até agora. Todo registro tem fonte pública e data de conferência; o que passa de 12 meses sem conferência aparece como "a conferir".</p>
+<h3>O que entra</h3>
+<ul>
       <li><b>Livraria:</b> estabelecimento cuja atividade principal é vender livros ao público, com sinal público de funcionamento (loja física com bairro, ou livraria on-line com sede na cidade). Papelaria e banca ficam fora. Tipos: geral, sebo, especializada, café-livraria, on-line; rede ou independente.</li>
       <li><b>Editora:</b> sede no município e ao menos um livro verificável. Edição do autor não é editora.</li>
       <li><b>Autora ou autor:</b> ao menos um livro verificável e vínculo com a cidade.</li>
       <li><b>Obra:</b> de pessoa ou editora mapeada, ou ambientada na cidade (com fonte).</li>
-      <li><b>Clube do livro:</b> encontros recorrentes para discutir livros, com canal público.</li></ul></div>
-    <div class="bloco" data-titulo="Vínculo com a cidade"><p>Nascimento (o município de nascimento, como no resto da base) e atuação (vive ou trabalha na cidade, dito numa fonte pública) são vínculos diferentes, contados separado e nunca somados sem dizer o critério. Livros se ligam à cidade pela autoria, pela editora ou pela ambientação.</p></div>
-    <div class="bloco" data-titulo="Privacidade"><p>Só dados públicos e profissionais de pessoas; nenhum endereço de pessoa. Endereço só de estabelecimento aberto ao público. Clube que se reúne em casa não tem endereço nem ponto no mapa, e o nome de quem organiza clube independente não é publicado. Raça só por autodeclaração pública, como em todo o Literadados. Qualquer pessoa pode pedir para sair do mapeamento pelo formulário da página, e o pedido é atendido.</p></div>
-    <div class="bloco" data-titulo="Fontes"><p>Sites e redes públicas dos próprios registros, imprensa, catálogos de editoras, OpenStreetMap (pontos) e o cadastro de CNPJ da Receita Federal (candidatas, sempre conferidas). O mapa da cidade usa só o contorno do IBGE, sem mapa de fundo de terceiros.</p></div>
-  </section>
-
-  <!-- Módulo Eventos (RF-35, D41) -->
-  <section id="eventos" class="secao" aria-labelledby="h-eventos-metodo">
-    <header class="secao-cab"><p class="sobretitulo">Módulo Eventos</p><h2 id="h-eventos-metodo">Eventos literários: recorte e datas</h2>
-      <p class="lead">Cadastro curado de eventos literários do Brasil: festivais, feiras do livro, bienais, festas literárias, encontros, jornadas e salões abertos ao público, com as edições de 2015 em diante (e as anteriores quando há lista pública completa) e a próxima edição quando já anunciada. Não é censo: diz o que foi mapeado até agora.</p></header>
-    <div class="bloco" data-titulo="Recorte"><p>Entra evento aberto ao público cujo centro é a literatura ou o livro. Ficam fora eventos internos de uma escola, lançamentos de livro, saraus recorrentes semanais e congressos acadêmicos.</p></div>
-    <div class="bloco" data-titulo="Datas e situação"><p>Cada edição tem data de início e de fim com fonte; sem o dia exato, a edição fica de fora. "Próximos" e "passados" são calculados no seu navegador pela data de hoje. A situação gravada (prevista, realizada, cancelada, adiada) é a da última conferência; edição prevista cuja data já passou aparece como "a conferir" até ser atualizada. Público estimado só aparece com a fonte que o diz.</p></div>
-    <div class="bloco" data-titulo="Homenageados"><p>Homenageados vêm como a fonte escreve. Quem já está na base de pessoas do Literadados ganha link para o perfil; nenhum atributo de pessoa é inferido a partir do evento.</p></div>
-  </section>
-
-  <section id="referencias" class="secao" aria-labelledby="h-referencias">
-    <header class="secao-cab"><p class="sobretitulo">Referências</p><h2 id="h-referencias">Em que fontes os dados se apoiam</h2>
-      <p class="lead">Todas as URLs citadas na base (listas, júris, gênero, nascimento e raça), agrupadas por tipo de fonte. O número indica quantos registros cada domínio sustenta.</p></header>
-    <div class="bloco" data-titulo="Fontes por tipo" data-resumo="Os domínios citados na base, agrupados por tipo de fonte, com quantos registros cada um sustenta."><div id="referencias-grupos" class="referencias"></div></div>
+      <li><b>Clube do livro:</b> encontros recorrentes para discutir livros, com canal público.</li></ul>
+<h3>Vínculo com a cidade</h3>
+<p>Nascimento (o município de nascimento, como no resto da base) e atuação (vive ou trabalha na cidade, dito numa fonte pública) são vínculos diferentes, contados separado e nunca somados sem dizer o critério. Livros se ligam à cidade pela autoria, pela editora ou pela ambientação.</p>
+<h3>Privacidade</h3>
+<p>Só dados públicos e profissionais de pessoas; nenhum endereço de pessoa. Endereço só de estabelecimento aberto ao público. Clube que se reúne em casa não tem endereço nem ponto no mapa, e o nome de quem organiza clube independente não é publicado. Raça só por autodeclaração pública, como em todo o Literadados. Qualquer pessoa pode pedir para sair do mapeamento pelo formulário da página, e o pedido é atendido.</p>
+<h3>Fontes</h3>
+<p>Sites e redes públicas dos próprios registros, imprensa, catálogos de editoras, OpenStreetMap (pontos) e o cadastro de CNPJ da Receita Federal (candidatas, sempre conferidas). O mapa da cidade usa só o contorno do IBGE, sem mapa de fundo de terceiros.</p>
+    </div>
+    <div class="bloco" id="eventos" data-titulo="Eventos" data-resumo="Que eventos entram, como as datas e a situação são conferidas, e os homenageados.">
+<p>Cadastro curado de eventos literários do Brasil: festivais, feiras do livro, bienais, festas literárias, encontros, jornadas e salões abertos ao público, com as edições de 2015 em diante (e as anteriores quando há lista pública completa) e a próxima edição quando já anunciada. Não é censo: diz o que foi mapeado até agora.</p>
+<h3>Recorte</h3>
+<p>Entra evento aberto ao público cujo centro é a literatura ou o livro. Ficam fora eventos internos de uma escola, lançamentos de livro, saraus recorrentes semanais e congressos acadêmicos.</p>
+<h3>Datas e situação</h3>
+<p>Cada edição tem data de início e de fim com fonte; sem o dia exato, a edição fica de fora. "Próximos" e "passados" são calculados no seu navegador pela data de hoje. A situação gravada (prevista, realizada, cancelada, adiada) é a da última conferência; edição prevista cuja data já passou aparece como "a conferir" até ser atualizada. Público estimado só aparece com a fonte que o diz.</p>
+<h3>Homenageados</h3>
+<p>Homenageados vêm como a fonte escreve. Quem já está na base de pessoas do Literadados ganha link para o perfil; nenhum atributo de pessoa é inferido a partir do evento.</p>
+    </div>
+    </div>
   </section>
   <div class="notas-pagina">
   <p id="gerado-em" class="muted"></p>

@@ -428,3 +428,54 @@ export function montarFiltro(el, estado, { anos, padrao, aoMudar, baixar }) {
   $("[data-csv]", el).addEventListener("click", baixar);
   return { resumo: (html) => { $(".filtro-resumo", el).innerHTML = html; } };
 }
+
+
+// Mostrar só o necessário (pedido de 2026-11-21): cada .bloco (data-titulo, data-resumo opcional) vira um botão com título e
+// resumo, e o conteúdo abre numa janela. O nó vai inteiro para o <dialog>: ids preenchidos depois continuam valendo. Os blocos
+// ficam onde estão (filhos diretos de uma seção ou dentro de .blocos-fonte). Âncora (#id) de um bloco ou de algo dentro dele abre a janela.
+export function blocosEmJanelas(raiz = document) {
+  const resumo = (b) => {
+    if (b.dataset.resumo) return b.dataset.resumo;
+    const txt = (b.querySelector("p, li")?.textContent ?? b.textContent).replace(/\s+/g, " ").trim();
+    return txt.length > 95 ? `${txt.slice(0, txt.lastIndexOf(" ", 92))}…` : txt;
+  };
+  const grupos = new Map();
+  for (const b of raiz.querySelectorAll(".bloco:not(dialog .bloco)")) {
+    const pai = b.parentElement;
+    if (!grupos.has(pai)) grupos.set(pai, []);
+    grupos.get(pai).push(b);
+  }
+  let n = document.querySelectorAll("dialog.janela-bloco").length;
+  for (const [pai, blocos] of grupos) {
+    const grade = document.createElement("div");
+    grade.className = "blocos";
+    if (pai.classList.contains("blocos-fonte")) pai.replaceWith(grade); else blocos[0].before(grade);
+    const sobretitulo = pai.closest("section")?.querySelector(".sobretitulo")?.textContent ?? "";
+    for (const b of blocos) {
+      const id = `janela-${++n}`, titulo = b.dataset.titulo;
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "bloco-botao";
+      botao.setAttribute("aria-haspopup", "dialog");
+      botao.innerHTML = `<b>${esc(titulo)}</b><span>${esc(resumo(b))}</span><span class="bloco-abrir" aria-hidden="true">Ler →</span>`;
+      const dlg = document.createElement("dialog");
+      dlg.className = "perfil janela-bloco";
+      dlg.setAttribute("aria-labelledby", `${id}-t`);
+      dlg.innerHTML = `<form method="dialog"><button class="fechar" aria-label="Fechar">×</button></form>
+        <header class="perfil-cab simples"><p class="sobretitulo">${esc(sobretitulo)}</p><h2 id="${id}-t">${esc(titulo)}</h2></header>`;
+      b.classList.add("janela-corpo");
+      dlg.append(b);
+      document.body.append(dlg);
+      fecharPerfilAoClicarFora(dlg);
+      botao.addEventListener("click", () => dlg.showModal());
+      grade.append(botao);
+    }
+  }
+  const abrirAncora = () => {
+    const alvo = location.hash.length > 1 && !location.hash.startsWith("#/") ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    const dlg = alvo?.closest("dialog.janela-bloco");
+    if (dlg && !dlg.open) { dlg.showModal(); if (alvo !== dlg.querySelector(".bloco")) alvo.scrollIntoView({ block: "start" }); }
+  };
+  abrirAncora();
+  addEventListener("hashchange", abrirAncora);
+}

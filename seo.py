@@ -1284,7 +1284,7 @@ def _portal(web: Path, b, r: dict, con):
 def _mosaico_portal(web: Path, con):
     """Fundo do portal (CA-31.2): 4 faixas que correm em sentidos opostos, só com capas reais de livros vencedores. Usa as capas
     da Martins Fontes e da Companhia das Letras (VTEX), que servem miniatura (`/ids/<n>-160-240/`, ~6 KB): o fundo pesa pouco.
-    Imagem exibida da fonte, sem cópia e sem Referer, com o crédito dos sites na própria página (D34). Ordem estável (hash)."""
+    Imagem exibida da fonte, sem cópia e sem Referer, com o crédito dos sites na página Sobre (D34). Ordem estável (hash)."""
     import hashlib
     idx = web / "index.html"
     if not idx.exists():
@@ -1298,16 +1298,12 @@ def _mosaico_portal(web: Path, con):
     mini = lambda u: re.sub(r"/arquivos/ids/(\d+)/", r"/arquivos/ids/\1-160-240/", u)
     itens = [f'<img src="{e(mini(u))}" alt="" width="96" height="144" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' for _, u, _ in capas]
     faixas = [itens[i::4] for i in range(4)]
-    nomes = sorted({f for _, _, f in todas})
-    sites = ", ".join(nomes[:-1]) + (" e " if len(nomes) > 1 else "") + nomes[-1]
     trecho = ("<!-- build:mosaico -->" + "".join(
         f'<div class="hero-faixa" style="--dur:{120 + i * 35}s"{" data-rev" if i % 2 else ""}>{"".join(f + f)}</div>' for i, f in enumerate(faixas))
         + '<script type="application/json" id="capas-fundo">' + json.dumps([mini(u) for _, u, _ in todas]) + "</script>"
         + "<!-- /build:mosaico -->")
-    credito = f"<!-- build:credito-capas -->Capas ao fundo: {e(sites)} · direitos reservados<!-- /build:credito-capas -->"
     s = idx.read_text(encoding="utf-8")
     novo = re.sub(r"<!-- build:mosaico -->.*?<!-- /build:mosaico -->", lambda _: trecho, s, flags=re.S)
-    novo = re.sub(r"<!-- build:credito-capas -->.*?<!-- /build:credito-capas -->", lambda _: credito, novo, flags=re.S)
     if novo != s:
         idx.write_text(novo, encoding="utf-8")
 

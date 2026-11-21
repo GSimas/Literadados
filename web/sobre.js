@@ -1,5 +1,5 @@
 // Página de método e referências (RF-13, RF-18, design D18): cobertura por edição e fontes agrupadas por domínio.
-import { $, $$, fmt, fmtPct, esc, tabela, movimentoReduzido, luzNosBlocos, carregarDados, fecharPerfilAoClicarFora } from "./ui.js";
+import { $, $$, fmt, fmtPct, esc, tabela, movimentoReduzido, luzNosBlocos, carregarDados, blocosEmJanelas } from "./ui.js";
 import * as M from "./metricas.js";
 import { montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
@@ -9,43 +9,6 @@ montarTema();
 blocosEmJanelas();
 luzNosBlocos();
 
-// Página curta (pedido de 2026-11-21): cada .bloco vira um botão com título e resumo, e o conteúdo abre numa janela.
-// O nó do conteúdo vai inteiro para o <dialog>, então os ids preenchidos depois (cobertura, leitura, referências) continuam valendo.
-function blocosEmJanelas() {
-  const resumo = (b) => {
-    if (b.dataset.resumo) return b.dataset.resumo;
-    const txt = (b.querySelector("p, li")?.textContent ?? b.textContent).replace(/\s+/g, " ").trim();
-    return txt.length > 95 ? `${txt.slice(0, txt.lastIndexOf(" ", 92))}…` : txt;
-  };
-  let n = 0;
-  $$("main .secao").forEach((sec) => {
-    const blocos = [...sec.querySelectorAll(":scope > .bloco")];
-    if (!blocos.length) return;
-    const grade = document.createElement("div");
-    grade.className = "blocos";
-    blocos[0].before(grade);
-    const sobretitulo = sec.querySelector(".sobretitulo")?.textContent ?? "";
-    for (const b of blocos) {
-      const id = `janela-${++n}`, titulo = b.dataset.titulo;
-      const botao = document.createElement("button");
-      botao.type = "button";
-      botao.className = "bloco-botao";
-      botao.setAttribute("aria-haspopup", "dialog");
-      botao.innerHTML = `<b>${esc(titulo)}</b><span>${esc(resumo(b))}</span><span class="bloco-abrir" aria-hidden="true">Ler →</span>`;
-      const dlg = document.createElement("dialog");
-      dlg.className = "perfil janela-bloco";
-      dlg.setAttribute("aria-labelledby", `${id}-t`);
-      dlg.innerHTML = `<form method="dialog"><button class="fechar" aria-label="Fechar">×</button></form>
-        <header class="perfil-cab simples"><p class="sobretitulo">${esc(sobretitulo)}</p><h2 id="${id}-t">${esc(titulo)}</h2></header>`;
-      b.classList.add("janela-corpo");
-      dlg.append(b);
-      document.body.append(dlg);
-      fecharPerfilAoClicarFora(dlg);
-      botao.addEventListener("click", () => dlg.showModal());
-      grade.append(botao);
-    }
-  });
-}
 const D = await carregarDados(); // dados.json + partes de outros prêmios (CA-26.14)
 const ANOS = d3.range(D.anos[0], D.anos[1] + 1);
 D.participacao = M.expandir(D); // a busca precisa das linhas (design D13)

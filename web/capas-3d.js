@@ -17,7 +17,7 @@ export function montarCapas3D(raiz) {
   };
   raiz.addEventListener("pointermove", (e) => {
     if (!preferencia.matches || e.pointerType !== "mouse") return;
-    const alvo = e.target.closest(".capa-palco");
+    const alvo = e.target.closest(".capa-palco, .foto-palco");
     if (!alvo || !raiz.contains(alvo)) { limpar(); return; }
     if (ativo !== alvo) limpar();
     ativo = alvo;

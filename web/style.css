@@ -986,7 +986,7 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .mapa-mar, .mapa-agua { fill: color-mix(in srgb, var(--s1) 13%, var(--superficie)); }
 .mapa-agua { stroke: none; }
 .mapa-vizinho { fill: color-mix(in srgb, var(--superficie-2) 55%, var(--superficie)); stroke: var(--borda); }
-.mapa-cidade .contorno-cidade { stroke: var(--tinta-3, var(--tinta-2)); }
+.mapa-cidade .contorno-cidade { stroke: none; }  /* sem contorno em volta da cidade: o limite já aparece pelo mar e pelos vizinhos */
 .mapa-distrito { fill: none; stroke: var(--eixo, var(--borda)); stroke-dasharray: 3 2; }
 .mapa-rotulos text { text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--superficie-2); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
 .rot-distrito { fill: var(--tinta-2); }
@@ -1042,7 +1042,6 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .portal-fundo .hero-faixa { align-items: center; }
 .portal-fundo img { flex: none; width: clamp(64px, 7vw, 104px); height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px;
   background: var(--superficie-2); box-shadow: 0 4px 14px rgb(0 0 0 / .25); filter: saturate(.75); }
-.portal-credito { margin: 0; font-size: .7rem; color: var(--tinta-2); opacity: .8; }
 .portal .cartao-grafico { background: color-mix(in srgb, var(--superficie) 88%, transparent); backdrop-filter: blur(6px); }
 @media (prefers-reduced-motion: reduce) { .portal-fundo .hero-faixa { animation: none; } }
 
@@ -1083,3 +1082,24 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
   #mapa-lista { flex: 1 1 0; min-height: 12rem; position: relative; }
   #mapa-lista .lista-mapa { position: absolute; inset: 0; max-height: none; }
 }
+
+/* Foto do perfil inclina sob o mouse, como a capa do livro (capas-3d.js): só a foto gira; o alvo do evento fica parado. */
+.foto-palco { perspective: 850px; width: fit-content; }
+.foto-tilt { position: relative; border-radius: var(--raio); transform-style: preserve-3d; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.foto-tilt::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: linear-gradient(105deg, rgba(255,255,255,.18), transparent 40%, rgba(0,0,0,.12)); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .inclinando .foto-tilt { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(12px); transition-duration: .12s; }
+  .inclinando .foto-tilt::after { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .foto-tilt { transition: none; } }
+
+/* Fundo do portal entra de uma vez, quando todas as capas carregaram (index.html). */
+.portal-fundo { transition: opacity .9s ease; }
+.portal-fundo:not(.pronto) { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .portal-fundo { transition: none; } }
+
+/* Nada ultrapassa o bloco: filhos de grade podem encolher e, em último caso, o texto quebra em vez de vazar. */
+.kpi, .cartao, .panorama-cartao, .bloco-botao, .hero-num, .passo-cartao { min-width: 0; overflow-wrap: anywhere; }
+.kpi .val { font-size: clamp(1.45rem, 2.4vw, 2.1rem); }
+.kpis > * { min-width: 0; }

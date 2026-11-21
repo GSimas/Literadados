@@ -158,7 +158,7 @@ export function htmlPerfil(id, { D, midiaPorId }) {
   ].filter(Boolean).join("");
   return `<article>
     <header class="perfil-cab">
-      <div>${foto(p, m, { w: 480 })}${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
+      <div><div class="foto-palco"><div class="foto-tilt">${foto(p, m, { w: 480 })}</div></div>${temFoto(m) ? `<p class="credito">${credito(m)}</p>` : ""}</div>
       <div>
         <p class="sobretitulo">${[ls.some((l) => l.papel === "autor") ? "Autor(a)" : ls.length ? "Ilustrador(a)" : org.length ? "Organizador(a)" : "",
           dist.length ? "distinção pelo conjunto da obra" : "", jur.length || jurDist.length ? "jurado(a)" : ""].filter(Boolean).join(" · ").replace(/^./, (c) => c.toUpperCase())}</p>

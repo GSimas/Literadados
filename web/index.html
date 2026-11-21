@@ -42,6 +42,11 @@ import { sortearFaixas } from "./tema.js";
 const pool = JSON.parse(document.getElementById("capas-fundo")?.textContent ?? "[]");
 const img = (u) => `<img src="${u}" alt="" width="96" height="144" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">`;
 sortearFaixas(document.querySelectorAll(".portal-fundo .hero-faixa"), pool.length ? pool.map(img) : null, 12);
+// Só aparece com todas as capas carregadas (sem capas surgindo aos poucos); tempo-limite para rede lenta.
+const fundo = document.querySelector(".portal-fundo");
+const urls = [...new Set([...fundo.querySelectorAll("img")].map((i) => i.src))];
+const carga = urls.map((u) => { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = u; return im.decode().catch(() => {}); });
+Promise.race([Promise.all(carga), new Promise((r) => setTimeout(r, 6000))]).then(() => fundo.classList.add("pronto"));
 </script>
 </head>
 <body data-modulo="portal" class="pagina-portal">
@@ -70,7 +75,6 @@ sortearFaixas(document.querySelectorAll(".portal-fundo .hero-faixa"), pool.lengt
   <!-- Portal (RF-31, CA-31.2): cabe na tela sem rolagem; os cartões entre os marcadores são gravados pelo build (seo.py). -->
   <section class="portal-abertura" aria-labelledby="h-portal">
     <h1 id="h-portal">Dados sobre literatura e leitura no Brasil</h1>
-    <p class="hero-lead">Dados abertos, com fonte em cada número e o n ao lado de cada percentual.</p>
   </section>
   <nav class="portal-modulos" aria-label="Módulos">
       <!-- build:portal -->
@@ -100,7 +104,6 @@ sortearFaixas(document.querySelectorAll(".portal-fundo .hero-faixa"), pool.lengt
       </a>
       <!-- /build:portal -->
   </nav>
-  <p class="portal-credito"><!-- build:credito-capas -->Capas ao fundo: Companhia das Letras, Livrarias Curitiba e Martins Fontes · direitos reservados<!-- /build:credito-capas --></p>
 </main>
 
 <footer class="rodape">

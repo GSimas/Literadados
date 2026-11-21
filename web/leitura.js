@@ -37,7 +37,8 @@ export function fmtValor(l) {
   return fmt(l.valor);
 }
 // Cartão do panorama: contagem grande em milhões (fmtValor recebe o índice como 2º argumento no Plot e na tabela).
-const fmtCurto = (l) => (l && !l.suprimido && l.unidade === "contagem" && l.valor >= 1e6 ? `${fmt(l.valor / 1e6, 1)} mi` : fmtValor(l));
+const fmtCurto = (l) => (l && !l.suprimido && l.unidade === "contagem" && l.valor >= 1e6
+  ? (l.valor >= 1e9 ? `${fmt(l.valor / 1e9, 2)} bi` : `${fmt(l.valor / 1e6, 1)} mi`) : fmtValor(l));
 const eixo = (ind) => ({ percentual: "%", moeda: "R$ correntes", pontuacao: "pontos" }[ind.unidade] ?? null);
 // O n de cada número (RNF-02, CA-33.3): numerador e denominador no censo e no registro; amostra e margem na pesquisa.
 function fmtN(l) {
@@ -129,7 +130,7 @@ async function renderTudo() {
 function renderKpis(ind) {
   const aqui = M.serieLeitura(linhas, { indicador: ind.id, territorio: estado.t }).find((l) => l.ano === estado.a);
   const br = M.serieLeitura(linhas, { indicador: ind.id, territorio: "BR" }).find((l) => l.ano === estado.a);
-  const card = (rot, l, extra = "") => `<div class="kpi"><div class="rot">${esc(rot)}</div><div class="val">${fmtValor(l)}</div><div class="det">${esc(fmtN(l))} ${fonteLink(l)}${extra}</div></div>`;
+  const card = (rot, l, extra = "") => `<div class="kpi"><div class="rot">${esc(rot)}</div><div class="val" title="${esc(fmtValor(l))}">${fmtCurto(l)}</div><div class="det">${esc(fmtN(l))} ${fonteLink(l)}${extra}</div></div>`;
   $("#leitura-kpis").innerHTML = card(`${nomeTerr(estado.t)}, ${estado.a}`, aqui)
     + (estado.t !== "BR" && br ? card(`Brasil, ${estado.a}`, br) : "")
     + `<div class="kpi"><div class="rot">Tipo de fonte</div><div class="val kpi-texto">${esc({ censo: "Censo", registro_administrativo: "Registro administrativo", pesquisa_amostral: "Pesquisa por amostra" }[ind.tipo_fonte])}</div><div class="det">${esc(ind.fonte_nome)}</div></div>`;
