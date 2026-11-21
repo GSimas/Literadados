@@ -1043,3 +1043,20 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .portal-fundo .mf-capa i { font-style: normal; font-size: clamp(.45rem, .55vw, .6rem); opacity: .85; }
 .portal .cartao-grafico { background: color-mix(in srgb, var(--superficie) 88%, transparent); backdrop-filter: blur(6px); }
 @media (prefers-reduced-motion: reduce) { .portal-fundo .hero-faixa { animation: none; } }
+
+/* Panorama da Leitura (CA-33.10): um bloco por tema, cartões clicáveis com valor, n, série pequena e fonte. */
+.panorama { display: grid; gap: 1.6rem; }
+.panorama-tema h3 { margin: 0 0 .6rem; font-size: 1.05rem; }
+.panorama-cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+@media (min-width: 700px) { .panorama-cartoes { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+.panorama-cartao { display: grid; gap: .25rem; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  padding: .8rem .9rem; border-radius: 14px; border: 1px solid var(--borda); background: var(--superficie); transition: border-color .15s, transform .15s; }
+.panorama-cartao:hover, .panorama-cartao:focus-visible { border-color: var(--marca); transform: translateY(-1px); }
+.panorama-cartao[aria-current="true"] { border-color: var(--marca); box-shadow: inset 0 0 0 1px var(--marca); }
+.pc-nome { font-size: .82rem; color: var(--tinta-2); line-height: 1.3; }
+.pc-val { font-family: var(--fonte-titulo); font-size: 1.45rem; line-height: 1.1; }
+.pc-det, .pc-fonte { font-size: .72rem; color: var(--tinta-2); line-height: 1.35; }
+.pc-fonte { opacity: .8; }
+.pc-serie { min-height: 42px; display: block; font-size: .72rem; }
+.pc-serie svg { display: block; max-width: 100%; height: auto; background: transparent; }
+@media (prefers-reduced-motion: reduce) { .panorama-cartao { transition: none; } .panorama-cartao:hover { transform: none; } }

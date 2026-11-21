@@ -926,7 +926,8 @@ def malha_cidade():
 
 # ---------- módulo Leitura (RF-33, D39) ----------
 CACHE = Path.home() / "Library" / "Caches" / "literadados"
-CAMPOS_VALOR = ["indicador_id", "territorio", "ano", "dimensao", "categoria", "valor", "numerador", "denominador", "amostra", "margem", "suprimido", "fonte_url"]
+CAMPOS_VALOR = ["indicador_id", "territorio", "ano", "dimensao", "categoria", "valor", "numerador", "denominador", "amostra", "margem", "suprimido", "fonte_url", "observacao"]
+CAMPOS_INDICADOR = ["id", "nome", "definicao", "unidade", "tipo_fonte", "nivel", "fonte_nome", "fonte_url", "limitacoes", "tema", "ordem"]
 
 
 def _territorios():
@@ -1193,10 +1194,86 @@ def eventos():
     print(f"{len(evs)} eventos, {len(eds)} edições, {len(hom)} homenageados ({sum(1 for h in hom.values() if h['pessoa_id'])} na base)")
 
 
+def _catalogo(novos: list[dict]):
+    """Acrescenta ou atualiza indicadores em dados/indicador.csv (mesmo id mantém a ordem; novo vai para o fim)."""
+    arq = DADOS / "indicador.csv"
+    atual = {l["id"]: l for l in csv.DictReader(arq.open(encoding="utf-8"))}
+    prox = max((int(l["ordem"]) for l in atual.values()), default=0) + 1
+    for n in novos:
+        ordem = atual[n["id"]]["ordem"] if n["id"] in atual else str(prox)
+        prox += n["id"] not in atual
+        atual[n["id"]] = {c: (n.get(c) or "").strip() for c in CAMPOS_INDICADOR} | {"ordem": ordem}
+    with arq.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=CAMPOS_INDICADOR)
+        w.writeheader()
+        w.writerows(sorted(atual.values(), key=lambda l: int(l["ordem"])))
+
+
+def _leitura_arquivo():
+    """coleta.py leitura arquivo <fonte>: transcrição de agente (protocolo em dados/coleta/leitura/PROTOCOLO.md) →
+    dados/indicador.csv (catálogo de <fonte>_indicadores.csv) e dados/indicador_valor/<indicador>.csv."""
+    fonte = sys.argv[3]
+    pasta = DADOS / "coleta" / "leitura"
+    cat = list(csv.DictReader((pasta / f"{fonte}_indicadores.csv").open(encoding="utf-8")))
+    _catalogo(cat)
+    por = {}
+    for l in csv.DictReader((pasta / f"{fonte}.csv").open(encoding="utf-8")):
+        por.setdefault(l["indicador"], []).append({**l, "indicador_id": l["indicador"], "suprimido": l["valor"].strip() == ""})
+    for ind in sorted(por):
+        _gravar_valores(ind, por[ind])
+    sem = {c["id"] for c in cat} - set(por)
+    if sem:
+        print("sem valores:", ", ".join(sorted(sem)))
+
+
+def _leitura_pnad():
+    """PNAD Contínua, módulo anual de educação (SIDRA 7113 por sexo e idade; 7125 por cor ou raça): taxa de analfabetismo de 15+,
+    Brasil, regiões e UFs. O IBGE publica o coeficiente de variação; a margem de 95% é 1,96 × taxa × CV."""
+    _catalogo([{"id": "analfabetismo_pnad", "nome": "Taxa de analfabetismo (15 anos ou mais, PNAD Contínua)",
+                "definicao": "Percentual das pessoas de 15 anos ou mais que não sabem ler e escrever um bilhete simples, na PNAD Contínua (módulo anual de educação).",
+                "unidade": "percentual", "tipo_fonte": "pesquisa_amostral", "nivel": "uf",
+                "fonte_nome": "IBGE, PNAD Contínua (tabelas SIDRA 7113 e 7125)", "fonte_url": "https://sidra.ibge.gov.br/tabela/7113",
+                "limitacoes": "Pergunta declarada (saber ler e escrever um bilhete simples), como no Censo, mas medida por amostra: não compare diretamente com a taxa de alfabetização do Censo 2022 (o complemento não é exato). "
+                              "Sem 2020 e 2021: o IBGE não divulgou o módulo de educação desses anos (pandemia). Cor ou raça só em branca e preta ou parda (negra), como a tabela publica. "
+                              "A margem de erro é calculada do coeficiente de variação publicado pelo IBGE (1,96 × taxa × CV); a tabela não publica o tamanho da amostra.",
+                "tema": "alfabetizacao"}])
+    url = "https://apisidra.ibge.gov.br/values/t/{t}/n1/all/n2/all/n3/all/v/10267,10268/p/all/{c}"
+    pedidos = [(7113, "c2/all/c58/2795,3302"), (7125, "c86/all/c58/2795")]
+    vals = {}
+    for t, c in pedidos:
+        rows = _json(url.format(t=t, c=c))[1:]
+        for r in rows:
+            terr = "BR" if r["NC"] == "1" else r["D1C"]
+            cat, idade = r["D4N"], r["D5C"]
+            if t == 7113:
+                rec = (("total", "total") if cat == "Total" else ("sexo", {"Homens": "homens", "Mulheres": "mulheres"}[cat])) if idade == "2795" \
+                    else (("faixa_etaria", "60+") if cat == "Total" else None)
+            else:
+                rec = {"Branca": ("cor_raca", "branca"), "Preta ou parda": ("cor_raca", "negra")}.get(cat)
+            if rec is None:
+                continue
+            k = (terr, r["D3C"], *rec)
+            v = vals.setdefault(k, {"indicador_id": "analfabetismo_pnad", "territorio": terr, "ano": r["D3C"], "dimensao": rec[0], "categoria": rec[1],
+                                    "fonte_url": f"https://sidra.ibge.gov.br/tabela/{t}"})
+            num = None if r["V"] in ("-", "...", "..", "X", "") else float(r["V"])
+            v["valor" if r["D2C"] == "10267" else "cv"] = num
+    linhas = []
+    for v in vals.values():
+        if v.get("valor") is None:
+            v.update(valor="", suprimido=True, observacao="valor não divulgado pelo IBGE; a tabela não publica o tamanho da amostra")
+        else:
+            cv = v.get("cv")
+            v["margem"] = round(1.96 * v["valor"] * cv / 100, 2) if cv is not None else ""
+            v["observacao"] = (f"coeficiente de variação {cv:g}%; margem de 95% = 1,96 × taxa × CV" if cv is not None else "coeficiente de variação não publicado") \
+                + "; a tabela não publica o tamanho da amostra"
+        linhas.append(v)
+    _gravar_valores("analfabetismo_pnad", linhas)
+
+
 def leitura():
-    """coleta.py leitura <fonte>: alfabetizacao · escolas_biblioteca · cnpj · retratos."""
+    """coleta.py leitura <fonte>: alfabetizacao · escolas_biblioteca · cnpj · retratos · pnad · arquivo <inaf|saeb|pisa|mercado|bibliotecas>."""
     {"alfabetizacao": _leitura_alfabetizacao, "escolas_biblioteca": _leitura_escolas_biblioteca,
-     "cnpj": _leitura_cnpj, "retratos": _leitura_retratos}[sys.argv[2]]()
+     "cnpj": _leitura_cnpj, "retratos": _leitura_retratos, "pnad": _leitura_pnad, "arquivo": _leitura_arquivo}[sys.argv[2]]()
 
 
 if __name__ == "__main__":

@@ -51,7 +51,14 @@
   <section class="secao portal-abertura" aria-labelledby="h-leitura">
     <p class="sobretitulo">Leitura</p>
     <h1 id="h-leitura">Leitura e acesso ao livro no Brasil</h1>
-    <p class="hero-lead">Alfabetização, leitores, escolas com biblioteca, livrarias e editoras, por município, estado e região. Cada número traz o ano, a fonte e o n.</p>
+    <p class="hero-lead">Hábitos de leitura, alfabetização e alfabetismo, escola, mercado do livro e bibliotecas, do Brasil aos municípios. Cada número traz o ano, a fonte e o n.</p>
+  </section>
+
+  <!-- Panorama por tema (CA-33.10): último valor do Brasil e a série; o clique leva o indicador ao mapa e aos gráficos. -->
+  <section id="panorama" class="secao" aria-labelledby="h-panorama">
+    <header class="secao-cab"><p class="sobretitulo">Panorama</p><h2 id="h-panorama">O Brasil em cinco temas</h2>
+      <p class="lead">O último valor de cada indicador para o Brasil e como ele mudou. Clique num cartão para ver por estado, município e grupo.</p></header>
+    <div id="leitura-panorama" class="panorama"></div>
   </section>
 
   <!-- Controles do módulo (CA-33.6, CA-33.7): o estado fica na URL. -->
@@ -59,6 +66,7 @@
     <header class="secao-cab"><p class="sobretitulo" id="leitura-onde">Brasil</p><h2 id="h-mapa">Indicador por território</h2>
       <p class="lead" id="leitura-definicao"></p></header>
     <div class="controles leitura-controles" role="group" aria-label="Escolha do indicador">
+      <label>Tema <select id="leitura-tema"></select></label>
       <label>Indicador <select id="leitura-indicador"></select></label>
       <label>Ano <select id="leitura-ano"></select></label>
       <label>Recorte <select id="leitura-recorte"></select></label>

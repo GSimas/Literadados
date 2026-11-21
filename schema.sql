@@ -438,19 +438,20 @@ CREATE TABLE indicador (
   id          TEXT PRIMARY KEY,
   nome        TEXT NOT NULL,
   definicao   TEXT NOT NULL,
-  unidade     TEXT NOT NULL CHECK (unidade IN ('percentual','contagem','media')),
+  unidade     TEXT NOT NULL CHECK (unidade IN ('percentual','contagem','media','moeda','pontuacao')),  -- moeda: R$ correntes do ano; pontuacao: escala da avaliação
   tipo_fonte  TEXT NOT NULL CHECK (tipo_fonte IN ('censo','registro_administrativo','pesquisa_amostral')),
   nivel       TEXT NOT NULL CHECK (nivel IN ('brasil','regiao','uf','municipio')),  -- nível territorial mais fino
   fonte_nome  TEXT NOT NULL,
   fonte_url   TEXT NOT NULL CHECK (fonte_url LIKE 'http%'),
   limitacoes  TEXT NOT NULL,
+  tema        TEXT NOT NULL CHECK (tema IN ('habitos','alfabetizacao','escola','mercado','bibliotecas')),  -- panorama (CA-33.10)
   ordem       INTEGER NOT NULL UNIQUE
 );
 
 -- Vocabulário fixo de recortes (CA-33.2). Cor ou raça: as categorias do IBGE, autodeclaração de quem respondeu;
 -- 'negra' só quando a fonte publica preta e parda juntas.
 CREATE TABLE recorte (
-  dimensao   TEXT NOT NULL CHECK (dimensao IN ('total','sexo','cor_raca','faixa_etaria','situacao','escolaridade','rede')),
+  dimensao   TEXT NOT NULL CHECK (dimensao IN ('total','sexo','cor_raca','faixa_etaria','situacao','escolaridade','rede','canal')),
   categoria  TEXT NOT NULL,
   rotulo     TEXT NOT NULL,
   ordem      INTEGER NOT NULL,
@@ -472,6 +473,7 @@ CREATE TABLE indicador_valor (
   margem        DOUBLE,
   suprimido     BOOLEAN NOT NULL DEFAULT false,
   fonte_url     TEXT NOT NULL CHECK (fonte_url LIKE 'http%'),
+  observacao    TEXT,  -- revisão da fonte, arredondamento, por que falta a amostra
   PRIMARY KEY (indicador_id, territorio, ano, dimensao, categoria),
   FOREIGN KEY (dimensao, categoria) REFERENCES recorte (dimensao, categoria),
   CHECK (suprimido OR valor IS NOT NULL),
@@ -508,7 +510,7 @@ SELECT v.indicador_id AS indicador, i.nome AS indicador_nome, i.unidade, i.tipo_
        v.ano, v.dimensao, v.categoria, r.rotulo AS categoria_rotulo,
        v.valor, v.numerador, v.denominador, v.amostra, v.margem, v.suprimido,
        CASE WHEN i.unidade = 'contagem' AND t.populacao_2022 > 0 THEN round(v.valor / t.populacao_2022 * 100000, 2) END AS por_100mil,
-       v.fonte_url
+       v.fonte_url, v.observacao
 FROM indicador_valor v
 JOIN indicador i ON i.id = v.indicador_id
 JOIN territorio t ON t.codigo = v.territorio

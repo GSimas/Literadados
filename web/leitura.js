@@ -11,7 +11,9 @@ const J = await fetch("leitura.json").then((r) => { if (!r.ok) throw new Error(`
 const IND = new Map(J.indicadores.map((i) => [i.id, i]));
 const UFS = J.territorios.filter((t) => t.tipo === "uf").sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 const SIGLA = new Map(UFS.map((u) => [u.codigo, u.sigla])), COD_UF = new Map(UFS.map((u) => [u.sigla, u.codigo]));
-const DIMS = { total: "Sem recorte", sexo: "Sexo", cor_raca: "Cor ou raça", faixa_etaria: "Faixa etária", escolaridade: "Escolaridade", rede: "Rede (escolas)", situacao: "Situação do domicílio" };
+const DIMS = { total: "Sem recorte", sexo: "Sexo", cor_raca: "Cor ou raça", faixa_etaria: "Faixa etária", escolaridade: "Escolaridade", rede: "Rede (escolas)", situacao: "Situação do domicílio", canal: "Canal de venda" };
+const TEMAS = { habitos: "Hábitos de leitura", alfabetizacao: "Alfabetização e alfabetismo", escola: "Escola", mercado: "Mercado do livro", bibliotecas: "Bibliotecas" };
+const nacional = (ind) => ind.nivel === "brasil";
 
 let estado = M.leituraDeTexto(location.search, J);
 let linhas = M.expandirLeitura(J);
@@ -21,16 +23,33 @@ const malhas = new Map();
 
 // ---------- formatação ----------
 const unidade = (i) => IND.get(i).unidade;
+// Moeda em R$ correntes do ano; valores grandes em mil, mi e bi (o número inteiro vai na tabela).
+export function fmtMoeda(v) {
+  const a = Math.abs(v);
+  return a >= 1e9 ? `R$ ${fmt(v / 1e9, 2)} bi` : a >= 1e6 ? `R$ ${fmt(v / 1e6, 1)} mi` : `R$ ${fmt(v, 2)}`;
+}
 export function fmtValor(l) {
   if (!l || l.suprimido) return "não publicado";
-  return l.unidade === "percentual" ? `${fmt(l.valor, 1)}%` : l.unidade === "media" ? fmt(l.valor, 2) : fmt(l.valor);
+  if (l.unidade === "percentual") return `${fmt(l.valor, 1)}%`;
+  if (l.unidade === "media") return fmt(l.valor, 2);
+  if (l.unidade === "moeda") return fmtMoeda(l.valor);
+  if (l.unidade === "pontuacao") return `${fmt(l.valor, 1)} pontos`;
+  return fmt(l.valor);
 }
+// Cartão do panorama: contagem grande em milhões (fmtValor recebe o índice como 2º argumento no Plot e na tabela).
+const fmtCurto = (l) => (l && !l.suprimido && l.unidade === "contagem" && l.valor >= 1e6 ? `${fmt(l.valor / 1e6, 1)} mi` : fmtValor(l));
+const eixo = (ind) => ({ percentual: "%", moeda: "R$ correntes", pontuacao: "pontos" }[ind.unidade] ?? null);
 // O n de cada número (RNF-02, CA-33.3): numerador e denominador no censo e no registro; amostra e margem na pesquisa.
 function fmtN(l) {
   if (!l || l.suprimido) return "a fonte não publica este valor";
-  if (l.tipo_fonte === "pesquisa_amostral") return `amostra ${fmt(l.amostra)} entrevistas${l.margem != null ? ` · margem ±${fmt(l.margem, 1)} p.p.` : " · margem não publicada pela fonte"}`;
+  if (l.tipo_fonte === "pesquisa_amostral") {
+    const m = l.margem != null ? `margem ±${fmt(l.margem, 1)}${l.unidade === "percentual" ? " p.p." : ""}` : null;
+    if (l.amostra == null && !m) return "amostra e margem não publicadas pela fonte";
+    return `${l.amostra != null ? `amostra ${fmt(l.amostra)}` : "amostra não publicada pela fonte"} · ${m ?? "margem não publicada pela fonte"}`;
+  }
   if (l.unidade === "percentual") return `${fmt(l.numerador)} de ${fmt(l.denominador)}`;
-  if (l.unidade === "contagem") return l.por_100mil != null ? `${fmt(l.por_100mil, 1)} por 100 mil habitantes (população de 2022)` : "";
+  // Por 100 mil só em contagem que desce ao território (CNPJ, bibliotecas): vendas nacionais por habitante não dizem nada.
+  if (l.unidade === "contagem") return l.por_100mil != null && IND.get(l.indicador)?.nivel === "municipio" ? `${fmt(l.por_100mil, 1)} por 100 mil habitantes (população de 2022)` : "";
   return "";
 }
 const medidaMapa = (l) => (l.unidade === "contagem" ? l.por_100mil : l.valor);
@@ -69,7 +88,8 @@ function dimensoesDe(i) {
 }
 function montarControles() {
   const ind = IND.get(estado.i);
-  opcoes($("#leitura-indicador"), J.indicadores.map((x) => [x.id, x.nome]), estado.i);
+  opcoes($("#leitura-tema"), Object.entries(TEMAS).filter(([t]) => J.indicadores.some((x) => x.tema === t)), ind.tema);
+  opcoes($("#leitura-indicador"), J.indicadores.filter((x) => x.tema === ind.tema).map((x) => [x.id, x.nome]), estado.i);
   opcoes($("#leitura-ano"), M.anosLeitura(J, estado.i).slice().reverse().map((a) => [a, a]), estado.a);
   opcoes($("#leitura-recorte"), dimensoesDe(estado.i).map((d) => [d, DIMS[d]]), estado.r);
   // Indicador de Brasil e regiões (Retratos) não desce a UF: território fica no Brasil.
@@ -85,6 +105,7 @@ function mudar(novo) {
   renderTudo();
 }
 $("#leitura-indicador").addEventListener("change", (e) => mudar({ i: e.target.value }));
+$("#leitura-tema").addEventListener("change", (e) => mudar({ i: J.indicadores.find((x) => x.tema === e.target.value).id }));
 $("#leitura-ano").addEventListener("change", (e) => mudar({ a: +e.target.value }));
 $("#leitura-recorte").addEventListener("change", (e) => mudar({ r: e.target.value }));
 $("#leitura-territorio").addEventListener("change", (e) => mudar({ t: e.target.value }));
@@ -96,6 +117,7 @@ async function renderTudo() {
   montarControles();
   $("#leitura-onde").textContent = `${nomeTerr(estado.t)} · ${estado.a}`;
   $("#h-mapa").textContent = ind.nome;
+  renderPanoramaAtivo();
   $("#leitura-definicao").innerHTML = `${esc(ind.definicao)}<br><span class="muted pequeno"><b>Limitações:</b> ${esc(ind.limitacoes)}</span>`;
   renderKpis(ind);
   await renderMapa(ind);
@@ -115,12 +137,21 @@ function renderKpis(ind) {
 
 async function renderMapa(ind) {
   const el = $("#g-leitura-mapa");
+  // Indicador só nacional (INAF, PISA, mercado): nunca vira mapa; os anos vão para a tabela e a série logo abaixo.
+  if (nacional(ind)) {
+    const vs = M.serieLeitura(linhas, { indicador: ind.id, territorio: "BR" });
+    vazio(el, "Indicador nacional: a fonte publica só o Brasil. A série e os recortes estão logo abaixo.");
+    $("#leitura-legenda-fonte").textContent = `${ind.fonte_nome}.`;
+    tabela($("#t-leitura"), vs.map((l) => ({ ...l, territorio_nome: `Brasil, ${l.ano}` })), [{ rot: "Ano", k: "territorio_nome" }, { rot: ind.nome, f: (l) => fmtValor(l), num: true }, { rot: "n", f: fmtN }]);
+    $("#leitura-lado").innerHTML = `<h3>Só Brasil</h3><p class="muted">${esc(ind.fonte_nome)} não publica estados nem municípios.</p>`;
+    return;
+  }
   // Brasil e regiões só (Retratos): barras por região no lugar do mapa (a pesquisa não desce a UF).
   if (ind.nivel === "regiao" || ind.nivel === "brasil") {
     await carregarGraficos();
     const vs = M.valoresLeitura(linhas, { indicador: ind.id, ano: estado.a, tipo: "regiao" });
     if (!vs.length) return vazio(el, "Sem valores por região neste ano.");
-    desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 60 + vs.length * 34, marginLeft: 110, x: { label: ind.unidade === "percentual" ? "%" : null, grid: true },
+    desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 60 + vs.length * 34, marginLeft: 110, x: { label: eixo(ind), grid: true },
       y: { label: null }, marks: [Plot.barX(vs, { x: "valor", y: "territorio_nome", fill: css("--marca"), sort: { y: "-x" }, tip: true,
         title: (l) => `${l.territorio_nome}: ${fmtValor(l)}\n${fmtN(l)}` }), Plot.ruleX([0])] }));
     el.setAttribute("aria-label", `${ind.nome} por região em ${estado.a}`);
@@ -142,7 +173,7 @@ async function renderMapa(ind) {
   const limites = pos.length > 4 ? [0.2, 0.4, 0.6, 0.8].map((q) => d3.quantileSorted(pos, q)) : [];
   const escala = d3.scaleThreshold().domain(limites).range(rampa);
   const cor = (l) => (l && medidaMapa(l) != null ? escala(medidaMapa(l)) : css("--grade"));
-  const medida = ind.unidade === "contagem" ? "por 100 mil habitantes" : ind.unidade === "percentual" ? "%" : "";
+  const medida = ind.unidade === "contagem" ? "por 100 mil habitantes" : ind.unidade === "percentual" ? "%" : ind.unidade === "pontuacao" ? "pontos" : "";
   const svg = d3.create("svg").attr("viewBox", [0, 0, w, h]).attr("width", w).attr("role", "group")
     .attr("aria-label", `Mapa de ${ind.nome} ${sigla ? `nos municípios de ${nomeTerr(estado.t)}` : "por UF"}, ${estado.a}`);
   svg.append("g").selectAll("path").data(malha.features).join("path")
@@ -190,7 +221,7 @@ function renderSerie(ind) {
   if (s.length < 2) return vazio(el, s.length ? `Um ano só (${s[0].ano}): não há série.` : "Sem valores para este território.");
   const comMargem = s.filter((l) => l.margem != null);
   desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 280, marginLeft: 48, x: { label: null, tickFormat: "d" },
-    y: { label: ind.unidade === "percentual" ? "%" : null, grid: true, zero: ind.unidade !== "percentual" },
+    y: { label: eixo(ind), grid: true, zero: ind.unidade === "contagem" || ind.unidade === "moeda" },
     marks: [comMargem.length ? Plot.ruleX(comMargem, { x: "ano", y1: (l) => l.valor - l.margem, y2: (l) => l.valor + l.margem, stroke: css("--tinta-2"), strokeWidth: 3, strokeOpacity: 0.35 }) : null,
       Plot.line(s, { x: "ano", y: "valor", stroke: css("--marca"), strokeWidth: 2 }),
       Plot.dot(s, { x: "ano", y: "valor", fill: css("--marca"), r: 4, tip: true, title: (l) => `${l.ano}: ${fmtValor(l)}\n${fmtN(l)}` })] }));
@@ -203,7 +234,7 @@ function renderRecorte(ind) {
   const vs = M.recortesLeitura(linhas, J, { indicador: ind.id, territorio: estado.t, ano: estado.a, dimensao: estado.r });
   if (!vs.length) { $("#t-leitura-recorte").innerHTML = ""; return vazio(el, "A fonte não publica este recorte neste território e ano."); }
   const ok = vs.filter((l) => !l.suprimido);
-  desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 60 + vs.length * 32, marginLeft: 150, x: { label: ind.unidade === "percentual" ? "%" : null, grid: true },
+  desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 60 + vs.length * 32, marginLeft: 150, x: { label: eixo(ind), grid: true },
     y: { label: null, domain: vs.map((l) => l.categoria_rotulo) },
     marks: [Plot.barX(ok, { x: "valor", y: "categoria_rotulo", fill: css("--marca"), tip: true, title: (l) => `${l.categoria_rotulo}: ${fmtValor(l)}\n${fmtN(l)}` }),
       Plot.text(ok, { x: "valor", y: "categoria_rotulo", text: fmtValor, dx: 6, textAnchor: "start", fill: css("--tinta") }),
@@ -211,6 +242,40 @@ function renderRecorte(ind) {
       Plot.ruleX([0])] }));
   const cols = [{ rot: DIMS[estado.r], k: "categoria_rotulo" }, { rot: ind.nome, f: fmtValor, num: true }, { rot: "n", f: fmtN }];
   tabela($("#t-leitura-recorte"), vs, cols);
+}
+
+// ---------- panorama por tema (CA-33.10) ----------
+function renderPanorama() {
+  const el = $("#leitura-panorama");
+  el.innerHTML = Object.entries(TEMAS).map(([t, rot]) => {
+    const inds = J.indicadores.filter((i) => i.tema === t);
+    if (!inds.length) return "";
+    return `<div class="panorama-tema"><h3>${esc(rot)}</h3><div class="panorama-cartoes">${inds.map((ind) => {
+      const s = M.serieLeitura(linhas, { indicador: ind.id, territorio: "BR" }).filter((l) => !l.suprimido);
+      const ult = s.at(-1);
+      if (!ult) return "";
+      return `<button type="button" class="panorama-cartao" data-i="${esc(ind.id)}" aria-label="${esc(`${ind.nome}: ${fmtValor(ult)} em ${ult.ano}. Abrir no mapa e nos gráficos`)}">
+        <span class="pc-nome">${esc(ind.nome)}</span><span class="pc-val">${fmtCurto(ult)}</span>
+        <span class="pc-det">${esc([`Brasil, ${ult.ano}`, fmtN(ult)].filter(Boolean).join(" · "))}</span><span class="pc-serie" data-serie="${esc(ind.id)}"></span>
+        <span class="pc-fonte">${esc(ind.fonte_nome)}</span></button>`;
+    }).join("")}</div></div>`;
+  }).join("");
+  el.querySelectorAll("[data-serie]").forEach((sp) => {
+    const s = M.serieLeitura(linhas, { indicador: sp.dataset.serie, territorio: "BR" }).filter((l) => !l.suprimido);
+    if (s.length < 2) { sp.textContent = s.length ? "um ano só" : ""; sp.classList.add("muted"); return; }
+    sp.append(Plot.plot({ width: 180, height: 42, margin: 4, axis: null, x: { type: "linear" }, y: { zero: false },
+      marks: [Plot.line(s, { x: "ano", y: "valor", stroke: css("--marca"), strokeWidth: 1.6 }), Plot.dot(s.slice(-1), { x: "ano", y: "valor", fill: css("--marca"), r: 2.5 })] }));
+    sp.querySelector("svg")?.setAttribute("aria-hidden", "true");
+  });
+  el.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-i]");
+    if (!b) return;
+    mudar({ i: b.dataset.i, t: nacional(IND.get(b.dataset.i)) ? "BR" : estado.t });
+    $("#mapa").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+}
+function renderPanoramaAtivo() {
+  $$("#leitura-panorama [data-i]").forEach((b) => b.setAttribute("aria-current", b.dataset.i === estado.i ? "true" : "false"));
 }
 
 function renderCobertura() {
@@ -286,6 +351,8 @@ montarBusca(null, "/premios.html");
 montarDiadorim();
 montarExportacao();
 renderCobertura();
+await carregarGraficos();
+renderPanorama();
 $("#gerado-em").textContent = `Dados gerados em ${new Date(J.gerado_em).toLocaleString("pt-BR")}.`;
 await renderTudo();
 rota();

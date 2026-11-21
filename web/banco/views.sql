@@ -83,7 +83,7 @@ SELECT v.indicador_id AS indicador, i.nome AS indicador_nome, i.unidade, i.tipo_
        v.ano, v.dimensao, v.categoria, r.rotulo AS categoria_rotulo,
        v.valor, v.numerador, v.denominador, v.amostra, v.margem, v.suprimido,
        CASE WHEN i.unidade = 'contagem' AND t.populacao_2022 > 0 THEN round(v.valor / t.populacao_2022 * 100000, 2) END AS por_100mil,
-       v.fonte_url
+       v.fonte_url, v.observacao
 FROM indicador_valor v
 JOIN indicador i ON i.id = v.indicador_id
 JOIN territorio t ON t.codigo = v.territorio

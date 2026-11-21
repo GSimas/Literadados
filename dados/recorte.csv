@@ -12,25 +12,33 @@ faixa_etaria,5-10,5 a 10 anos,10
 faixa_etaria,11-13,11 a 13 anos,11
 faixa_etaria,14-17,14 a 17 anos,12
 faixa_etaria,15-19,15 a 19 anos,13
-faixa_etaria,18-24,18 a 24 anos,14
-faixa_etaria,20-24,20 a 24 anos,15
-faixa_etaria,25-29,25 a 29 anos,16
-faixa_etaria,25-34,25 a 34 anos,17
-faixa_etaria,30-39,30 a 39 anos,18
-faixa_etaria,35-44,35 a 44 anos,19
-faixa_etaria,40-49,40 a 49 anos,20
-faixa_etaria,45-54,45 a 54 anos,21
-faixa_etaria,50-59,50 a 59 anos,22
-faixa_etaria,50-69,50 a 69 anos,23
-faixa_etaria,55-64,55 a 64 anos,24
-faixa_etaria,60-69,60 a 69 anos,25
-faixa_etaria,65+,65 ou mais anos,26
-faixa_etaria,70+,70 ou mais anos,27
-situacao,urbana,Urbana,28
-situacao,rural,Rural,29
-escolaridade,ate_fundamental_1,Até fundamental I,30
-escolaridade,fundamental_2,Fundamental II,31
-escolaridade,medio,Ensino médio,32
-escolaridade,superior,Superior,33
-rede,publica,Pública,34
-rede,privada,Privada,35
+faixa_etaria,15-24,15 a 24 anos,14
+faixa_etaria,15-29,15 a 29 anos,15
+faixa_etaria,18-24,18 a 24 anos,16
+faixa_etaria,20-24,20 a 24 anos,17
+faixa_etaria,25-29,25 a 29 anos,18
+faixa_etaria,25-34,25 a 34 anos,19
+faixa_etaria,30-39,30 a 39 anos,20
+faixa_etaria,35-44,35 a 44 anos,21
+faixa_etaria,35-49,35 a 49 anos,22
+faixa_etaria,40-49,40 a 49 anos,23
+faixa_etaria,45-54,45 a 54 anos,24
+faixa_etaria,50-59,50 a 59 anos,25
+faixa_etaria,50-69,50 a 69 anos,26
+faixa_etaria,50-64,50 a 64 anos,27
+faixa_etaria,55-64,55 a 64 anos,28
+faixa_etaria,60-69,60 a 69 anos,29
+faixa_etaria,60+,60 ou mais anos,30
+faixa_etaria,65+,65 ou mais anos,31
+faixa_etaria,70+,70 ou mais anos,32
+situacao,urbana,Urbana,33
+situacao,rural,Rural,34
+escolaridade,nenhuma,Sem escolaridade,35
+escolaridade,ate_fundamental_1,Até fundamental I,36
+escolaridade,fundamental_2,Fundamental II,37
+escolaridade,medio,Ensino médio,38
+escolaridade,superior,Superior,39
+rede,publica,Pública,40
+rede,privada,Privada,41
+canal,mercado,Vendas ao mercado,42
+canal,governo,Vendas ao governo,43

@@ -278,6 +278,14 @@
 - [x] T34.9 Páginas estáticas `/leitura/`, bloco nas páginas de UF, dados abertos, Método "Leitura" (CA-33.8) 🧪👁
 - [x] T34.10 Diadorim do módulo Leitura; perguntas de conferência com número igual ao SQL de referência 🧪
 
+## T39 Leitura, segunda leva e panorama (nov/2026, CA-33.9, CA-33.10)
+- [x] T39.1 Schema: `indicador.tema`, unidades `moeda` e `pontuacao`, dimensão `canal`, `indicador_valor.observacao`; amostral sem amostra só com o motivo (CA-33.1) 🧪
+- [x] T39.2 `coleta.py leitura arquivo <fonte>` (protocolo `dados/coleta/leitura/PROTOCOLO.md`) e `coleta.py leitura pnad` (SIDRA 7113 e 7125; margem de 95% pelo CV)
+- [x] T39.3 Transcrições por agentes: INAF 2001–2024, SAEB 2011–2021 por UF e rede, PISA 2000–2025, Produção e Vendas 2006–2025, Painel do Varejo 2014–2025, SNBP 2025–2026 por município, MUNIC (biblioteca pública e livraria) 2001–2021 por UF 🧪
+- [x] T39.4 Panorama por tema em `leitura.html`, seletor de tema, indicador nacional sem mapa, moeda e pontuação na formatação (CA-33.10) 👁
+- [ ] T39.5 SAEB pela planilha oficial do INEP (`download.inep.gov.br` fora do ar na coleta; a série veio do espelho da Base dos Dados), com 2023, 2025, municípios e alunos avaliados; amostras do PISA 2000–2009
+- [ ] T39.6 Conferência humana: rótulos de gráfico do INAF 2024 (pp. 25–32); nota de país da OCDE sobre a amostra do PISA 2025; queda de municípios com biblioteca pública na MUNIC (97,1% em 2014 → 87,7% em 2018) e o salto de livrarias em 2001; total de exemplares vendidos de 2016 diferente da soma mercado + governo na fonte
+
 ## T35 Módulo Mapeamento, Florianópolis (nov/2026, RF-34, D40)
 - [x] T35.1 Schema `livraria`, `clube`, `obra_mapeada`, `editora_mapeada`, `pessoa_atuacao`, `mapeamento_autoria`, `v_vinculo`; checagens de fonte, data e privacidade (CA-34.2, CA-34.8) 🧪
 - [x] T35.2 `normalizar` lê `dados/coleta/mapeamento/<código>/` depois dos prêmios, com `remocoes.csv`; `test_mapeamento_nao_muda_premios` (CA-34.1) 🧪

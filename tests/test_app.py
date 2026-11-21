@@ -831,7 +831,8 @@ def test_json_leitura_reconstroi_v_indicador():  # CA-33.5, CA-31.8
         out = subprocess.run(["node", str(tmp / "t.mjs")], capture_output=True, text=True, check=True).stdout
     obtido = json.loads(out)
     con = duckdb.connect(str(RAIZ / "literadados.duckdb"), read_only=True)
-    esperado = build._linhas(con, "SELECT * FROM v_indicador WHERE territorio_tipo <> 'municipio' OR uf = 'SC'")
+    # observacao fica só no banco (Diadorim e dados abertos): no JSON pesaria sem o painel mostrar.
+    esperado = build._linhas(con, "SELECT * EXCLUDE (observacao) FROM v_indicador WHERE territorio_tipo <> 'municipio' OR uf = 'SC'")
     chave = lambda l: (l["indicador"], l["territorio"], l["ano"], l["dimensao"], l["categoria"])
     obtido, esperado = sorted(obtido, key=chave), sorted(esperado, key=chave)
     assert len(obtido) == len(esperado) > 1000
@@ -889,6 +890,25 @@ def test_build_falha_indicador_chave_repetida_e_suprimido(mini):  # CA-33.1, CA-
     with pytest.raises(build.BuildError, match="indicador_valor"):
         _build(mini)  # suprimido com valor, não
 
+
+
+def test_amostral_sem_amostra_so_com_motivo(mini):  # CA-33.1, CA-33.3, CA-33.9
+    """Pesquisa amostral sem amostra passa só se `observacao` disser por que a fonte não publica (mercado do livro, PNAD)."""
+    linha = {**_base_leitura(mini), "indicador_id": "leitores", "territorio": "BR", "numerador": "", "denominador": "", "observacao": "nota qualquer"}
+    _csv(mini / "indicador_valor" / "x.csv", [linha])
+    with pytest.raises(build.BuildError, match="sem amostra"):
+        _build(mini)
+    _csv(mini / "indicador_valor" / "x.csv", [{**linha, "observacao": "a fonte não publica o tamanho da amostra"}])
+    _build(mini)
+
+
+def test_indicadores_tem_tema_e_unidade_valida():  # CA-33.9, CA-33.10
+    import csv as _c
+    inds = list(_c.DictReader((RAIZ / "dados" / "indicador.csv").open(encoding="utf-8")))
+    assert {i["tema"] for i in inds} == {"habitos", "alfabetizacao", "escola", "mercado", "bibliotecas"}
+    assert {i["unidade"] for i in inds} <= {"percentual", "contagem", "media", "moeda", "pontuacao"}
+    ids = {i["id"] for i in inds}
+    assert {"analfabetismo_pnad", "inaf_proficiente", "saeb_lp_9ef", "pisa_leitura", "livros_exemplares_vendidos", "bibliotecas_publicas_snbp"} <= ids
 
 # ---------- RF-34 Mapeamento (D40) ----------
 LIV = {"id": "livraria-a", "nome": "Livraria A", "municipio": "4205407", "tipo": "geral", "foco": "", "rede": "false", "endereco": "Rua X, 1", "bairro": "Centro",

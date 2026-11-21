@@ -118,7 +118,7 @@ def checar(con):
                i.unidade, i.tipo_fonte, i.nivel, t.tipo AS ttipo
         FROM indicador_valor v JOIN indicador i ON i.id = v.indicador_id JOIN territorio t ON t.codigo = v.territorio
         WHERE (i.unidade = 'percentual' AND (v.valor < 0 OR v.valor > 100))
-           OR (i.tipo_fonte = 'pesquisa_amostral' AND v.amostra IS NULL)
+           OR (i.tipo_fonte = 'pesquisa_amostral' AND v.amostra IS NULL AND COALESCE(v.observacao, '') NOT ILIKE '%amostra%')
            OR (i.tipo_fonte <> 'pesquisa_amostral' AND i.unidade = 'percentual' AND NOT v.suprimido AND (v.numerador IS NULL OR v.denominador IS NULL))
            OR (list_position(['pais', 'regiao', 'uf', 'municipio'], t.tipo) > list_position(['brasil', 'regiao', 'uf', 'municipio'], i.nivel))
         ORDER BY ALL LIMIT 20"""):
@@ -126,7 +126,7 @@ def checar(con):
         if r["unidade"] == "percentual" and r["valor"] is not None and not 0 <= r["valor"] <= 100:
             erros.append(f"{rot}: percentual fora de 0–100 ({r['valor']})")
         elif r["tipo_fonte"] == "pesquisa_amostral" and r["amostra"] is None:
-            erros.append(f"{rot}: pesquisa amostral sem amostra")
+            erros.append(f"{rot}: pesquisa amostral sem amostra (nem o motivo em observacao)")
         elif r["numerador"] is None or r["denominador"] is None:
             erros.append(f"{rot}: percentual de {r['tipo_fonte']} sem numerador e denominador")
         else:
@@ -351,6 +351,9 @@ Regras:
 - `suprimido = true` = a fonte não publica o valor; nunca trate como zero.
 - Nunca compare indicadores de definições diferentes como se fossem a mesma medida (leitores da Retratos ≠ alfabetização do Censo).
 - Contagem de CNPJ (`livrarias_cnpj`, `editoras_cnpj`) é presença declarada no cadastro, não censo de lojas; `por_100mil` usa a população de 2022.
+- `unidade = 'moeda'`: reais correntes do ano, sem correção pela inflação (não diga que o mercado "cresceu" só pelo valor nominal). `pontuacao`: escala da própria avaliação (Saeb e PISA não se comparam entre si).
+- `observacao` traz revisões e quebras de série da fonte (troca Fipe → Nielsen em 2019 no mercado do livro, por exemplo) e por que falta a amostra: leia antes de comparar anos.
+- Indicadores só do Brasil (INAF, PISA, mercado do livro) não têm valor por região, UF ou município. INAF (alfabetismo funcional, teste) ≠ PNAD/Censo (analfabetismo declarado).
 - Se a pergunta for sobre prêmios literários ou pessoas, diga que isso está no módulo Prêmios (premios.html).
 - Não repita o SQL no texto (ele é mostrado à parte).
 
@@ -529,7 +532,7 @@ def exportar_leitura(con, web: Path):
     pasta = web / "leitura"
     if not con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0]:
         return
-    inds = _linhas(con, "SELECT id, nome, definicao, unidade, tipo_fonte, nivel, fonte_nome, fonte_url, limitacoes FROM indicador ORDER BY ordem")
+    inds = _linhas(con, "SELECT id, nome, definicao, unidade, tipo_fonte, nivel, fonte_nome, fonte_url, limitacoes, tema FROM indicador ORDER BY ordem")
     recs = _linhas(con, "SELECT dimensao, categoria, rotulo FROM recorte ORDER BY ordem")
     i_ind = {x["id"]: k for k, x in enumerate(inds)}
     i_rec = {(x["dimensao"], x["categoria"]): k for k, x in enumerate(recs)}
