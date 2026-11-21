@@ -118,3 +118,10 @@ WHERE v.entidade = 'pessoa' AND v.municipio IN (SELECT municipio FROM obra_mapea
   AND p.id IN (SELECT pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador','organizador')
                UNION SELECT pessoa_id FROM mapeamento_autoria)
 GROUP BY ALL;
+
+CREATE VIEW v_evento_edicao AS
+SELECT d.evento_id AS evento, e.nome AS evento_nome, e.tipo, d.numero, d.ano, d.data_inicio, d.data_fim,
+       d.municipio, t.nome AS municipio_nome, u.sigla AS uf, d.local, d.tema, d.situacao, d.formato, d.publico, d.publico_fonte,
+       d.fonte, d.verificado_em
+FROM evento_edicao d JOIN evento e ON e.id = d.evento_id
+JOIN territorio t ON t.codigo = d.municipio JOIN territorio u ON u.codigo = t.pai;

@@ -386,6 +386,52 @@ CREATE TABLE mapeamento_autoria (
   PRIMARY KEY (obra_id, pessoa_id, papel)
 );
 
+-- ========== Módulo Eventos (RF-35, D41) ==========
+-- Cadastro curado de eventos literários do Brasil (festivais, feiras, bienais, festas, encontros), com edições passadas e anunciadas.
+CREATE TABLE evento (
+  id             TEXT PRIMARY KEY,
+  nome           TEXT NOT NULL,
+  tipo           TEXT NOT NULL CHECK (tipo IN ('festival','feira','bienal','festa_literaria','encontro','jornada','salao','outro')),
+  municipio      TEXT NOT NULL REFERENCES territorio(codigo),   -- sede
+  organizador    TEXT,
+  site           TEXT,
+  redes          TEXT,
+  ano_inicio     INTEGER,
+  fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em  DATE NOT NULL
+);
+
+CREATE TABLE evento_edicao (
+  evento_id      TEXT NOT NULL REFERENCES evento(id),
+  numero         TEXT,                                   -- "12", "12a" quando há duas no ano
+  ano            INTEGER NOT NULL,
+  data_inicio    DATE NOT NULL,
+  data_fim       DATE NOT NULL,
+  municipio      TEXT NOT NULL REFERENCES territorio(codigo),
+  local          TEXT,
+  tema           TEXT,
+  situacao       TEXT NOT NULL CHECK (situacao IN ('realizada','prevista','cancelada','adiada')),
+  formato        TEXT CHECK (formato IN ('presencial','online','hibrido')),
+  publico        INTEGER,
+  publico_fonte  TEXT,
+  fonte          TEXT NOT NULL CHECK (fonte LIKE 'http%'),
+  verificado_em  DATE NOT NULL,
+  PRIMARY KEY (evento_id, data_inicio),
+  CHECK (data_fim >= data_inicio),
+  CHECK (ano = year(data_inicio)),
+  CHECK (publico IS NULL OR (publico > 0 AND publico_fonte LIKE 'http%'))
+);
+
+-- Homenageados por edição (CA-35.2): pessoa_id só quando o nome casa exatamente com o id de uma pessoa da base.
+CREATE TABLE evento_homenageado (
+  evento_id    TEXT NOT NULL,
+  data_inicio  DATE NOT NULL,
+  nome         TEXT NOT NULL,
+  pessoa_id    TEXT REFERENCES pessoa(id),
+  PRIMARY KEY (evento_id, data_inicio, nome),
+  FOREIGN KEY (evento_id, data_inicio) REFERENCES evento_edicao (evento_id, data_inicio)
+);
+
 -- ========== Módulo Leitura (RF-33, D39) ==========
 -- Catálogo de indicadores (dados/indicador.csv, editado à mão). limitacoes vai para o Método.
 CREATE TABLE indicador (
@@ -499,6 +545,14 @@ WHERE v.entidade = 'pessoa' AND v.municipio IN (SELECT municipio FROM obra_mapea
   AND p.id IN (SELECT pessoa_id FROM autoria WHERE papel IN ('autor','ilustrador','organizador')
                UNION SELECT pessoa_id FROM mapeamento_autoria)
 GROUP BY ALL;
+
+-- Edições de eventos com nome e tipo do evento e o município (CA-35.9).
+CREATE VIEW v_evento_edicao AS
+SELECT d.evento_id AS evento, e.nome AS evento_nome, e.tipo, d.numero, d.ano, d.data_inicio, d.data_fim,
+       d.municipio, t.nome AS municipio_nome, u.sigla AS uf, d.local, d.tema, d.situacao, d.formato, d.publico, d.publico_fonte,
+       d.fonte, d.verificado_em
+FROM evento_edicao d JOIN evento e ON e.id = d.evento_id
+JOIN territorio t ON t.codigo = d.municipio JOIN territorio u ON u.codigo = t.pai;
 
 INSERT INTO uf (uf, nome, regiao) VALUES
   ('AC','Acre','Norte'), ('AP','Amapá','Norte'), ('AM','Amazonas','Norte'), ('PA','Pará','Norte'),

@@ -603,3 +603,31 @@ test("resumoMapeamento: critério de vínculo, n, piso e a conferir (CA-34.10)",
   assert.equal(r.aConferir, 1);  // só a de 2025-01-10 passou de 12 meses (2025-11-21 ainda não)
   assert.equal(M.aConferir({ verificado_em: "2025-11-19" }, Mp.gerado_em), true);
 });
+
+// ---------- módulo Eventos (CA-35.4 a CA-35.6) ----------
+const JE = {
+  verificado_ate: "2026-11-21",
+  eventos: [{ id: "flip", nome: "FLIP", tipo: "festa_literaria", municipio: "3303807" }, { id: "ponte", nome: "Ponte de Palavras", tipo: "encontro", municipio: "4205407" }],
+  municipios: { "3303807": ["Paraty", "RJ"], "4205407": ["Florianópolis", "SC"] },
+  edicoes: [
+    { evento: "flip", inicio: "2025-07-30", fim: "2025-08-03", municipio: "3303807", situacao: "realizada" },
+    { evento: "flip", inicio: "2026-07-29", fim: "2026-08-02", municipio: "3303807", situacao: "realizada" },
+    { evento: "flip", inicio: "2027-07-28", fim: "2027-08-01", municipio: "3303807", situacao: "prevista" },
+    { evento: "ponte", inicio: "2026-11-13", fim: "2026-11-15", municipio: "4205407", situacao: "prevista" },
+    { evento: "ponte", inicio: "2026-12-01", fim: "2026-12-02", municipio: "4205407", situacao: "cancelada" },
+  ],
+};
+test("eventos: próximos, calendário, filtro, resumo e URL (CA-35.4 a CA-35.6)", () => {
+  assert.deepEqual(M.proximosEventos(JE.edicoes, "2026-11-21").map((e) => e.inicio), ["2027-07-28"]);  // cancelada fica fora
+  assert.equal(M.situacaoEvento(JE.edicoes[3], "2026-11-21"), "a_conferir");  // prevista com data passada
+  const cal = M.calendarioEventos(JE.edicoes, 2026);
+  assert.deepEqual(cal.map((m) => m.edicoes.length), [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1]);
+  assert.deepEqual(M.filtrarEventos(JE, { uf: "SC" }).map((e) => e.evento), ["ponte", "ponte"]);
+  assert.deepEqual(M.filtrarEventos(JE, { tipo: "festa_literaria", ano: 2026 }).length, 1);
+  const r = M.resumoEventos(JE, "2026-11-21");
+  assert.deepEqual([r.eventos, r.edicoes, r.ufs, r.proximos, r.aConferir], [2, 5, 2, 1, 1]);
+  const f = { tipo: "feira", uf: "SP", ano: 2025, sit: "realizada" };
+  assert.deepEqual(M.eventosDeTexto(M.eventosParaTexto(f, 2026), 2026), f);
+  assert.equal(M.eventosParaTexto({ tipo: "", uf: "", ano: 2026, sit: "" }, 2026), "");
+  assert.deepEqual(M.eventosDeTexto("tipo=xx&uf=sc", 2026), { tipo: "", uf: "", ano: 2026, sit: "" });
+});

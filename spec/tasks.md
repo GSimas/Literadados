@@ -306,3 +306,4 @@
 - [ ] T37.4 `eventos.html`: próximos, calendário, mapa por UF, filtros na URL, tabela, perfil de evento (CA-35.4 a CA-35.6) 👁
 - [ ] T37.5 Eventos no perfil de município e no mapeamento da cidade (CA-35.7) 👁
 - [ ] T37.6 Páginas estáticas, busca, portal, cabeçalho, dados abertos, Diadorim (CA-35.8, CA-35.9) 🧪
+- [ ] T36.7 Clubes do Ponte de Palavras (p. 7 da programação de nov/2026): ~31 perfis que parecem clubes ficaram de fora por falta de nome e município confirmados sem abrir o Instagram (lista no relatório da coleta: clubedolivro_floripa, clubedolivro.floripa, clubedeleitura.esag, clubesereno, clubedolivrotheblackcat, paginas_da_ilha, leitura_sambaqui, entre outros); @cicfloripa pode ser o clube Lygia Bojunga; os 4 projetos de perfil pessoal (Bordando Escritores, Entre Páginas e Amigas, Tecendo Palavras, Através do Livro) podem ser da Grande Florianópolis

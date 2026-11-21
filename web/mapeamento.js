@@ -188,6 +188,14 @@ montarBusca(null, "premios.html");
 montarDiadorim();
 montarExportacao();
 renderNumeros();
+// Eventos da cidade (CA-35.7), do módulo Eventos.
+fetch("eventos.json").then((r) => (r.ok ? r.json() : null)).then((EVJ) => {
+  const evs = EVJ?.eventos.filter((e) => e.municipio === MUN) ?? [];
+  if (!evs.length) return;
+  $("#mapa-eventos-lista").innerHTML = `<ul>${evs.map((e) => { const eds = EVJ.edicoes.filter((x) => x.evento === e.id).sort((a, b) => b.inicio.localeCompare(a.inicio));
+    return `<li><a href="eventos.html#/evento/${esc(e.id)}">${esc(e.nome)}</a> <span class="muted pequeno">${eds.length} edição(ões); última: ${esc(eds[0]?.inicio ?? "–")}</span></li>`; }).join("")}</ul>`;
+  $("#eventos-cidade").hidden = false;
+}).catch(() => {});
 await renderMapa();
 renderCadastro();
 rota();

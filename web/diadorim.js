@@ -23,6 +23,12 @@ export const SUGESTOES_MAPEAMENTO = [
   "Quais clubes do livro se reúnem em livrarias?",
   "Quantas pessoas mapeadas nasceram na cidade e quantas vivem ou trabalham nela?",
 ];
+export const SUGESTOES_EVENTOS = [
+  "Quais eventos literários acontecem no Nordeste nos próximos meses?",
+  "Em que mês há mais feiras do livro no Brasil?",
+  "Quais festas literárias homenagearam autoras que estão na base de prêmios?",
+  "Quantas edições da FLIP estão no cadastro e quando foi a última?",
+];
 export const SUGESTOES = [
   "Quantos autores pretos nascidos em São Paulo chegaram às listas em Contos, em cada prêmio?",
   "Quem chegou à lista de mais de um prêmio?",
@@ -100,6 +106,12 @@ const REGRAS_LINK_MAPEAMENTO = `Referências (obrigatório): termine toda respos
 Nunca invente URL nem id. Diga sempre que é cadastro ("mapeados até agora") e o critério de vínculo. Mostre o n junto de todo percentual.
 Nunca cite nomes de tabelas, views ou colunas no texto.`;
 
+const REGRAS_LINK_EVENTOS = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
+- Eventos: [Nome do evento](#/evento/<id>), com o id exato vindo de uma consulta. Método: [Método dos Eventos](metodo.html#eventos).
+- Fontes externas: a URL da coluna fonte das edições que sustentam a resposta.
+Nunca invente URL nem id. Diga sempre a data de cada edição e que é cadastro ("mapeados até agora").
+Nunca cite nomes de tabelas, views ou colunas no texto.`;
+
 const REGRAS_LINK_LEITURA = `Referências (obrigatório): termine toda resposta com uma linha "Fontes:" seguida de links Markdown.
 - Municípios: [Florianópolis](#/municipio/4205407), com o código do IBGE exato vindo de uma consulta. Estados: [Santa Catarina](#/uf/SC).
 - Método do módulo: [Método da Leitura](metodo.html#leitura).
@@ -159,6 +171,7 @@ export function hrefSeguro(u) {
   const h = String(u).trim();
   if (/^#\/(pessoa|obra)\/[\w-]+$/.test(h) || /^#\/municipio\/\d{7}$/.test(h)) return h;
   if (MODULO() === "mapeamento" && /^#\/(livraria|clube|editora)\/[\w-]+$/.test(h)) return h;
+  if (MODULO() === "eventos" && /^#\/evento\/[\w-]+$/.test(h)) return h;
   if (/^#\/uf\/[A-Z]{2}$/.test(h) || /^#\/regiao\/(Norte|Nordeste|Sudeste|Sul|Centro-Oeste)$/.test(h)) return h;
   if (/^#\/grafico\/([\w-]+)$/.test(h)) return JANELAS.includes(h.split("/")[2]) ? h : null;
   if (/^#[\w-]+$/.test(h) || /^metodo\.html(#[\w-]+)?$/.test(h)) return h;
@@ -260,7 +273,7 @@ async function prompt() {
   if (sistema) return sistema;
   const r = await fetch(arquivoContexto());
   if (!r.ok) throw new Error(`Não achei o contexto do Literadados (${arquivoContexto()}). Rode python build.py.`);
-  const regras = { leitura: REGRAS_LINK_LEITURA, mapeamento: REGRAS_LINK_MAPEAMENTO }[MODULO()] ?? REGRAS_LINK;
+  const regras = { leitura: REGRAS_LINK_LEITURA, mapeamento: REGRAS_LINK_MAPEAMENTO, eventos: REGRAS_LINK_EVENTOS }[MODULO()] ?? REGRAS_LINK;
   sistema = `${PERSONA}\n\n${regras}\n\n${(await r.json()).sistema}`;
   return sistema;
 }
@@ -404,7 +417,7 @@ export function montarDiadorim() {
     botao.focus();
   };
 
-  $("#diadorim-sugestoes").innerHTML = ({ leitura: SUGESTOES_LEITURA, mapeamento: SUGESTOES_MAPEAMENTO }[MODULO()] ?? SUGESTOES).map((s) => `<button type="button">${esc(s)}</button>`).join("");
+  $("#diadorim-sugestoes").innerHTML = ({ leitura: SUGESTOES_LEITURA, mapeamento: SUGESTOES_MAPEAMENTO, eventos: SUGESTOES_EVENTOS }[MODULO()] ?? SUGESTOES).map((s) => `<button type="button">${esc(s)}</button>`).join("");
   apresentar();
   mostrarModelo();
   estadoLogin();

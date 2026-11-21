@@ -14,7 +14,8 @@ import seo
 RAIZ = Path(__file__).parent
 TABELAS = ["territorio", "municipio_casamento", "indicador", "recorte", "indicador_valor", "premio", "edicao", "edicao_contexto", "editora", "editora_logo", "pessoa", "pessoa_midia", "pessoa_foto", "obra", "obra_capa", "autoria",
            "categoria_edicao", "indicacao", "jurado", "distincao",
-           "livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria"]  # ordem das FKs
+           "livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria",
+           "evento", "evento_edicao", "evento_homenageado"]  # ordem das FKs
 
 
 class BuildError(Exception):
@@ -138,6 +139,15 @@ def checar(con):
                 erros.append(f"{t}: {n} registro(s) com verificado_em no futuro")
     for r in _linhas(con, "SELECT c.id FROM clube c JOIN livraria l ON l.id = c.livraria_id WHERE l.municipio <> c.municipio ORDER BY 1"):
         erros.append(f"clube {r['id']}: livraria de outro município")
+    # Eventos (CA-35.1, DB-10): situação coerente com a data da conferência.
+    for r in _linhas(con, """SELECT evento_id, data_inicio::VARCHAR AS d, situacao FROM evento_edicao
+                             WHERE (situacao = 'prevista' AND data_fim < verificado_em) OR (situacao = 'realizada' AND data_inicio > verificado_em)
+                             ORDER BY ALL"""):
+        erros.append(f"evento {r['evento_id']} {r['d']}: situação '{r['situacao']}' incoerente com a data de verificação")
+    for t in ("evento", "evento_edicao"):
+        for (n,) in con.execute(f"SELECT COUNT(*) FROM {t} WHERE verificado_em > ?::DATE", [datetime.now().date().isoformat()]).fetchall():
+            if n:
+                erros.append(f"{t}: {n} registro(s) com verificado_em no futuro")
     # Colocação repetida é legítima (empates: Livro do Ano Não Ficção 2016, 3º lugar de Contos 2014);
     # o total de premiadas já é conferido contra vagas_premio acima.
     if erros:
@@ -371,14 +381,36 @@ Esquema (DuckDB):
        "v_pessoa_municipio", "v_editora_municipio", "v_vinculo", "v_pessoa_mapeada"])}"""
 
 
+def prompt_eventos(con) -> str:
+    """Prompt da Diadorim no módulo Eventos (CA-35.9, D41)."""
+    n_ev, n_ed, ini, fim = con.execute("SELECT COUNT(DISTINCT evento_id), COUNT(*), MIN(ano), MAX(ano) FROM evento_edicao").fetchone()
+    return f"""Você responde sobre o Literadados, plataforma de dados sobre literatura e leitura no Brasil. Aqui, o módulo Eventos:
+cadastro curado de eventos literários do Brasil (festivais, feiras, bienais, festas literárias, encontros), com {n_ev} eventos e {n_ed} edições ({ini}–{fim}).
+
+Regras:
+- Responda em português do Brasil. É CADASTRO, NÃO CENSO: "mapeados até agora".
+- Diga a data e a fonte de toda edição. `situacao = 'prevista'` é anúncio, não confirmação de que aconteceu; edição prevista com data já passada está "a conferir".
+- "Próximos" e "passados" dependem da data de hoje; diga a data que usou.
+- Público estimado só com a fonte dele (`publico_fonte`).
+- Homenageados: `evento_homenageado`; quem tem `pessoa_id` está na base de pessoas (perfil no módulo Prêmios). Nada de gênero ou raça a partir do evento.
+- Use `v_evento_edicao` (uma linha por edição, com município e UF).
+- Não repita o SQL no texto (ele é mostrado à parte).
+
+Esquema (DuckDB):
+{_ddl(["territorio", "evento", "evento_edicao", "evento_homenageado", "v_evento_edicao"])}"""
+
+
 def prompt_sistema(con, modulo: str = "premios") -> str:
+    if modulo == "eventos":
+        return prompt_eventos(con)
     if modulo == "leitura":
         return prompt_leitura(con)
     if modulo == "mapeamento":
         return prompt_mapeamento(con)
     ddl = _ddl([t for t in re.findall(r"CREATE (?:TABLE|VIEW) (\w+)", (RAIZ / "schema.sql").read_text(encoding="utf-8"))
                 if t not in ("indicador", "recorte", "indicador_valor", "v_indicador", "territorio", "municipio_casamento", "livraria", "clube",
-                             "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada")])
+                             "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada",
+                             "evento", "evento_edicao", "evento_homenageado", "v_evento_edicao")])
     premios = _linhas(con, """SELECT p.id, p.nome, p.organizador, p.abrangencia, p.obras, MIN(i.ano) AS de, MAX(i.ano) AS ate,
                                      COUNT(DISTINCT i.ano) AS edicoes, string_agg(DISTINCT c.categoria, ', ' ORDER BY c.categoria) AS cats
                               FROM premio p JOIN indicacao i ON i.premio_id = p.id
@@ -462,12 +494,15 @@ def modulos_banco(con) -> dict:
                         "obra_mapeada", "editora_mapeada", "pessoa_atuacao", "mapeamento_autoria"],
             "views": ["v_pessoa_municipio", "v_editora_municipio", "v_vinculo", "v_pessoa_mapeada"]}
     so_outros = set(leitura["tabelas"][1:]) | set(leitura["views"]) | {"livraria", "clube", "obra_mapeada", "editora_mapeada", "pessoa_atuacao",
-                                                                       "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada"}
+                                                                       "mapeamento_autoria", "v_vinculo", "v_pessoa_mapeada",
+                                                                       "evento", "evento_edicao", "evento_homenageado", "v_evento_edicao"}
     mods = {"premios": {"tabelas": ["uf", *[t for t in TABELAS if t not in so_outros]], "views": [v for v in views if v not in so_outros]}}
     if con is None or con.execute("SELECT COUNT(*) FROM indicador_valor").fetchone()[0]:
         mods["leitura"] = leitura
     if con is None or con.execute("SELECT (SELECT COUNT(*) FROM livraria) + (SELECT COUNT(*) FROM obra_mapeada) + (SELECT COUNT(*) FROM pessoa_atuacao)").fetchone()[0]:
         mods["mapeamento"] = mapa
+    if con is None or con.execute("SELECT COUNT(*) FROM evento_edicao").fetchone()[0]:
+        mods["eventos"] = {"tabelas": ["territorio", "pessoa", "evento", "evento_edicao", "evento_homenageado"], "views": ["v_evento_edicao"]}
     return mods
 
 
@@ -608,10 +643,30 @@ def exportar_mapeamento(con, web: Path):
     (pasta / "indice.json").write_text(json.dumps(indice, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
+def exportar_eventos(con, web: Path):
+    """eventos.json (D41): eventos, edições, homenageados e os municípios usados; sem chaves nulas."""
+    arq = web / "eventos.json"
+    if not con.execute("SELECT COUNT(*) FROM evento_edicao").fetchone()[0]:
+        arq.unlink(missing_ok=True)
+        return
+    eventos = _sem_nulos(_linhas(con, """SELECT id, nome, tipo, municipio, organizador, site, redes, ano_inicio, fonte, verificado_em::VARCHAR AS verificado_em
+                                          FROM evento ORDER BY nome"""))
+    edicoes = _sem_nulos(_linhas(con, """SELECT evento_id AS evento, numero, ano, data_inicio::VARCHAR AS inicio, data_fim::VARCHAR AS fim, municipio, local, tema,
+                                                situacao, formato, publico, publico_fonte, fonte, verificado_em::VARCHAR AS verificado_em
+                                         FROM evento_edicao ORDER BY data_inicio, evento_id"""))
+    hom = _sem_nulos(_linhas(con, "SELECT evento_id AS evento, data_inicio::VARCHAR AS inicio, nome, pessoa_id FROM evento_homenageado ORDER BY ALL"))
+    muns = {c: [n, uf] for c, n, uf in con.execute("""SELECT t.codigo, t.nome, u.sigla FROM territorio t JOIN territorio u ON u.codigo = t.pai
+        WHERE t.codigo IN (SELECT municipio FROM evento UNION SELECT municipio FROM evento_edicao) ORDER BY 1""").fetchall()}
+    datas = [x["verificado_em"] for x in eventos + edicoes]
+    arq.write_text(json.dumps({"gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"), "verificado_ate": max(datas),
+                               "eventos": eventos, "edicoes": edicoes, "homenageados": hom, "municipios": muns},
+                              ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+
+
 def exportar_busca(con, web: Path):
     """Índice de busca para todas as páginas (CA-31.5, D37): o que não depende de dados.json. Hrefs relativos à raiz do site
     (todas as páginas ficam em web/). Compacto: {tipos, e: [[tipo, rótulo, detalhe, href, extra?]]}."""
-    tipos = ["Pessoa", "Editora", "Estado", "Município", "Indicador", "Livraria", "Clube"]
+    tipos = ["Pessoa", "Editora", "Estado", "Município", "Indicador", "Livraria", "Clube", "Evento"]
     e = []
     for pid, nome, uf, ano, pais in con.execute("""SELECT id, nome, uf_nascimento, ano_nascimento, pais_nascimento FROM pessoa ORDER BY id""").fetchall():
         sub = " · ".join(str(x) for x in ((pais if uf == "EX" else uf), ano) if x)
@@ -631,6 +686,9 @@ def exportar_busca(con, web: Path):
         e.append([5, nome, " · ".join(x for x in (bairro, mnome) if x), f"mapeamento.html#/livraria/{lid}"])
     for cid, nome, mnome in con.execute("SELECT c.id, c.nome, t.nome FROM clube c JOIN territorio t ON t.codigo = c.municipio ORDER BY 1").fetchall():
         e.append([6, nome, mnome, f"mapeamento.html#/clube/{cid}"])
+    for eid, nome, mnome, uf in con.execute("""SELECT e.id, e.nome, t.nome, u.sigla FROM evento e JOIN territorio t ON t.codigo = e.municipio
+                                               JOIN territorio u ON u.codigo = t.pai ORDER BY 1""").fetchall():
+        e.append([7, nome, f"{mnome} · {uf}", f"eventos.html#/evento/{eid}"])
     (web / "busca.json").write_text(json.dumps({"tipos": tipos, "e": e}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
@@ -684,6 +742,7 @@ def build(dados: Path = RAIZ / "dados", db: Path = RAIZ / "literadados.duckdb", 
         exportar_busca(con, saida.parent)
         exportar_leitura(con, saida.parent)
         exportar_mapeamento(con, saida.parent)
+        exportar_eventos(con, saida.parent)
         saida.parent.mkdir(exist_ok=True)
         (saida.parent / "edicoes.json").write_text(json.dumps(contextos(con), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         seo.gerar(con, saida.parent)

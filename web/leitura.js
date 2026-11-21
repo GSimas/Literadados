@@ -251,10 +251,17 @@ async function perfilTerritorio(codigo) {
       <p>${fmt(m.livrarias.filter((x) => x.situacao === "ativa").length)} livrarias ativas · ${fmt(m.editoras.length)} editoras · ${fmt(m.pessoas.length)} autoras e autores mapeados</p>
       <p><a class="botao" href="mapeamento.html">Abrir o mapeamento →</a></p></section>`;
   }
+  let blocoEventos = "";
+  const EVJ = await fetch("eventos.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (EVJ) {
+    const doLugar = EVJ.eventos.filter((e) => (ehMun ? e.municipio === cod : EVJ.municipios[e.municipio]?.[1] === sigla));
+    if (doLugar.length) blocoEventos = `<section class="cartao"><p class="sobretitulo">Eventos</p><h3>Eventos literários ${ehMun ? "na cidade" : "no estado"}</h3>
+      <ul>${doLugar.map((e) => `<li><a href="eventos.html#/evento/${esc(e.id)}">${esc(e.nome)}</a></li>`).join("")}</ul></section>`;
+  }
   const pop = ehMun ? municipios.get(sigla)?.municipios.find((x) => x[0] === cod)?.[2] : J.territorios.find((t) => t.codigo === cod)?.populacao_2022;
   return `<header class="perfil-cab"><p class="sobretitulo">${ehMun ? `Município · ${esc(sigla)}` : "Estado"}</p><h2 id="perfil-nome">${esc(nome)}</h2>
     <p class="muted">População (Censo 2022): ${fmt(pop)} · código IBGE ${esc(cod)}</p></header>
-    <div class="perfil-lugar">${blocos || `<p class="muted">Sem indicadores para este território.</p>`}${blocoPremios}${blocoMapa}</div>`;
+    <div class="perfil-lugar">${blocos || `<p class="muted">Sem indicadores para este território.</p>`}${blocoPremios}${blocoMapa}${blocoEventos}</div>`;
 }
 
 let fundo = "";

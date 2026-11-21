@@ -1080,6 +1080,63 @@ def mapeamento():
     print(f"{len(livs)} livrarias e {len(clubes)} clubes em dados/livraria.csv e dados/clube.csv")
 
 
+CAMPOS_EVENTO = ["id", "nome", "tipo", "municipio", "organizador", "site", "redes", "ano_inicio", "fonte", "verificado_em"]
+CAMPOS_EDICAO = ["evento_id", "numero", "ano", "data_inicio", "data_fim", "municipio", "local", "tema", "situacao", "formato", "publico",
+                 "publico_fonte", "fonte", "verificado_em"]
+
+
+def eventos():
+    """dados/coleta/eventos/eventos_N.csv + edicoes_N.csv (RF-35, D41) → dados/evento.csv, evento_edicao.csv e evento_homenageado.csv.
+    Município por nome + UF contra territorio (exceções em dados/coleta/eventos/municipios.csv: municipio, uf, codigo)."""
+    pasta = BRUTO / "eventos"
+    t = {l["codigo"]: l for l in csv.DictReader((DADOS / "territorio.csv").open(encoding="utf-8"))}
+    norm = lambda s: re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFKD", (s or "").lower()).encode("ascii", "ignore").decode())
+    cod = {(norm(l["nome"]), t[l["pai"]]["sigla"]): c for c, l in t.items() if l["tipo"] == "municipio"}
+    exc = {(norm(l["municipio"]), l["uf"]): l["codigo"] for l in csv.DictReader((pasta / "municipios.csv").open(encoding="utf-8"))} if (pasta / "municipios.csv").exists() else {}
+    pessoas = {p["id"] for p in ler("pessoa")}
+    sem = set()
+
+    def municipio(nome, uf):
+        c = exc.get((norm(nome), uf)) or cod.get((norm(nome), uf))
+        if not c:
+            sem.add(f"{nome} ({uf})")
+        return c or ""
+    evs, por_nome, eds, hom = {}, {}, {}, {}
+    for arq in sorted(pasta.glob("eventos_*.csv")):
+        for r in csv.DictReader(arq.open(encoding="utf-8")):
+            eid = slug(r["nome"])
+            if eid in evs:
+                continue
+            por_nome[r["nome"].strip()] = eid
+            evs[eid] = {**{c: (r.get(c) or "").strip() for c in CAMPOS_EVENTO}, "id": eid, "municipio": municipio(r["municipio"], r["uf"])}
+    for arq in sorted(pasta.glob("edicoes_*.csv")):
+        for r in csv.DictReader(arq.open(encoding="utf-8")):
+            eid = por_nome.get(r["evento"].strip()) or (slug(r["evento"]) if slug(r["evento"]) in evs else None)
+            if not eid:
+                raise SystemExit(f"{arq.name}: evento '{r['evento']}' não está em nenhum eventos_*.csv")
+            ini = (r.get("data_inicio") or "").strip()
+            if not ini:
+                continue
+            mun, uf = (r.get("municipio") or "").strip(), (r.get("uf") or "").strip()
+            sede = evs[eid]["municipio"]
+            d = {**{c: (r.get(c) or "").strip() for c in CAMPOS_EDICAO}, "evento_id": eid, "ano": ini[:4],
+                 # sem município na edição, vale a sede do evento; sem UF, a da sede
+                 "municipio": municipio(mun, uf or (t[t[sede]["pai"]]["sigla"] if sede else "")) if mun else sede}
+            eds[(eid, ini)] = d
+            for n in [x.strip() for x in (r.get("homenageados") or "").split("|") if x.strip()]:
+                hom[(eid, ini, n)] = {"evento_id": eid, "data_inicio": ini, "nome": n, "pessoa_id": slug(n) if slug(n) in pessoas else ""}
+    if sem:
+        raise SystemExit("municípios sem código do IBGE (acrescente em dados/coleta/eventos/municipios.csv):\n  " + "\n  ".join(sorted(sem)))
+    for nome, campos, linhas in (("evento", CAMPOS_EVENTO, [evs[k] for k in sorted(evs)]),
+                                  ("evento_edicao", CAMPOS_EDICAO, [eds[k] for k in sorted(eds)]),
+                                  ("evento_homenageado", ["evento_id", "data_inicio", "nome", "pessoa_id"], [hom[k] for k in sorted(hom)])):
+        with (DADOS / f"{nome}.csv").open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=campos)
+            w.writeheader()
+            w.writerows(linhas)
+    print(f"{len(evs)} eventos, {len(eds)} edições, {len(hom)} homenageados ({sum(1 for h in hom.values() if h['pessoa_id'])} na base)")
+
+
 def leitura():
     """coleta.py leitura <fonte>: alfabetizacao · escolas_biblioteca · cnpj · retratos."""
     {"alfabetizacao": _leitura_alfabetizacao, "escolas_biblioteca": _leitura_escolas_biblioteca,
@@ -1087,6 +1144,6 @@ def leitura():
 
 
 if __name__ == "__main__":
-    {"leitura": leitura, "mapeamento": mapeamento, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
+    {"leitura": leitura, "mapeamento": mapeamento, "eventos": eventos, "normalizar": normalizar, "wikidata": wikidata, "aplicar_wikidata": aplicar_wikidata,
      "aplicar_pessoas": aplicar_pessoas, "verificar": verificar, "midia": midia, "malha": malha, "miniaturas": miniaturas, "capas": capas, "imagens": imagens, "contexto": contexto,
      "territorio": territorio, "malha_municipios": malha_municipios}[sys.argv[1]]()

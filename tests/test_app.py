@@ -927,6 +927,7 @@ def test_vinculos_derivados_e_json_do_mapeamento(mini):  # CA-34.3, CA-34.10, CA
     ("clube", {"local_tipo": "casa", "livraria_id": "", "bairro": "Trindade"}, "clube"),      # casa com bairro (privacidade)
     ("clube", {"livraria_id": "inexistente"}, "clube"),                                       # livraria que não existe
     ("clube", {"link": ""}, "clube"),                                                         # sem canal público
+    ("clube", {"local_tipo": "nao_informado", "formato": "nao_informado", "livraria_id": "", "bairro": "Centro"}, "clube"),  # local não informado com bairro
     ("livraria", {"tipo": "online"}, "livraria"),                                             # on-line com endereço
     ("livraria", {"fonte": ""}, "livraria"),                                                  # sem fonte
     ("livraria", {"verificado_em": ""}, "livraria"),                                          # sem data

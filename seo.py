@@ -15,7 +15,7 @@ from urllib.parse import quote
 SITE = "https://literadados.gustavosimas.com"
 AUTOR = {"@type": "Person", "name": "Gustavo Simas", "url": "https://gustavosimas.com"}
 REPO = "https://github.com/GSimas/Literadados"
-PASTAS = ["premios", "pessoas", "estados", "editoras", "perguntas", "dados-abertos", "leitura", "mapeamento"]  # inteiras geradas: o que não sai de novo é apagado
+PASTAS = ["premios", "pessoas", "estados", "editoras", "perguntas", "dados-abertos", "leitura", "mapeamento", "eventos"]  # inteiras geradas: o que não sai de novo é apagado
 SOLTOS = ["sitemap.xml", "llms.txt", "llms-full.txt"]
 
 ROT_GEN = {"mulher": "Mulher", "homem": "Homem", "nao_binario": "Não binária", "nao_identificado": "Não identificado"}
@@ -128,7 +128,7 @@ COD_UF_IBGE = {"RO": "11", "AC": "12", "AM": "13", "RR": "14", "PA": "15", "AP":
                "RS": "43", "MS": "50", "MT": "51", "GO": "52", "DF": "53"}
 LOGO = '<img class="logo" src="/logo.svg" alt="" width="30" height="30">'
 # Módulos (D37): os mesmos links, na mesma ordem, no cabeçalho de toda página (test_cabecalho_igual_em_todas_as_paginas).
-MODULOS = [("/premios.html", "Prêmios"), ("/leitura.html", "Leitura"), ("/mapeamento.html", "Mapeamento")]
+MODULOS = [("/premios.html", "Prêmios"), ("/leitura.html", "Leitura"), ("/mapeamento.html", "Mapeamento"), ("/eventos.html", "Eventos")]
 NAV = [("/premios/", "Edições"), ("/pessoas/", "Pessoas"), ("/editoras/", "Editoras"), ("/estados/", "Estados"), ("/perguntas/", "Perguntas"), ("/metodo.html", "Método")]
 
 
@@ -825,6 +825,8 @@ TABELAS_DOC = {
     "clube": "mapeamento: clubes do livro (formato, local público ou sem endereço, canal público, situação, fonte)",
     "obra_mapeada": "mapeamento: livros registrados (ISBN, ambientação na cidade, fonte)", "editora_mapeada": "mapeamento: editoras da cidade (tipo, situação, fonte)",
     "pessoa_atuacao": "mapeamento: vínculo de atuação na cidade, com fonte", "mapeamento_autoria": "mapeamento: crédito das obras registradas",
+    "evento": "eventos literários (tipo, cidade-sede, organizador, site, fonte)", "evento_edicao": "edições dos eventos (datas, cidade, local, tema, situação, público com fonte)",
+    "evento_homenageado": "homenageados de cada edição (com link para a pessoa quando está na base)",
 }
 
 
@@ -887,6 +889,7 @@ def llms(b, qs):
           f"- [Estados]({SITE}/estados/): onde nasceram as pessoas-autoras",
           f"- [Editoras]({SITE}/editoras/): cada editora, com indicações, premiadas e autores publicados",
           f"- [Leitura]({SITE}/leitura/): indicadores de alfabetização, leitores, escolas com biblioteca, livrarias e editoras por território",
+          f"- [Eventos]({SITE}/eventos/): festivais, feiras do livro, bienais e festas literárias do Brasil, com datas das edições",
           f"- [Dados abertos]({SITE}/dados-abertos/): tabelas (Parquet e CSV), regras de uso e como citar",
           f"- [Método]({SITE}/metodo.html): fontes, definições, protocolo de raça, cobertura", "", "## Prêmios", ""]
     s += [f"- [{p['nome']}]({SITE}/premios/{p['id']}/)" for p in ativos]
@@ -1091,6 +1094,59 @@ def pagina_pessoa_mapeada(M, cid, p) -> str:
                   corpo, ld, [("Mapeamento", "/mapeamento/"), (M["nome"], f"/mapeamento/{cid}/"), (p["nome"], base)], "/mapeamento/")
 
 
+TIPOS_EV = {"festival": "Festival", "feira": "Feira do livro", "bienal": "Bienal", "festa_literaria": "Festa literária", "encontro": "Encontro",
+            "jornada": "Jornada", "salao": "Salão do livro", "outro": "Evento literário"}
+STATUS_LD = {"realizada": "https://schema.org/EventScheduled", "prevista": "https://schema.org/EventScheduled",
+             "cancelada": "https://schema.org/EventCancelled", "adiada": "https://schema.org/EventPostponed"}
+
+
+def paginas_eventos(con) -> dict:
+    """/eventos/ e /eventos/<id>/ com JSON-LD Event por edição (CA-35.8, D41)."""
+    evs = _linhas(con, """SELECT e.*, t.nome AS mun, u.sigla AS uf FROM evento e JOIN territorio t ON t.codigo = e.municipio JOIN territorio u ON u.codigo = t.pai ORDER BY e.nome""")
+    if not evs:
+        return {}
+    eds = _linhas(con, "SELECT * FROM v_evento_edicao ORDER BY data_inicio DESC")
+    hom = {}
+    for h in _linhas(con, "SELECT evento_id, data_inicio, nome, pessoa_id FROM evento_homenageado ORDER BY nome"):
+        hom.setdefault((h["evento_id"], h["data_inicio"]), []).append(h)
+    hoje = date.today()
+    per = lambda d: f"{d['data_inicio'].strftime('%d/%m/%Y')}" + ("" if d["data_inicio"] == d["data_fim"] else f" a {d['data_fim'].strftime('%d/%m/%Y')}")
+    paginas = {}
+    for ev in evs:
+        ds = [d for d in eds if d["evento"] == ev["id"]]
+        url = f"/eventos/{ev['id']}/"
+        linhas = "".join(f'<tr><td>{e(per(d))}</td><td>{e(d["municipio_nome"])} ({d["uf"]}){f" · {e(d["local"])}" if d["local"] else ""}</td>'
+                         f'<td>{e(d["tema"] or "")}{"<br><span class=\"muted\">Homenagem: " + ", ".join((f"<a href=\"/pessoas/{quote(h["pessoa_id"])}/\">{e(h["nome"])}</a>" if h["pessoa_id"] else e(h["nome"])) for h in hom.get((ev["id"], d["data_inicio"]), [])) + "</span>" if hom.get((ev["id"], d["data_inicio"])) else ""}</td>'
+                         f'<td>{e(d["situacao"])}</td><td>{link_fonte(d["fonte"])}</td></tr>' for d in ds)
+        corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">{e(TIPOS_EV[ev["tipo"]])} · {e(ev["mun"])} ({ev["uf"]})</p><h1>{e(ev["nome"])}</h1>
+<p class="lead">{f"Organização: {e(ev['organizador'])}. " if ev["organizador"] else ""}{f"Desde {ev['ano_inicio']}. " if ev["ano_inicio"] else ""}{fmt(len(ds))} edição(ões) no cadastro do Literadados (mapeadas até agora).</p>
+<p class="links-externos">{f'<a class="chip-link" href="{e(ev["site"])}" rel="noopener">Site oficial</a>' if ev["site"] else ""} <a class="chip-link" href="/eventos.html#/evento/{ev["id"]}">Abrir no painel</a></p></header>
+<div class="rolagem"><table class="tabela"><thead><tr><th scope="col">Datas</th><th scope="col">Onde</th><th scope="col">Tema e homenagem</th><th scope="col">Situação</th><th scope="col">Fonte</th></tr></thead><tbody>{linhas}</tbody></table></div>
+<p class="muted">Situação gravada na última conferência; edição prevista com data já passada está a conferir.</p></article>"""
+        ld = [{"@context": "https://schema.org", "@type": "Event", "name": f"{ev['nome']} {d['ano']}", "startDate": d["data_inicio"].isoformat(), "endDate": d["data_fim"].isoformat(),
+               "eventStatus": STATUS_LD[d["situacao"]], "eventAttendanceMode": {"online": "https://schema.org/OnlineEventAttendanceMode", "hibrido": "https://schema.org/MixedEventAttendanceMode"}.get(d["formato"], "https://schema.org/OfflineEventAttendanceMode"),
+               "location": {"@type": "Place", "name": d["local"] or d["municipio_nome"], "address": {"@type": "PostalAddress", "addressLocality": d["municipio_nome"], "addressRegion": d["uf"], "addressCountry": "BR"}},
+               "url": f"{SITE}{url}", **({"organizer": {"@type": "Organization", "name": ev["organizador"]}} if ev["organizador"] else {})} for d in ds[:30]]
+        paginas[f"eventos/{ev['id']}/index.html"] = pagina(url, f"{ev['nome']}: edições, datas e programação ({ev['mun']}, {ev['uf']}) | Literadados",
+            f"{ev['nome']} ({TIPOS_EV[ev['tipo']].lower()}, {ev['mun']}/{ev['uf']}): {len(ds)} edições com datas, local, tema e fonte no cadastro de eventos literários do Literadados.",
+            corpo, ld, [("Eventos", "/eventos/"), (ev["nome"], url)], "/eventos/")
+    proximos = sorted([d for d in eds if d["data_fim"] >= hoje and d["situacao"] != "cancelada"], key=lambda d: d["data_inicio"])
+    nome = {ev["id"]: ev["nome"] for ev in evs}
+    por_uf = {}
+    for ev in evs:
+        por_uf.setdefault(ev["uf"], []).append(ev)
+    corpo = f"""<article class="secao"><header class="secao-cab"><p class="sobretitulo">Eventos</p><h1>Eventos literários no Brasil</h1>
+<p class="lead">{fmt(len(evs))} eventos e {fmt(len(eds))} edições mapeados até agora: festivais, feiras do livro, bienais, festas e encontros literários, com datas e fonte.</p>
+<p class="links-externos"><a class="chip-link" href="/eventos.html">Abrir o painel, com calendário e mapa</a></p></header>
+<h2>Próximas edições</h2><ul>{"".join(f'<li><a href="/eventos/{d["evento"]}/">{e(nome[d["evento"]])}</a> — {e(per(d))}, {e(d["municipio_nome"])} ({d["uf"]})</li>' for d in proximos[:40]) or "<li>Nenhuma no cadastro.</li>"}</ul>
+<h2>Por estado</h2>{"".join(f'<h3>{uf}</h3><ul>' + "".join(f'<li><a href="/eventos/{ev["id"]}/">{e(ev["nome"])}</a> <span class="muted">{e(TIPOS_EV[ev["tipo"]])} · {e(ev["mun"])}</span></li>' for ev in lista) + "</ul>" for uf, lista in sorted(por_uf.items()))}
+</article>"""
+    paginas["eventos/index.html"] = pagina("/eventos/", "Eventos literários no Brasil: festivais, feiras e bienais | Literadados",
+        f"{len(evs)} eventos literários do Brasil (festivais, feiras do livro, bienais, festas literárias) com {len(eds)} edições, datas, cidade e fonte.",
+        corpo, [{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Eventos literários no Brasil", "url": f"{SITE}/eventos/"}], [("Eventos", "/eventos/")], "/eventos/")
+    return paginas
+
+
 def slug_cidade(nome: str) -> str:
     import unicodedata
     return re.sub(r"[^a-z0-9]+", "-", unicodedata.normalize("NFKD", nome.lower()).encode("ascii", "ignore").decode()).strip("-")
@@ -1158,6 +1214,16 @@ def _portal(web: Path, b, r: dict, con):
             f'        <span class="cg-num"><b>{fmt(n_liv)}</b> livrarias ativas · <b>{fmt(n_pes)}</b> autoras e autores mapeados</span>\n'
             '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
             '      </a>')
+    n_ev, n_ed = con.execute("SELECT COUNT(DISTINCT evento_id), COUNT(*) FROM evento_edicao").fetchone()
+    if n_ed:
+        cartoes.append(
+            '      <a class="cartao-grafico" href="eventos.html">\n'
+            '        <span class="cg-sobre">Eventos</span>\n'
+            '        <span class="cg-titulo">Onde a literatura se encontra?</span>\n'
+            '        <span class="cg-desc">Festivais, feiras do livro, bienais e festas literárias do Brasil, com as edições passadas e as próximas.</span>\n'
+            f'        <span class="cg-num"><b>{fmt(n_ev)}</b> eventos · <b>{fmt(n_ed)}</b> edições</span>\n'
+            '        <span class="cg-abrir">Abrir <span aria-hidden="true">→</span></span>\n'
+            '      </a>')
     trecho = "<!-- build:portal -->\n" + "\n".join(cartoes) + "\n      <!-- /build:portal -->"
     s = idx.read_text(encoding="utf-8")
     novo = re.sub(r"<!-- build:portal -->.*?<!-- /build:portal -->", lambda _: trecho, s, flags=re.S)
@@ -1193,6 +1259,7 @@ def gerar(con, web: Path) -> dict:
         for i in inds:
             paginas[f"leitura/{i['id']}/index.html"] = pagina_indicador(con, i)
     paginas.update(paginas_mapeamento(con, web))
+    paginas.update(paginas_eventos(con))
     paginas["perguntas/index.html"], qs = pagina_perguntas(b)
     paginas["dados-abertos/index.html"] = pagina_dados(b, con)
 
@@ -1213,7 +1280,7 @@ def gerar(con, web: Path) -> dict:
             elif arq.is_dir() and not any(arq.iterdir()):
                 arq.rmdir()
 
-    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), *([(f"{SITE}/leitura.html", None)] if inds else []), *([(f"{SITE}/mapeamento.html", None)] if "mapeamento/index.html" in paginas else []), (f"{SITE}/metodo.html", None)]
+    urls = [(f"{SITE}/", None), (f"{SITE}/premios.html", None), *([(f"{SITE}/leitura.html", None)] if inds else []), *([(f"{SITE}/mapeamento.html", None)] if "mapeamento/index.html" in paginas else []), *([(f"{SITE}/eventos.html", None)] if "eventos/index.html" in paginas else []), (f"{SITE}/metodo.html", None)]
     for rel in sorted(paginas):
         loc = f"{SITE}/{rel.removesuffix('index.html')}"
         urls.append((loc, hoje if rel in mudou or loc not in antigo else antigo[loc]))

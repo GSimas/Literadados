@@ -618,7 +618,7 @@ export function facetar(linhas, fn, ordem = [], nomes = {}) {
 }
 
 // ---------- busca determinística (RF-21, D23) ----------
-const TIPOS_BUSCA = ["Pessoa", "Livro", "Município", "Estado", "Região", "Editora", "Livraria", "Clube", "Indicador", "Categoria", "Edição", "Gráfico", "Seção"];
+const TIPOS_BUSCA = ["Pessoa", "Livro", "Município", "Estado", "Região", "Editora", "Evento", "Livraria", "Clube", "Indicador", "Categoria", "Edição", "Gráfico", "Seção"];
 export const normalizar = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
 
 // Entradas de busca.json (CA-31.5, D37): {tipos, e: [[índice do tipo, rótulo, detalhe, href, termos extras?]]}, gravado pelo
@@ -927,3 +927,41 @@ export function resumoMapeamento(Mp) {
   };
 }
 export const aConferir = (x, geradoEm) => { const d = new Date(geradoEm); d.setFullYear(d.getFullYear() - 1); return !!x.verificado_em && x.verificado_em < d.toISOString().slice(0, 10); };
+
+// ---------- módulo Eventos (RF-35, D41) ----------
+// "hoje" é parâmetro (AAAA-MM-DD): o navegador passa a data local; os testes, uma data fixa (DB-10).
+export const TIPOS_EVENTO = { festival: "Festival", feira: "Feira do livro", bienal: "Bienal", festa_literaria: "Festa literária", encontro: "Encontro", jornada: "Jornada", salao: "Salão do livro", outro: "Outro" };
+export const SITUACOES_EVENTO = { realizada: "Realizada", prevista: "Prevista", cancelada: "Cancelada", adiada: "Adiada" };
+// Situação vista hoje: prevista cuja data já passou fica "a conferir".
+export const situacaoEvento = (e, hoje) => (e.situacao === "prevista" && e.fim < hoje ? "a_conferir" : e.situacao);
+export function proximosEventos(edicoes, hoje, n = 12) {
+  return edicoes.filter((e) => e.fim >= hoje && e.situacao !== "cancelada").sort((a, b) => a.inicio.localeCompare(b.inicio) || a.evento.localeCompare(b.evento)).slice(0, n);
+}
+export function calendarioEventos(edicoes, ano) {
+  const meses = Array.from({ length: 12 }, (_, i) => ({ mes: i + 1, edicoes: [] }));
+  for (const e of edicoes) if (+e.inicio.slice(0, 4) === ano) meses[+e.inicio.slice(5, 7) - 1].edicoes.push(e);
+  for (const m of meses) m.edicoes.sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return meses;
+}
+export function filtrarEventos(J, f = {}) {
+  const tipo = new Map(J.eventos.map((e) => [e.id, e.tipo]));
+  return J.edicoes.filter((e) => (!f.tipo || tipo.get(e.evento) === f.tipo) && (!f.uf || J.municipios[e.municipio]?.[1] === f.uf)
+    && (!f.ano || +e.inicio.slice(0, 4) === +f.ano) && (!f.sit || e.situacao === f.sit));
+}
+export function resumoEventos(J, hoje) {
+  const ufs = new Set(J.edicoes.map((e) => J.municipios[e.municipio]?.[1]).filter(Boolean));
+  return { eventos: J.eventos.length, edicoes: J.edicoes.length, ufs: ufs.size, proximos: J.edicoes.filter((e) => e.fim >= hoje && e.situacao !== "cancelada").length,
+    aConferir: J.edicoes.filter((e) => situacaoEvento(e, hoje) === "a_conferir").length, verificadoAte: J.verificado_ate ?? null,
+    anos: [...new Set(J.edicoes.map((e) => +e.inicio.slice(0, 4)))].sort((a, b) => a - b) };
+}
+export function eventosDeTexto(texto, anoPadrao) {
+  const q = new URLSearchParams(texto ?? "");
+  return { tipo: TIPOS_EVENTO[q.get("tipo")] ? q.get("tipo") : "", uf: /^[A-Z]{2}$/.test(q.get("uf") ?? "") ? q.get("uf") : "",
+    ano: +q.get("ano") || anoPadrao, sit: SITUACOES_EVENTO[q.get("sit")] ? q.get("sit") : "" };
+}
+export function eventosParaTexto(f, anoPadrao) {
+  const q = new URLSearchParams();
+  for (const k of ["tipo", "uf", "sit"]) if (f[k]) q.set(k, f[k]);
+  if (f.ano && f.ano !== anoPadrao) q.set("ano", f.ano);
+  return q.toString();
+}

@@ -987,3 +987,8 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .form-sugerir input:focus, .form-sugerir textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 28%, transparent); }
 .form-sugerir .botao { justify-self: start; }
 #mapa-abas { margin-bottom: .9rem; flex-wrap: wrap; }
+/* Módulo Eventos (D41): calendário em grade de 12 meses */
+.calendario-eventos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: .9rem; }
+.cal-mes h3 { margin: 0 0 .5rem; font-family: var(--fonte-titulo); text-transform: capitalize; font-size: 1.1rem; }
+.cal-mes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.cal-mes li { display: flex; flex-direction: column; }
