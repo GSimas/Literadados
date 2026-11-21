@@ -925,7 +925,7 @@ def malha_cidade():
 
 
 # ---------- módulo Leitura (RF-33, D39) ----------
-CACHE = Path.home() / "Library" / "Caches" / "literadados"
+CACHE = Path.home() / ("Library/Caches" if sys.platform == "darwin" else ".cache") / "literadados"  # macOS / Linux (XDG)
 CAMPOS_VALOR = ["indicador_id", "territorio", "ano", "dimensao", "categoria", "valor", "numerador", "denominador", "amostra", "margem", "suprimido", "fonte_url", "observacao"]
 CAMPOS_INDICADOR = ["id", "nome", "definicao", "unidade", "tipo_fonte", "nivel", "fonte_nome", "fonte_url", "limitacoes", "tema", "ordem"]
 

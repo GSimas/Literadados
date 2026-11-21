@@ -399,3 +399,25 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
   catálogo proposto em `<fonte>_indicadores.csv`; `coleta.py leitura arquivo <fonte>` converte (protocolo em `dados/coleta/leitura/PROTOCOLO.md`).
   A PNAD Contínua sai da API do SIDRA (`coleta.py leitura pnad`). O panorama é desenhado de `leitura.json` (só Brasil): um cartão por
   indicador do tema, com o último valor e `Plot.line` pequeno da série.
+
+- **D42** Atualização automática dos dados públicos, sem publicar sozinha (2026-11-21).
+
+  **O quê.** GitHub Actions `.github/workflows/atualizar-dados.yml`, mensal (cron `0 9 1 * *`) e manual (`workflow_dispatch`).
+  Ubuntu, Python 3.14, `requirements.txt`; roda `coleta.py territorio`, `leitura alfabetizacao`, `leitura pnad` e
+  `malha_cidade 4205407`, depois `build.py`, e abre (ou atualiza) um PR do ramo `atualizar-dados` com `peter-evans/create-pull-request`.
+  O PR ganha a prévia de deploy do Netlify; o site só muda no merge para `main`, por decisão humana.
+
+  **Critério para ser automático.** Coleta de API pública, sem cota nem login, que reescreve o arquivo inteiro e cujo resultado o
+  build consegue checar: IBGE (localidades, SIDRA 4709, 9542, 7113, 7125) e OpenStreetMap (Overpass + Nominatim, 1 pedido/s).
+  User-Agent `Literadados (https://literadados.gustavosimas.com)`, nunca e-mail (já é o `UA` de `coleta.py`).
+
+  **Fica manual.** Tudo o que pede julgamento ou transcrição: listas de prêmios, raça por autodeclaração, Retratos da Leitura,
+  INAF, SAEB, PISA, mercado do livro, SNBP/MUNIC (`leitura arquivo`), mapeamento e eventos. Também `leitura cnpj` (base do CNPJ
+  da Receita, vários GB, pré-filtrada fora do repositório) e `leitura escolas_biblioteca` (microdados do Censo Escolar, ~10 ZIPs
+  anuais de dezenas a centenas de MB), que leem de `CACHE` (`~/Library/Caches/literadados` no macOS, `~/.cache/literadados` no
+  Linux) e mudam uma vez por ano; e `malha`/`malha_municipios` (só com malha nova do IBGE).
+
+  **Falhas.** Coleta com erro ou `BuildError` (`build.py` sai com 1 e imprime `ERRO: ...`) deixam o job vermelho e não abrem PR.
+  Como o build carimba `gerado_em` nos JSON, o PR só é aberto quando `dados/` ou `web/malha/` mudaram depois das coletas.
+  O workflow só vale para o que está em `main` (agendamento do GitHub usa o ramo padrão). O repositório precisa permitir que o
+  GitHub Actions crie pull requests (Settings → Actions → General).
