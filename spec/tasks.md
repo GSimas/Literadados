@@ -152,6 +152,7 @@
 
 ## T20 Diadorim com contexto, toque, desempenho, ranking e livros (out/2026)
 - [x] T20.1 Resposta nunca seca: prompt, insistência automática e bloco "Quem são" montado do banco (CA-12.12) 🧪
+- [x] T20.6 Chamada de ferramenta em texto executada e nunca exibida; placeholder do campo por módulo (CA-12.13, D28b) 🧪
 - [x] T20.2 Alvos de toque de 44 px em `pointer: coarse`; anel com `capacidadeAnel` (CA-11.7) 🧪👁
 - [x] T20.3 Fontes locais com fallback ajustado; Plot e d3-sankey sob demanda; miniaturas WebP (RNF-08, D27) 👁
 - [x] T20.4 Janela de ranking (RF-23) 🧪👁

@@ -1,7 +1,7 @@
 // Markdown da Diadorim (spec CA-12.5, design D20): texto escapado e links só para o painel, sobre.html ou https.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { md, hrefSeguro, responder } from "../web/diadorim.js";
+import { md, hrefSeguro, responder, chamadasNoTexto, semFerramentas } from "../web/diadorim.js";
 
 test("hrefSeguro aceita rotas do painel, método e https; recusa o resto", () => {
   for (const ok of ["#/pessoa/conceicao-evaristo", "#/grafico/funil", "#autores", "sobre.html#referencias", "https://www.wikidata.org/wiki/Q1", "#/uf/MG", "#/regiao/Centro-Oeste"])
@@ -166,4 +166,37 @@ test("laço: resposta só com o número → insiste uma vez → ainda seca → L
   assert.ok(r.contexto.includes("[Socorro Acioli](#/pessoa/socorro-acioli) (CE)"));
   assert.equal(r.consultas.at(-1).auto, true);
   assert.ok(passos.includes("Resposta seca demais: pedindo contexto ao modelo"));
+});
+
+test("ferramenta escrita como texto é executada e nunca exibida (CA-12.13)", async () => {
+  const ernie = '<ernie:tool_call>\n<invoke name="consultar_sql"><parameter name="sql">SELECT count(*) AS total FROM clube WHERE municipio = \'4205407\';</parameter></invoke>\n</ernie:tool_call>';
+  assert.deepEqual(chamadasNoTexto(ernie), [{ nome: "consultar_sql", args: { sql: "SELECT count(*) AS total FROM clube WHERE municipio = '4205407';" } }]);
+  assert.deepEqual(chamadasNoTexto('Vou ver.<tool_call>{"name":"consultar_sql","arguments":{"sql":"SELECT 1"}}</tool_call>'), [{ nome: "consultar_sql", args: { sql: "SELECT 1" } }]);
+  assert.equal(semFerramentas(`Antes. ${ernie}`), "Antes.");
+  assert.equal(semFerramentas('Texto <invoke name="consultar_sql"><parameter name="sql">SELECT'), "Texto");
+
+  globalThis.location = { origin: "http://localhost:8000" };
+  const longo = "São 3 clubes mapeados até agora em Florianópolis, todos ativos, reunidos em espaços públicos e cafés do Centro e da Trindade, segundo as fontes de cada clube conferidas neste mês pelo Literadados.";
+  for (const [cenario, respostas] of [["fecha", [ernie, longo]], ["nunca fecha", Array(6).fill(ernie)]]) {
+    let rodada = 0;
+    const sqls = [], ultimas = [];
+    globalThis.fetch = async (url, opt = {}) => {
+      const json = (corpo) => ({ ok: true, status: 200, json: async () => corpo });
+      if (url.startsWith("contexto-")) return json({ sistema: "x" });
+      ultimas.push(JSON.parse(opt.body).messages.at(-1));
+      return json({ model: "baidu/ernie:free", choices: [{ message: { role: "assistant", content: respostas[rodada++] } }] });
+    };
+    const consultar = async (sql, consultas) => { sqls.push(sql); const r = { sql, colunas: ["total"], linhas: [[3]], truncado: false }; consultas.push(r); return r; };
+    const r = await responder("clubes perto de Coqueiros?", [], "k", { consultar });
+    assert.doesNotMatch(r.texto, /invoke|tool_call/, cenario);
+    if (cenario === "fecha") {
+      assert.equal(r.texto, longo);
+      assert.equal(sqls.length, 1);
+      assert.equal(ultimas[1].role, "tool");
+    } else {
+      assert.match(r.texto, /não fechei a resposta/);
+      assert.equal(sqls.length, 5); // a última rodada não executa ferramenta
+      assert.match(ultimas.at(-1).content, /Não há mais consultas/);
+    }
+  }
 });

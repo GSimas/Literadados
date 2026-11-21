@@ -166,6 +166,28 @@ const FERRAMENTAS = [{
   },
 }];
 
+// Chamada de ferramenta escrita no texto (CA-12.13, D28b): o roteador gratuito às vezes cai num modelo que não usa
+// tool_calls e escreve <invoke name="…"><parameter name="sql">…</parameter></invoke> ou <tool_call>{json}</tool_call>.
+export function chamadasNoTexto(texto) {
+  const t = String(texto ?? ""), out = [];
+  for (const [, nome, corpo] of t.matchAll(/<invoke\s+name="([\w-]+)"\s*>([\s\S]*?)<\/invoke>/g)) {
+    out.push({ nome, args: Object.fromEntries([...corpo.matchAll(/<parameter\s+name="([\w-]+)"\s*>([\s\S]*?)<\/parameter>/g)].map(([, k, v]) => [k, v.trim()])) });
+  }
+  for (const [, j] of t.matchAll(/<tool_call>\s*(\{[\s\S]*?\})\s*<\/tool_call>/g)) {
+    try {
+      const o = JSON.parse(j), a = o.arguments ?? o.parameters ?? {};
+      out.push({ nome: o.name, args: typeof a === "string" ? JSON.parse(a) : a });
+    } catch {}
+  }
+  return out;
+}
+// Tira do texto qualquer marcação de ferramenta (inclusive aberta e não fechada): nunca vai para a tela.
+export const semFerramentas = (texto) => String(texto ?? "")
+  .replace(/<([\w-]+:)?tool_call>[\s\S]*?(?:<\/([\w-]+:)?tool_call>|$)/g, "")
+  .replace(/<(function_calls|invoke)\b[\s\S]*?(?:<\/\1>|$)/g, "")
+  .trim();
+const NAO_FECHEI = "Andei demais nas consultas e não fechei a resposta. Pergunte de outro jeito, mais direto.";
+
 // ---------- Markdown mínimo e seguro (texto escapado; links só para o painel, sobre.html ou https) ----------
 export function hrefSeguro(u) {
   const h = String(u).trim();
@@ -311,6 +333,7 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
   for (let i = 0; i < RODADAS; i++) {
     const ultima = i === RODADAS - 1;
     aoPasso({ tipo: "rodada", texto: i === 0 ? `Pensando com ${modelo}` : ultima ? "Fechando a resposta" : `Pensando de novo com o que o banco devolveu (rodada ${i + 1})` });
+    if (ultima) mensagens.push({ role: "user", content: "Não há mais consultas: responda agora, só com o que o banco já devolveu, sem chamar ferramentas." });
     const r = await fetch(`${OPENROUTER}/api/v1/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json", "HTTP-Referer": location.origin, "X-Title": "Literadados" },
@@ -323,9 +346,14 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
     if (!r.ok) throw new Error(corpo.error?.message ?? `O OpenRouter respondeu com erro ${r.status}.`);
     const msg = corpo.choices?.[0]?.message;
     if (!msg) throw new Error("O modelo não respondeu. Tente de novo.");
+    if (!msg.tool_calls?.length && !ultima) {
+      msg.tool_calls = chamadasNoTexto(msg.content).map((c, k) => ({ id: `texto-${i}-${k}`, type: "function", function: { name: c.nome, arguments: JSON.stringify(c.args) } }));
+      if (!msg.tool_calls.length) delete msg.tool_calls;
+    }
+    msg.content = semFerramentas(msg.content) || (msg.tool_calls ? null : "");
     mensagens.push(msg);
     if (!msg.tool_calls?.length) {
-      const texto = msg.content ?? "";
+      const texto = msg.content || NAO_FECHEI;
       if (MODULO() === "premios" && consultas.length && respostaSeca(texto)) {  // detalhe por pessoa: só no módulo Prêmios
         if (!insistiu && i < RODADAS - 2) {
           insistiu = true;
@@ -357,7 +385,7 @@ export async function responder(pergunta, historico, chave, { modelo = MODELO, a
       mensagens.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(res) });
     }
   }
-  return { texto: "Andei demais nas consultas e não fechei a resposta. Pergunte de outro jeito, mais direto.", consultas, modelo };
+  return { texto: NAO_FECHEI, consultas, modelo };
 }
 
 // Lista de todos os modelos do OpenRouter (endpoint público). Preço do OpenRouter é por token; aqui, por milhão.

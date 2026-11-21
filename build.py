@@ -376,6 +376,9 @@ Regras:
   nome (`genero_evidencia = 'atribuicao'`) é marcado. Todo percentual com o n.
 - Privacidade: nunca dê endereço de clube que se reúne em casa (`local_tipo = 'casa'`), nem nome de organizador de clube independente.
 - `situacao`: ativa, encerrada ou incerta; `verificado_em` é a data da última conferência.
+- Proximidade: a base não tem coordenada de bairro nem calcula distância. Para "perto de <bairro>", faça UMA consulta por `bairro IN (...)`
+  com o bairro e os vizinhos que você conhece (livrarias e clubes juntos, com `UNION ALL`), diga que a vizinhança é aproximada e, se o
+  próprio bairro não tiver registro, diga isso primeiro.
 - Se a pergunta for sobre prêmios ou indicadores de leitura, diga que isso está nos módulos Prêmios (premios.html) e Leitura (leitura.html).
 - Não repita o SQL no texto (ele é mostrado à parte).
 
