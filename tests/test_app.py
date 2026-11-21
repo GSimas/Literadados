@@ -941,3 +941,43 @@ def test_build_falha_mapeamento(mini, tabela, muda, erro):  # CA-34.2, CA-34.4, 
         _csv(mini / "clube.csv", [{**CLU, "local_tipo": "biblioteca", "livraria_id": ""}])
     with pytest.raises(build.BuildError, match=erro):
         _build(mini)
+
+
+# ---------- RF-35 Eventos (D41) ----------
+EV = {"id": "ponte", "nome": "Ponte de Palavras", "tipo": "encontro", "municipio": "4205407", "organizador": "", "site": "", "redes": "", "ano_inicio": "2026",
+      "fonte": "http://f", "verificado_em": "2026-11-20"}
+ED = {"evento_id": "ponte", "numero": "1", "ano": "2026", "data_inicio": "2026-11-13", "data_fim": "2026-11-15", "municipio": "4205407", "local": "", "tema": "",
+      "situacao": "realizada", "formato": "presencial", "publico": "", "publico_fonte": "", "fonte": "http://f", "verificado_em": "2026-11-20"}
+
+
+def _base_eventos(mini, edicao=None):
+    _territorio_mini(mini)
+    _csv(mini / "evento.csv", [EV])
+    _csv(mini / "evento_edicao.csv", [edicao or ED])
+    _csv(mini / "evento_homenageado.csv", [{"evento_id": "ponte", "data_inicio": "2026-11-13", "nome": "A", "pessoa_id": "a"}])
+
+
+def test_eventos_json_e_view(mini):  # CA-35.1, CA-35.2, CA-35.6
+    _base_eventos(mini)
+    _build(mini)
+    con = duckdb.connect(str(mini.parent / "t.duckdb"), read_only=True)
+    assert con.execute("SELECT evento_nome, municipio_nome, uf FROM v_evento_edicao").fetchone() == ("Ponte de Palavras", "Florianópolis", "SC")
+    J = json.loads((mini.parent / "eventos.json").read_text(encoding="utf-8"))
+    assert J["edicoes"][0]["inicio"] == "2026-11-13" and J["municipios"]["4205407"] == ["Florianópolis", "SC"] and J["homenageados"][0]["pessoa_id"] == "a"
+
+
+@pytest.mark.parametrize("muda, erro", [
+    ({"data_fim": "2026-11-10"}, "evento_edicao"),                        # fim antes do início
+    ({"ano": "2025"}, "evento_edicao"),                                    # ano diferente do da data de início
+    ({"fonte": ""}, "evento_edicao"),                                      # sem fonte
+    ({"publico": "5000"}, "evento_edicao"),                                # público sem fonte
+    ({"municipio": "9999999"}, "evento_edicao"),                           # município inexistente
+    ({"situacao": "prevista", "data_fim": "2026-11-15", "verificado_em": "2026-11-20"}, "incoerente"),   # prevista com data passada
+    ({"situacao": "realizada", "data_inicio": "2026-12-01", "data_fim": "2026-12-02", "ano": "2026"}, "incoerente"),  # realizada no futuro
+])
+def test_build_falha_evento(mini, muda, erro):  # CA-35.1, DB-10
+    _base_eventos(mini, {**ED, **muda})
+    if "data_inicio" in muda:
+        (mini / "evento_homenageado.csv").unlink()
+    with pytest.raises(build.BuildError, match=erro):
+        _build(mini)

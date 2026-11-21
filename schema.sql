@@ -419,7 +419,7 @@ CREATE TABLE evento_edicao (
   PRIMARY KEY (evento_id, data_inicio),
   CHECK (data_fim >= data_inicio),
   CHECK (ano = year(data_inicio)),
-  CHECK (publico IS NULL OR (publico > 0 AND publico_fonte LIKE 'http%'))
+  CHECK (publico IS NULL OR (publico > 0 AND COALESCE(publico_fonte, '') LIKE 'http%'))
 );
 
 -- Homenageados por edição (CA-35.2): pessoa_id só quando o nome casa exatamente com o id de uma pessoa da base.
