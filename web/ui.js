@@ -463,7 +463,7 @@ export function blocosEmJanelas(raiz = document) {
       dlg.setAttribute("aria-labelledby", `${id}-t`);
       dlg.innerHTML = `<form method="dialog"><button class="fechar" aria-label="Fechar">×</button></form>
         <header class="perfil-cab simples"><p class="sobretitulo">${esc(sobretitulo)}</p><h2 id="${id}-t">${esc(titulo)}</h2></header>`;
-      b.classList.add("janela-corpo");
+      b.classList.add("bloco-corpo");  // não "janela-corpo": aquela tem overscroll-behavior: contain e travava a rolagem
       dlg.append(b);
       document.body.append(dlg);
       fecharPerfilAoClicarFora(dlg);

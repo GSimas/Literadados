@@ -1071,9 +1071,10 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 .bloco-botao span { font-size: .82rem; color: var(--tinta-2); line-height: 1.4; }
 .bloco-botao .bloco-abrir { color: var(--marca); font-weight: 600; margin-top: .2rem; }
 .janela-bloco { width: min(820px, 96vw); }
-.janela-corpo { padding: 0 clamp(1rem, 3vw, 1.6rem) 1.4rem; line-height: 1.6; }
-.janela-corpo > :first-child { margin-top: 0; }
-.janela-corpo .cartao { margin-bottom: .8rem; }
+.bloco-corpo { padding: 0 clamp(1rem, 3vw, 1.6rem) 1.4rem; line-height: 1.6; }
+.bloco-corpo > :first-child { margin-top: 0; }
+.bloco-corpo .cartao { margin-bottom: .8rem; }
+.janela-bloco { overscroll-behavior: contain; }
 @media (prefers-reduced-motion: reduce) { .bloco-botao { transition: none; } .bloco-botao:hover { transform: none; } }
 
 /* Mapeamento: a lista ao lado do mapa ocupa a altura toda do cartão (que acompanha a altura do mapa), sem sobra vazia embaixo. */
@@ -1100,6 +1101,6 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 @media (prefers-reduced-motion: reduce) { .portal-fundo { transition: none; } }
 
 /* Nada ultrapassa o bloco: filhos de grade podem encolher e, em último caso, o texto quebra em vez de vazar. */
-.kpi, .cartao, .panorama-cartao, .bloco-botao, .hero-num, .passo-cartao { min-width: 0; overflow-wrap: anywhere; }
+.kpi, .cartao, .panorama-cartao, .bloco-botao, .hero-num, .passo-cartao { min-width: 0; overflow-wrap: break-word; }  /* break-word (não anywhere): não encolhe colunas de tabela nem quebra palavra que cabe */
 .kpi .val { font-size: clamp(1.45rem, 2.4vw, 2.1rem); }
 .kpis > * { min-width: 0; }

@@ -69,25 +69,44 @@
         <!-- /build:numeros -->
       </div>
       <div class="hero-acoes">
-        <a class="botao" href="#historia">Começar a história <span aria-hidden="true">↓</span></a>
-        <a class="botao-fantasma" href="#panorama">Ir direto ao painel</a>
+        <a class="botao" href="#autores">Ver quem chega <span aria-hidden="true">↓</span></a>
+        <a class="botao-fantasma" href="#historia">Ler a história</a>
       </div>
     </div>
   </section>
 
-  <!-- História guiada (RF-16) -->
-  <section id="historia" class="historia" aria-labelledby="h-historia">
-    <h2 id="h-historia" class="sr">História guiada</h2>
-    <a class="pular-historia" href="#panorama">Pular a história</a>
-    <div class="historia-premio" id="historia-premio" hidden></div>
-    <div class="historia-grade">
-      <figure class="historia-grafico" aria-hidden="true">
-        <svg id="g-historia"></svg>
-        <button type="button" class="exportar-botao" data-exportar="grafico" aria-label="Exportar gráfico como imagem" title="Exportar imagem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg></button>
-        <div id="historia-legenda" class="historia-legenda"></div>
-      </figure>
-      <div class="historia-passos" id="historia-passos"></div>
+
+
+
+
+
+
+
+
+  <!-- Autores (RF-11) -->
+  <section id="autores" class="secao" aria-labelledby="h-autores">
+    <header class="secao-cab"><p class="sobretitulo">Autores</p><h2 id="h-autores">Todas as pessoas do recorte</h2>
+      <p class="lead">Cada círculo é uma pessoa. Passe o mouse para ver o resumo no centro; clique para abrir o perfil com as fontes. Foto só quando há arquivo livre no Wikimedia Commons; nos demais casos, iniciais com uma cor que não diz nada sobre a pessoa.</p></header>
+    <div data-filtro="autores"></div>
+    <div class="galeria-controles" id="galeria-controles">
+      <label class="busca">Buscar <input id="busca" type="search" autocomplete="off" placeholder="nome da pessoa"></label>
+      <label>Ordenar <select id="ordem"><option value="premios">mais prêmios</option><option value="participacoes">mais participações</option><option value="nome">nome (A–Z)</option></select></label>
+      <div class="segmentado" id="vista" role="radiogroup" aria-label="Visualização">
+        <button type="button" role="radio" aria-checked="true" data-v="galeria">Anel</button>
+        <button type="button" role="radio" aria-checked="false" data-v="tabela">Tabela</button>
+      </div>
+      <span id="galeria-contagem" class="muted" aria-live="polite"></span>
     </div>
+    <div class="anel-palco">
+      <button id="pag-ant" class="pag-seta" type="button" aria-label="Página anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="anel-meio">
+        <div id="galeria" class="anel" role="group" aria-label="Pessoas desta página"></div>
+    <div class="tabela-exportavel" id="tabela-pessoas-wrap" hidden><button type="button" class="exportar-botao exportar-tabela" data-exportar="tabela" title="Exportar tabela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg><span>Exportar</span></button>
+        <div class="cartao rolagem"><table id="t-pessoas" class="tabela"></table></div></div>
+      </div>
+      <button id="pag-prox" class="pag-seta" type="button" aria-label="Próxima página"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <p id="paginacao" class="pag-intervalo" aria-live="polite"></p>
   </section>
 
   <section id="panorama" class="secao" aria-labelledby="h-panorama">
@@ -184,38 +203,19 @@
       </a>
     </div>
   </section>
-
-
-
-
-
-
-
-
-  <!-- Autores (RF-11) -->
-  <section id="autores" class="secao" aria-labelledby="h-autores">
-    <header class="secao-cab"><p class="sobretitulo">Autores</p><h2 id="h-autores">Todas as pessoas do recorte</h2>
-      <p class="lead">Cada círculo é uma pessoa. Passe o mouse para ver o resumo no centro; clique para abrir o perfil com as fontes. Foto só quando há arquivo livre no Wikimedia Commons; nos demais casos, iniciais com uma cor que não diz nada sobre a pessoa.</p></header>
-    <div data-filtro="autores"></div>
-    <div class="galeria-controles" id="galeria-controles">
-      <label class="busca">Buscar <input id="busca" type="search" autocomplete="off" placeholder="nome da pessoa"></label>
-      <label>Ordenar <select id="ordem"><option value="premios">mais prêmios</option><option value="participacoes">mais participações</option><option value="nome">nome (A–Z)</option></select></label>
-      <div class="segmentado" id="vista" role="radiogroup" aria-label="Visualização">
-        <button type="button" role="radio" aria-checked="true" data-v="galeria">Anel</button>
-        <button type="button" role="radio" aria-checked="false" data-v="tabela">Tabela</button>
-      </div>
-      <span id="galeria-contagem" class="muted" aria-live="polite"></span>
+  <!-- História guiada (RF-16), por último (pedido de 2026-11-21: autores, panorama, gráficos, história) -->
+  <section id="historia" class="historia" aria-labelledby="h-historia">
+    <h2 id="h-historia" class="sr">História guiada</h2>
+    <a class="pular-historia" href="#panorama">Pular a história</a>
+    <div class="historia-premio" id="historia-premio" hidden></div>
+    <div class="historia-grade">
+      <figure class="historia-grafico" aria-hidden="true">
+        <svg id="g-historia"></svg>
+        <button type="button" class="exportar-botao" data-exportar="grafico" aria-label="Exportar gráfico como imagem" title="Exportar imagem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg></button>
+        <div id="historia-legenda" class="historia-legenda"></div>
+      </figure>
+      <div class="historia-passos" id="historia-passos"></div>
     </div>
-    <div class="anel-palco">
-      <button id="pag-ant" class="pag-seta" type="button" aria-label="Página anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div class="anel-meio">
-        <div id="galeria" class="anel" role="group" aria-label="Pessoas desta página"></div>
-    <div class="tabela-exportavel" id="tabela-pessoas-wrap" hidden><button type="button" class="exportar-botao exportar-tabela" data-exportar="tabela" title="Exportar tabela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg><span>Exportar</span></button>
-        <div class="cartao rolagem"><table id="t-pessoas" class="tabela"></table></div></div>
-      </div>
-      <button id="pag-prox" class="pag-seta" type="button" aria-label="Próxima página"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-    </div>
-    <p id="paginacao" class="pag-intervalo" aria-live="polite"></p>
   </section>
 
 

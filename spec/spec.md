@@ -108,6 +108,7 @@ Os CSVs em `dados/` são a fonte da verdade e seguem `schema.sql`. Um comando ge
 ### RF-15 Página, navegação e tema
 - **CA-15.1 👁** Abertura com título, pergunta central e três números do recorte completo de **todos os prêmios da base** (pessoas distintas, % mulheres, piso de % negras), calculados dos dados. Nem o título nem a descrição se referem a um prêmio só: os prêmios e períodos vêm dos dados (DA-5).
 - **CA-15.2 👁** Navegação fixa no topo com as seções, indicação da seção atual e tema claro, escuro ou automático (preferência do sistema), lembrado entre visitas. Gráficos redesenham ao trocar o tema.
+- **CA-15.4 👁** Ordem das partes depois da abertura: Autores, Panorama, Gráficos e, por último, a história guiada (scrollytelling).
 - **CA-15.3 👁** O cabeçalho não tem filtro: cada parte filtrável traz o seu (RF-02).
 
 ### RF-16 História guiada (scrollytelling)
