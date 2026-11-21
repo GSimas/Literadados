@@ -1108,7 +1108,9 @@ def eventos():
             if eid in evs:
                 continue
             por_nome[r["nome"].strip()] = eid
-            evs[eid] = {**{c: (r.get(c) or "").strip() for c in CAMPOS_EVENTO}, "id": eid, "municipio": municipio(r["municipio"], r["uf"])}
+            # Evento itinerante (sem sede na fonte): a sede vira a cidade da edição mais recente, logo abaixo.
+            evs[eid] = {**{c: (r.get(c) or "").strip() for c in CAMPOS_EVENTO}, "id": eid,
+                        "municipio": municipio(r["municipio"], r["uf"]) if (r.get("municipio") or "").strip() else ""}
     for arq in sorted(pasta.glob("edicoes_*.csv")):
         for r in csv.DictReader(arq.open(encoding="utf-8")):
             eid = por_nome.get(r["evento"].strip()) or (slug(r["evento"]) if slug(r["evento"]) in evs else None)
@@ -1121,10 +1123,17 @@ def eventos():
             sede = evs[eid]["municipio"]
             d = {**{c: (r.get(c) or "").strip() for c in CAMPOS_EDICAO}, "evento_id": eid, "ano": ini[:4],
                  # sem município na edição, vale a sede do evento; sem UF, a da sede
-                 "municipio": municipio(mun, uf or (t[t[sede]["pai"]]["sigla"] if sede else "")) if mun else sede}
+                 "municipio": municipio(mun, uf or (t[t[sede]["pai"]]["sigla"] if sede else "")) if mun else (sede or municipio("", uf))}
             eds[(eid, ini)] = d
             for n in [x.strip() for x in (r.get("homenageados") or "").split("|") if x.strip()]:
                 hom[(eid, ini, n)] = {"evento_id": eid, "data_inicio": ini, "nome": n, "pessoa_id": slug(n) if slug(n) in pessoas else ""}
+    for eid, ev in evs.items():
+        if not ev["municipio"]:
+            recentes = sorted((d for d in eds.values() if d["evento_id"] == eid and d["municipio"]), key=lambda d: d["data_inicio"])
+            if not recentes:
+                sem.add(f"{ev['nome']} (sem cidade-sede nem edição com cidade)")
+                continue
+            ev["municipio"] = recentes[-1]["municipio"]
     if sem:
         raise SystemExit("municípios sem código do IBGE (acrescente em dados/coleta/eventos/municipios.csv):\n  " + "\n  ".join(sorted(sem)))
     for nome, campos, linhas in (("evento", CAMPOS_EVENTO, [evs[k] for k in sorted(evs)]),

@@ -300,10 +300,16 @@
 
 ## T37 Módulo Eventos literários (nov/2026, RF-35, D41)
 - [x] T37.0 Spec RF-35 (decisões DB-8 a DB-10), design D41, protocolo `dados/coleta/eventos/LEIA.md`
-- [ ] T37.1 Schema `evento`, `evento_edicao`, `evento_homenageado`, `v_evento_edicao`; checagens de data, situação e público (CA-35.1 a CA-35.3) 🧪
-- [ ] T37.2 Coleta por agentes (Sudeste/Sul; Norte/Nordeste/Centro-Oeste) e `coleta.py eventos` 🧪
-- [ ] T37.3 `eventos.json`, funções puras e testes (CA-35.6) 🧪
-- [ ] T37.4 `eventos.html`: próximos, calendário, mapa por UF, filtros na URL, tabela, perfil de evento (CA-35.4 a CA-35.6) 👁
-- [ ] T37.5 Eventos no perfil de município e no mapeamento da cidade (CA-35.7) 👁
-- [ ] T37.6 Páginas estáticas, busca, portal, cabeçalho, dados abertos, Diadorim (CA-35.8, CA-35.9) 🧪
+- [x] T37.1 Schema `evento`, `evento_edicao`, `evento_homenageado`, `v_evento_edicao`; checagens de data, situação e público (CA-35.1 a CA-35.3) 🧪
+- [x] T37.2 Coleta por agentes (Sudeste/Sul; Norte/Nordeste/Centro-Oeste) e `coleta.py eventos` 🧪
+- [x] T37.3 `eventos.json`, funções puras e testes (CA-35.6) 🧪
+- [x] T37.4 `eventos.html`: próximos, calendário, mapa por UF, filtros na URL, tabela, perfil de evento (CA-35.4 a CA-35.6) 👁
+- [x] T37.5 Eventos no perfil de município e no mapeamento da cidade (CA-35.7) 👁
+- [x] T37.6 Páginas estáticas, busca, portal, cabeçalho, dados abertos, Diadorim (CA-35.8, CA-35.9) 🧪
 - [ ] T36.7 Clubes do Ponte de Palavras (p. 7 da programação de nov/2026): ~31 perfis que parecem clubes ficaram de fora por falta de nome e município confirmados sem abrir o Instagram (lista no relatório da coleta: clubedolivro_floripa, clubedolivro.floripa, clubedeleitura.esag, clubesereno, clubedolivrotheblackcat, paginas_da_ilha, leitura_sambaqui, entre outros); @cicfloripa pode ser o clube Lygia Bojunga; os 4 projetos de perfil pessoal (Bordando Escritores, Entre Páginas e Amigas, Tecendo Palavras, Através do Livro) podem ser da Grande Florianópolis
+
+## T38 Pendências de conferência humana dos eventos (nov/2026)
+- [ ] T38.1 Edições sem dia de início (ficaram de fora): Flitabira 2026, Flipetrópolis 2024, Flup 2023, Fórum das Letras 2017–2018, Jornada de Passo Fundo 2020/2027, Flinc 2025, 1ª Bienal de Jaraguá do Sul; séries incompletas: Feira de Porto Alegre 2015–2021, Bienal de SP 2016, Salipi antes de 2024, Pan-Amazônica 2015–2018, Bienal PE 2017/2021, Fliporto 2015–2019, Flipelô 2020–2022, FliParaíba 2025, Felib depois de 2023, Bienal Bahia 2022
+- [ ] T38.2 Divergências anotadas em `observacao`: FLIP 2020 (homenageada Elizabeth Bishop na página oficial × sem homenageado na Wikipédia); numeração da Fliporto, da Bienal de Alagoas e da Flipipa; FIL 2026 (29 ou 30/08); datas deduzidas de "N dias"; datas só de anúncio prévio
+- [ ] T38.3 Organizadores a conferir (Ponte de Palavras, Flima, Flinc, Tarrafa, Festival da Palavra, Feira Literária Capixaba, A Feira do Livro, Bienal Pantanal, Bienal de Itabaiana, Flipipa, Fligê, SaLiPa, Flimac); município da Flicoop; Fliporto em Olinda × Recife (2025–2026); possível duplicidade Flap × "1ª Festa Literária do Paraná"
+- [ ] T38.4 Próximo lote: RO e MT sem eventos; ES e SC com poucos (imprensa local recusa acesso automatizado); candidatos: Bienal Rubem Braga, Festa Internacional da Palavra (Itaúnas), Flii, Flipomerode, Feira do Livro de Jaraguá do Sul, Bienal do Livro do Paraná, Lombada (PUCPR), Festival da Mantiqueira, Flup Pernambuco
