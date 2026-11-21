@@ -1281,6 +1281,37 @@ def _portal(web: Path, b, r: dict, con):
         idx.write_text(novo, encoding="utf-8")
 
 
+def _mosaico_portal(web: Path, con):
+    """Fundo do portal: 4 faixas que correm em sentidos opostos, com fotos de licença livre (miniaturas locais de web/fotos/)
+    e capas tipográficas (título e autoria) de livros vencedores. Capas reais ficam de fora: têm direitos reservados e pedem
+    crédito (D34), o que não cabe num fundo decorativo. Ordem estável (hash), para o HTML não mudar a cada build."""
+    import hashlib
+    idx = web / "index.html"
+    if not idx.exists():
+        return
+    h = lambda s: hashlib.md5(s.encode()).hexdigest()
+    fotos = sorted((p.name.removesuffix("-160.webp") for p in (web / "fotos").glob("*-160.webp")), key=h)[:48]
+    livros = con.execute("""SELECT DISTINCT o.titulo, p.nome FROM indicacao i JOIN obra o ON o.id = i.obra_id
+                            JOIN autoria a ON a.obra_id = o.id AND a.premio_id = i.premio_id AND a.papel = 'autor' JOIN pessoa p ON p.id = a.pessoa_id
+                            WHERE i.colocacao = 1 AND i.ano >= 1990""").fetchall()
+    livros = sorted(livros, key=lambda x: h(x[0]))[:40]
+    itens = []
+    for k in range(max(len(fotos), len(livros))):
+        if k < len(fotos):
+            itens.append(f'<span class="mf-foto" style="background-image:url(fotos/{fotos[k]}-160.webp)"></span>')
+        if k < len(livros):
+            t, a = livros[k]
+            itens.append(f'<span class="mf-capa" style="--c:var(--s{1 + int(h(t), 16) % 6})"><b>{e(t)}</b><i>{e(a)}</i></span>')
+    n = 4
+    faixas = [itens[i::n] for i in range(n)]
+    trecho = "<!-- build:mosaico -->" + "".join(
+        f'<div class="hero-faixa" style="--dur:{120 + i * 35}s"{" data-rev" if i % 2 else ""}>{"".join(f + f)}</div>' for i, f in enumerate(faixas)) + "<!-- /build:mosaico -->"
+    s = idx.read_text(encoding="utf-8")
+    novo = re.sub(r"<!-- build:mosaico -->.*?<!-- /build:mosaico -->", lambda _: trecho, s, flags=re.S)
+    if novo != s:
+        idx.write_text(novo, encoding="utf-8")
+
+
 def gerar(con, web: Path) -> dict:
     """Gera tudo em web/. Devolve {caminho relativo: html} das páginas (os testes leem daqui)."""
     b = Base(con)
@@ -1344,6 +1375,7 @@ def gerar(con, web: Path) -> dict:
     r = resumo(b.autores)
     _abertura(web, r)
     _portal(web, b, r, con)
+    _mosaico_portal(web, con)
     gravar_cabecalhos(web)
     gravar_rodapes(web)
     return paginas

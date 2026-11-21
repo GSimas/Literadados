@@ -1012,3 +1012,19 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
 @media (max-height: 640px) { .portal-modulos .cg-desc { display: none; } }
 .notas-pagina { max-width: 1200px; margin: 0 auto; padding: 0 16px 1.5rem; }
 .notas-pagina p { margin: .4rem 0; }
+
+/* Fundo animado do portal: faixas de fotos e capas tipográficas correndo (mesma animação da abertura dos prêmios). */
+.portal { position: relative; overflow: hidden; isolation: isolate; }
+.portal > :not(.portal-fundo) { position: relative; z-index: 1; }
+.portal-fundo { position: absolute; inset: -6% -2%; z-index: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  transform: rotate(-5deg); opacity: .22; pointer-events: none;
+  mask-image: radial-gradient(ellipse 75% 70% at 60% 45%, #000 25%, transparent 78%); }
+.portal-fundo .hero-faixa { align-items: center; }
+.portal-fundo .mf-foto, .portal-fundo .mf-capa { flex: none; border-radius: 12px; }
+.portal-fundo .mf-foto { width: clamp(70px, 8vw, 118px); aspect-ratio: 1; background: var(--superficie-2) center 25% / cover; filter: grayscale(1) contrast(1.05); }
+.portal-fundo .mf-capa { width: clamp(60px, 6.6vw, 96px); aspect-ratio: 2 / 3; padding: .5rem .45rem; display: flex; flex-direction: column; justify-content: space-between;
+  background: color-mix(in srgb, var(--c) 70%, var(--superficie)); color: var(--superficie); overflow: hidden; }
+.portal-fundo .mf-capa b { font-family: var(--fonte-titulo); font-size: clamp(.55rem, .7vw, .78rem); line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.portal-fundo .mf-capa i { font-style: normal; font-size: clamp(.45rem, .55vw, .6rem); opacity: .85; }
+.portal .cartao-grafico { background: color-mix(in srgb, var(--superficie) 88%, transparent); backdrop-filter: blur(6px); }
+@media (prefers-reduced-motion: reduce) { .portal-fundo .hero-faixa { animation: none; } }
