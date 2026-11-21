@@ -997,7 +997,12 @@ html.trocando-tema, html.trocando-tema *, html.trocando-tema *::before, html.tro
 .lista-mapa { list-style: none; padding: 0; margin: 0; max-height: 520px; overflow-y: auto; }
 .lista-mapa li { padding: .35rem 0; border-bottom: 1px solid var(--borda); display: flex; flex-direction: column; }
 .selo-conferir { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 999px; background: var(--marca-suave); color: var(--tinta); }
-.form-sugerir { display: grid; gap: .8rem; max-width: 640px; }
+.form-sugerir { display: grid; gap: .8rem 1.4rem; }
+/* Largura toda da página: em tela larga, duas colunas (pedido | tipo, fonte | contato); nome, descrição e avisos ocupam a linha. */
+@media (min-width: 760px) {
+  .form-sugerir { grid-template-columns: 1fr 1fr; }
+  .form-sugerir > :is(p, button), .form-sugerir > label:has(textarea), .form-sugerir > label:has([name="registro"]) { grid-column: 1 / -1; }
+}
 .form-sugerir label { display: grid; gap: .3rem; font-size: .9rem; }
 .form-sugerir input:not([type="hidden"]), .form-sugerir textarea { font: inherit; color: var(--tinta); background: var(--superficie); border: 1px solid var(--borda); border-radius: 10px; padding: .55rem .7rem; }
 .form-sugerir input:focus, .form-sugerir textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 28%, transparent); }
@@ -1035,12 +1040,9 @@ body.pagina-portal { min-height: 100svh; display: flex; flex-direction: column; 
   transform: rotate(-5deg); opacity: .22; pointer-events: none;
   mask-image: radial-gradient(ellipse 75% 70% at 60% 45%, #000 25%, transparent 78%); }
 .portal-fundo .hero-faixa { align-items: center; }
-.portal-fundo .mf-foto, .portal-fundo .mf-capa { flex: none; border-radius: 12px; }
-.portal-fundo .mf-foto { width: clamp(70px, 8vw, 118px); aspect-ratio: 1; background: var(--superficie-2) center 25% / cover; filter: grayscale(1) contrast(1.05); }
-.portal-fundo .mf-capa { width: clamp(60px, 6.6vw, 96px); aspect-ratio: 2 / 3; padding: .5rem .45rem; display: flex; flex-direction: column; justify-content: space-between;
-  background: color-mix(in srgb, var(--c) 70%, var(--superficie)); color: var(--superficie); overflow: hidden; }
-.portal-fundo .mf-capa b { font-family: var(--fonte-titulo); font-size: clamp(.55rem, .7vw, .78rem); line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-.portal-fundo .mf-capa i { font-style: normal; font-size: clamp(.45rem, .55vw, .6rem); opacity: .85; }
+.portal-fundo img { flex: none; width: clamp(64px, 7vw, 104px); height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px;
+  background: var(--superficie-2); box-shadow: 0 4px 14px rgb(0 0 0 / .25); filter: saturate(.75); }
+.portal-credito { margin: 0; font-size: .7rem; color: var(--tinta-2); opacity: .8; }
 .portal .cartao-grafico { background: color-mix(in srgb, var(--superficie) 88%, transparent); backdrop-filter: blur(6px); }
 @media (prefers-reduced-motion: reduce) { .portal-fundo .hero-faixa { animation: none; } }
 

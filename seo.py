@@ -1282,32 +1282,30 @@ def _portal(web: Path, b, r: dict, con):
 
 
 def _mosaico_portal(web: Path, con):
-    """Fundo do portal: 4 faixas que correm em sentidos opostos, com fotos de licença livre (miniaturas locais de web/fotos/)
-    e capas tipográficas (título e autoria) de livros vencedores. Capas reais ficam de fora: têm direitos reservados e pedem
-    crédito (D34), o que não cabe num fundo decorativo. Ordem estável (hash), para o HTML não mudar a cada build."""
+    """Fundo do portal (CA-31.2): 4 faixas que correm em sentidos opostos, só com capas reais de livros vencedores. Usa as capas
+    da Martins Fontes e da Companhia das Letras (VTEX), que servem miniatura (`/ids/<n>-160-240/`, ~6 KB): o fundo pesa pouco.
+    Imagem exibida da fonte, sem cópia e sem Referer, com o crédito dos sites na própria página (D34). Ordem estável (hash)."""
     import hashlib
     idx = web / "index.html"
     if not idx.exists():
         return
-    h = lambda s: hashlib.md5(s.encode()).hexdigest()
-    fotos = sorted((p.name.removesuffix("-160.webp") for p in (web / "fotos").glob("*-160.webp")), key=h)[:48]
-    livros = con.execute("""SELECT DISTINCT o.titulo, p.nome FROM indicacao i JOIN obra o ON o.id = i.obra_id
-                            JOIN autoria a ON a.obra_id = o.id AND a.premio_id = i.premio_id AND a.papel = 'autor' JOIN pessoa p ON p.id = a.pessoa_id
-                            WHERE i.colocacao = 1 AND i.ano >= 1990""").fetchall()
-    livros = sorted(livros, key=lambda x: h(x[0]))[:40]
-    itens = []
-    for k in range(max(len(fotos), len(livros))):
-        if k < len(fotos):
-            itens.append(f'<span class="mf-foto" style="background-image:url(fotos/{fotos[k]}-160.webp)"></span>')
-        if k < len(livros):
-            t, a = livros[k]
-            itens.append(f'<span class="mf-capa" style="--c:var(--s{1 + int(h(t), 16) % 6})"><b>{e(t)}</b><i>{e(a)}</i></span>')
-    n = 4
-    faixas = [itens[i::n] for i in range(n)]
-    trecho = "<!-- build:mosaico -->" + "".join(
-        f'<div class="hero-faixa" style="--dur:{120 + i * 35}s"{" data-rev" if i % 2 else ""}>{"".join(f + f)}</div>' for i, f in enumerate(faixas)) + "<!-- /build:mosaico -->"
+    h = lambda x: hashlib.md5(x.encode()).hexdigest()
+    capas = con.execute("""SELECT DISTINCT oc.obra_id, oc.capa_url, oc.fonte FROM obra_capa oc
+                           WHERE oc.capa_url LIKE '%vteximg.com.br/arquivos/ids/%'
+                             AND EXISTS (SELECT 1 FROM indicacao i WHERE i.obra_id = oc.obra_id AND i.colocacao = 1)""").fetchall()
+    capas = sorted(capas, key=lambda c: h(c[0]))[:48]
+    mini = lambda u: re.sub(r"/arquivos/ids/(\d+)/", r"/arquivos/ids/\1-160-240/", u)
+    itens = [f'<img src="{e(mini(u))}" alt="" width="96" height="144" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">' for _, u, _ in capas]
+    faixas = [itens[i::4] for i in range(4)]
+    nomes = sorted({f for _, _, f in capas})
+    sites = ", ".join(nomes[:-1]) + (" e " if len(nomes) > 1 else "") + nomes[-1]
+    trecho = ("<!-- build:mosaico -->" + "".join(
+        f'<div class="hero-faixa" style="--dur:{120 + i * 35}s"{" data-rev" if i % 2 else ""}>{"".join(f + f)}</div>' for i, f in enumerate(faixas))
+        + "<!-- /build:mosaico -->")
+    credito = f"<!-- build:credito-capas -->Capas ao fundo: {e(sites)} · direitos reservados<!-- /build:credito-capas -->"
     s = idx.read_text(encoding="utf-8")
     novo = re.sub(r"<!-- build:mosaico -->.*?<!-- /build:mosaico -->", lambda _: trecho, s, flags=re.S)
+    novo = re.sub(r"<!-- build:credito-capas -->.*?<!-- /build:credito-capas -->", lambda _: credito, novo, flags=re.S)
     if novo != s:
         idx.write_text(novo, encoding="utf-8")
 
