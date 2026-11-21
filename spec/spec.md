@@ -356,8 +356,8 @@ Cadastro curado de eventos literários do Brasil (festivais, feiras, bienais, fe
 
 **Painel (`eventos.html`)**
 - **CA-35.4 👁** O módulo abre com os **próximos eventos** (edições com data de fim a partir de hoje, na data do navegador), em ordem de data, e mostra a contagem de eventos e de edições mapeados, as UFs com eventos e a data da última conferência ("mapeados até agora").
-- **CA-35.5 👁** Calendário do ano escolhido (edições por mês, com o nome, a cidade e as datas), mapa por UF com o número de edições no ano (tabela equivalente) e linha do tempo de cada evento (edições por ano, com situação). Filtros por tipo, UF, ano e situação, guardados na URL.
-- **CA-35.6 🧪👁** Perfil de evento (`#/evento/<id>`): tipo, cidade, organizador, site, todas as edições com datas, local, tema, homenageados (com link para o perfil quando a pessoa está na base), público com fonte e situação. Números de funções puras testadas (`metricas.proximosEventos`, `metricas.calendarioEventos`, `metricas.resumoEventos`).
+- **CA-35.5 👁** Gráfico de tempo do ano escolhido (calendário em barras: uma barra por edição, do primeiro ao último dia, sobre os meses, com a data de hoje marcada; dica com nome, cidade, datas e situação; clique abre o perfil), mapa por UF com o número de edições no ano (tabela equivalente) e linha do tempo de cada evento (edições por ano, com situação). Filtros por tipo, UF, ano e situação, guardados na URL.
+- **CA-35.6 🧪👁** Perfil de evento (`#/evento/<id>`): tipo, cidade, organizador, site, todas as edições com datas, local, tema, homenageados (com link para o perfil quando a pessoa está na base), público com fonte e situação. Números de funções puras testadas (`metricas.proximosEventos`, `metricas.filtrarEventos`, `metricas.resumoEventos`).
 - **CA-35.7 👁** Perfil de município (CA-32.4) e página do mapeamento da cidade listam os eventos do município.
 
 **Para buscadores e IA**

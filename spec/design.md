@@ -379,12 +379,13 @@ Cada parte (`dados-<prêmio>.json`) tem `{ "premio", "participacao", "pessoas", 
 
   **`eventos.json`.** `{gerado_em, verificado_ate, eventos: [...], edicoes: [...], municipios: {código: [nome, UF]}, homenageados: [...]}`,
   sem chaves nulas (D13); pequeno (centenas de edições), carregado inteiro. Funções puras em `metricas.js`: `proximosEventos(edicoes,
-  hoje)`, `calendarioEventos(edicoes, ano)` (12 meses), `resumoEventos(J, hoje)`, `filtrarEventos(edicoes, filtro)` e
+  hoje)`, `resumoEventos(J, hoje)`, `filtrarEventos(edicoes, filtro)` e
   `eventosParaTexto`/`eventosDeTexto` (URL `?tipo=&uf=&ano=&sit=`, padrão fora da URL). "Hoje" é parâmetro: o navegador passa a
   data local, os testes passam uma data fixa.
 
-  **Painel (`eventos.html`, `eventos.js`).** Próximos eventos (cartões), números, filtros, calendário do ano (grade de 12 meses em
-  HTML), mapa por UF (`br-uf.json`, projeção plana, contagem de edições no ano, tabela equivalente), tabela de edições exportável e
+  **Painel (`eventos.html`, `eventos.js`).** Próximos eventos (cartões), números, filtros, gráfico de tempo do ano (`Plot.barX` de
+  `inicio` a `fim + 1 dia`, uma linha por edição em ordem de data, grade mensal, `Plot.ruleX` em hoje; a tabela de edições é a
+  alternativa acessível), mapa por UF (`br-uf.json`, projeção plana, contagem de edições no ano, tabela equivalente), tabela de edições exportável e
   perfil `#/evento/<id>` com a linha do tempo das edições (`Plot.dot` por ano, cor pela situação). O perfil de município
   (`leitura.html`) e a página do mapeamento da cidade leem `eventos.json` sob demanda e listam os eventos do município.
 

@@ -87,14 +87,15 @@
   </section>
 
   <section id="calendario" class="secao" aria-labelledby="h-calendario">
-    <header class="secao-cab"><p class="sobretitulo">Calendário</p><h2 id="h-calendario">Edições por mês</h2></header>
+    <header class="secao-cab"><p class="sobretitulo">Calendário</p><h2 id="h-calendario">Linha do tempo do ano</h2>
+      <p class="lead">Cada barra é uma edição, do primeiro ao último dia. Barras mais claras: ainda não realizadas (previstas, adiadas ou canceladas). A linha tracejada marca hoje; clique numa barra para abrir o evento. A tabela abaixo do mapa traz as mesmas edições.</p></header>
     <div class="controles" role="group" aria-label="Filtros dos eventos">
       <label>Ano <select id="ev-ano"></select></label>
       <label>Tipo <select id="ev-tipo"></select></label>
       <label>UF <select id="ev-uf"></select></label>
       <label>Situação <select id="ev-sit"></select></label>
     </div>
-    <div id="eventos-calendario" class="calendario-eventos" aria-live="polite"></div>
+    <div id="eventos-calendario" class="grafico" aria-live="polite"></div>
   </section>
 
   <section id="mapa-eventos" class="secao" aria-labelledby="h-mapa-eventos">

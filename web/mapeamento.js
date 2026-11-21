@@ -128,33 +128,33 @@ const osm = (x) => (x.lat != null ? ` <a href="https://www.openstreetmap.org/?ml
 const rodapeRegistro = (x) => `<p class="muted pequeno">Fonte: ${fonte(x.fonte, "página consultada")} · conferido em ${data(x.verificado_em)}${selo(x)}</p>`;
 function perfil(tipo, id) {
   if (tipo === "livraria" && LIV.has(id)) { const l = LIV.get(id);
-    return `<header class="perfil-cab"><p class="sobretitulo">${esc(TIPO_LIV[l.tipo])}${l.foco ? ` · ${esc(l.foco)}` : ""} · ${l.rede ? "rede" : "independente"}</p><h2 id="perfil-nome">${esc(l.nome)}</h2>
+    return `<header class="perfil-cab simples"><p class="sobretitulo">${esc(TIPO_LIV[l.tipo])}${l.foco ? ` · ${esc(l.foco)}` : ""} · ${l.rede ? "rede" : "independente"}</p><h2 id="perfil-nome">${esc(l.nome)}</h2>
       <p>${esc(SIT[l.situacao])}${l.ano_abertura ? ` · desde ${l.ano_abertura}` : ""}${l.ano_encerramento ? ` · encerrada em ${l.ano_encerramento}` : ""}</p></header>
       <div class="perfil-lugar"><p>${l.endereco ? `${esc(l.endereco)} · ` : ""}${esc(l.bairro ?? "")}${osm(l)}</p>
       <p>${[l.site && fonte(l.site, "site"), ...(l.redes ?? "").split(" ; ").filter(Boolean).map((u) => fonte(u, "rede social"))].filter(Boolean).join(" · ")}</p>
       ${MP.clubes.filter((c) => c.livraria_id === l.id).map((c) => `<p>Clube do livro aqui: <a href="#/clube/${c.id}">${esc(c.nome)}</a></p>`).join("")}
       ${rodapeRegistro(l)}</div>`; }
   if (tipo === "clube" && CLU.has(id)) { const c = CLU.get(id);
-    return `<header class="perfil-cab"><p class="sobretitulo">Clube do livro${c.formato === "nao_informado" ? "" : ` · ${esc(c.formato)}`}</p><h2 id="perfil-nome">${esc(c.nome)}</h2>
+    return `<header class="perfil-cab simples"><p class="sobretitulo">Clube do livro${c.formato === "nao_informado" ? "" : ` · ${esc(c.formato)}`}</p><h2 id="perfil-nome">${esc(c.nome)}</h2>
       <p>${esc(SIT[c.situacao])}${c.periodicidade ? ` · ${esc(c.periodicidade)}` : ""}${c.aberto != null ? ` · ${c.aberto ? "aberto a novos membros" : "fechado a novos membros"}` : ""}</p></header>
       <div class="perfil-lugar"><p>${esc(LOCAL[c.local_tipo])}${c.livraria_id && LIV.has(c.livraria_id) ? `: <a href="#/livraria/${c.livraria_id}">${esc(LIV.get(c.livraria_id).nome)}</a>` : c.local_nome ? `: ${esc(c.local_nome)}` : ""}${c.bairro ? ` · ${esc(c.bairro)}` : ""}${osm(c)}</p>
       ${c.foco ? `<p><b>Foco:</b> ${esc(c.foco)}</p>` : ""}<p><b>Organização:</b> ${esc(c.organizacao)}</p>
       <p>${fonte(c.link, "canal público do clube")}</p>${rodapeRegistro(c)}</div>`; }
   if (tipo === "pessoa" && PES.has(id)) { const p = PES.get(id);
     const obras = MP.obras.filter((o) => (o.autoria ?? []).some((a) => a[0] === id));
-    return `<header class="perfil-cab"><p class="sobretitulo">Autora ou autor · ${esc(MP.nome)}</p><h2 id="perfil-nome">${esc(p.nome)}</h2>
+    return `<header class="perfil-cab simples"><p class="sobretitulo">Autora ou autor · ${esc(MP.nome)}</p><h2 id="perfil-nome">${esc(p.nome)}</h2>
       <p>${[p.nasceu && `nasceu em ${esc(MP.nome)} (${fonte(p.nascimento_fonte)})`, p.atua && `vive ou trabalha em ${esc(MP.nome)} (${fonte(p.atuacao_fonte)})`].filter(Boolean).join(" · ")}</p></header>
       <div class="perfil-lugar"><p><b>Gênero:</b> ${esc({ mulher: "Mulher", homem: "Homem", nao_binario: "Não binária" }[p.genero] ?? "Não identificado")}${p.genero_evidencia === "atribuicao" ? " * (atribuído pelo primeiro nome)" : ""}
       · <b>Raça:</b> ${p.raca && p.raca !== "sem_declaracao" ? `${esc(ROT_RACA[p.raca])} — “${esc(p.raca_trecho ?? "")}” ${fonte(p.raca_fonte)}` : "sem declaração pública"}${p.ano_nascimento ? ` · nascida(o) em ${p.ano_nascimento}` : ""}</p>
       <h3>Obras no cadastro</h3><ul>${obras.map((o) => `<li><a href="#/obra/${o.id}">${esc(o.titulo)}</a>${o.ano_publicacao ? ` (${o.ano_publicacao})` : ""}</li>`).join("") || "<li class='muted'>Nenhuma.</li>"}</ul>
       ${p.nos_premios ? `<p><a class="botao" href="premios.html#/pessoa/${esc(id)}">Trajetória nos prêmios →</a></p>` : ""}</div>`; }
   if (tipo === "obra" && OBR.has(id)) { const o = OBR.get(id);
-    return `<header class="perfil-cab"><p class="sobretitulo">Livro · ${esc(o.vinculos.map((v) => ({ autoria: "autoria da cidade", editora: "editora da cidade", ambientacao: "ambientado na cidade" }[v])).join(" · "))}</p><h2 id="perfil-nome">${esc(o.titulo)}</h2>
+    return `<header class="perfil-cab simples"><p class="sobretitulo">Livro · ${esc(o.vinculos.map((v) => ({ autoria: "autoria da cidade", editora: "editora da cidade", ambientacao: "ambientado na cidade" }[v])).join(" · "))}</p><h2 id="perfil-nome">${esc(o.titulo)}</h2>
       <p>${(o.autoria ?? []).map((a) => `${PES.has(a[0]) ? `<a href="#/pessoa/${a[0]}">${esc(a[1])}</a>` : esc(a[1])}${a[2] !== "autor" ? ` (${a[2]})` : ""}`).join(", ")}${o.editora ? ` · ${esc(o.editora)}` : ""}${o.ano_publicacao ? ` · ${o.ano_publicacao}` : ""}${o.isbn ? ` · ISBN ${esc(o.isbn)}` : ""}</p></header>
       <div class="perfil-lugar">${o.fonte ? rodapeRegistro(o) : ""}${o.nos_premios ? `<p><a class="botao" href="premios.html#/obra/${esc(id)}">Nos prêmios →</a></p>` : ""}</div>`; }
   if (tipo === "editora" && EDI.has(id)) { const e = EDI.get(id);
     const obras = MP.obras.filter((o) => o.editora === e.nome);
-    return `<header class="perfil-cab"><p class="sobretitulo">Editora · ${esc(TIPO_ED[e.tipo])}</p><h2 id="perfil-nome">${esc(e.nome)}</h2>
+    return `<header class="perfil-cab simples"><p class="sobretitulo">Editora · ${esc(TIPO_ED[e.tipo])}</p><h2 id="perfil-nome">${esc(e.nome)}</h2>
       <p>${esc(SIT[e.situacao])}${e.ano_encerramento ? ` · encerrada em ${e.ano_encerramento}` : ""}${e.site ? ` · ${fonte(e.site, "site")}` : ""}</p></header>
       <div class="perfil-lugar"><h3>Obras no cadastro</h3><ul>${obras.map((o) => `<li><a href="#/obra/${o.id}">${esc(o.titulo)}</a></li>`).join("") || "<li class='muted'>Nenhuma ainda.</li>"}</ul>
       ${e.nos_premios ? `<p><a class="botao" href="premios.html#/editora/${esc(id)}">Nos prêmios →</a></p>` : ""}${rodapeRegistro(e)}</div>`; }

@@ -259,7 +259,7 @@ async function perfilTerritorio(codigo) {
       <ul>${doLugar.map((e) => `<li><a href="eventos.html#/evento/${esc(e.id)}">${esc(e.nome)}</a></li>`).join("")}</ul></section>`;
   }
   const pop = ehMun ? municipios.get(sigla)?.municipios.find((x) => x[0] === cod)?.[2] : J.territorios.find((t) => t.codigo === cod)?.populacao_2022;
-  return `<header class="perfil-cab"><p class="sobretitulo">${ehMun ? `Município · ${esc(sigla)}` : "Estado"}</p><h2 id="perfil-nome">${esc(nome)}</h2>
+  return `<header class="perfil-cab simples"><p class="sobretitulo">${ehMun ? `Município · ${esc(sigla)}` : "Estado"}</p><h2 id="perfil-nome">${esc(nome)}</h2>
     <p class="muted">População (Censo 2022): ${fmt(pop)} · código IBGE ${esc(cod)}</p></header>
     <div class="perfil-lugar">${blocos || `<p class="muted">Sem indicadores para este território.</p>`}${blocoPremios}${blocoMapa}${blocoEventos}</div>`;
 }

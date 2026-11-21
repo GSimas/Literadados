@@ -620,8 +620,6 @@ const JE = {
 test("eventos: próximos, calendário, filtro, resumo e URL (CA-35.4 a CA-35.6)", () => {
   assert.deepEqual(M.proximosEventos(JE.edicoes, "2026-11-21").map((e) => e.inicio), ["2027-07-28"]);  // cancelada fica fora
   assert.equal(M.situacaoEvento(JE.edicoes[3], "2026-11-21"), "a_conferir");  // prevista com data passada
-  const cal = M.calendarioEventos(JE.edicoes, 2026);
-  assert.deepEqual(cal.map((m) => m.edicoes.length), [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1]);
   assert.deepEqual(M.filtrarEventos(JE, { uf: "SC" }).map((e) => e.evento), ["ponte", "ponte"]);
   assert.deepEqual(M.filtrarEventos(JE, { tipo: "festa_literaria", ano: 2026 }).length, 1);
   const r = M.resumoEventos(JE, "2026-11-21");

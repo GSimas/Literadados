@@ -937,12 +937,6 @@ export const situacaoEvento = (e, hoje) => (e.situacao === "prevista" && e.fim <
 export function proximosEventos(edicoes, hoje, n = 12) {
   return edicoes.filter((e) => e.fim >= hoje && e.situacao !== "cancelada").sort((a, b) => a.inicio.localeCompare(b.inicio) || a.evento.localeCompare(b.evento)).slice(0, n);
 }
-export function calendarioEventos(edicoes, ano) {
-  const meses = Array.from({ length: 12 }, (_, i) => ({ mes: i + 1, edicoes: [] }));
-  for (const e of edicoes) if (+e.inicio.slice(0, 4) === ano) meses[+e.inicio.slice(5, 7) - 1].edicoes.push(e);
-  for (const m of meses) m.edicoes.sort((a, b) => a.inicio.localeCompare(b.inicio));
-  return meses;
-}
 export function filtrarEventos(J, f = {}) {
   const tipo = new Map(J.eventos.map((e) => [e.id, e.tipo]));
   return J.edicoes.filter((e) => (!f.tipo || tipo.get(e.evento) === f.tipo) && (!f.uf || J.municipios[e.municipio]?.[1] === f.uf)

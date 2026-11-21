@@ -56,13 +56,56 @@ function montarFiltros() {
   }
 }
 
-function renderFiltrado() {
+// Gráfico de tempo do ano (CA-35.5): uma barra por edição, do primeiro ao último dia, sobre os meses; hoje marcado.
+const dia = (s) => new Date(`${s}T00:00:00`);
+const curto = (s, n = 42) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+async function renderLinhaDoAno(eds) {
+  const el = $("#eventos-calendario");
+  const ano = filtro.ano;
+  const linhas = eds.filter((e) => +e.inicio.slice(0, 4) === ano).sort((a, b) => a.inicio.localeCompare(b.inicio) || a.evento.localeCompare(b.evento))
+    .map((e) => { const ev = EV.get(e.evento);
+      return { ...e, nome: ev.nome, tipo: M.TIPOS_EVENTO[ev.tipo], rotulo: `${curto(ev.nome)} · ${dataBR(e.inicio)}`, x1: dia(e.inicio),
+        x2: new Date(dia(e.fim).getTime() + 864e5), sit: SIT_ROT[M.situacaoEvento(e, HOJE)] }; });
+  if (!linhas.length) return vazio(el, `Nenhuma edição mapeada em ${ano} com esses filtros.`);
+  await carregarGraficos();
+  const inicioAno = new Date(ano, 0, 1), fimAno = new Date(ano + 1, 0, 1), hoje = dia(HOJE);
+  const meses = d3.range(12).map((m) => new Date(ano, m, 1));
+  const w = largura(el);
+  // Nome ao lado da barra, do lado que tem espaço (antes de julho, à direita; depois, à esquerda): sem margem fixa que corte o texto.
+  // O nome é cortado pelo espaço real (px) do lado escolhido; ~6,6 px por caractere a 11,5 px de corpo.
+  const largAno = fimAno - inicioAno, px = (t) => 8 + ((t - inicioAno) / largAno) * (w - 16);
+  for (const l of linhas) {
+    const dir = w - 8 - px(l.x2) - 10, esq = px(l.x1) - 8 - 10;
+    l.lado = dir >= esq ? "dir" : "esq";
+    const data = ` · ${dataBR(l.inicio)}`, cabe = Math.floor(Math.max(dir, esq) / 6.6) - data.length;
+    l.texto = cabe >= 6 ? `${curto(l.nome, cabe)}${data}` : curto(l.nome, Math.max(4, Math.floor(Math.max(dir, esq) / 6.6)));
+  }
+  const mes = (d) => (w < 560 ? MESES[d.getMonth()][0].toUpperCase() : MESES[d.getMonth()].slice(0, 3));
+  const plot = Plot.plot({ ...estilo(), width: w, height: 56 + linhas.length * 26, marginLeft: 8, marginRight: 8, marginTop: 34,
+    x: { domain: [inicioAno, fimAno], ticks: meses, tickFormat: mes, label: null, axis: "top", grid: true },
+    y: { domain: linhas.map((l) => l.rotulo), axis: null },
+    color: { legend: true, domain: Object.values(M.TIPOS_EVENTO).filter((t) => linhas.some((l) => l.tipo === t)) },
+    marks: [
+      hoje >= inicioAno && hoje < fimAno ? Plot.ruleX([hoje], { stroke: css("--marca"), strokeWidth: 2, strokeDasharray: "4 3" }) : null,
+      Plot.barX(linhas, { x1: "x1", x2: "x2", y: "rotulo", fill: "tipo", rx: 3, insetTop: 4, insetBottom: 4,
+        fillOpacity: (l) => (l.situacao === "realizada" ? 1 : 0.55), tip: true,
+        title: (l) => `${l.nome}\n${periodo(l)} · ${cidade(l.municipio)}\n${l.sit}` }),
+      Plot.text(linhas.filter((l) => l.lado === "dir"), { x: "x2", y: "rotulo", text: "texto", dx: 6, textAnchor: "start", fill: css("--tinta"), fontSize: 11.5 }),
+      Plot.text(linhas.filter((l) => l.lado === "esq"), { x: "x1", y: "rotulo", text: "texto", dx: -6, textAnchor: "end", fill: css("--tinta"), fontSize: 11.5 }),
+      hoje >= inicioAno && hoje < fimAno ? Plot.text([hoje], { x: (d) => d, frameAnchor: "top", text: () => "hoje", dy: -2, fill: css("--marca"), fontWeight: 600 }) : null,
+    ] });
+  plot.setAttribute("aria-label", `Gráfico de tempo das edições de eventos literários em ${ano}`);
+  desenhar(el, plot);
+  // Clique numa barra abre o perfil do evento (as barras saem na ordem dos dados).
+  plot.querySelectorAll('g[aria-label="bar"] rect').forEach((r, i) => {
+    r.style.cursor = "pointer";
+    r.addEventListener("click", () => { location.hash = `#/evento/${linhas[i].evento}`; });
+  });
+}
+
+async function renderFiltrado() {
   const eds = M.filtrarEventos(J, filtro);
-  // Calendário (CA-35.5): grade de 12 meses do ano escolhido.
-  $("#eventos-calendario").innerHTML = M.calendarioEventos(eds, filtro.ano).map((m) => `<div class="cal-mes cartao"><h3>${MESES[m.mes - 1]}</h3>
-    ${m.edicoes.length ? `<ul>${m.edicoes.map((e) => `<li><a href="#/evento/${esc(e.evento)}">${esc(EV.get(e.evento).nome)}</a>
-      <span class="muted pequeno">${esc(periodo(e))} · ${esc(cidade(e.municipio))}${e.situacao !== "realizada" ? ` · ${esc(SIT_ROT[M.situacaoEvento(e, HOJE)])}` : ""}</span></li>`).join("")}</ul>`
-      : `<p class="muted pequeno">Nenhuma edição mapeada.</p>`}</div>`).join("");
+  renderLinhaDoAno(eds);
   renderMapa(eds);
   tabela($("#t-eventos"), [...eds].sort((a, b) => a.inicio.localeCompare(b.inicio)), [
     { rot: "Evento", f: (e) => EV.get(e.evento).nome }, { rot: "Datas", f: periodo }, { rot: "Cidade", f: (e) => cidade(e.municipio) },
@@ -104,7 +147,7 @@ async function perfil(id) {
     <td>${esc(e.tema ?? "")}${hom(e) ? `<br><span class="muted pequeno">Homenagem: ${hom(e)}</span>` : ""}</td>
     <td>${esc(SIT_ROT[M.situacaoEvento(e, HOJE)])}${e.formato && e.formato !== "presencial" ? ` · ${esc(e.formato)}` : ""}</td>
     <td class="num">${e.publico ? `${fmt(e.publico)} ${link(e.publico_fonte, "(fonte)")}` : ""}</td><td>${link(e.fonte, "fonte")}</td></tr>`).join("");
-  return `<header class="perfil-cab"><p class="sobretitulo">${esc(M.TIPOS_EVENTO[ev.tipo])} · ${esc(cidade(ev.municipio))}</p><h2 id="perfil-nome">${esc(ev.nome)}</h2>
+  return `<header class="perfil-cab simples"><p class="sobretitulo">${esc(M.TIPOS_EVENTO[ev.tipo])} · ${esc(cidade(ev.municipio))}</p><h2 id="perfil-nome">${esc(ev.nome)}</h2>
     <p>${ev.organizador ? `Organização: ${esc(ev.organizador)} · ` : ""}${ev.ano_inicio ? `desde ${ev.ano_inicio} · ` : ""}${fmt(eds.length)} edição(ões) no cadastro
     ${ev.site ? ` · ${link(ev.site, "site")}` : ""}</p></header>
     <div class="perfil-lugar"><div class="grafico" id="g-evento-linha"></div>
@@ -117,7 +160,10 @@ async function linhaDoTempo(id) {
   const eds = J.edicoes.filter((e) => e.evento === id).map((e) => ({ ...e, ano: +e.inicio.slice(0, 4), sit: SIT_ROT[M.situacaoEvento(e, HOJE)] }));
   if (!el || eds.length < 2) return;
   await carregarGraficos();
-  desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 120, marginLeft: 20, x: { label: null, tickFormat: "d" }, y: { axis: null },
+  // Eixo de anos inteiros (sem rótulos repetidos quando há poucas edições), no máximo ~12 rótulos.
+  const [a0, a1] = d3.extent(eds, (e) => e.ano), passo = Math.max(1, Math.ceil((a1 - a0 + 1) / 12));
+  desenhar(el, Plot.plot({ ...estilo(), width: largura(el), height: 120, marginLeft: 24, marginRight: 24,
+    x: { label: null, tickFormat: "d", domain: [a0 - 0.5, a1 + 0.5], ticks: d3.range(a0, a1 + 1, passo) }, y: { axis: null },
     color: { legend: true, domain: Object.values(SIT_ROT) },
     marks: [Plot.ruleY([0], { stroke: css("--borda") }), Plot.dot(eds, { x: "ano", y: () => 0, r: 6, fill: "sit", tip: true, title: (e) => `${e.ano}: ${periodo(e)}\n${e.sit}` })] }));
 }
