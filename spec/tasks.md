@@ -295,7 +295,7 @@
 - [x] T35.5 Autoras, autores e obras: vínculo de atuação com fonte, obras verificáveis, pessoas pelo protocolo (`pessoas_floripa_N.csv`) (CA-34.6, CA-34.7)
 - [x] T35.6 Clubes do livro, com as regras de privacidade (CA-34.8)
 - [x] T35.7 `mapeamento/4205407.json`, `metricas.resumoMapeamento`; `mapeamento.html` com mapa, listas e perfis; bloco "Em Florianópolis" no `premios.html` (CA-34.9, CA-34.10) 🧪👁
-- [~] T35.8 Formulário (Netlify Forms) e página de agradecimento (feitos e conferidos no navegador). Detecção de formulários ligada em 21/11/2026, e o Netlify já registrou o formulário `mapeamento` (7 campos, com honeypot). Falta o mantenedor ativar o aviso por e-mail (Notifications → Form submission notifications) e mandar um envio de teste no site publicado (CA-34.11) 👁
+- [~] T35.8 Formulário (Netlify Forms) e página de agradecimento (feitos e conferidos no navegador). Detecção de formulários ligada em 21/11/2026, e o Netlify já registrou o formulário `mapeamento` (7 campos, com honeypot). Aviso por e-mail a cada envio ativado em Forms → Submission notifications, para o e-mail da conta, com o assunto "Literadados: novo pedido no mapeamento". Falta um envio de teste no site publicado (CA-34.11) 👁
 - [x] T35.9 Páginas estáticas do mapeamento, páginas de pessoa com vínculo, dados abertos (CA-34.12) 🧪
 - [x] T35.10 Diadorim do módulo Mapeamento 🧪
 
