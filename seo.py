@@ -1308,6 +1308,39 @@ def _mosaico_portal(web: Path, con):
         idx.write_text(novo, encoding="utf-8")
 
 
+def _fundo_modulos(web: Path):
+    """Fundo animado de Leitura, Mapeamento e Eventos (CA-31.12, D43): fotos livres do Commons, curadas em
+    dados/coleta/fundo/imagens.csv, exibidas da fonte. Decoração, fora do banco. Grava as faixas e os créditos de cada página."""
+    import csv
+    arq = web.parent / "dados" / "coleta" / "fundo" / "imagens.csv"
+    if not arq.exists():
+        return
+    por_modulo = defaultdict(list)
+    with arq.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            por_modulo[r["modulo"]].append(r)
+    for modulo, fotos in por_modulo.items():
+        pag = web / f"{modulo}.html"
+        if not pag.exists():
+            continue
+        img = lambda r: (f'<img src="{e(r["imagem_url"])}" alt="" width="180" height="120" decoding="async" '
+                         f'referrerpolicy="no-referrer" onerror="this.remove()">')
+        faixas = [fotos[i::3] for i in range(3)]
+        trecho = ("<!-- build:fundo -->" + "".join(
+            f'<div class="hero-faixa" style="--dur:{140 + i * 40}s"{" data-rev" if i % 2 else ""}>{"".join([img(r) for r in f] * 2)}</div>'
+            for i, f in enumerate(faixas)) + "<!-- /build:fundo -->")
+        creditos = ("<!-- build:fundo-creditos --><details class=\"creditos-fundo muted\"><summary>Fotos do fundo</summary><p>Wikimedia Commons: "
+                    + "; ".join(f'<a href="{e(r["pagina"])}" rel="noopener">{e(r["arquivo"].removeprefix("File:").rsplit(".", 1)[0])}</a>'
+                                f' ({e(r["autor"] or "autor não informado")}, '
+                                + (f'<a href="{e(r["licenca_url"])}" rel="license noopener">{e(r["licenca"])}</a>' if r["licenca_url"] else e(r["licenca"])) + ")"
+                                for r in fotos) + ".</p></details><!-- /build:fundo-creditos -->")
+        s = pag.read_text(encoding="utf-8")
+        novo = re.sub(r"<!-- build:fundo -->.*?<!-- /build:fundo -->", lambda _: trecho, s, flags=re.S)
+        novo = re.sub(r"<!-- build:fundo-creditos -->.*?<!-- /build:fundo-creditos -->", lambda _: creditos, novo, flags=re.S)
+        if novo != s:
+            pag.write_text(novo, encoding="utf-8")
+
+
 def gerar(con, web: Path) -> dict:
     """Gera tudo em web/. Devolve {caminho relativo: html} das páginas (os testes leem daqui)."""
     b = Base(con)
@@ -1372,6 +1405,7 @@ def gerar(con, web: Path) -> dict:
     _abertura(web, r)
     _portal(web, b, r, con)
     _mosaico_portal(web, con)
+    _fundo_modulos(web)
     gravar_cabecalhos(web)
     gravar_rodapes(web)
     return paginas

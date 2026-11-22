@@ -2,7 +2,7 @@
 // UFs) e leitura/<indicador>/<UF>.json + leitura/municipios/<UF>.json (municípios), carregados quando a UF é escolhida.
 import * as M from "./metricas.js";
 import { $, $$, fmt, esc, css, largura, tabela, dica, desenhar, vazio, estilo, carregarGraficos, melhorarSelect, botaoExportarGrafico, textoSobre, luzNosBlocos, fecharPerfilAoClicarFora, info, enxugar, blocosEmJanelas } from "./ui.js";
-import { montarTema } from "./tema.js";
+import { montarFundo, montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarExportacao } from "./exportar.js";
@@ -346,6 +346,7 @@ addEventListener("hashchange", rota);
 fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
+montarFundo(document.querySelector(".modulo-fundo .portal-fundo"));
 montarTema(() => renderTudo());
 montarControles();
 $$(".leitura-controles select").forEach(melhorarSelect);  // menus próprios (CA-19.2); o MutationObserver refaz as opções
