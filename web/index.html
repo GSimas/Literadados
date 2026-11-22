@@ -38,15 +38,10 @@
 <script type="module">import { montarTema } from "./tema.js"; import { montarBusca } from "./busca.js"; montarTema(); montarBusca(null, "/premios.html");</script>
 <script type="module">
 // Fundo do portal (CA-31.2): sorteia 48 das capas e o ponto de partida de cada faixa, para não abrir sempre igual.
-import { sortearFaixas } from "./tema.js";
+import { montarFundo } from "./tema.js";
 const pool = JSON.parse(document.getElementById("capas-fundo")?.textContent ?? "[]");
 const img = (u) => `<img src="${u}" alt="" width="96" height="144" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">`;
-sortearFaixas(document.querySelectorAll(".portal-fundo .hero-faixa"), pool.length ? pool.map(img) : null, 12);
-// Só aparece com todas as capas carregadas (sem capas surgindo aos poucos); tempo-limite para rede lenta.
-const fundo = document.querySelector(".portal-fundo");
-const urls = [...new Set([...fundo.querySelectorAll("img")].map((i) => i.src))];
-const carga = urls.map((u) => { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = u; return im.decode().catch(() => {}); });
-Promise.race([Promise.all(carga), new Promise((r) => setTimeout(r, 6000))]).then(() => fundo.classList.add("pronto"));
+montarFundo(document.querySelector(".portal-fundo"), pool.length ? pool.map(img) : null, 12);
 </script>
 </head>
 <body data-modulo="portal" class="pagina-portal">

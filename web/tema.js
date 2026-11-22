@@ -62,3 +62,13 @@ export function sortearFaixas(faixas, itens = null, porFaixa = Infinity) {
     f.style.animationDelay = `-${(Math.random() * dur).toFixed(1)}s`;
   });
 }
+
+// Fundo animado (portal, CA-31.2; Leitura, Mapeamento e Eventos, CA-31.12): sorteia as faixas e só mostra o fundo com todas
+// as imagens carregadas (sem fotos surgindo aos poucos); tempo-limite para rede lenta.
+export function montarFundo(fundo, itens = null, porFaixa = Infinity) {
+  if (!fundo) return;
+  sortearFaixas(fundo.querySelectorAll(".hero-faixa"), itens, porFaixa);
+  const urls = [...new Set([...fundo.querySelectorAll("img")].map((i) => i.src))];
+  const carga = urls.map((u) => { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = u; return im.decode().catch(() => {}); });
+  Promise.race([Promise.all(carga), new Promise((r) => setTimeout(r, 6000))]).then(() => fundo.classList.add("pronto"));
+}

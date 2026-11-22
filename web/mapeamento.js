@@ -2,7 +2,7 @@
 // Dados em mapeamento/<código>.json; contorno do município em malha/<UF>.json; sem mapa de fundo de terceiros (RNF-09).
 import * as M from "./metricas.js";
 import { $, $$, fmt, fmtPct, esc, css, largura, tabela, dica, astGenero, ROT_RACA, melhorarSelect, botaoExportarGrafico, luzNosBlocos, CONTATO, fecharPerfilAoClicarFora, info, enxugar } from "./ui.js";
-import { montarTema } from "./tema.js";
+import { montarFundo, montarTema } from "./tema.js";
 import { montarBusca } from "./busca.js";
 import { montarDiadorim } from "./diadorim.js";
 import { montarExportacao } from "./exportar.js";
@@ -234,6 +234,7 @@ addEventListener("hashchange", rota);
 fecharPerfilAoClicarFora($("#perfil"));
 
 // ---------- início ----------
+montarFundo(document.querySelector(".modulo-fundo .portal-fundo"));
 montarTema(() => renderMapa());
 $$("#mapa .controles select").forEach(melhorarSelect);
 melhorarSelect($("#mapa-vinculo"));
